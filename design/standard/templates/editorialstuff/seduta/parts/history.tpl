@@ -51,7 +51,7 @@
 			{/case}
 
 			{case}
-			{$item.action|wash()} {if $item.parameters|count()}{foreach $item.parameters as $name => $value}{$name|wash()}: {$value|wash()}{/foreach}{/if}
+			{$item.action|wash()} {if $item.parameters|count()}{foreach $item.parameters as $name => $value}{$name|wash()}: {$value|wash()} {/foreach}{/if}
 			{/case}
 			
 		  {/switch}</td>
