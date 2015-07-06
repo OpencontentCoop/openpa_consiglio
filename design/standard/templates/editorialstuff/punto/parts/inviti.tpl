@@ -46,6 +46,8 @@
                 var currentAction = $(this).attr('name');
                 var form =  $(this).parents('form');
                 if ( form.attr('id') == 'add-invitato' ){
+                    $('#add-invitato').hide();
+                    $('#add-invitato-loading').show();
                     var data = form.serializeArray();
                     data.push({name:currentAction,value:''},{name:'AjaxMode',value:'1'});
                     $.ajax({
@@ -57,6 +59,8 @@
                             var url = self.data('url');
                             $.get(url,function (data) {
                                 self.parent().html(data);
+                                $('#add-invitato').show();
+                                $('#add-invitato-loading').hide();
                             });
                         }
                     });
