@@ -34,10 +34,10 @@ States[published]=Pubblicato
 Name=Allegati alle sedute
 ClassName=AllegatoFactory
 ClassIdentifier=allegato_seduta
-CreationRepositoryNode=1233
+CreationRepositoryNode=1213
 CreationButtonText=Crea nuovo allegato
 RepositoryNodes[]
-RepositoryNodes[]=1233
+RepositoryNodes[]=1213
 StateGroup=visibilita_allegato_seduta
 States[consiglieri]=Consiglieri
 States[referenti]=Referenti all'argomento

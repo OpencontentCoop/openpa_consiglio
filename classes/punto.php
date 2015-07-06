@@ -90,10 +90,17 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             $this->dataMap['n_punto']->fromString( $number );
             $this->dataMap['n_punto']->store();
-            eZSearch::addObject( $this->getObject() );
+            
+            $object = $this->getObject();
+            $name = $object->attribute( 'content_class' )->contentObjectName( $object );        
+            $object->setName( $name );        
+            $object->store();		
+            
+            eZSearch::addObject( $object );
             eZContentCacheManager::clearObjectViewCacheIfNeeded(
-                $this->getObject()->attribute( 'id' )
+                $object->attribute( 'id' )
             );
+            eZDebug::writeNotice( "Set number $number for {$this->id()}", __METHOD__ );
         }
     }
 
@@ -284,23 +291,40 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     /**
      * Inserisce il parentObject come seduta di riferimento
      */
+    public function onBeforeCreate()
+    {
+        try
+        {
+            $object = $this->getObject();
+            $version = $object->version( 1 );
+            $nodeAssignmentList = $version->attribute( 'node_assignments' );
+            
+            if ( isset( $nodeAssignmentList[0] ) )
+            {
+                $parentNode = eZContentObjectTreeNode::fetch( $nodeAssignmentList[0]->attribute( 'parent_node' ) );
+                $sedutaHandler = OCEditorialStuffHandler::instance( 'seduta' );
+                if ( $parentNode instanceof eZContentObjectTreeNode
+                     && $parentNode->attribute( 'class_identifier' ) == $sedutaHandler->getFactory()->classIdentifier() )
+                {
+                    /** @var eZContentObjectAttribute[] $dataMap */
+                    $dataMap = $object->attribute( 'data_map' );
+                    $dataMap['seduta_di_riferimento']->fromString( $parentNode->attribute( 'contentobject_id' ) );
+                    $dataMap['seduta_di_riferimento']->store();                
+                }
+            }
+        }
+        catch ( Exception $e )
+        {
+            eZDebug::writeError( $e->getMessage(), __METHOD );
+        }
+    }
+    
     public function onCreate()
     {
-        $object = $this->getObject();
-        $parentObject = eZContentObject::fetchByNodeID( $object->attribute( 'main_parent_node_id' ) );
-        if ( $parentObject instanceof eZContentObject
-             && $parentObject->attribute( 'class_identifier' ) == OCEditorialStuffHandler::instance( 'seduta' )->getFactory()->classIdentifier() )
+        $seduta = $this->getSeduta();
+        if ( $seduta instanceof Seduta )
         {
-            /** @var eZContentObjectAttribute[] $dataMap */
-            $dataMap = $object->attribute( 'data_map' );
-            $dataMap['seduta_di_riferimento']->fromString( $parentObject->attribute( 'id' ) );
-            $dataMap['seduta_di_riferimento']->store();
-            if ( intval( $dataMap['n_punto']->toString() ) == 0 )
-            {
-                $dataMap['n_punto']->fromString( '100' );
-                $dataMap['n_punto']->store();
-            }
-            eZSearch::addObject( $object );
+            $this->getSeduta()->reorderOdg();
         }
     }
 
@@ -311,7 +335,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
      */
     public function onUpdate()
     {
-        $seduta = $this->getSeduta();
+        $seduta = $this->getSeduta();        
         if ( $seduta instanceof Seduta )
         {
             $this->getSeduta()->reorderOdg();
