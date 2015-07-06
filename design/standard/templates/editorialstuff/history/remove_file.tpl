@@ -1,0 +1,1 @@
+Rimosso file {$item.parameters.name|wash()} da {$item.parameters.attribute|wash()}

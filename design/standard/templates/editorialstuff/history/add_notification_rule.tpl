@@ -1,0 +1,1 @@
+Aggiunto utente ({$item.parameters.user_id}) alle notifiche "{$item.parameters.type|wash()}"

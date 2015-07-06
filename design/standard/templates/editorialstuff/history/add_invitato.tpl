@@ -1,0 +1,1 @@
+Aggiunto invitato {$item.parameters.name|wash()}
