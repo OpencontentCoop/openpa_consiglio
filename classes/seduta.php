@@ -125,7 +125,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     protected function odg()
     {
         $sedutaId = $this->object->attribute( 'id' );
-        return OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $sedutaId ) )->fetchItems(
+        $items = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $sedutaId ) )->fetchItems(
             array(
                 'limit' => 100,
                 'offset' => 0,
@@ -133,6 +133,8 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 'sort' => array( 'extra_orario_i' => 'asc' )
             )
         );
+        eZDebug::writeNotice( var_export( OCEditorialStuffHandler::getLastFetchData(), 1 ), __METHOD__ );
+        return $items;
     }
 
     protected function getAllegati( $identifier )

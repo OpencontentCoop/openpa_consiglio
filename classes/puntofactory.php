@@ -16,19 +16,34 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
         if( isset( $this->configuration['RuntimeParameters']['seduta'] ) )
         {
             $sedutaID = $this->configuration['RuntimeParameters']['seduta'];
+            $this->setSeduta( $sedutaID );
+        }
+    }
+
+    public function setSeduta( $sedutaID )
+    {
+        if ( $sedutaID instanceof Seduta )
+        {
+            $this->seduta = $sedutaID;
+        }
+        else
+        {
             try
             {
                 $this->seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId(
                     $sedutaID
                 );
-                $sedutaNodeId = $this->seduta->getObject()->attribute( 'main_node_id' );
-                $this->configuration['CreationRepositoryNode'] = $sedutaNodeId;
-                $this->configuration['RepositoryNodes'] = array( $sedutaNodeId );
             }
-            catch( Exception $e )
+            catch ( Exception $e )
             {
                 eZDebug::writeError( $e->getMessage(), __METHOD__ );
             }
+        }
+        if ( $this->seduta instanceof Seduta )
+        {
+            $sedutaNodeId = $this->seduta->getObject()->attribute( 'main_node_id' );
+            $this->configuration['CreationRepositoryNode'] = $sedutaNodeId;
+            $this->configuration['RepositoryNodes'] = array( $sedutaNodeId );
         }
     }
 

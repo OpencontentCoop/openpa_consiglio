@@ -92,7 +92,9 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             $this->dataMap['n_punto']->store();
             
             $object = $this->getObject();
-            $name = $object->attribute( 'content_class' )->contentObjectName( $object );        
+            /** @var eZContentClass $class */
+            $class = $object->attribute( 'content_class' );
+            $name = $class->contentObjectName( $object );
             $object->setName( $name );        
             $object->store();		
             
@@ -100,7 +102,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             eZContentCacheManager::clearObjectViewCacheIfNeeded(
                 $object->attribute( 'id' )
             );
-            eZDebug::writeNotice( "Set number $number for {$this->id()}", __METHOD__ );
+            eZDebug::writeNotice( "Set number $number for {$this->id()} ({$this->data['orario']})", __METHOD__ );
         }
     }
 
@@ -296,7 +298,9 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         try
         {
             $object = $this->getObject();
+            /** @var eZContentObjectVersion $version */
             $version = $object->version( 1 );
+            /** @var eZNodeAssignment[] $nodeAssignmentList */
             $nodeAssignmentList = $version->attribute( 'node_assignments' );
             
             if ( isset( $nodeAssignmentList[0] ) )
@@ -315,12 +319,13 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         }
         catch ( Exception $e )
         {
-            eZDebug::writeError( $e->getMessage(), __METHOD );
+            eZDebug::writeError( $e->getMessage(), __METHOD__ );
         }
     }
     
     public function onCreate()
     {
+        eZSearch::addObject( $this->getObject(), true );
         $seduta = $this->getSeduta();
         if ( $seduta instanceof Seduta )
         {
