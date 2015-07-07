@@ -9,6 +9,11 @@ class Invito extends OCEditorialStuffPost
     protected static $userIdentifier = 'user';
     protected static $protocolloIdentifier = 'protocollo';
 
+    public function onChangeState( eZContentObjectState $beforeState, eZContentObjectState $afterState )
+    {
+
+    }
+
     protected static function generateRemoteId( eZContentObject $puntoOdg, eZContentObject $invitato )
     {
         $values = array(

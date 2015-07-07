@@ -3,6 +3,11 @@
 class Allegato extends OCEditorialStuffPost
 {
 
+    public function onChangeState( eZContentObjectState $beforeState, eZContentObjectState $afterState )
+    {
+
+    }
+
     public function attributes()
     {
         $attributes = parent::attributes();

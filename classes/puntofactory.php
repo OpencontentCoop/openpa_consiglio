@@ -84,15 +84,7 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
     {
         if ( $post instanceof Punto )
         {
-            if ( $beforeState->attribute( 'identifier' ) == 'draft'
-                 && $afterState->attribute( 'identifier' ) == 'published'
-            )
-            {
-                if ( $post->is( '_public' ) )
-                {
-                    $post->createNotificationEvent( 'create' );
-                }
-            }
+            $post->internalOnChangeState( $beforeState, $afterState ); //@todo evitare questo giro assurdo...
         }
     }
 
@@ -152,10 +144,26 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
     public function notificationEventTypesConfiguration()
     {
         return array(
-            'create' => array( 'handler_method' => 'handleCreateNotification' ),
-            'update' => array( 'handler_method' => 'handleUpdateNotification' ),
-            'add_file' => array( 'handler_method' => 'handleAddFileNotification' ),
-            'update_file' => array( 'handler_method' => 'handleUpdateFileNotification' )
+            'create' => array(
+                'name' => 'Creazione di un nuovo punto',
+                'handler_method' => 'handleCreateNotification'
+            ),
+            'publish' => array(
+                'name' => 'Pubblicazione di un nuovo punto',
+                'handler_method' => 'handlePublishNotification'
+            ),
+            'update' => array(
+                'name' => 'Aggiornamento di un punto pubblicato',
+                'handler_method' => 'handleUpdateNotification'
+            ),
+            'add_file' => array(
+                'name' => 'Inserimento di un allegato ad un punto pubblicato',
+                'handler_method' => 'handleAddFileNotification'
+            ),
+            'update_file' => array(
+                'name' => 'Aggiornamento di un allegato ad un punto pubblicato',
+                'handler_method' => 'handleUpdateFileNotification'
+            )
         );
     }
 }

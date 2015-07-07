@@ -119,6 +119,17 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         return OCEditorialStuffHandler::instance( 'allegati_seduta' )->getFactory();
     }
 
+    public function onChangeState( eZContentObjectState $beforeState, eZContentObjectState $afterState )
+    {
+        foreach( $this->odg() as $punto )
+        {
+            if ( $punto->is( '_public' ) )
+            {
+                $punto->createNotificationEvent( 'publish' );
+            }
+        }
+    }
+
     /**
      * @return Punto[]
      */

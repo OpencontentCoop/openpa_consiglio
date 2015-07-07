@@ -34,6 +34,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $attributes[] = 'invitati';
         $attributes[] = 'count_invitati';
         $attributes[] = 'can_add_osservazioni';
+        $attributes[] = 'notification_subscribers';
         return $attributes;
     }
 
@@ -59,6 +60,9 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
         if ( $property == 'can_add_osservazioni' )
             return $this->canAddOsservazioni();
+
+        if ( $property == 'notification_subscribers' )
+            return $this->notificationSubscribers();
 
         return parent::attribute( $property );
     }
@@ -291,6 +295,25 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     }
 
     /**
+     * @param eZContentObjectState $beforeState
+     * @param eZContentObjectState $afterState
+     *
+     * @return bool
+     */
+    public function onChangeState( eZContentObjectState $beforeState, eZContentObjectState $afterState )
+    {
+        if ( $beforeState->attribute( 'identifier' ) == 'draft'
+             && $afterState->attribute( 'identifier' ) == 'published'
+        )
+        {
+            if ( $this->is( '_public' ) )
+            {
+                $this->createNotificationEvent( 'publish' );
+            }
+        }
+    }
+
+    /**
      * Inserisce il parentObject come seduta di riferimento
      */
     public function onBeforeCreate()
@@ -331,6 +354,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             $this->getSeduta()->reorderOdg();
         }
+        $this->addUsersToNotifications();
+        $this->createNotificationEvent( 'create' );
     }
 
     /**
@@ -353,6 +378,12 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     }
 
     public function handleCreateNotification( $event, OCEditorialStuffPostInterface $refer = null )
+    {
+        // prepara notifica per gli interessati alla materia
+        // prepara notifica per i referenti
+    }
+
+    public function handlePublishNotification( $event, OCEditorialStuffPostInterface $refer = null )
     {
         // prepara notifica per gli interessati alla materia
         // prepara notifica per i referenti
@@ -383,6 +414,48 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             if ( $invitatoObject instanceof eZContentObject )
             {
                 $this->addInvitato( $invitatoObject );
+            }
+        }
+    }
+
+    public function notificationSubscribers()
+    {
+        $data = array();
+        foreach( $this->getFactory()->notificationEventTypesConfiguration() as $identifier => $type )
+        {
+            $data[$identifier] = array(
+                'name' => $type['name'],
+                'user_id_list' => OCEditorialStuffNotificationRule::fetchUserIdList( $identifier, $this->id() )
+            );
+        }
+        return $data;
+    }
+
+    protected function addUsersToNotifications()
+    {
+        $types = $this->getFactory()->availableNotificationEventTypes();
+        foreach( $types as $type )
+        {
+            $userIds = array();
+            switch ( $type )
+            {
+                case 'create':
+                    // referenti
+                    // interessati per materia
+                    break;
+                case 'update':
+
+                    break;
+                case 'add_file':
+
+                    break;
+                case 'update_file':
+
+                    break;
+            }
+            if ( count( $userIds ) )
+            {
+                $this->createNotificationTypeRule( $type, $userIds );
             }
         }
     }
