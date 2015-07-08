@@ -591,4 +591,79 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         return 0;
     }
 
+    // @todo usare una factory ad hoc?
+    protected function getMateria( $attributeIdentifier = null )
+    {
+        return $this->stringRelatedObjectAttribute( 'materia', $attributeIdentifier );
+    }
+
+    protected function stringRelatedObjectAttribute( $identifier, $attributeIdentifier = null )
+    {
+        $data = array();
+        $ids = explode( '-', $this->stringAttribute( $identifier ) );
+        foreach( $ids as $id )
+        {
+            $related = eZContentObject::fetch( $id );
+            if ( $related instanceof eZContentObject )
+            {
+                if ( $attributeIdentifier )
+                {
+                    if ( $related->hasAttribute( $attributeIdentifier ) )
+                    {
+                        $data[] = $related->attribute( $attributeIdentifier );
+                    }
+                    else
+                    {
+                        /** @var eZContentObjectAttribute[] $dataMap */
+                        $dataMap = $related->attribute( 'data_map' );
+                        if ( isset( $dataMap[$attributeIdentifier] ) )
+                        {
+                            $data[] = $dataMap[$attributeIdentifier]->toString();
+                        }
+                    }
+                }
+                else
+                {
+                    $data[] = $related;
+                }
+            }
+        }
+        return empty( $data ) ? null : $data;
+    }
+
+    protected function stringAttribute( $identifier, $callback = null )
+    {
+        $string = '';
+        if ( isset( $this->dataMap[$identifier] ) )
+        {
+            $string = $this->dataMap[$identifier]->toString();
+        }
+        if ( is_callable( $callback ) )
+        {
+            return call_user_func( $callback, $string );
+        }
+        return $string;
+    }
+
+    /**
+     * @see ConsiglioApiController
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        $locale = eZLocale::instance();
+        return array(
+            'id' => $this->id(),
+            'seduta' => (int)$this->attribute( 'seduta_id' ),
+            'numero' => $this->stringAttribute( 'n_punto', 'intval' ),
+            'orario' => $locale->formatShortTime( $this->dataMap['orario_trattazione']->content()->attribute( 'timestamp' ) ),
+            'materia' => $this->getMateria( 'name' ),
+            'referente_politico' => $this->stringRelatedObjectAttribute( 'referente_politico', 'name' ),
+            'referente_tecnico' => $this->stringRelatedObjectAttribute( 'referente_tecnico', 'name' ),
+            'documenti' => $this->attribute( 'count_documenti' ),
+            'invitati' => $this->attribute( 'count_invitati' ),
+            'osservazioni' => $this->attribute( 'count_osservazioni' ),
+        );
+    }
+
 }

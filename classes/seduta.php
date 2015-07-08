@@ -11,15 +11,23 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     public function attributes()
     {
         $attributes = parent::attributes();
+        $attributes[] = 'referenti';
         $attributes[] = 'odg';
+        $attributes[] = 'count_documenti';
         $attributes[] = 'documenti';
         return $attributes;
     }
 
     public function attribute( $property )
     {
+        if ( $property == 'referenti')
+            return $this->referenti();
+
         if ( $property == 'odg')
             return $this->odg();
+
+        if ( $property == 'count_documenti' )
+            return $this->getCount( 'documenti' );
 
         if ( $property == 'documenti' )
             return $this->getAllegati( 'documenti' );
@@ -130,6 +138,12 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         }
     }
 
+    protected function referenti()
+    {
+        //@todo
+        return array();
+    }
+
     /**
      * @return Punto[]
      */
@@ -168,5 +182,70 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             }
         }
         return $result;
+    }
+
+    protected function getCount( $identifier )
+    {
+        if ( isset( $this->dataMap[$identifier] ) )
+        {
+            $contentArray = explode( '-', $this->dataMap[$identifier]->toString() );
+            if ( isset( $contentArray[0] ) && $contentArray[0] == '' )
+            {
+                unset( $contentArray[0] );
+            }
+            return count( $contentArray );
+        }
+        return 0;
+    }
+
+    protected function stringAttribute( $identifier, $callback = null )
+    {
+        if ( isset( $this->dataMap[$identifier] ) )
+        {
+            $string = $this->dataMap[$identifier]->toString();
+            if ( is_callable( $callback ) )
+            {
+                return call_user_func( $callback, $string );
+            }
+            return $string;
+        }
+        return '';
+    }
+
+    /**
+     * @see ConsiglioApiController
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        if ( isset( $this->dataMap['data'] ) && $this->dataMap['data']->hasContent()
+             && isset( $this->dataMap['orario'] ) && $this->dataMap['orario']->hasContent() )
+        {
+            try
+            {
+
+                /** @var eZDate $data */
+                $data = $this->dataMap['data']->content();
+                /** @var eZTime $ora */
+                $ora = $this->dataMap['orario']->content();
+
+                $dateTime = new DateTime();
+                $dateTime->setTimestamp( $data->attribute( 'timestamp' ) );
+                $dateTime->setTime( $ora->attribute( 'hour' ), $ora->attribute( 'minute' ) );
+
+                return array(
+                    'id' => $this->id(),
+                    'data' => $dateTime->format( 'Y-m-d H:i:s' ),
+                    'protocollo' => $this->stringAttribute( 'protocollo', 'intval' ),
+                    'stato' => $this->currentState()->attribute( 'identifier' ),
+                    'documenti' => $this->attribute( 'count_documenti' )
+                );
+            }
+            catch ( Exception $e )
+            {
+
+            }
+        }
+        return false;
     }
 }
