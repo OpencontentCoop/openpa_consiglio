@@ -40,7 +40,7 @@ class ConsiglioApiController extends ezpRestMvcController
         return $result;
     }
 
-    public function doLoadSedutaAllegati()
+    public function doLoadSedutaDocumenti()
     {
         $result = new ezpRestMvcResult();
         $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
@@ -75,6 +75,20 @@ class ConsiglioApiController extends ezpRestMvcController
         $result->variables = OCEditorialStuffHandler::instance( 'punto' )->fetchByObjectId( $this->Id )->jsonSerialize();
         return $result;
     }
+
+    public function doLoadPuntoDocumenti()
+    {
+        $result = new ezpRestMvcResult();
+        $punto = OCEditorialStuffHandler::instance( 'punto' )->fetchByObjectId( $this->Id );
+
+        foreach( $punto->attribute( 'documenti' ) as $documento )
+        {
+            /** @var Allegato $documento */
+            $result->variables[] = $documento->jsonSerialize();
+        }
+        return $result;
+    }
+
 
     public function doAddPresenza()
     {
