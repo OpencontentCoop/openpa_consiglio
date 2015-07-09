@@ -646,6 +646,19 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     }
 
     /**
+     *
+     * Punto
+     * id                 integer    id univoco Punto
+     * seduta             integer    id univoco Seduta
+     * numero             integer    numero del punto relativo all’odg
+     * orario             string     orario di trattazione del punto in formato “H:i”
+     * materia            string[]   Nomi delle materie relazionate da verificare se 1 o molti
+     * referente_politico string     Nome del referente politico
+     * referente_tecnico  string     Nome del referente tecnico
+     * documenti          integer    numero dei documenti allegati
+     * invitati           integer    numero delle persone invitate
+     * osservazioni       integer    numero delle osservazioni presenti
+     *
      * @see ConsiglioApiController
      * @return array
      */

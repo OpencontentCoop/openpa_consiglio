@@ -2,11 +2,12 @@
 
 class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileContainerInterface
 {
+    const DATE_FORMAT = 'Y-m-d H:i:s';
+
     public function __construct( array $data = array(), OCEditorialStuffPostFactoryInterface $factory )
     {
         parent::__construct( $data, $factory );
     }
-
 
     public function attributes()
     {
@@ -213,6 +214,14 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     }
 
     /**
+     *
+     *   Seduta
+     *   id             integer    id univoco Seduta
+     *   data           string     data della seduta in formato 'Y-m-d H:i:s'
+     *   protocollo     integer    numero di protocollo
+     *   stato          string     identificatre stato draft|pending|published
+     *   documenti      integer    numero dei documenti allegati
+     *
      * @see ConsiglioApiController
      * @return array
      */
@@ -235,7 +244,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
                 return array(
                     'id' => $this->id(),
-                    'data' => $dateTime->format( 'Y-m-d H:i:s' ),
+                    'data' => $dateTime->format( self::DATE_FORMAT ),
                     'protocollo' => $this->stringAttribute( 'protocollo', 'intval' ),
                     'stato' => $this->currentState()->attribute( 'identifier' ),
                     'documenti' => $this->attribute( 'count_documenti' )
