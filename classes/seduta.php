@@ -12,6 +12,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     public function attributes()
     {
         $attributes = parent::attributes();
+        $attributes[] = 'data_ora';
         $attributes[] = 'referenti';
         $attributes[] = 'odg';
         $attributes[] = 'count_documenti';
@@ -21,6 +22,9 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     public function attribute( $property )
     {
+        if ( $property == 'data_ora')
+            return $this->dataOra();
+
         if ( $property == 'referenti')
             return $this->referenti();
 
@@ -61,14 +65,14 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 'template_uri' => "design:{$templatePath}/parts/documenti.tpl"
             )
         );
-        if ( $currentUser->hasAccessTo( 'seduta', 'persone_coinvolte' ) )
-        {
-            $tabs[] = array(
-                'identifier' => 'persone_coinvolte',
-                'name' => 'Persone coinvolte',
-                'template_uri' => "design:{$templatePath}/parts/persone_coinvolte.tpl"
-            );
-        }
+//        if ( $currentUser->hasAccessTo( 'seduta', 'persone_coinvolte' ) )
+//        {
+//            $tabs[] = array(
+//                'identifier' => 'persone_coinvolte',
+//                'name' => 'Persone coinvolte',
+//                'template_uri' => "design:{$templatePath}/parts/persone_coinvolte.tpl"
+//            );
+//        }
         if ( $currentUser->hasAccessTo( 'seduta', 'presenze' ) )
         {
             $tabs[] = array(
@@ -137,6 +141,29 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 $punto->createNotificationEvent( 'publish' );
             }
         }
+    }
+
+    /**
+     * @param string $returnFormat
+     *
+     * @return DateTime|string
+     */
+    protected function dataOra( $returnFormat = 'U' )
+    {
+        /** @var eZDate $data */
+        $data = $this->dataMap['data']->content();
+        /** @var eZTime $ora */
+        $ora = $this->dataMap['orario']->content();
+
+        $dateTime = new DateTime();
+        $dateTime->setTimestamp( $data->attribute( 'timestamp' ) );
+        $dateTime->setTime( $ora->attribute( 'hour' ), $ora->attribute( 'minute' ) );
+
+        if ( $returnFormat )
+        {
+            return $dateTime->format( $returnFormat );
+        }
+        return $dateTime;
     }
 
     protected function referenti()
@@ -232,19 +259,9 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         {
             try
             {
-
-                /** @var eZDate $data */
-                $data = $this->dataMap['data']->content();
-                /** @var eZTime $ora */
-                $ora = $this->dataMap['orario']->content();
-
-                $dateTime = new DateTime();
-                $dateTime->setTimestamp( $data->attribute( 'timestamp' ) );
-                $dateTime->setTime( $ora->attribute( 'hour' ), $ora->attribute( 'minute' ) );
-
                 return array(
                     'id' => $this->id(),
-                    'data' => $dateTime->format( self::DATE_FORMAT ),
+                    'data' => $this->dataOra( self::DATE_FORMAT ),
                     'protocollo' => $this->stringAttribute( 'protocollo', 'intval' ),
                     'stato' => $this->currentState()->attribute( 'identifier' ),
                     'documenti' => $this->attribute( 'count_documenti' )
@@ -256,5 +273,42 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             }
         }
         return false;
+    }
+
+    public function addPresenza( $inOut, $type = 'manual', $userId = null )
+    {
+        if ( $userId === null )
+        {
+            $userId = eZUser::currentUserID();
+        }
+
+        $this->checkAccess( $userId );
+        $presenza = OpenPAConsiglioPresenza::create( $this, $inOut, $type, $userId );
+        $presenza->store();
+        return $presenza;
+    }
+
+    public function checkAccess( $userId )
+    {
+        //check $userId: se non è un politico viene sollevata eccezione
+        OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId( $userId );
+
+        //check data ora seduta
+        $dataOra = $this->dataOra( false );
+        if ( !$dataOra instanceof DateTime )
+        {
+            throw new Exception( 'Errore nella definizione del valore data-ora della seduta' );
+        }
+        $now = new DateTime();
+        if ( $dataOra->diff( $now )->days > 1 )
+        {
+            throw new Exception( 'Seduta svolta in data ' . $dataOra->format( self::DATE_FORMAT ) );
+        }
+
+        //check valid in progress Seduta
+        if ( !$this->is( 'in_progress' ) )
+        {
+            throw new Exception( 'Seduta non in corso' );
+        }
     }
 }
