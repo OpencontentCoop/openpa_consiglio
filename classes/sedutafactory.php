@@ -29,6 +29,16 @@ class SedutaFactory extends OCEditorialStuffPostFactory implements OCEditorialSt
         return 'editorialstuff/seduta';
     }
 
+//    public function editModuleResult( $parameters, OCEditorialStuffHandlerInterface $handler, eZModule $module )
+//    {
+//        $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
+//        if ( $currentPost instanceof Seduta )
+//        {
+//            $currentPost->addPresenza( true, 'test', 1848 );
+//        }
+//        return parent::editModuleResult( $parameters, $handler, $module );
+//    }
+
     public function downloadModuleResult(
         $parameters,
         OCEditorialStuffHandlerInterface $handler,

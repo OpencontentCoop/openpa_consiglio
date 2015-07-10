@@ -69,6 +69,20 @@ class ConsiglioApiController extends ezpRestMvcController
         return $result;
     }
 
+    public function doAddPresenzaSeduta()
+    {
+        $result = new ezpRestMvcResult();
+        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
+        if ( !$seduta instanceof Seduta )
+        {
+            throw new Exception( "Post {$this->Id} is not a valid Seduta" );
+        }
+        $presenza = $seduta->addPresenza( $inOut, $type, $userId );
+        $this->variables['result'] = 'success';
+        $this->variables['presenza_id'] = $presenza->attribute( 'id' );
+        return $result;
+    }
+
     public function doLoadPunto()
     {
         $result = new ezpRestMvcResult();
@@ -86,13 +100,6 @@ class ConsiglioApiController extends ezpRestMvcController
             /** @var Allegato $documento */
             $result->variables[] = $documento->jsonSerialize();
         }
-        return $result;
-    }
-
-
-    public function doAddPresenza()
-    {
-        $result = new ezpRestMvcResult();
         return $result;
     }
 

@@ -6,6 +6,7 @@ Identifiers[]=punto
 Identifiers[]=allegati_seduta
 Identifiers[]=invitato
 Identifiers[]=invito
+Identifiers[]=politico
 
 [seduta]
 ClassName=SedutaFactory
@@ -19,6 +20,8 @@ StateGroup=seduta
 States[draft]=Non visibile
 States[pending]=Non confermata
 States[published]=Confermata
+States[in_progress]=In corso
+States[closed]=Conclusa
 Name=Elenco sedute
 
 [punto]
@@ -59,3 +62,9 @@ AttributeIdentifiers[]
 RepositoryNodes[]
 RepositoryNodes[]=1
 Name=Inviti a sedute
+
+[politico]
+ClassIdentifier=politico
+CreationButtonText=Crea nuovo politico
+CreationRepositoryNode=5
+RepositoryNodes[]=1
