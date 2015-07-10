@@ -1,0 +1,10 @@
+{
+	"data": [{
+		"id": 1,
+		"start_date": "2013-04-01 00:00:00",
+		"duration": 1440,
+		"text": "Nome",
+        "splitStart":1,
+        "splitEnd":3
+	}]
+}
