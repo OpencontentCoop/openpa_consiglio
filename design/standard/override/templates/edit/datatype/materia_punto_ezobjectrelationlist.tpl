@@ -10,10 +10,6 @@
             if(inputField.length > 0) {
                 inputField.each(function(i){
                     $(this).change(function(){
-                        //$(targetField[i]).load(page.siteUrl + page.adminDir +'inc/ajaxcalls.inc.php?action=get_categories&id='+ this.value);
-
-                        //$.ez( 'ezjsctemplate::orari_cooperativa', {node_id:{/literal}{$node.node_id}{literal}}, function(data){ $("#orari").html( data.content ) } )
-
 
                         $.ez( 'openpaconsiglioxhr::getOptions', {objID: $(this).val(), attribute: attribute}, function( data ) {
                             //$(targetField[i]).html(data.content);
@@ -33,9 +29,9 @@
         }
 
         jQuery(function($){
-            getOptions('#attribute_18334', '#attribute_18335', 'referente_politico');
-            getOptions('#attribute_18334', '#attribute_18336', 'referente_tecnico');
-            $('#attribute_{/literal}{$attribute.id}{literal}').chosen();
+            getOptions('#attribute_{/literal}{$attribute.contentclass_attribute.identifier}{literal}', '#attribute_referente_politico', 'referente_politico');
+            getOptions('#attribute_{/literal}{$attribute.contentclass_attribute.identifier}{literal}', '#attribute_referente_tecnico', 'referente_tecnico');
+            $('#attribute_{/literal}{$attribute.contentclass_attribute.identifier}{literal}').chosen();
 
         });
     </script>
@@ -55,9 +51,9 @@
 
     <input type="hidden" name="single_select_{$attribute.id}" value="1" />
     {if ne( count( $nestedNodesList ), 0)}
-        <select name="{$attribute_base}_data_object_relation_list_{$attribute.id}[]" id="attribute_{$attribute.id}" class="form-control">
+        <select name="{$attribute_base}_data_object_relation_list_{$attribute.id}[]" id="attribute_{$attribute.contentclass_attribute.identifier}" class="form-control">
             {if $attribute.contentclass_attribute.is_required|not}
-                <option value="no_relation" {*if eq( $attribute.content.relation_list|count, 0 )*} selected="selected"{/if}>{'No relation'|i18n( 'design/standard/content/datatype' )}</option>
+                <option value="no_relation" {if eq( $attribute.content.relation_list|count, 0 )} selected="selected"{/if}>{'No relation'|i18n( 'design/standard/content/datatype' )}</option>
             {/if}
             {section var=node loop=$nestedNodesList}
                 <option value="{$node.contentobject_id}"
