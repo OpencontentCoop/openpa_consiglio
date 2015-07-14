@@ -2,7 +2,7 @@
     <div class="col-md-12">
         <h1>
             {$post.object.name|wash()}
-            <small><a href="{concat( 'editorialstuff/edit/seduta/', $post.seduta_id )|ezurl('no')}" title="Dettaglio" class="text-muted">{$post.seduta.object.name|wash()}</a></small>
+            {*<small><a href="{concat( 'editorialstuff/edit/seduta/', $post.seduta_id )|ezurl('no')}" title="Dettaglio" class="text-muted">{$post.seduta.object.name|wash()}</a></small>*}
         </h1>
         {include uri=concat('design:', $template_directory, '/parts/workflow.tpl') post=$post}
     </div>

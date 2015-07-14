@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-xs-12 col-md-8 col-md-offset-2">
             <div class="well">
-                <h2>Aggiungi invitato</h2>
+                <h2>Aggiungi invito</h2>
                 <form action="{concat('editorialstuff/action/punto/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post" id="add-invitato" class="form-horizontal">
 
                     <div class="form-group">

@@ -196,27 +196,27 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 'template_uri' => "design:{$templatePath}/parts/inviti.tpl"
             );
         }
-        if ( $currentUser->hasAccessTo( 'punto', 'persone_coinvolte' ) )
-        {
-            $tabs[] = array(
-                'identifier' => 'persone_coinvolte',
-                'name' => 'Persone coinvolte',
-                'template_uri' => "design:{$templatePath}/parts/persone_coinvolte.tpl"
-            );
-        }
-        if ( $currentUser->hasAccessTo( 'punto', 'presenze' ) )
-        {
-            $tabs[] = array(
-                'identifier' => 'presenze',
-                'name' => 'Presenze',
-                'template_uri' => "design:{$templatePath}/parts/presenze.tpl"
-            );
-        }
+//        if ( $currentUser->hasAccessTo( 'punto', 'persone_coinvolte' ) )
+//        {
+//            $tabs[] = array(
+//                'identifier' => 'persone_coinvolte',
+//                'name' => 'Persone coinvolte',
+//                'template_uri' => "design:{$templatePath}/parts/persone_coinvolte.tpl"
+//            );
+//        }
+//        if ( $currentUser->hasAccessTo( 'punto', 'presenze' ) )
+//        {
+//            $tabs[] = array(
+//                'identifier' => 'presenze',
+//                'name' => 'Presenze',
+//                'template_uri' => "design:{$templatePath}/parts/presenze.tpl"
+//            );
+//        }
         if ( $currentUser->hasAccessTo( 'punto', 'votazioni' ) )
         {
             $tabs[] = array(
                 'identifier' => 'votazioni',
-                'name' => 'Votazioni e esito',
+                'name' => 'Votazioni',
                 'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
             );
         }
@@ -636,6 +636,94 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             return count( $contentArray );
         }
         return 0;
+    }
+
+    // @todo usare una factory ad hoc?
+    protected function getMateria( $attributeIdentifier = null )
+    {
+        return $this->stringRelatedObjectAttribute( 'materia', $attributeIdentifier );
+    }
+
+    protected function stringRelatedObjectAttribute( $identifier, $attributeIdentifier = null )
+    {
+        $data = array();
+        $ids = explode( '-', $this->stringAttribute( $identifier ) );
+        foreach( $ids as $id )
+        {
+            $related = eZContentObject::fetch( $id );
+            if ( $related instanceof eZContentObject )
+            {
+                if ( $attributeIdentifier )
+                {
+                    if ( $related->hasAttribute( $attributeIdentifier ) )
+                    {
+                        $data[] = $related->attribute( $attributeIdentifier );
+                    }
+                    else
+                    {
+                        /** @var eZContentObjectAttribute[] $dataMap */
+                        $dataMap = $related->attribute( 'data_map' );
+                        if ( isset( $dataMap[$attributeIdentifier] ) )
+                        {
+                            $data[] = $dataMap[$attributeIdentifier]->toString();
+                        }
+                    }
+                }
+                else
+                {
+                    $data[] = $related;
+                }
+            }
+        }
+        return empty( $data ) ? null : $data;
+    }
+
+    protected function stringAttribute( $identifier, $callback = null )
+    {
+        $string = '';
+        if ( isset( $this->dataMap[$identifier] ) )
+        {
+            $string = $this->dataMap[$identifier]->toString();
+        }
+        if ( is_callable( $callback ) )
+        {
+            return call_user_func( $callback, $string );
+        }
+        return $string;
+    }
+
+    /**
+     *
+     * Punto
+     * id                 integer    id univoco Punto
+     * seduta             integer    id univoco Seduta
+     * numero             integer    numero del punto relativo all’odg
+     * orario             string     orario di trattazione del punto in formato “H:i”
+     * materia            string[]   Nomi delle materie relazionate da verificare se 1 o molti
+     * referente_politico string     Nome del referente politico
+     * referente_tecnico  string     Nome del referente tecnico
+     * documenti          integer    numero dei documenti allegati
+     * invitati           integer    numero delle persone invitate
+     * osservazioni       integer    numero delle osservazioni presenti
+     *
+     * @see ConsiglioApiController
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        $locale = eZLocale::instance();
+        return array(
+            'id' => $this->id(),
+            'seduta' => (int)$this->attribute( 'seduta_id' ),
+            'numero' => $this->stringAttribute( 'n_punto', 'intval' ),
+            'orario' => $locale->formatShortTime( $this->dataMap['orario_trattazione']->content()->attribute( 'timestamp' ) ),
+            'materia' => $this->getMateria( 'name' ),
+            'referente_politico' => $this->stringRelatedObjectAttribute( 'referente_politico', 'name' ),
+            'referente_tecnico' => $this->stringRelatedObjectAttribute( 'referente_tecnico', 'name' ),
+            'documenti' => $this->attribute( 'count_documenti' ),
+            'invitati' => $this->attribute( 'count_invitati' ),
+            'osservazioni' => $this->attribute( 'count_osservazioni' ),
+        );
     }
 
 }
