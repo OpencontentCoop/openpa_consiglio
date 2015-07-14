@@ -3,6 +3,13 @@ $Module = array( 'name' => 'Consiglio' );
 
 $ViewList = array();
 
+$ViewList['test'] = array(
+    'functions' => array( 'use' ),
+    'script' => 'test.php',
+    'params' => array(),
+    'unordered_params' => array()
+);
+
 $ViewList['dashboard'] = array(
     'functions' => array( 'use' ),
     'script' => 'dashboard.php',

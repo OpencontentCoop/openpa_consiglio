@@ -381,17 +381,38 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     {
         // prepara notifica per gli interessati alla materia
         // prepara notifica per i referenti
+
+        echo '<pre>';
+        echo 'create';
+        print_r($event);
+        exit;
+
+
     }
 
     public function handlePublishNotification( $event, OCEditorialStuffPostInterface $refer = null )
     {
         // prepara notifica per gli interessati alla materia
         // prepara notifica per i referenti
+
+        echo '<pre>';
+        echo 'update';
+        print_r($event);
+        exit;
+
     }
 
     public function handleUpdateNotification( $event, OCEditorialStuffPostInterface $refer = null )
     {
         // prepara notifica per i referenti
+
+
+        // Prepara notifica per gli interessati alla materia
+        $materia = $this->ge
+        $utentiAppassionati = array();
+        foreach( $this->getMateria() as $materia )
+            $utentiAppassionati = array_merge( $utentiAppassionati, OCEditorialStuffNotificationRule::fetchUserIdList( 'materia/like', $materia->attribute( 'id' ) ) );
+        $utentiAppassionati = array_unique( $utentiAppassionati );
     }
 
     public function handleAddFileNotification( $event, OCEditorialStuffPostInterface $refer = null )
@@ -434,6 +455,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     protected function addUsersToNotifications()
     {
         $types = $this->getFactory()->availableNotificationEventTypes();
+
         foreach( $types as $type )
         {
             $userIds = array();
@@ -441,7 +463,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             {
                 case 'create':
                     // referenti
-                    // interessati per materia
+                    $userIds = $this->getIdsReferenti();
+
                     break;
                 case 'update':
 
@@ -515,6 +538,30 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
         }
         return false;
+    }
+
+    /**
+     * Restituisce un array con gli id dei referenti politici e tecnici
+     *
+     * @return array
+     */
+
+    protected function getIdsReferenti()
+    {
+        $result = array();
+        $attributes = array('referente_politico', 'referente_tecnico');
+        foreach ($attributes as $value)
+        {
+            if (isset( $this->dataMap[$value]) && $this->dataMap[$value]->hasContent())
+            {
+                $list = $this->dataMap[$value]->content();
+                foreach ($list['relation_list'] as $v)
+                {
+                    $result[]= $v['contentobject_id'];
+                }
+            }
+        }
+        return array_unique($result);
     }
 
     protected function canAddOsservazioni()

@@ -1,6 +1,6 @@
 <?php
 
-class openpaConsiglioAjaxFunctions extends ezjscServerFunctions
+class OpenPAConsiglioAjaxFunctions extends ezjscServerFunctions
 {
     public static function getOptions($args)
     {
