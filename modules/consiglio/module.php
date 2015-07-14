@@ -18,7 +18,7 @@ $ViewList['data'] = array(
 );
 
 $ViewList['like'] = array(
-    'functions' => array( 'like' ),
+    'functions' => array( 'use' ),
     'script' => 'like.php',
     'params' => array(),
     'unordered_params' => array()
@@ -29,9 +29,10 @@ $FunctionList = array();
 $FunctionList['use'] = array();
 
 //moduli fake solo per i permessi in visualizzazione
+$FunctionList['admin'] = array();
 $FunctionList['persone_coinvolte'] = array();
 $FunctionList['presenze'] = array();
 $FunctionList['votazioni'] = array();
-$FunctionList['like'] = array();
+
 
 

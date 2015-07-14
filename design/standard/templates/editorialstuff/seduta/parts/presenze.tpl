@@ -5,10 +5,10 @@
 <script type="text/javascript">
     function loadGantt(){ldelim}
         gantt.config.columns = [{ldelim}name:"text", label:"Nome", tree:true, width:'*' {rdelim}];
+        gantt.config.initial_scroll = false;
         gantt.config.details_on_dblclick = false;
         gantt.config.drag_progress = false;
-        gantt.config.drag_move = false;
-        gantt.config.drag_resize = false;
+        gantt.config.readonly = true;
         gantt.config.date_grid = "%H:%i";
         gantt.config.scale_unit = "hour";
         gantt.config.duration_unit = "minute";
@@ -20,17 +20,25 @@
                 return "complex_gantt_bar";
         {rdelim};
         gantt.templates.task_text = function(start, end, task){ldelim}
+            var returnData = '';
+            var background = '';
             if (!task.values) return task.text;
-            var lw = Math.round( task.splitStart * 100 / task.duration );
-            var rw = Math.round( 100 - task.splitEnd * 100 / task.duration );
-            var left = "<div class='gantt_task_line' style='left:0px; width:"+lw+"%;'>" + task.text + "</div>";
-            var right = "<div class='gantt_task_line' style='right:0px; width:"+rw+"%'>" + task.text + "</div>";
-            return right + left;
+            for (index = 0; index < task.values.length; ++index) {ldelim}
+                if ( task.values[index][0] == 0) {ldelim}
+                    background = 'background:#fff';
+                {rdelim}else{ldelim}
+                    background = '';
+                {rdelim}
+                returnData += "<div class='gantt_task_line' style='border:none;position:relative;float:left;width:"+(70*task.values[index][1])+"px;"+background+"'><span style='visibility:hidden'>0</span></div>";;
+            {rdelim}
+            return returnData;
         {rdelim};
-        {*gantt.load({concat('/openpa/data/timeline_presenze_seduta?seduta=',$post.object_id)|ezurl()});*}
-        gantt.load({concat('javascript/data.json')|ezdesign()});
+        gantt.load({concat('/openpa/data/timeline_presenze_seduta?seduta=',$post.object_id)|ezurl()});
+        gantt.showDate(new Date(2013,04,02,14,30,0,0));
+        {*gantt.load({concat('javascript/data.json')|ezdesign()});*}
     {rdelim}
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {ldelim}loadGantt(){rdelim});
+    //setInterval(function(){ldelim} loadGantt() {rdelim}, 3000);
 </script>
 <style>{literal}
     .complex_gantt_bar{

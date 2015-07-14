@@ -199,7 +199,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 'template_uri' => "design:{$templatePath}/parts/osservazioni.tpl"
             )
         );
-        if ( $currentUser->hasAccessTo( 'punto', 'inviti' ) )
+        if ( $currentUser->hasAccessTo( 'consiglio', 'admin' ) )
         {
             $tabs[] = array(
                 'identifier' => 'inviti',
@@ -223,16 +223,13 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 //                'template_uri' => "design:{$templatePath}/parts/presenze.tpl"
 //            );
 //        }
-        if ( $currentUser->hasAccessTo( 'punto', 'votazioni' ) )
-        {
-            $tabs[] = array(
-                'identifier' => 'votazioni',
-                'name' => 'Votazioni',
-                'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
-            );
-        }
+        $tabs[] = array(
+            'identifier' => 'votazioni',
+            'name' => 'Votazioni',
+            'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
+        );
 
-        if ( $currentUser->hasAccessTo( 'punto', 'notifiche' ) )
+        if ( $currentUser->hasAccessTo( 'consiglio', 'admin' ) )
         {
             $tabs[] = array(
                 'identifier' => 'notifiche',

@@ -4,6 +4,7 @@
             {include uri=concat('design:', $template_directory, '/parts/allegati_seduta/data.tpl') post=$post}
         </div>
     </div>
+{if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
 <hr />
     <div class="row">
         <div class="col-xs-12 col-md-8 col-md-offset-2">
@@ -86,3 +87,4 @@
         });
     </script>
 {/literal}
+{/if}
