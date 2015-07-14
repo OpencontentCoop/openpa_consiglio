@@ -17,10 +17,10 @@ DefaultFactoryClassName=OpenPAConsiglioDefaultFactory
 [seduta]
 ClassName=SedutaFactory
 ClassIdentifier=seduta
-CreationRepositoryNode=2
+CreationRepositoryNode=1198
 CreationButtonText=Crea nuova seduta
 RepositoryNodes[]
-RepositoryNodes[]=1
+RepositoryNodes[]=1198
 AttributeIdentifiers[]
 StateGroup=seduta
 States[draft]=Non visibile

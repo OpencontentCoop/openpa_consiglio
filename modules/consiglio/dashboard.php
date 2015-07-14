@@ -16,22 +16,21 @@ if ( $currentUser->isAnonymous() )
 }
 else
 {
-
     $Result = array();
-    $Result['persistent_variable'] = $tpl->variable( 'persistent_variable' );
+    $tpl->setVariable( 'site_title', false );
+    $tpl->setVariable( 'is_admin', false );
     if ( $currentUser->hasAccessTo( 'consiglio', 'manage' ) )
     {
-        //$module->redirectTo( 'editorialstuff/dashboard/seduta' );
-        $Result['content'] = $tpl->fetch( 'design:consiglio/dashboard/manager.tpl' );
+        $tpl->setVariable( 'is_admin', true );
     }
-    else
-    {
-        $Result['content'] = $tpl->fetch( 'design:consiglio/dashboard/participant.tpl' );
-    }
+
+    $Result['content'] = $tpl->fetch( 'design:consiglio/dashboard.tpl' );
     $Result['node_id'] = 0;
 
     $contentInfoArray = array( 'url_alias' => 'consiglio/dashboard' );
     $contentInfoArray['persistent_variable'] = array(
+        'show_path' => false,
+        'site_title' => 'Dashboard',
         'top_menu' => true,
         'topmenu_template_uri' => 'design:consiglio/page_topmenu.tpl'
     );
