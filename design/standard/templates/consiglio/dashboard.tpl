@@ -3,13 +3,10 @@
     hash( 'name', 'Avvisi', 'identifier', 'avvisi' ),
     hash( 'name', 'Materie di interesse', 'identifier', 'materie' ),
     hash( 'name', 'Calendario sedute', 'identifier', 'calendario' ),
-    hash( 'name', 'Le mie attività', 'identifier', 'attivita_utente' )
+    hash( 'name', 'Le mie attività', 'identifier', 'attivita_utente' ),
+    hash( 'name', 'Il mio profilo', 'identifier', 'profilo_utente' )
 )}
 
-
-<div class='page-header page-header-with-buttons'>
-    <h1>{'Dashboard'|i18n( 'design/admin/content/dashboard' )}</h1>
-</div>
 
 {def $i = 0}
 {foreach $panels as $panel}

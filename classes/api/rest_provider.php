@@ -7,6 +7,9 @@ class ConsiglioApiProvider implements ezpRestProviderInterface
     {
         $routes = array(
 
+            'consiglioApiUtenteLoad' => new ezpRestVersionedRoute( new ConsiglioApiRailsRoute( '/utente/:Id', 'ConsiglioApiController', 'loadUtente', array(), 'http-get' ), 1 ),
+            'consiglioApiUtenteLoadStatistiche' => new ezpRestVersionedRoute( new ConsiglioApiRailsRoute( '/utente/:Id/statistiche', 'ConsiglioApiController', 'loadUtenteStatistiche', array(), 'http-get' ), 1 ),
+
             'consiglioApiSedutaList' => new ezpRestVersionedRoute( new ConsiglioApiRailsRoute( '/seduta/list', 'ConsiglioApiController', 'loadSedutaList', array() ), 1 ),
             'consiglioApiSedutaLoad' => new ezpRestVersionedRoute( new ConsiglioApiRailsRoute( '/seduta/:Id', 'ConsiglioApiController', 'loadSeduta', array(), 'http-get' ), 1 ),
             'consiglioApiSedutaLoadDocumenti' => new ezpRestVersionedRoute( new ConsiglioApiRailsRoute( '/seduta/:Id/documenti', 'ConsiglioApiController', 'loadSedutaDocumenti', array(), 'http-get' ), 1 ),

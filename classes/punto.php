@@ -12,6 +12,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
      */
     protected $dataMap;
 
+    /**
+     * @var Seduta
+     */
+    protected $seduta;
+
     public function getFactory()
     {
         return $this->factory;
@@ -138,33 +143,39 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
      */
     public function getSeduta( $asObject = true )
     {
-        if ( isset( $this->dataMap['seduta_di_riferimento'] ) )
+        if ( $this->seduta === null )
         {
-            $contentArray = explode( '-', $this->dataMap['seduta_di_riferimento']->toString() );
-            $sedutaID = array_pop( $contentArray );
-            try
+            if ( isset( $this->dataMap['seduta_di_riferimento'] ) )
             {
-                if ( is_numeric( $sedutaID ) )
+                $contentArray = explode( '-', $this->dataMap['seduta_di_riferimento']->toString() );
+                $sedutaID = array_pop( $contentArray );
+                try
                 {
-                    $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId(
-                        $sedutaID
-                    );
-                    if ( !$asObject )
+                    if ( is_numeric( $sedutaID ) )
                     {
-                        return $sedutaID;
-                    }
-                    else
-                    {
-                        return $seduta;
+                        $this->seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId(
+                            $sedutaID
+                        );
                     }
                 }
-            }
-            catch ( Exception $e )
-            {
+                catch ( Exception $e )
+                {
 
+                }
             }
         }
-        return null;
+        if ( $this->seduta instanceof Seduta )
+        {
+            if ( !$asObject )
+            {
+                return $this->seduta->id();
+            }
+            else
+            {
+                return $this->seduta;
+            }
+        }
+        return $this->seduta;
     }
 
     public function tabs()

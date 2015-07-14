@@ -190,7 +190,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 'sort' => array( 'extra_orario_i' => 'asc' )
             )
         );
-        eZDebug::writeNotice( var_export( OCEditorialStuffHandler::getLastFetchData(), 1 ), __METHOD__ );
+        //eZDebug::writeNotice( var_export( OCEditorialStuffHandler::getLastFetchData(), 1 ), __METHOD__ );
         return $items;
     }
 
@@ -244,6 +244,40 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         return '';
     }
 
+    protected function stringRelatedObjectAttribute( $identifier, $attributeIdentifier = null )
+    {
+        $data = array();
+        $ids = explode( '-', $this->stringAttribute( $identifier ) );
+        foreach( $ids as $id )
+        {
+            $related = eZContentObject::fetch( $id );
+            if ( $related instanceof eZContentObject )
+            {
+                if ( $attributeIdentifier )
+                {
+                    if ( $related->hasAttribute( $attributeIdentifier ) )
+                    {
+                        $data[] = $related->attribute( $attributeIdentifier );
+                    }
+                    else
+                    {
+                        /** @var eZContentObjectAttribute[] $dataMap */
+                        $dataMap = $related->attribute( 'data_map' );
+                        if ( isset( $dataMap[$attributeIdentifier] ) )
+                        {
+                            $data[] = $dataMap[$attributeIdentifier]->toString();
+                        }
+                    }
+                }
+                else
+                {
+                    $data[] = $related;
+                }
+            }
+        }
+        return empty( $data ) ? null : $data;
+    }
+
     /**
      *
      *   Seduta
@@ -263,9 +297,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         {
             try
             {
+                $competenza = $this->stringRelatedObjectAttribute( 'organo', 'name' );
                 return array(
                     'id' => $this->id(),
-                    'data' => $this->dataOra( self::DATE_FORMAT ),
+                    'competenza' => isset( $competenza[0] ) ? $competenza[0] : null,
+                    'data_svolgimento' => $this->dataOra( self::DATE_FORMAT ),
                     'protocollo' => $this->stringAttribute( 'protocollo', 'intval' ),
                     'stato' => $this->currentState()->attribute( 'identifier' ),
                     'documenti' => $this->attribute( 'count_documenti' )

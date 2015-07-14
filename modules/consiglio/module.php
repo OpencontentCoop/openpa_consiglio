@@ -17,6 +17,13 @@ $ViewList['data'] = array(
     'unordered_params' => array()
 );
 
+$ViewList['like'] = array(
+    'functions' => array( 'like' ),
+    'script' => 'like.php',
+    'params' => array(),
+    'unordered_params' => array()
+);
+
 
 $FunctionList = array();
 $FunctionList['use'] = array();
@@ -25,5 +32,6 @@ $FunctionList['use'] = array();
 $FunctionList['persone_coinvolte'] = array();
 $FunctionList['presenze'] = array();
 $FunctionList['votazioni'] = array();
+$FunctionList['like'] = array();
 
 

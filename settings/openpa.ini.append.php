@@ -2,6 +2,7 @@
 
 [DataHandlers]
 Handlers[timeline_presenze_seduta]=DataHandlerTimeLinePresenzeSeduta
+Handlers[percentuale_presenze_seduta]=DataHandlerPercentualePresenzeSeduta
 
 
 */ ?>

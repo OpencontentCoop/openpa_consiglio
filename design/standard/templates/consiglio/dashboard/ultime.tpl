@@ -1,7 +1,6 @@
 
 {def $latest_content = fetch( 'content', 'tree', hash( 'parent_node_id', ezini( 'seduta', 'CreationRepositoryNode', 'editorialstuff.ini' ), 'limit', 20, 'sort_by', array( 'modified', false() ) ) )}
 
-
 {if $latest_content}
 
     <table class="table table-striped">
