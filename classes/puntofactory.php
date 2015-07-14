@@ -69,25 +69,6 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
         return $this->seduta;
     }
 
-    /**
-     * @param OCEditorialStuffPostInterface $post
-     * @param eZContentObjectState $beforeState
-     * @param eZContentObjectState $afterState
-     *
-     * @return bool
-     */
-    public function onChangeState(
-        OCEditorialStuffPostInterface $post,
-        eZContentObjectState $beforeState,
-        eZContentObjectState $afterState
-    )
-    {
-        if ( $post instanceof Punto )
-        {
-            $post->internalOnChangeState( $beforeState, $afterState ); //@todo evitare questo giro assurdo...
-        }
-    }
-
     public function instancePost( $data )
     {
         return new Punto( $data, $this );
@@ -104,15 +85,19 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
         $tpl = $this->editModuleResultTemplate( $currentPost, $parameters, $handler, $module );
 
         $Result = array();
+        $Result['content'] = $tpl->fetch( "design:{$this->getTemplateDirectory()}/edit.tpl" );
         $contentInfoArray = array( 'url_alias' => 'editorialstuff/dashboard' );
         $contentInfoArray['persistent_variable'] = array( 'show_path' => true, 'site_title' => 'Dashboard' );
-        if ( $tpl->variable( 'persistent_variable' ) !== false )
+        if ( is_array( $tpl->variable( 'persistent_variable' ) ) )
         {
-            $contentInfoArray['persistent_variable'] = $tpl->variable( 'persistent_variable' );
+            $contentInfoArray['persistent_variable'] = array_merge( $contentInfoArray['persistent_variable'], $tpl->variable( 'persistent_variable' ) );
+        }
+        if ( isset( $this->configuration['PersistentVariable'] ) && is_array( $this->configuration['PersistentVariable'] ) )
+        {
+            $contentInfoArray['persistent_variable'] = array_merge( $contentInfoArray['persistent_variable'], $this->configuration['PersistentVariable'] );
         }
         $tpl->setVariable( 'persistent_variable', false );
         $Result['content_info'] = $contentInfoArray;
-        $Result['content'] = $tpl->fetch( "design:{$this->getTemplateDirectory()}/edit.tpl" );
         $Result['path']  = array();
         if ( $currentPost instanceof Punto )
         {

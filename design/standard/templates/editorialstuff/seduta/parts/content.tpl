@@ -42,7 +42,7 @@
 
     <hr/>
 
-    {foreach $post.object.data_map as $identifier => $attribute}
+    {foreach $post.content_attributes as $identifier => $attribute}
         <div class="row edit-row">
             <div class="col-md-3"><strong>{$attribute.contentclass_attribute_name}</strong></div>
             <div class="col-md-9">
@@ -50,6 +50,7 @@
             </div>
         </div>
     {/foreach}
+
 
     <hr />
     <h2>

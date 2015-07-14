@@ -17,6 +17,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $attributes[] = 'odg';
         $attributes[] = 'count_documenti';
         $attributes[] = 'documenti';
+        $attributes[] = 'presenze';
         return $attributes;
     }
 
@@ -36,6 +37,9 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
         if ( $property == 'documenti' )
             return $this->getAllegati( 'documenti' );
+
+        if ( $property == 'presenze' )
+            return $this->presenze();
 
         return parent::attribute( $property );
     }
@@ -275,8 +279,23 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         return false;
     }
 
+    public function presenze( $startTime = null, $inOut = null, $type = null, $userId = null )
+    {
+        return OpenPAConsiglioPresenza::fetchBySeduta( $this, $startTime, $inOut, $type, $userId );
+    }
+
     public function addPresenza( $inOut, $type = 'manual', $userId = null )
     {
+        if ( $inOut === null )
+        {
+            throw new Exception( "Parametro in_out non trovato" );
+        }
+
+        if ( $type === null )
+        {
+            throw new Exception( "Parametro type non trovato" );
+        }
+
         if ( $userId === null )
         {
             $userId = eZUser::currentUserID();
@@ -291,7 +310,14 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     public function checkAccess( $userId )
     {
         //check $userId: se non è un politico viene sollevata eccezione
-        OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId( $userId );
+        try
+        {
+            OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId( $userId );
+        }
+        catch( Exception $e )
+        {
+            throw new Exception( 'Politico non trovato' );
+        }
 
         //check data ora seduta
         $dataOra = $this->dataOra( false );

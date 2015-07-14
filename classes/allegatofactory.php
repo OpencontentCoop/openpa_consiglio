@@ -32,9 +32,13 @@ class AllegatoFactory extends OCEditorialStuffPostFactory implements OCEditorial
         $Result = array();
         $contentInfoArray = array( 'url_alias' => 'editorialstuff/dashboard' );
         $contentInfoArray['persistent_variable'] = array( 'show_path' => true, 'site_title' => 'Dashboard' );
-        if ( $tpl->variable( 'persistent_variable' ) !== false )
+        if ( is_array( $tpl->variable( 'persistent_variable' ) ) )
         {
-            $contentInfoArray['persistent_variable'] = $tpl->variable( 'persistent_variable' );
+            $contentInfoArray['persistent_variable'] = array_merge( $contentInfoArray['persistent_variable'], $tpl->variable( 'persistent_variable' ) );
+        }
+        if ( isset( $this->configuration['PersistentVariable'] ) && is_array( $this->configuration['PersistentVariable'] ) )
+        {
+            $contentInfoArray['persistent_variable'] = array_merge( $contentInfoArray['persistent_variable'], $this->configuration['PersistentVariable'] );
         }
         $tpl->setVariable( 'persistent_variable', false );
         $Result['content_info'] = $contentInfoArray;

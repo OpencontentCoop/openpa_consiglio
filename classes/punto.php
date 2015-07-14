@@ -204,19 +204,19 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 //                'template_uri' => "design:{$templatePath}/parts/persone_coinvolte.tpl"
 //            );
 //        }
-        if ( $currentUser->hasAccessTo( 'punto', 'presenze' ) )
-        {
-            $tabs[] = array(
-                'identifier' => 'presenze',
-                'name' => 'Presenze',
-                'template_uri' => "design:{$templatePath}/parts/presenze.tpl"
-            );
-        }
+//        if ( $currentUser->hasAccessTo( 'punto', 'presenze' ) )
+//        {
+//            $tabs[] = array(
+//                'identifier' => 'presenze',
+//                'name' => 'Presenze',
+//                'template_uri' => "design:{$templatePath}/parts/presenze.tpl"
+//            );
+//        }
         if ( $currentUser->hasAccessTo( 'punto', 'votazioni' ) )
         {
             $tabs[] = array(
                 'identifier' => 'votazioni',
-                'name' => 'Votazioni e esito',
+                'name' => 'Votazioni',
                 'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
             );
         }

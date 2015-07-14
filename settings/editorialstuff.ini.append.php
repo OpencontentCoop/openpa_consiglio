@@ -7,6 +7,12 @@ Identifiers[]=allegati_seduta
 Identifiers[]=invitato
 Identifiers[]=invito
 Identifiers[]=politico
+Identifiers[]=tecnico
+Identifiers[]=audizione
+Identifiers[]=materia
+
+[Settings]
+DefaultFactoryClassName=OpenPAConsiglioDefaultFactory
 
 [seduta]
 ClassName=SedutaFactory
@@ -23,6 +29,8 @@ States[published]=Confermata
 States[in_progress]=In corso
 States[closed]=Conclusa
 Name=Elenco sedute
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 
 [punto]
 ClassName=PuntoFactory
@@ -32,6 +40,21 @@ AttributeIdentifiers[]
 StateGroup=punto
 States[draft]=Bozza
 States[published]=Pubblicato
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+Name=Elenco punti
+
+[audizione]
+ClassIdentifier=audizione
+CreationButtonText=Crea nuova audizione
+CreationRepositoryNode=1200
+RepositoryNodes[]
+RepositoryNodes[]=1200
+AttributeIdentifiers[]
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+Name=Elenco audizioni
+
 
 [allegati_seduta]
 Name=Allegati alle sedute
@@ -45,6 +68,9 @@ StateGroup=visibilita_allegato_seduta
 States[consiglieri]=Consiglieri
 States[referenti]=Referenti all'argomento
 AttributeIdentifiers[]
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+
 
 [invitato]
 ClassIdentifier=invitato
@@ -54,6 +80,8 @@ CreationRepositoryNode=1183
 RepositoryNodes[]
 RepositoryNodes[]=1183
 Name=Invitati alle sedute
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 
 [invito]
 ClassIdentifier=invito
@@ -62,9 +90,32 @@ AttributeIdentifiers[]
 RepositoryNodes[]
 RepositoryNodes[]=1
 Name=Inviti a sedute
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 
 [politico]
 ClassIdentifier=politico
 CreationButtonText=Crea nuovo politico
-CreationRepositoryNode=5
-RepositoryNodes[]=1
+CreationRepositoryNode=1127
+RepositoryNodes[]=1127
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+
+[tecnico]
+ClassIdentifier=tecnico
+CreationButtonText=Crea nuovo tecnico
+CreationRepositoryNode=1168
+RepositoryNodes[]=1168
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+
+[materia]
+ClassIdentifier=materia
+CreationButtonText=Crea nuova materia
+CreationRepositoryNode=1135
+RepositoryNodes[]
+RepositoryNodes[]=1135
+AttributeIdentifiers[]
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+Name=Elenco materie
