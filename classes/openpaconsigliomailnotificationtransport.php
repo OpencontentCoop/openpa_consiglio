@@ -5,10 +5,7 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
     /*!
      Constructor
     */
-    function OpenPAConsiglioNotificationTransport()
-    {
-        $this->OpenPAConsiglioNotificationTransport();
-    }
+    function OpenPAConsiglioMailNotificationTransport() {}
 
     function send( OpenPAConsiglioNotificationItem $item, $parameters )
     {
@@ -36,7 +33,15 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
             $mail->setReceiver( $receiver );
 
             $mail->setSubject( $item->__get('subject') );
-            $mail->setBody( $item->__get('body') );
+
+
+            $tpl = eZTemplate::factory();
+            $tpl->resetVariables();
+
+            $tpl->setVariable( 'content', $item->__get('body') );
+
+            $content = $tpl->fetch( 'design:notification/mail_pagelayout.tpl');
+            $mail->setBody( $content );
 
             if ( isset( $parameters['message_id'] ) )
                 $mail->addExtraHeader( 'Message-ID', $parameters['message_id'] );
@@ -53,6 +58,22 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
             return $mailResult;
         }
     }
+
+    public function sendMassive()
+    {
+        $items = OpenPAConsiglioNotificationItem::fetchItemsToSend( OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT);
+
+        /** @var OpenPAConsiglioNotificationItem $i */
+        foreach ($items as $i)
+        {
+            if ($this->send($i))
+            {
+                $i->setSent();
+            }
+        }
+
+    }
+
 
     function prepareAddressString( $addressList, $mail )
     {

@@ -424,27 +424,51 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
     public function handleCreateNotification( $event, OCEditorialStuffPostInterface $refer = null )
     {
-        // prepara notifica per gli interessati alla materia
-        // prepara notifica per i referenti
+        // prepara notifica per gli iscritti all'update
+        /** @var OCEditorialStuffNotificationRule[] $subscribersRules */
+        $subscribersRules = OCEditorialStuffNotificationRule::fetchList(
+            'punto/create',
+            null,
+            $this->id()
+        );
 
-        echo '<pre>';
-        echo 'create';
-        print_r( $event );
-        exit;
+        foreach ( $subscribersRules as $subscribersRule )
+        {
+            $template = 'punto/create';
+            $template .= in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? '/referente' : '/default';
+            $this->createNotificationItem( $subscribersRule, $template );
+        }
 
+        // Prepara notifica per gli interessati alla materia
+        $utentiAppassionati = array();
+        foreach ( $this->getMateria() as $materia )
+        {
+            $utentiAppassionati = array_merge(
+                $utentiAppassionati,
+                OCEditorialStuffNotificationRule::fetchList(
+                    'materia/like',
+                    null,
+                    $materia->attribute( 'id' )
+                )
+            );
+        }
+        $utentiAppassionati = array_unique( $utentiAppassionati );
 
+        if ( !empty( $utentiAppassionati ) )
+        {
+            foreach ( $utentiAppassionati as $subscribersRule )
+            {
+                $template = 'punto/create/interessato';
+                $this->createNotificationItem( $subscribersRule, $template );
+            }
+
+        }
     }
 
     public function handlePublishNotification( $event, OCEditorialStuffPostInterface $refer = null )
     {
         // prepara notifica per gli interessati alla materia
         // prepara notifica per i referenti
-
-        echo '<pre>';
-        echo 'update';
-        print_r( $event );
-        exit;
-
     }
 
     public function handleUpdateNotification( $event, OCEditorialStuffPostInterface $refer = null )
@@ -456,12 +480,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             null,
             $this->id()
         );
-
-//        OpenPAConsiglioNotificationItem::createFromUserIds(
-//            $this,
-//            $subscribersIds,
-//            $this->getFactory()->identifier() . '/update/referente'
-//        );
 
         foreach ( $subscribersRules as $subscribersRule )
         {
@@ -496,6 +514,21 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         }
     }
 
+    public function handleAddFileNotification( $event, OCEditorialStuffPostInterface $refer = null )
+    {
+        // prepara notifica per i referenti
+        // prepara notifica per gli invitati
+    }
+
+    public function handleUpdateFileNotification(
+        $event,
+        OCEditorialStuffPostInterface $refer = null
+    )
+    {
+        // prepara notifica per i referenti
+        // prepara notifica per gli invitati
+    }
+
     protected function createNotificationItem( OCEditorialStuffNotificationRule $subscribersRule, $template )
     {
         $type = $subscribersRule->attribute( 'use_digest' ) ?
@@ -512,30 +545,27 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $content = $tpl->fetch( 'design:notification/email/' . $template . '.tpl');
         $subject = $tpl->variable( 'subject' );
 
-        $item = new OpenPAConsiglioNotificationItem( array() );
-        $item->setAttribute( 'object_id', $this->id() );
-        $item->setAttribute( 'user_id', $subscribersRule->attribute( 'user_id' ) );
-        $item->setAttribute( 'created_time', time() );
-        $item->setAttribute( 'type', $type );
-        $item->setAttribute( 'subject', $subject );
-        $item->setAttribute( 'body', $content );
-        $item->setAttribute( 'expected_send_time', $time );
-        $item->store();
-    }
+        $item = OpenPAConsiglioNotificationItem::create(
+            array(
+                'object_id'          => $this->id(),
+                'user_id'            => $subscribersRule->attribute( 'user_id' ),
+                'created_time'       => time(),
+                'type'               => $type,
+                'subject'            => $subject,
+                'body'               => $content,
+                'expected_send_time' => $time
+            )
+        );
 
-    public function handleAddFileNotification( $event, OCEditorialStuffPostInterface $refer = null )
-    {
-        // prepara notifica per i referenti
-        // prepara notifica per gli invitati
-    }
-
-    public function handleUpdateFileNotification(
-        $event,
-        OCEditorialStuffPostInterface $refer = null
-    )
-    {
-        // prepara notifica per i referenti
-        // prepara notifica per gli invitati
+        //$item = new OpenPAConsiglioNotificationItem( array() );
+        //$item->setAttribute( 'object_id', $this->id() );
+        //$item->setAttribute( 'user_id', $subscribersRule->attribute( 'user_id' ) );
+        //$item->setAttribute( 'created_time', time() );
+        //$item->setAttribute( 'type', $type );
+        //$item->setAttribute( 'subject', $subject );
+        //$item->setAttribute( 'body', $content );
+        //$item->setAttribute( 'expected_send_time', $time );
+        //$item->store();
     }
 
     public function executeAction( $actionIdentifier, $actionParameters )
@@ -550,8 +580,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         }
     }
 
-    // TODO: Creare un metodo generale nelle post notifiable?
-    public function getNotificationVars()
+    protected function getNotificationVars()
     {
 
         $materia = array();

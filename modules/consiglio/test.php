@@ -20,11 +20,9 @@ echo $item->__get('subject');
 //$item->send();
 */
 
-$items = OpenPAConsiglioNotificationItem::fetchItemsToSend();
+/** @var OpenPAConsiglioNotificationItem $items */
 
+$items = OpenPAConsiglioNotificationItem::fetchItemsToSend( OpenPAConsiglioNotificationTransport::DIGEST_TRANSPORT);
 
-echo '<pre>';
-print_r($items);
+OpenPAConsiglioNotificationItem::sendByType(OpenPAConsiglioNotificationTransport::DIGEST_TRANSPORT);
 
-
-exit;

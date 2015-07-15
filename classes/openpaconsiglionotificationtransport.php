@@ -19,9 +19,6 @@ class OpenPAConsiglioNotificationTransport
         $className = 'OpenPAConsiglio' . $transport . 'NotificationTransport';
 
         if (class_exists( $className )) {
-
-            echo $className;
-
             $impl = new $className();
         }
 
@@ -34,6 +31,11 @@ class OpenPAConsiglioNotificationTransport
     }
 
     public function send( OpenPAConsiglioNotificationItem $item)
+    {
+        return true;
+    }
+
+    public static function sendMassive()
     {
         return true;
     }

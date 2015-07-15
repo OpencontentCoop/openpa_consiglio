@@ -98,6 +98,7 @@
     </tr>
     <tr>
         <td colspan="2" style="text-align: left; padding: 0 10%;">
+            <p><i>Messaggio generato automaticamente, si prega di non rispondere.</i></p>
             {$content}
         </td>
     </tr>
