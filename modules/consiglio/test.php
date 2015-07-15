@@ -15,4 +15,8 @@ $item = OpenPAConsiglioNotificationItem::create($data);
 echo '<pre>';
 print_r($item);
 
+echo $item->__get('subject');
+
+//$item->send();
+
 exit;

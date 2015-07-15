@@ -371,6 +371,9 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             $this->getSeduta()->reorderOdg();
         }
 
+        // TODO: serve un metodo che elimina i vecchi referenti
+        $this->addUsersToNotifications();
+
         if ( $this->is( '_public' ) )
         {
             $this->createNotificationEvent( 'update' );
@@ -404,15 +407,22 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
     public function handleUpdateNotification( $event, OCEditorialStuffPostInterface $refer = null )
     {
-        // prepara notifica per i referenti
-
+        // prepara notifica per gli iscritti all'update
+        $subscribersIds = OCEditorialStuffNotificationRule::fetchUserIdList( $this->getFactory()->identifier() . '/update', $this->id());
+        OpenPAConsiglioNotificationItem::createFromUserIds($this, $subscribersIds, $this->getFactory()->identifier() . '/update/referente');
 
         // Prepara notifica per gli interessati alla materia
-        $materia = $this->ge
         $utentiAppassionati = array();
         foreach( $this->getMateria() as $materia )
+        {
             $utentiAppassionati = array_merge( $utentiAppassionati, OCEditorialStuffNotificationRule::fetchUserIdList( 'materia/like', $materia->attribute( 'id' ) ) );
+        }
         $utentiAppassionati = array_unique( $utentiAppassionati );
+
+        if (!empty($utentiAppassionati))
+        {
+            OpenPAConsiglioNotificationItem::createFromUserIds($this, $utentiAppassionati, $this->getFactory()->identifier() . '/update/interessato');
+        }
     }
 
     public function handleAddFileNotification( $event, OCEditorialStuffPostInterface $refer = null )
@@ -437,6 +447,26 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 $this->addInvitato( $invitatoObject );
             }
         }
+    }
+
+    // TODO: Creare un metodo generale nelle post notifiable?
+    public function getNotificationVars()
+    {
+
+        $materia = array();
+        foreach ($this->getMateria() as $m)
+        {
+            $materia []= $m->Name;
+        }
+
+        return array(
+            'seduta'           => $this->getSeduta()->object->Name,
+            'oggetto'          => $this->dataMap['oggetto']->content(),
+            'materia'          => implode('- ', $materia),
+            'data_seduta'      => $this->getSeduta(true)->dataOra(),
+            'osservazioni'     => $this->dataMap['consenti_osservazioni']->content(),
+            'termine_oss' => strftime('%d/%m/%Y  alle ore %H:%M', $this->dataMap['termine_osservazioni']->toString())
+        );
     }
 
     public function notificationSubscribers()
@@ -467,6 +497,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
                     break;
                 case 'update':
+                    // Referenti
+                    $userIds = $this->getIdsReferenti();
 
                     break;
                 case 'add_file':

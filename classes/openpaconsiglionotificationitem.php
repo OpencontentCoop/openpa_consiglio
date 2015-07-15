@@ -11,7 +11,10 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
 
     function OpenPAConsiglioNotificationItem( $row )
     {
-        $this->eZPersistentObject( $row );
+        //$this->eZPersistentObject( $row );
+        $this->PersistentDataDirty = false;
+        if ( !empty( $row ) )
+            $this->fill( $row );
     }
 
     public static function definition()
@@ -21,7 +24,7 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
                 'id' => array(
                     'name' => 'ID',
                     'datatype' => 'integer',
-                    'default' => 0,
+                    'default'  => null,
                     'required' => true
                 ),
                 'object_id' => array(
@@ -64,7 +67,7 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
                     'name'     => 'expected_send_time',
                     'datatype' => 'integer',
                     'default'  => null,
-                    'required' => true
+                    'required' => false
                 ),
                 'sent'   => array(
                     'name'     => 'sent',
@@ -85,7 +88,10 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
             'function_attributes'  => array(
                 'user' => 'getUser'
             ),
-            'set_functions'        => array()
+            'set_functions'        => array(
+                'params' => 'setParams',
+                'user'   => 'setUser'
+            )
         );
     }
 
@@ -105,6 +111,90 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
         return $notification;
     }
 
+    public static function createFromUserIds( $object,  $userIds, $template )
+    {
+        $subject = '';
+        $tpl = eZTemplate::factory();
+        $tpl->resetVariables();
+
+        switch ($template)
+        {
+            case 'punto/create/referente':
+                $subject = 'Subject referente';
+                break;
+
+            case 'punto/create/interessato':
+                $subject = 'Subject interessato';
+                break;
+
+            case 'punto/update/referente':
+                $subject = 'Subject referente';
+                break;
+
+            case 'punto/update/interessato':
+                $subject = 'Subject interessato';
+                break;
+
+            default:
+
+                break;
+        }
+
+        foreach( $object->getNotificationVars() as $k => $v)
+        {
+            $tpl->setVariable( $k, $v );
+        }
+
+        $content = $tpl->fetch( 'design:notification/email/'.$template.'.tpl');
+
+        if (!empty($userIds))
+        {
+            $db = eZDB::instance();
+            $db->begin();
+            foreach ($userIds as $u)
+            {
+
+                // TODO recupeare preferenza utente e creare notifiche in base ad esse, per ora solo email
+                /*
+                $time = time();
+                $row = array(
+                    'object_id'          => $object->id(),
+                    'user_id'            => $u,
+                    'created_time'       => $time,
+                    'type'               => 'email',
+                    'subject'            => $subject,
+                    'body'               => $content
+                );
+                $item = new OpenPAConsiglioNotificationItem( $row );
+                $item->store();
+                */
+
+                $item = new OpenPAConsiglioNotificationItem( array() );
+                $item->setAttribute( 'object_id', $object->id() );
+                $item->setAttribute( 'user_id', $u );
+                $item->setAttribute( 'created_time', time() );
+                $item->setAttribute( 'type', 'email' );
+                $item->setAttribute( 'subject', $subject );
+                $item->setAttribute( 'body', $content );
+                // TODO: in caso di digest impostare ora scelta, per ora invio immediato
+                $item->setAttribute( 'expected_send_time', time() );
+                $item->store();
+            }
+            $db->commit();
+        }
+    }
+
+    public function send()
+    {
+        $transport = OpenPAConsiglioNotificationTransport::instance();
+        if ($transport->send( $this ))
+        {
+            $this->setAttribute('sent', 1);
+            $this->setAttribute('sent_time', time());
+        }
+
+    }
+
     public function __get( $name )
     {
         $ret = null;
@@ -113,7 +203,6 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
 
         return $ret;
     }
-
 
     public function getUser()
     {
@@ -127,6 +216,16 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
     {
         $this->user = $user;
         $this->setAttribute( 'user_id', $user->attribute( 'contentobject_id' ) );
+    }
+
+    public static function fetchByUserType( $type )
+    {
+        // TODO
+    }
+
+    public static function fetchByUserID( $userID )
+    {
+        // TODO
     }
 
     public static function fetchList( $offset = 0, $limit = 0, $conds = null )

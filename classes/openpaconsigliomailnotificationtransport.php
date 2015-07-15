@@ -10,47 +10,49 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
         $this->OpenPAConsiglioNotificationTransport();
     }
 
-    function send( $addressList = array(), $subject, $body, $transportData = null, $parameters = array() )
+    function send( OpenPAConsiglioNotificationItem $item, $parameters )
     {
-        $ini = eZINI::instance();
-        $mail = new eZMail();
-        $addressList = $this->prepareAddressString( $addressList, $mail );
-
-        if ( $addressList == false )
+        $user = $item->getUser();
+        if  ( $user instanceof eZUser && $user->attribute( 'is_enabled' ) )
         {
-            eZDebug::writeError( 'Error with receiver', __METHOD__ );
-            return false;
-        }
 
-        $notificationINI = eZINI::instance( 'notification.ini' );
-        $emailSender = $notificationINI->variable( 'MailSettings', 'EmailSender' );
-        if ( !$emailSender )
+            $ini = eZINI::instance();
+            $mail = new eZMail();
+
+            $receiver = $user->attribute( 'email' );
+
+            if ( !$mail->validate( $receiver ) )
+            {
+                eZDebug::writeError( 'Error with receiver', __METHOD__ );
+                return false;
+            }
+
             $emailSender = $ini->variable( 'MailSettings', 'EmailSender' );
-        if ( !$emailSender )
-            $emailSender = $ini->variable( "MailSettings", "AdminEmail" );
+            if ( !$emailSender )
+                $emailSender = $ini->variable( "MailSettings", "AdminEmail" );
 
-        foreach ( $addressList as $addressItem )
-        {
-            $mail->extractEmail( $addressItem, $email, $name );
-            $mail->addBcc( $email, $name );
+            $senderName = $ini->variable( 'SiteSettings', 'SiteName' );
+            $mail->setSender( $emailSender, $senderName );
+            $mail->setReceiver( $receiver );
+
+            $mail->setSubject( $item->__get('subject') );
+            $mail->setBody( $item->__get('body') );
+
+            if ( isset( $parameters['message_id'] ) )
+                $mail->addExtraHeader( 'Message-ID', $parameters['message_id'] );
+            if ( isset( $parameters['references'] ) )
+                $mail->addExtraHeader( 'References', $parameters['references'] );
+            if ( isset( $parameters['reply_to'] ) )
+                $mail->addExtraHeader( 'In-Reply-To', $parameters['reply_to'] );
+            if ( isset( $parameters['from'] ) )
+                $mail->setSenderText( $parameters['from'] );
+            if ( isset( $parameters['content_type'] ) )
+                $mail->setContentType( $parameters['content_type'] );
+
+            $mailResult = eZMailTransport::send( $mail );
+            return $mailResult;
         }
-        $mail->setSender( $emailSender );
-        $mail->setSubject( $subject );
-        $mail->setBody( $body );
-        if ( isset( $parameters['message_id'] ) )
-            $mail->addExtraHeader( 'Message-ID', $parameters['message_id'] );
-        if ( isset( $parameters['references'] ) )
-            $mail->addExtraHeader( 'References', $parameters['references'] );
-        if ( isset( $parameters['reply_to'] ) )
-            $mail->addExtraHeader( 'In-Reply-To', $parameters['reply_to'] );
-        if ( isset( $parameters['from'] ) )
-            $mail->setSenderText( $parameters['from'] );
-        if ( isset( $parameters['content_type'] ) )
-            $mail->setContentType( $parameters['content_type'] );
-        $mailResult = eZMailTransport::send( $mail );
-        return $mailResult;
     }
-
 
     function prepareAddressString( $addressList, $mail )
     {
@@ -81,4 +83,5 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
         }
         return false;
     }
+
 }
