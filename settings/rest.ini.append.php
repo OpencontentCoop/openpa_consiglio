@@ -11,5 +11,7 @@ RequireAuthentication=enabled
 AuthenticationStyle=ezpRestBasicAuthStyle
 DefaultUserID=
 
+[RouteSettings]
+SkipFilter[]=ConsiglioApiController_auth
 
 */ ?>

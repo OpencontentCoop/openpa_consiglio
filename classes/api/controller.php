@@ -3,6 +3,20 @@
 class ConsiglioApiController extends ezpRestMvcController
 {
 
+    public function doAuth()
+    {
+        $result = new ezpRestMvcResult();
+        $login = isset( $this->request->get['login'] ) ? $this->request->get['login'] : null;        
+        $password = isset( $this->request->get['password'] ) ? $this->request->get['password'] : null;        
+        $user = eZUser::loginUser( $login, $password );
+        if ( !$user instanceof eZUser )
+        {
+            throw new Exception( "Authentication failed" );
+        }        
+        $result->variables = array( 'result' => 'success' );        
+        return $result;
+    }
+    
     public function doLoadSedutaList()
     {
         $parameters = array(
