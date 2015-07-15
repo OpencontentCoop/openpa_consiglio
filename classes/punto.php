@@ -548,7 +548,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             $tpl->setVariable( $name, $value );
         }
-        $content = $tpl->fetch( 'design:notification/email/' . $templateName . '.tpl');
+        $content = $tpl->fetch( 'design:consiglio/notification/email/' . $templateName . '.tpl');
         $subject = $tpl->variable( 'subject' );
 
         return OpenPAConsiglioNotificationItem::create(
