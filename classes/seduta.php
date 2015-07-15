@@ -152,7 +152,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
      *
      * @return DateTime|string
      */
-    protected function dataOra( $returnFormat = 'U' )
+    public function dataOra( $returnFormat = 'U' )
     {
         /** @var eZDate $data */
         $data = $this->dataMap['data']->content();
