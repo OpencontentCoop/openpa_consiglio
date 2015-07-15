@@ -20,3 +20,27 @@ CREATE INDEX openpa_consiglio_presenza_type ON openpa_consiglio_presenza USING b
 CREATE INDEX openpa_consiglio_presenza_user_id ON openpa_consiglio_presenza USING btree (user_id);
 CREATE INDEX openpa_consiglio_presenza_seduta_id ON openpa_consiglio_presenza USING btree (seduta_id);
 
+CREATE SEQUENCE openpaconsiglionotificationitem_s
+  INCREMENT 1
+  MINVALUE 1
+  MAXVALUE 9223372036854775807
+  START 1
+  CACHE 1;
+
+CREATE TABLE openpaconsiglionotificationitem
+(
+  id integer NOT NULL DEFAULT nextval('openpaconsiglionotificationitem_s'::regclass),
+  object_id integer DEFAULT 0,
+  user_id integer DEFAULT 0,
+  created_time integer DEFAULT 0,
+  type character varying(50),
+  subject character varying(250),
+  body text,
+  expected_send_time integer DEFAULT 0,
+  sent integer DEFAULT 0,
+  sent_time integer DEFAULT 0,
+  CONSTRAINT pk_id PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);

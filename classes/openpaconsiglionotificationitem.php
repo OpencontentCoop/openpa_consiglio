@@ -173,7 +173,7 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
                 $item->setAttribute( 'object_id', $object->id() );
                 $item->setAttribute( 'user_id', $u );
                 $item->setAttribute( 'created_time', time() );
-                $item->setAttribute( 'type', 'email' );
+                $item->setAttribute( 'type', OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT );
                 $item->setAttribute( 'subject', $subject );
                 $item->setAttribute( 'body', $content );
                 // TODO: in caso di digest impostare ora scelta, per ora invio immediato
@@ -186,13 +186,12 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
 
     public function send()
     {
-        $transport = OpenPAConsiglioNotificationTransport::instance();
+        $transport = OpenPAConsiglioNotificationTransport::instance($this->__get('type'));
         if ($transport->send( $this ))
         {
             $this->setAttribute('sent', 1);
             $this->setAttribute('sent_time', time());
         }
-
     }
 
     public function __get( $name )
@@ -218,15 +217,6 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
         $this->setAttribute( 'user_id', $user->attribute( 'contentobject_id' ) );
     }
 
-    public static function fetchByUserType( $type )
-    {
-        // TODO
-    }
-
-    public static function fetchByUserID( $userID )
-    {
-        // TODO
-    }
 
     public static function fetchList( $offset = 0, $limit = 0, $conds = null )
     {
@@ -239,6 +229,34 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
         $aImports = self::fetchObjectList( self::definition(), null, $conds, $sort, $aLimit );
 
         return $aImports;
+    }
+
+    public static function fetchListByUserType( $userID, $type )
+    {
+        return self::fetchList(0, 0, array('user_id' => $userID, 'type' => $type));
+    }
+
+    public static function fetchListByUserID( $userID )
+    {
+        return self::fetchList(0, 0, array('user_id' => $userID));
+    }
+
+    public static function fetchItemsToSend( $type = false) {
+
+        $conds = array();
+
+        if ($type) {
+            $conds ['type'] = $type;
+        }
+
+        $conds ['sent'] = 0;
+
+        $conds ['expected_send_time'] = array();
+        $conds ['expected_send_time'][]= '<=';
+        $conds ['expected_send_time'][]= time();
+
+        return self::fetchList(0, 0, $conds);
+
     }
 
 }

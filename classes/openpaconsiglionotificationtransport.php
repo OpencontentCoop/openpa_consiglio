@@ -4,6 +4,8 @@ class OpenPAConsiglioNotificationTransport
 {
 
     const DEFAULT_TRANSPORT = 'Mail';
+    const DIGEST_TRANSPORT  = 'Digest';
+    const WHATSAPP_TRASPORT = 'Whatsapp';
 
     public function __construct(){}
 

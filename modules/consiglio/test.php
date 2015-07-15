@@ -1,6 +1,6 @@
 <?php
 
-
+/*
 $data = array(
     'object_id'          => 1,
     'user_id'            => 14,
@@ -18,5 +18,13 @@ print_r($item);
 echo $item->__get('subject');
 
 //$item->send();
+*/
+
+$items = OpenPAConsiglioNotificationItem::fetchItemsToSend();
+
+
+echo '<pre>';
+print_r($items);
+
 
 exit;
