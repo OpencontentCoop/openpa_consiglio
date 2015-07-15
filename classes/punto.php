@@ -166,7 +166,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
      *
      * @param bool $asObject
      *
-     * @return int|Seduta
+     * @return Seduta|int
      */
     public function getSeduta( $asObject = true )
     {
@@ -451,14 +451,17 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $utentiAppassionati = array();
         foreach ( $this->getMateria() as $materia )
         {
-            $utentiAppassionati = array_merge(
-                $utentiAppassionati,
-                OCEditorialStuffNotificationRule::fetchList(
-                    'materia/like',
-                    null,
-                    $materia->attribute( 'id' )
-                )
-            );
+            if ( $materia instanceof eZContentObject )
+            {
+                $utentiAppassionati = array_merge(
+                    $utentiAppassionati,
+                    OCEditorialStuffNotificationRule::fetchList(
+                        'materia/like',
+                        null,
+                        $materia->attribute( 'id' )
+                    )
+                );
+            }
         }
         $utentiAppassionati = array_unique( $utentiAppassionati );
 
@@ -469,14 +472,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 $template = 'punto/create/interessato';
                 $this->createNotificationItem( $subscribersRule, $template );
             }
-
         }
     }
 
     public function handlePublishNotification( $event, OCEditorialStuffPostInterface $refer = null )
     {
-        // prepara notifica per gli interessati alla materia
-        // prepara notifica per i referenti
     }
 
     public function handleUpdateNotification( $event, OCEditorialStuffPostInterface $refer = null )
@@ -537,23 +537,41 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         // prepara notifica per gli invitati
     }
 
-    protected function createNotificationItem( OCEditorialStuffNotificationRule $subscribersRule, $template )
+    /**
+     * @param OCEditorialStuffNotificationRule $subscribersRule
+     * @param string $templateName
+     *
+     * @return OpenPAConsiglioNotificationItem
+     */
+    protected function createNotificationItem( OCEditorialStuffNotificationRule $subscribersRule, $templateName )
     {
         $type = $subscribersRule->attribute( 'use_digest' ) ?
             OpenPAConsiglioNotificationTransport::DIGEST_TRANSPORT : OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT;
 
         $time = $subscribersRule->attribute( 'use_digest' ) ? 'todo' : time(); //@todo
 
+        $variables = array(
+            'seduta' => $this->getSeduta()->object->Name,
+            'oggetto' => $this->dataMap['oggetto']->content(),
+            'materia' => implode( '- ', $this->stringRelatedObjectAttribute( 'materia', 'name' ) ),
+            'data_seduta' => $this->getSeduta( true )->dataOra(),
+            'osservazioni' => $this->dataMap['consenti_osservazioni']->content(),
+            'termine_oss' => strftime(
+                '%d/%m/%Y  alle ore %H:%M',
+                $this->dataMap['termine_osservazioni']->toString()
+            )
+        );
+
         $tpl = eZTemplate::factory();
         $tpl->resetVariables();
-        foreach( $this->getNotificationVars() as $k => $v)
+        foreach( $variables as $name => $value )
         {
-            $tpl->setVariable( $k, $v );
+            $tpl->setVariable( $nam, $value );
         }
-        $content = $tpl->fetch( 'design:notification/email/' . $template . '.tpl');
+        $content = $tpl->fetch( 'design:notification/email/' . $templateName . '.tpl');
         $subject = $tpl->variable( 'subject' );
 
-        $item = OpenPAConsiglioNotificationItem::create(
+        return OpenPAConsiglioNotificationItem::create(
             array(
                 'object_id'          => $this->id(),
                 'user_id'            => $subscribersRule->attribute( 'user_id' ),
@@ -564,16 +582,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 'expected_send_time' => $time
             )
         );
-
-        //$item = new OpenPAConsiglioNotificationItem( array() );
-        //$item->setAttribute( 'object_id', $this->id() );
-        //$item->setAttribute( 'user_id', $subscribersRule->attribute( 'user_id' ) );
-        //$item->setAttribute( 'created_time', time() );
-        //$item->setAttribute( 'type', $type );
-        //$item->setAttribute( 'subject', $subject );
-        //$item->setAttribute( 'body', $content );
-        //$item->setAttribute( 'expected_send_time', $time );
-        //$item->store();
     }
 
     public function executeAction( $actionIdentifier, $actionParameters )
@@ -587,35 +595,12 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             }
         }
     }
-    protected function getNotificationVars()
-
-    {
-
-        $materia = array();
-        foreach ( $this->getMateria() as $m )
-        {
-            $materia [] = $m->Name;
-        }
-
-        return array(
-            'seduta' => $this->getSeduta()->object->Name,
-            'oggetto' => $this->dataMap['oggetto']->content(),
-            'materia' => implode( '- ', $materia ),
-            'data_seduta' => $this->getSeduta( true )->dataOra(),
-            'osservazioni' => $this->dataMap['consenti_osservazioni']->content(),
-            'termine_oss' => strftime(
-                '%d/%m/%Y  alle ore %H:%M',
-                $this->dataMap['termine_osservazioni']->toString()
-            )
-        );
-    }
 
     public function notificationSubscribers()
     {
         $data = array();
-        foreach (
-            $this->getFactory()->notificationEventTypesConfiguration() as $identifier => $type
-        )
+        foreach ( $this->getFactory()->notificationEventTypesConfiguration()
+                  as $identifier => $type )
         {
             $data[$identifier] = array(
                 'name' => $type['name'],
@@ -639,12 +624,10 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             switch ( $type )
             {
                 case 'create':
-                    // referenti
                     $userIds = $this->getIdsReferenti();
 
                     break;
                 case 'update':
-                    // Referenti
                     $userIds = $this->getIdsReferenti();
 
                     break;
@@ -727,7 +710,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
      *
      * @return array
      */
-
     protected function getIdsReferenti()
     {
         $result = array();
@@ -747,6 +729,9 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         return array_unique( $result );
     }
 
+    /**
+     * @return bool
+     */
     protected function canAddOsservazioni()
     {
         if ( $this->is( '_public' ) )
@@ -754,16 +739,18 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             if ( isset( $this->dataMap['consenti_osservazioni'] ) && isset( $this->dataMap['termine_osservazioni'] ) )
             {
                 $now = time();
-
                 return $this->dataMap['consenti_osservazioni']->attribute( 'data_int' ) == 1
                        && $now < $this->dataMap['termine_osservazioni']->toString();
-
             }
         }
-
         return false;
     }
 
+    /**
+     * @param $identifier
+     *
+     * @return Allegato[]
+     */
     protected function getAllegati( $identifier )
     {
         $result = array();
@@ -787,6 +774,9 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         return $result;
     }
 
+    /**
+     * @return OCEditorialStuffPostInterface[]
+     */
     protected function getInvitati()
     {
         $result = array();
@@ -810,6 +800,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         return $result;
     }
 
+    /**
+     * @param $identifier
+     *
+     * @return int
+     */
     protected function getCount( $identifier )
     {
         if ( isset( $this->dataMap[$identifier] ) )
@@ -826,12 +821,27 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         return 0;
     }
 
-    // @todo usare una factory ad hoc?
+    /**
+     * @todo occorre usare una factory ad hoc?
+     *
+     * @param null $attributeIdentifier
+     *
+     * @return eZContentObject[]|string[]
+     */
     protected function getMateria( $attributeIdentifier = null )
     {
         return $this->stringRelatedObjectAttribute( 'materia', $attributeIdentifier );
     }
 
+    /**
+     * Restituisce l'attributo $attributeIdentifier degli oggetti correlati all'attributo $identifier
+     * Se $attributeIdentifier = null restituisce gli oggetti
+     *
+     * @param string $identifier
+     * @param string $attributeIdentifier
+     *
+     * @return array|null
+     */
     protected function stringRelatedObjectAttribute( $identifier, $attributeIdentifier = null )
     {
         $data = array();
@@ -867,6 +877,13 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         return empty( $data ) ? null : $data;
     }
 
+    /**
+     * Restituisce il toString dell'attributo $identifier filtrato da $callback (se presente)
+     * @param string $identifier
+     * @param Callable $callback
+     *
+     * @return bool|mixed|string
+     */
     protected function stringAttribute( $identifier, $callback = null )
     {
         $string = '';
