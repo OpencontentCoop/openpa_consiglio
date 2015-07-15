@@ -7,8 +7,12 @@ class OpenPAConsiglioNotificationTransport
     const DIGEST_TRANSPORT  = 'Digest';
     const WHATSAPP_TRASPORT = 'Whatsapp';
 
-    public function __construct(){}
-
+    /**
+     * @param bool $transport
+     * @param bool $forceNewInstance
+     *
+     * @return OpenPAConsiglioNotificationTransport
+     */
     public static function instance( $transport = false, $forceNewInstance = false )
     {
         if (!$transport)
@@ -30,12 +34,20 @@ class OpenPAConsiglioNotificationTransport
         return $impl;
     }
 
-    public function send( OpenPAConsiglioNotificationItem $item)
+    /**
+     * @param OpenPAConsiglioNotificationItem $item
+     *
+     * @return bool
+     */
+    public function send( OpenPAConsiglioNotificationItem $item )
     {
         return true;
     }
 
-    public static function sendMassive()
+    /**
+     * @return bool
+     */
+    public function sendMassive( $parameters = array() )
     {
         return true;
     }
