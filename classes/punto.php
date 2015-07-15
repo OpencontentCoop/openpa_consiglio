@@ -433,7 +433,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     public function handleCreateNotification( $event, OCEditorialStuffPostInterface $refer = null )
     {
         // prepara notifica per gli iscritti all'update
-        /** @var OCEditorialStuffNotificationRule[] $subscribersRules */
         $subscribersRules = OCEditorialStuffNotificationRule::fetchList(
             'punto/create',
             null,
@@ -482,7 +481,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     public function handleUpdateNotification( $event, OCEditorialStuffPostInterface $refer = null )
     {
         // prepara notifica per gli iscritti all'update
-        /** @var OCEditorialStuffNotificationRule[] $subscribersRules */
         $subscribersRules = OCEditorialStuffNotificationRule::fetchList(
             'punto/update',
             null,
@@ -510,7 +508,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             );
         }
         $utentiAppassionati = array_unique( $utentiAppassionati );
-
         if ( !empty( $utentiAppassionati ) )
         {
             foreach ( $utentiAppassionati as $subscribersRule )
@@ -518,7 +515,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 $template = 'punto/update/interessato';
                 $this->createNotificationItem( $subscribersRule, $template );
             }
-
         }
     }
 
@@ -566,7 +562,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $tpl->resetVariables();
         foreach( $variables as $name => $value )
         {
-            $tpl->setVariable( $nam, $value );
+            $tpl->setVariable( $name, $value );
         }
         $content = $tpl->fetch( 'design:notification/email/' . $templateName . '.tpl');
         $subject = $tpl->variable( 'subject' );

@@ -30,13 +30,13 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
             $mail->setSender( $emailSender, $senderName );
             $mail->setReceiver( $receiver );
 
-            $mail->setSubject( $item->__get( 'subject' ) );
+            $mail->setSubject( $item->attribute( 'subject' ) );
 
 
             $tpl = eZTemplate::factory();
             $tpl->resetVariables();
 
-            $tpl->setVariable( 'content', $item->__get( 'body' ) );
+            $tpl->setVariable( 'content', $item->attribute( 'body' ) );
 
             $content = $tpl->fetch( 'design:notification/mail_pagelayout.tpl' );
             $mail->setBody( $content );
