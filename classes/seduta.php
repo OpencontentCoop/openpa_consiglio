@@ -69,30 +69,19 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 'template_uri' => "design:{$templatePath}/parts/documenti.tpl"
             )
         );
-//        if ( $currentUser->hasAccessTo( 'seduta', 'persone_coinvolte' ) )
-//        {
-//            $tabs[] = array(
-//                'identifier' => 'persone_coinvolte',
-//                'name' => 'Persone coinvolte',
-//                'template_uri' => "design:{$templatePath}/parts/persone_coinvolte.tpl"
-//            );
-//        }
-        if ( $currentUser->hasAccessTo( 'seduta', 'presenze' ) )
-        {
-            $tabs[] = array(
-                'identifier' => 'presenze',
-                'name' => 'Presenze',
-                'template_uri' => "design:{$templatePath}/parts/presenze.tpl"
-            );
-        }
-        if ( $currentUser->hasAccessTo( 'seduta', 'votazioni' ) )
-        {
-            $tabs[] = array(
-                'identifier' => 'votazioni',
-                'name' => 'Votazioni e esito',
-                'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
-            );
-        }
+
+        $tabs[] = array(
+            'identifier' => 'presenze',
+            'name' => 'Presenze',
+            'template_uri' => "design:{$templatePath}/parts/presenze.tpl"
+        );
+
+        $tabs[] = array(
+            'identifier' => 'votazioni',
+            'name' => 'Votazioni e esito',
+            'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
+        );
+
         $tabs[] = array(
             'identifier' => 'history',
             'name' => 'Cronologia',

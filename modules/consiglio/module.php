@@ -4,7 +4,7 @@ $Module = array( 'name' => 'Consiglio' );
 $ViewList = array();
 
 $ViewList['test'] = array(
-    'functions' => array( 'use' ),
+    'functions' => array( 'admin' ),
     'script' => 'test.php',
     'params' => array(),
     'unordered_params' => array()
@@ -34,12 +34,5 @@ $ViewList['like'] = array(
 
 $FunctionList = array();
 $FunctionList['use'] = array();
-
-//moduli fake solo per i permessi in visualizzazione
 $FunctionList['admin'] = array();
-$FunctionList['persone_coinvolte'] = array();
-$FunctionList['presenze'] = array();
-$FunctionList['votazioni'] = array();
-
-
 
