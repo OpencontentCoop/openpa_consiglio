@@ -87,7 +87,8 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
             'class_name' => 'OpenPAConsiglioNotificationItem',
             'name' => 'openpaconsiglionotificationitem',
             'function_attributes' => array(
-                'user' => 'getUser'
+                'user' => 'getUser',
+                'post_object' => 'getPostObject'
             ),
             'set_functions' => array(
                 'params' => 'setParams',
@@ -142,10 +143,11 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
      * @param int $offset
      * @param int $limit
      * @param null $conds
+     * @param array $sort
      *
      * @return OpenPAConsiglioNotificationItem[]
      */
-    public static function fetchList( $offset = 0, $limit = 0, $conds = null )
+    public static function fetchList( $offset = 0, $limit = 0, $conds = null, $sort = null )
     {
         if ( !$limit )
         {
@@ -155,8 +157,10 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
         {
             $aLimit = array( 'offset' => $offset, 'length' => $limit );
         }
-
-        $sort = array( 'created_time' => 'asc' );
+        if ( !$sort )
+        {
+            $sort = array( 'created_time' => 'asc' );
+        }
         $aImports = self::fetchObjectList( self::definition(), null, $conds, $sort, $aLimit );
 
         return $aImports;
@@ -188,6 +192,31 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
     {
         $transport = OpenPAConsiglioNotificationTransport::instance( $type );
         $transport->sendMassive();
+    }
+
+    public function getPostObject()
+    {
+        $object = eZContentObject::fetch( $this->attribute( 'object_id' ) );
+        if ( $object instanceof eZContentObject )
+        {
+            foreach ( OCEditorialStuffHandler::instances() as $instance )
+            {
+                if ( $object->attribute( 'class_identifier' ) == $instance->getFactory()->classIdentifier() )
+                {
+                    try
+                    {
+                        return $instance->getFactory()->instancePost(
+                            array( 'object_id' => $object->attribute( 'id' ) )
+                        );
+                    }
+                    catch ( Exception $e )
+                    {
+                        eZDebug::writeError( $e->getMessage(), __METHOD__ );
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }

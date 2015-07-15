@@ -585,7 +585,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             $data[$identifier] = array(
                 'name' => $type['name'],
                 'user_id_list' => OCEditorialStuffNotificationRule::fetchUserIdList(
-                    $identifier,
+                    'punto/' . $identifier,
                     $this->id()
                 )
             );
@@ -612,9 +612,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
                     break;
                 case 'add_file':
+                    $userIds = $this->getIdsReferenti();
 
                     break;
                 case 'update_file':
+                    $userIds = $this->getIdsReferenti();
 
                     break;
             }
