@@ -16,9 +16,13 @@ class Invito extends OCEditorialStuffPost
 
     protected static function generateRemoteId( eZContentObject $puntoOdg, eZContentObject $invitato )
     {
+        $punto = new Punto(
+            array( 'object_id' => $puntoOdg->attribute( 'id' ) ),
+            OCEditorialStuffPostFactory::instance( 'punto')
+        );
         $values = array(
             self::$classIdentifier,
-            $puntoOdg->attribute( 'id' ),
+            $punto->getSeduta( false ),
             $invitato->attribute( 'id' ),
         );
         return implode( '_', $values );
@@ -46,6 +50,18 @@ class Invito extends OCEditorialStuffPost
                     self::$userIdentifier => $invitato->attribute( 'id' )
                 )
             ));
+        }
+        else
+        {
+            /** @var eZContentObjectAttribute[] $dataMap */
+            $dataMap = $invito->attribute( 'data_map' );
+            $objectIds =  explode( '-', $dataMap[self::$objectIdentifier]->toString() );
+            $objectIds[] = $puntoOdg->attribute( 'id' );
+            $objectIdsString = implode( '-', array_unique( $objectIds ) );
+            $dataMap[self::$objectIdentifier]->fromString( $objectIdsString );
+            $dataMap[self::$objectIdentifier]->store();
+            eZSearch::addObject( $invito, true );
+            eZContentCacheManager::clearObjectViewCacheIfNeeded( $invito->attribute( 'id' ) );
         }
         return $invito;
     }

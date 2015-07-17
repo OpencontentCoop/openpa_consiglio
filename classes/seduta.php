@@ -101,15 +101,15 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             $this->dataMap[$attributeIdentifier]->store();
             eZSearch::addObject( $this->getObject() );
             eZContentCacheManager::clearObjectViewCacheIfNeeded( $this->id() );
-            //            OCEditorialStuffHistory::addHistoryToObjectId(
-            //                $this->id(),
-            //                'addfile',
-            //                array(
-            //                    'object_id' => $object->attribute( 'id' ),
-            //                    'name' => $object->attribute( 'name' ),
-            //                    'attribute' => $attributeIdentifier
-            //                )
-            //            );
+            OCEditorialStuffHistory::addHistoryToObjectId(
+                $this->id(),
+                'add_file',
+                array(
+                    'object_id' => $object->attribute( 'id' ),
+                    'name' => $object->attribute( 'name' ),
+                    'attribute' => $attributeIdentifier
+                )
+            );
             return true;
         }
         return false;

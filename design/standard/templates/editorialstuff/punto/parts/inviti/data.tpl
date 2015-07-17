@@ -16,7 +16,7 @@
             </td>
             <td>{$invitato.object.name|wash()}</td>
             <td>
-            {def $invito = fetch( 'content', 'object', hash( 'remote_id', concat( 'invito_', $post.object_id, '_', $invitato.object_id ) ) )}
+            {def $invito = fetch( 'content', 'object', hash( 'remote_id', concat( 'invito_', $post.seduta_id, '_', $invitato.object_id ) ) )}
             {if $invito}
                 <a href="#" class="edit-protocollo" data-type="text" data-name="protocollo"
                    data-pk="{$invito.data_map.protocollo.id}"
