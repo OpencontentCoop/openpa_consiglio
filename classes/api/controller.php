@@ -13,7 +13,10 @@ class ConsiglioApiController extends ezpRestMvcController
         {
             throw new Exception( "Authentication failed" );
         }        
-        $result->variables = array( 'result' => 'success' );        
+        $result->variables = array(
+            'result' => 'success',
+            'user_id' => $user->id()
+        );
         return $result;
     }
     
