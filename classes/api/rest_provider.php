@@ -159,6 +159,24 @@ class ConsiglioApiProvider implements ezpRestProviderInterface
                     'http-get'
                 ), 1
             ),
+            'consiglioApiSedutaLoadAllegato' => new ezpRestVersionedRoute(
+                new ConsiglioApiRailsRoute(
+                    '/allegato/:Id',
+                    'ConsiglioApiController',
+                    'loadAllegato',
+                    array(),
+                    'http-get'
+                ), 1
+            ),
+            'consiglioApiSedutaDownloadAllegato' => new ezpRestVersionedRoute(
+                new ConsiglioApiRailsRoute(
+                    '/allegato/:Id/download',
+                    'ConsiglioApiController',
+                    'downloadAllegato',
+                    array(),
+                    'http-get'
+                ), 1
+            ),
         );
 
         return $routes;

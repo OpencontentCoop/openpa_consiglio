@@ -202,4 +202,30 @@ class ConsiglioApiController extends ezpRestMvcController
         return $result;
     }
 
+    public function doLoadAllegato()
+    {
+        $result = new ezpRestMvcResult();
+        $allegato = OCEditorialStuffHandler::instance( 'allegati_seduta' )->fetchByObjectId( $this->Id );
+        if ( $allegato instanceof Allegato )
+            $result->variables = $allegato->jsonSerialize();
+        return $result;
+    }
+
+    public function doDownloadAllegato()
+    {
+        $allegato = OCEditorialStuffHandler::instance( 'allegati_seduta' )->fetchByObjectId( $this->Id );
+        $result = false;
+        if ( $allegato instanceof Allegato )
+        {
+            $fileHandler = eZBinaryFileHandler::instance();
+            $attributeFile = $allegato->attributeFile() ;
+            ob_start();
+            $result = $fileHandler->handleDownload( $allegato->getObject(), $attributeFile, eZBinaryFileHandler::TYPE_FILE );
+        }
+        if ( $result == eZBinaryFileHandler::RESULT_UNAVAILABLE )
+        {
+            throw new Exception( "The specified file could not be found." );
+        }
+    }
+
 }

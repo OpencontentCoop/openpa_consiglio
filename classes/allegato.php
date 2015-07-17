@@ -75,12 +75,42 @@ class Allegato extends OCEditorialStuffPost
         return null;
     }
 
+    /**
+     * @return eZBinaryFile
+     */
+    public function attributeFile()
+    {
+        $factory = $this->getFactory();
+        if ( $factory instanceof OCEditorialStuffPostFileFactoryInterface )
+        {
+            $fileIdentifier = $factory->fileAttributeIdentifier();
+            if ( isset( $this->dataMap[$fileIdentifier] ) )
+            {
+                return $this->dataMap[$fileIdentifier];
+            }
+        }
+        return null;
+    }
+
     public function downloadFileUrl()
     {
         $binaryFile = $this->binaryFile() ;
         if ( $binaryFile instanceof eZBinaryFile )
         {
             $url = 'content/download/' . $this->id() . '/' . $binaryFile->attribute( 'contentobject_attribute_id' );
+            eZURI::transformURI( $url, false, 'full' );
+            return $url;
+        }
+        return null;
+    }
+
+    public function apiDownloadFileUrl()
+    {
+        $binaryFile = $this->binaryFile() ;
+        if ( $binaryFile instanceof eZBinaryFile )
+        {
+            $router = new ezpRestRouter( new ezcMvcRequest() );
+            $url = $router->generateUrl( 'consiglioApiSedutaDownloadAllegato', array( 'Id' => $this->id() ) );
             eZURI::transformURI( $url, false, 'full' );
             return $url;
         }
@@ -120,7 +150,7 @@ class Allegato extends OCEditorialStuffPost
             $data['file_name'] = $binaryFile->attribute( 'original_filename' );
             $data['file_mime_type'] = $binaryFile->attribute( 'mime_type' );
             $data['file_size'] = $binaryFile->attribute( 'filesize' );
-            $data['file_download_url'] = $this->downloadFileUrl();
+            $data['file_download_url'] = $this->apiDownloadFileUrl();
         }
 
         return $data;
