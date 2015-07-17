@@ -1,0 +1,32 @@
+
+body {
+    font-family: arial, helvetica, sans-serif;
+    font-size: 10pt;
+    line-height: normal;
+}
+
+#pdf-header header{
+    margin: 30pt 30pt 0 30pt;
+}
+
+#pdf-content {
+    height: 100%;
+    margin: 0 60pt;
+}
+
+#oggetto {
+    margin: 30pt 0;
+}
+
+#firma {
+    margin-top:30pt;
+}
+
+#pdf-footer {
+    margin: 0 -2pt 0 -2pt;
+    /*
+    background-image: url("../images/pdf/corner.jpg");
+    background-position: right bottom;
+    background-repeat: no-repeat;
+    */
+}
