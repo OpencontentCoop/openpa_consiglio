@@ -129,8 +129,8 @@ class ConsiglioApiController extends ezpRestMvcController
         $type = isset( $this->request->post['type'] ) ? $this->request->post['type'] : null;
         $userId = isset( $this->request->post['user_id'] ) ? $this->request->post['user_id'] : eZUser::currentUserID();
         $presenza = $seduta->addPresenza( $inOut, $type, $userId );
-        $this->variables['result'] = 'success';
-        $this->variables['presenza_id'] = $presenza->attribute( 'id' );
+        $result->variables['result'] = 'success';
+        $result->variables['presenza_id'] = $presenza->attribute( 'id' );
         return $result;
     }
 

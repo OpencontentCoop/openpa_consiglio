@@ -117,8 +117,21 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         $conds = array( 'seduta_id' => $seduta->id() );
         if ( $startTime !== null )
         {
-            $now = time();
-            $conds['created_time'] = array( '', array( $startTime, $now ) );
+            $startTimestamp = $endTimestamp = false;
+            if ( is_numeric( $startTime ) )
+            {
+                $startTimestamp = $startTime;
+                $endTimestamp = time();
+            }
+            elseif ( is_array( $startTime ) )
+            {
+                $startTimestamp = $startTime[0];
+                $endTimestamp = $startTime[1];
+            }
+            if ( $startTimestamp && $endTimestamp )
+            {
+                $conds['created_time'] = array( '', array( $startTimestamp, $endTimestamp ) );
+            }
         }
         if ( $inOut !== null )
         {
@@ -138,6 +151,25 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
             $conds,
             array( 'created_time' => 'asc' )
         );
+    }
+
+    static function getUserInOutInSeduta( Seduta $seduta, $userId )
+    {
+        $presenze = parent::fetchObjectList(
+            self::definition(),
+            null,
+            array(
+                'seduta_id' => $seduta->id(),
+                'user_id' => (int) $userId
+            ),
+            array( 'created_time' => 'desc' ),
+            array( 'limit' => 1, 'offset' => 0 )
+        );
+        if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
+        {
+            return $presenze[0]->attribute( 'in_out' );
+        }
+        return false;
     }
 
     function getUser()

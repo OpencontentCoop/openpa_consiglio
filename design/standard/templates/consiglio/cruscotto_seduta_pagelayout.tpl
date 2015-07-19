@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{$site.http_equiv.Content-language|wash}">
 <head>
-    <title>Cruscotto seduta</title>
+    <title>{$title}</title>
     {ezcss_load( array( 'app.css','app_2.css','debug.css' ) )}
     {ezscript_load( array(
         'ezjsc::jquery',

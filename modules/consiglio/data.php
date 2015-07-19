@@ -4,7 +4,7 @@ $module = $Params['Module'];
 $factoryIdentifier = $Params['FactoryIdentifier'];
 $id = $Params['ID'];
 $templatePath = str_replace( ':', '/', $Params['TemplatePath'] );
-
+$data = null;
 $odg = null;
 try
 {
@@ -14,7 +14,15 @@ try
     {
         $tpl = eZTemplate::factory();
         $tpl->setVariable( 'post', $post );
-        $data = $tpl->fetch( 'design:' . $post->getFactory()->getTemplateDirectory() . '/' . $templatePath . '.tpl' );
+        if ( strpos( $templatePath, '/' ) > 0 )
+        {
+            $templatePath = $post->getFactory()->getTemplateDirectory() . '/' . $templatePath;
+        }
+        else
+        {
+            $templatePath = ltrim( $templatePath, '/' );
+        }
+        $data = $tpl->fetch( 'design:' . $templatePath . '.tpl' );
     }
 }
 catch ( Exception $e )
@@ -23,5 +31,5 @@ catch ( Exception $e )
 }
 
 echo $data;
-
+//eZDisplayDebug();
 eZExecution::cleanExit();

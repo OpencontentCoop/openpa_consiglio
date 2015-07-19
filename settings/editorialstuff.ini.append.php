@@ -40,6 +40,8 @@ AttributeIdentifiers[]
 StateGroup=punto
 States[draft]=Bozza
 States[published]=Pubblicato
+States[in_progress]=In corso
+States[closed]=Concluso
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 Name=Elenco punti

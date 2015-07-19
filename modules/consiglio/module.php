@@ -34,6 +34,13 @@ $ViewList['like'] = array(
 $ViewList['cruscotto_seduta'] = array(
     'functions' => array( 'cruscotto_seduta' ),
     'script' => 'cruscotto_seduta.php',
+    'params' => array( 'SedutaID', 'Action', 'ActionParameters' ),
+    'unordered_params' => array()
+);
+
+$ViewList['monitor_sala'] = array(
+    'functions' => array( 'monitor_sala' ),
+    'script' => 'monitor_sala.php',
     'params' => array( 'SedutaID' ),
     'unordered_params' => array()
 );
@@ -45,5 +52,6 @@ $FunctionList = array();
 $FunctionList['use'] = array();
 $FunctionList['admin'] = array();
 $FunctionList['cruscotto_seduta'] = array();
+$FunctionList['monitor_sala'] = array();
 
 
