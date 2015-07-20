@@ -31,7 +31,7 @@ class ConsiglioSedutaFactory extends OCEditorialStuffPostDefaultFactory implemen
         $variables = array(
             'line_height' => 20,
             'data'        => strftime( '%d/%m/%Y', $object->Published),
-            //'indirizzo'   => $userDataMap['indirizzo']->content(),
+            'luogo'       => $sedutaDataMap['luogo']->content(),
             'organo'      => $organo->Name,
             'data_seduta' => strftime( '%A %d %B %Y, alle ore %H:%M', $dataMap['data_ora']->toString()),
             'odg'         => $odg

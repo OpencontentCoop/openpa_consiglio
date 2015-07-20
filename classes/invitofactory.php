@@ -14,40 +14,40 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
         $version = false
     )
     {
-        $currentPost = $this->getModuleCurrentPost($parameters, $handler, $module);
+        $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
+
         $dataMap = $currentPost->attribute('object')->dataMap();
         $instance = OCEditorialStuffHandler::instance( 'punto' );
 
         $user = eZContentObject::fetch($dataMap['user']->content()->ID);
         $userDataMap = $user->dataMap();
 
-        /** @var Punto $punto */
-        $punto = $instance->getFactory()->instancePost( array( 'object_id' => $dataMap['object']->content()->attribute( 'id' ) ) );
-        $puntoDataMap = $punto->getObject()->dataMap();
-
         $punti = array();
-        if (!empty($odg))
+        $punto = false;
+        $listPunti = $dataMap['object']->content();
+
+        foreach ($listPunti['relation_list'] as $p)
         {
-            /** @var Punto $o */
-            foreach ($odg as $o)
+            $tempPunto = eZContentObject::fetch($p['contentobject_id']);
+            $puntoDataMap = $tempPunto->dataMap();
+
+            if (!$punto)
             {
-                $tempDataMap = $o->getObject()->dataMap();
-                $punti [$tempDataMap['n_punto']->content()] = array(
-                    'data_doc' => strftime('%d/%m/%Y  alle ore %H:%M',time()), // Todo: verificcare che data si deve inserire
-                    'oggetto'  => $tempDataMap['oggetto']->content(),
-                    'politico' => '',
-                    'tecnico'  => '',
-                    'osservazioni' => $tempDataMap['consenti_osservazioni']->content(),
-                    'termine_osservazioni' => strftime(
-                        '%d/%m/%Y  alle ore %H:%M',
-                        $tempDataMap['termine_osservazioni']->toString()
-                    )
-                );
+                /** @var Punto $punto */
+                $punto = $instance->getFactory()->instancePost( array( 'object_id' => $p['contentobject_id'] ) );
+                $puntoDataMap = $punto->getObject()->dataMap();
             }
+
+            $punti [$puntoDataMap['n_punto']->content()] = array(
+                'n_punto' => $puntoDataMap['n_punto']->content(),
+                'ora'     => $puntoDataMap['orario_trattazione']->toString(),
+                'oggetto' => $puntoDataMap['oggetto']->content()
+            );
         }
+        ksort($punti);
 
-
-
+        $first = array_shift(array_values($punti));
+        $ora = $first['ora'];
 
         $seduta = $punto->getSeduta()->getObject();
         $sedutaDataMAp = $seduta->dataMap();
@@ -57,16 +57,18 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
 
         $variables = array(
             'line_height' => 20,
-            'data'        => strftime( '%d %m %Y', time()), // Todo: chiedere se va bene data oggetto
+            'data'        => strftime( '%d/%m/%Y', $currentPost->getObject()->Published),
             'invitato'    => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content() . ' ' . $userDataMap['cognome']->content(),
             'ruolo'       => $userDataMap['ruolo']->content(),
-            //'indirizzo'   => $userDataMap['indirizzo']->content(),
+            'luogo'       => $sedutaDataMAp['luogo']->content(),
             'organo'      => $organo->Name,
-            'data_seduta' => strftime( '%A %d %B %Y, alle ore %H:%M', $punto->getSeduta( true )->dataOra()),
-            'n_punto'     => $puntoDataMap['n_punto']->content(),
-            'oggetto'     => $puntoDataMap['oggetto']->content(),
+            'data_seduta' => strftime( '%A %d %B %Y,', $punto->getSeduta()->dataOra()),
+            'ora'         => $ora,
+            'punti'       => $punti
 
         );
+
+
 
         if ($sedutaDataMAp['firmatario']->hasContent())
         {
@@ -92,7 +94,6 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
 
         OpenPAConsiglioPdf::create( 'Invito', $content );
         eZExecution::cleanExit();
-
 
     }
 }

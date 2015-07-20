@@ -13,11 +13,19 @@
 
     <p>Con la presente ho il piacere di invitarla alla riunione di {$organo},</p>
 
-    <p style="text-align: center"><strong>{$data_seduta}</strong><br>presso la sede<br>[indicare sede]</p>
+    <p style="text-align: center"><strong>{$data_seduta} alle ore {$ora}</strong><br>presso la sede<br>{$luogo}</p>
 
-    <p>Per la trattazione del punto {$n_punto} posto all'ordine del giorno, concernente:</p>
+    {if gt($punti|count(), 1)}
+        <p>Per la trattazione dei seguenti punti posti all'ordine del giorno, concernenti:</p>
+        {else}
+        <p>Per la trattazione del punto {$n_punto} posto all'ordine del giorno, concernente:</p>
+    {/if}
 
-    <p>{$n_punto} {$oggetto}</p>
+    <ul>
+        {foreach $punti as $p}
+            <li style="list-style-type:none;">{$p.n_punto}. {$p.oggetto}</li>
+        {/foreach}
+    </ul>
 
     <p>Confidando nella Sua partecipazione all'incontro, con l'occasione porgo distinti saluti.</p>
 

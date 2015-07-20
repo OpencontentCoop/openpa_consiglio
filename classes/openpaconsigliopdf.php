@@ -26,7 +26,7 @@ class OpenPAConsiglioPdf
             'margin-bottom' => '34',
             'margin-left' => '0',
             'header-spacing' => 25,
-            'footer-spacing' => 25,
+            'footer-spacing' => 5,
             'disable-smart-shrinking',
             'no-outline',
             'user-style-sheet' => 'extension/openpa_consiglio/design/standard/stylesheets/pdf.css',
