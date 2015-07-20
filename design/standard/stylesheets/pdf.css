@@ -1,6 +1,6 @@
 
 body {
-    font-family: arial, helvetica, sans-serif;
+    font-family: 'Arial Narrow', Arial, sans-serif;;
     font-size: 10pt;
     line-height: normal;
 }
@@ -12,6 +12,10 @@ body {
 #pdf-content {
     height: 100%;
     margin: 0 60pt;
+}
+
+#destinatari {
+    line-height: 10pt;
 }
 
 #oggetto {
@@ -29,4 +33,8 @@ body {
     background-position: right bottom;
     background-repeat: no-repeat;
     */
+}
+
+.page-break-after {
+    page-break-after: always;
 }

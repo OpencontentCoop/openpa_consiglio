@@ -10,11 +10,11 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
     public function downloadModuleResult(
         $parameters,
         OCEditorialStuffHandlerInterface $handler,
-        eZModule $module
+        eZModule $module,
+        $version = false
     )
     {
-        $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
-
+        $currentPost = $this->getModuleCurrentPost($parameters, $handler, $module);
         $dataMap = $currentPost->attribute('object')->dataMap();
         $instance = OCEditorialStuffHandler::instance( 'punto' );
 
@@ -24,6 +24,30 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
         /** @var Punto $punto */
         $punto = $instance->getFactory()->instancePost( array( 'object_id' => $dataMap['object']->content()->attribute( 'id' ) ) );
         $puntoDataMap = $punto->getObject()->dataMap();
+
+        $punti = array();
+        if (!empty($odg))
+        {
+            /** @var Punto $o */
+            foreach ($odg as $o)
+            {
+                $tempDataMap = $o->getObject()->dataMap();
+                $punti [$tempDataMap['n_punto']->content()] = array(
+                    'data_doc' => strftime('%d/%m/%Y  alle ore %H:%M',time()), // Todo: verificcare che data si deve inserire
+                    'oggetto'  => $tempDataMap['oggetto']->content(),
+                    'politico' => '',
+                    'tecnico'  => '',
+                    'osservazioni' => $tempDataMap['consenti_osservazioni']->content(),
+                    'termine_osservazioni' => strftime(
+                        '%d/%m/%Y  alle ore %H:%M',
+                        $tempDataMap['termine_osservazioni']->toString()
+                    )
+                );
+            }
+        }
+
+
+
 
         $seduta = $punto->getSeduta()->getObject();
         $sedutaDataMAp = $seduta->dataMap();

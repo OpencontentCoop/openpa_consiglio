@@ -9,8 +9,8 @@ class OpenPAConsiglioPdf
 
         // Todo: L'immagine di sfono viene inserita tramite css, in caso provare fpdi
 
-        $header = $factory ? 'extension/openpa_consiglio/design/standard/templates/pdf/' . $factory . 'header.html' : 'extension/openpa_consiglio/design/standard/templates/pdf/header.html';
-        $footer = $factory ? 'extension/openpa_consiglio/design/standard/templates/pdf/' . $factory . 'footer.html' : 'extension/openpa_consiglio/design/standard/templates/pdf/footer.html';
+        $header = $factory ? 'extension/openpa_consiglio/design/standard/templates/pdf/' . $factory . '/header.html' : 'extension/openpa_consiglio/design/standard/templates/pdf/header.html';
+        $footer = $factory ? 'extension/openpa_consiglio/design/standard/templates/pdf/' . $factory . '/footer.html' : 'extension/openpa_consiglio/design/standard/templates/pdf/footer.html';
 
         // Initialize the PDF using this library: https://github.com/mikehaertl/phpwkhtmltopdf
         $pdf = new Pdf();
@@ -26,7 +26,7 @@ class OpenPAConsiglioPdf
             'margin-bottom' => '34',
             'margin-left' => '0',
             'header-spacing' => 25,
-            'footer-spacing' => 5,
+            'footer-spacing' => 25,
             'disable-smart-shrinking',
             'no-outline',
             'user-style-sheet' => 'extension/openpa_consiglio/design/standard/stylesheets/pdf.css',

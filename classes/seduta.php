@@ -51,6 +51,13 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             $number = $index +1;
             $punto->setNumber( $number );
         }
+
+        /*
+        if ($this->is( '_public' ))
+        {
+        */
+            ConsiglioSeduta::create($this->getObject());
+        //}
     }
 
     public function tabs()
@@ -179,7 +186,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     /**
      * @return Punto[]
      */
-    protected function odg()
+    public function odg()
     {
         $sedutaId = $this->object->attribute( 'id' );
         $items = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $sedutaId ) )->fetchItems(
@@ -193,6 +200,20 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         //eZDebug::writeNotice( var_export( OCEditorialStuffHandler::getLastFetchData(), 1 ), __METHOD__ );
         return $items;
     }
+
+    public function odgSerialized()
+    {
+        $rows = array();
+        $items = $this->odg();
+        foreach ($items as $v)
+        {
+            $tempDataMap = $v->getObject()->dataMap();
+            $rows [$tempDataMap['n_punto']->content()] = $v->jsonSerialize();
+        }
+
+        return $rows;
+    }
+
 
     protected function getAllegati( $identifier )
     {
