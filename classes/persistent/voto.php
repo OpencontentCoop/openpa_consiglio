@@ -117,7 +117,7 @@ class OpenPAConsiglioVoto extends eZPersistentObject
 
         if ( trim( $value ) == '' )
         {
-            throw new Exception( "Valore del voto non valido" );
+            throw new Exception( "Valore del voto ($value) non valido" );
         }
 
         $row['value'] = (string) $value;

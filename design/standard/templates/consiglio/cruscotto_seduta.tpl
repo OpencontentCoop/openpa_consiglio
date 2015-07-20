@@ -93,7 +93,7 @@
                 <div class="row" id="votazione_in_progress">
                 {def $registro_presenze = $seduta.registro_presenze}
                 {foreach $seduta.partecipanti as $partecipante}
-                    <div class="col-xs-2 user-{$partecipante.object_id}" style="opacity: .4">
+                    <div class="col-xs-2 user_voto user-{$partecipante.object_id}" style="opacity: .4">
                         {if $registro_presenze.hash_user_id[$partecipante.object_id]}
                         {content_view_gui content_object=$partecipante.object view="politico_box"}
                         {/if}
@@ -157,6 +157,7 @@
             onShow: function(modal,button){
                 modal.find('#currentVotazione').val( button.data('votazione') );
                 modal.find('.modal-title').html( button.data('votazione_title') );
+                $('#votazione_in_progress').find('.user_voto').css({'opacity':0.4});
             },
             onSend: function(values,modal){
                 var currentSettings = modal.data('currentSettings');
@@ -282,8 +283,10 @@
         });
     });
 
+    $('#page').hide();
     var socket = io('localhost:8000');
     socket.on('connect', function(){
+        $('#page').show();
     });
     socket.on('presenze',function(data){
         if ( data.seduta_id == CurrentSedutaId ){

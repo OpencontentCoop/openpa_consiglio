@@ -16,4 +16,9 @@ class OpenPAConsiglioDefaultFactory extends OCEditorialStuffPostDefaultFactory
     {
         return new OpenPAConsiglioDefaultPost( $data, $this );
     }
+
+    public function getTemplateDirectory()
+    {
+        return 'editorialstuff/consiglio_default';
+    }
 }

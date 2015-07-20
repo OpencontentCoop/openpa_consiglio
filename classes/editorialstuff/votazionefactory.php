@@ -1,6 +1,6 @@
 <?php
 
-class VotazioneFactory extends OCEditorialStuffPostDefaultFactory
+class VotazioneFactory extends OpenPAConsiglioDefaultFactory
 {
     public function instancePost( $data )
     {
