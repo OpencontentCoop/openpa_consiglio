@@ -468,6 +468,9 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $this->setState( 'seduta.closed' );
     }
 
+    /**
+     * @return Votazione[]
+     */
     public function votazioni()
     {
         $data = array();

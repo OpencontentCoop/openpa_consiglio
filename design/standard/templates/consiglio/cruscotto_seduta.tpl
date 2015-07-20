@@ -290,9 +290,9 @@
             $('#presenze_button').load( DataBaseUrl + ':consiglio:cruscotto_seduta:presenze');
         }
     });
-    socket.on('votazione',function(data){
+    socket.on('voto',function(data){
         if ( data.seduta_id == CurrentSedutaId ){
-            $('#votazione_in_progress').find('.user-' + data.user_id).style({'opacity':1});
+            $('#votazione_in_progress').find('.user-' + data.user_id).css({'opacity':1});
         }
     });
 

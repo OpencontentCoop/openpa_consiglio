@@ -13,7 +13,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
      */
     protected $seduta;
 
-    function Presenza( $row = array() )
+    function OpenPAConsiglioPresenza( $row = array() )
     {
         $this->PersistentDataDirty = false;
         if ( !empty( $row ) )
@@ -74,7 +74,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
     {
         if ( !$seduta instanceof Seduta )
         {
-            throw new Exception( "Can not create Presenza without a valid Seduta" );
+            throw new Exception( "Non posso registrare una presenza senza una Seduta valida" );
         }
 
         $createdTime = time();

@@ -109,4 +109,52 @@ class Votazione extends OCEditorialStuffPost
             'stato' => $this->currentState()->attribute( 'identifier' )
         );
     }
+
+    public function addVoto( $value, $userId = null )
+    {
+        if ( $this->currentState()->attribute( 'identifier' ) != 'in_progress' )
+        {
+            throw new Exception( "La votazione non e' in corso" );
+        }
+        if ( $userId === null )
+        {
+            $userId = eZUser::currentUserID();
+        }
+        $seduta = $this->getSeduta();
+        $this->checkAccess( $userId );
+        $voto = OpenPAConsiglioVoto::create( $seduta, $this, $value, $userId );
+        $voto->store();
+        OpenPAConsiglioPushNotifier::instance()->emit(
+            'voto',
+            $voto->jsonSerialize()
+        );
+        return $voto;
+    }
+
+    /**
+     * @return Seduta
+     */
+    public function getSeduta()
+    {
+        $sedutaId = $this->stringAttribute( self::$sedutaIdentifier, 'intval' );
+        return OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $sedutaId );
+    }
+
+    public function checkAccess( $userId )
+    {
+        //check $userId: se non è un politico viene sollevata eccezione
+        try
+        {
+            OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId( $userId );
+        }
+        catch( Exception $e )
+        {
+            throw new Exception( 'Politico non trovato' );
+        }
+
+        if ( !$this->is( 'in_progress' ) )
+        {
+            throw new Exception( 'Votazione non in corso' );
+        }
+    }
 }

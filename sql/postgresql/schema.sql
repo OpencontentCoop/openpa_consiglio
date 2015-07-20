@@ -44,3 +44,25 @@ CREATE TABLE openpaconsiglionotificationitem
 WITH (
   OIDS=FALSE
 );
+
+CREATE SEQUENCE openpa_consiglio_voto_s
+    START 1
+    INCREMENT 1
+    MAXVALUE 9223372036854775807
+    MINVALUE 1
+    CACHE 1;
+
+CREATE TABLE openpa_consiglio_voto (
+  id integer DEFAULT nextval('openpa_consiglio_voto_s'::text) NOT NULL,
+  user_id INTEGER DEFAULT NULL NOT NULL,
+  seduta_id INTEGER DEFAULT NULL NOT NULL,
+  votazione_id VARCHAR(50) DEFAULT NULL NOT NULL,
+  value VARCHAR(100) DEFAULT NULL NOT NULL,
+  created_time INTEGER DEFAULT 0
+);
+
+ALTER TABLE ONLY openpa_consiglio_voto ADD CONSTRAINT openpa_consiglio_voto_pkey PRIMARY KEY (id);
+
+CREATE INDEX openpa_consiglio_voto_votazione_id ON openpa_consiglio_voto USING btree (votazione_id);
+CREATE INDEX openpa_consiglio_voto_user_id ON openpa_consiglio_voto USING btree (user_id);
+CREATE INDEX openpa_consiglio_voto_seduta_id ON openpa_consiglio_voto USING btree (seduta_id);

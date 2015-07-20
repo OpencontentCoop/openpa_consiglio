@@ -96,6 +96,33 @@ class ConsiglioApiProvider implements ezpRestProviderInterface
                     'http-post'
                 ), 1
             ),
+            'consiglioApiSedutaLoadVotazioni' => new ezpRestVersionedRoute(
+                new ConsiglioApiRailsRoute(
+                    '/seduta/:Id/votazioni',
+                    'ConsiglioApiController',
+                    'loadSedutaVotazioni',
+                    array(),
+                    'http-get'
+                ), 1
+            ),
+            'consiglioApiVotazioneLoad' => new ezpRestVersionedRoute(
+                new ConsiglioApiRailsRoute(
+                    '/votazione/:Id',
+                    'ConsiglioApiController',
+                    'loadVotazione',
+                    array(),
+                    'http-get'
+                ), 1
+            ),
+            'consiglioApiVotazioneAddVoto' => new ezpRestVersionedRoute(
+                new ConsiglioApiRailsRoute(
+                    '/votazione/:Id',
+                    'ConsiglioApiController',
+                    'addVotoVotazione',
+                    array(),
+                    'http-post'
+                ), 1
+            ),
             'consiglioApiPresenzaLoad' => new ezpRestVersionedRoute(
                 new ConsiglioApiRailsRoute(
                     '/presenza/:Id',
@@ -128,42 +155,6 @@ class ConsiglioApiProvider implements ezpRestProviderInterface
                     '/punto/:Id/osservazioni',
                     'ConsiglioApiController',
                     'loadPuntoOsservazioni',
-                    array(),
-                    'http-get'
-                ), 1
-            ),
-            'consiglioApiPuntoLoadVotazioni' => new ezpRestVersionedRoute(
-                new ConsiglioApiRailsRoute(
-                    '/punto/:Id/votazioni',
-                    'ConsiglioApiController',
-                    'loadPuntoVotazioni',
-                    array(),
-                    'http-get'
-                ), 1
-            ),
-            'consiglioApiPuntoSetStatoVotazione' => new ezpRestVersionedRoute(
-                new ConsiglioApiRailsRoute(
-                    '/punto/:PuntoId/voto',
-                    'ConsiglioApiController',
-                    'setPuntoStatoVotazione',
-                    array(),
-                    'http-post'
-                ), 1
-            ),
-            'consiglioApiPuntoAddVotazione' => new ezpRestVersionedRoute(
-                new ConsiglioApiRailsRoute(
-                    '/punto/:PuntoId/votazione',
-                    'ConsiglioApiController',
-                    'addVotazionePunto',
-                    array(),
-                    'http-post'
-                ), 1
-            ),
-            'consiglioApiVotazioneLoad' => new ezpRestVersionedRoute(
-                new ConsiglioApiRailsRoute(
-                    '/votazione/:Id',
-                    'ConsiglioApiController',
-                    'loadVotazione',
                     array(),
                     'http-get'
                 ), 1
