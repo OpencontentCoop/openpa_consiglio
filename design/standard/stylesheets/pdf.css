@@ -1,33 +1,33 @@
 
 body {
     font-family: 'Arial Narrow', Arial, sans-serif;;
-    font-size: 10pt;
+    font-size: 10px;
     line-height: normal;
 }
 
 #pdf-header header{
-    margin: 30pt 30pt 0 30pt;
+    margin: 30px 30px 0 30px;
 }
 
 #pdf-content {
     height: 100%;
-    margin: 0 60pt;
+    margin: 0;
 }
 
 #destinatari {
-    line-height: 10pt;
+    line-height: 10px;
 }
 
 #oggetto {
-    margin: 30pt 0;
+    margin: 30px 0;
 }
 
 #firma {
-    margin-top:30pt;
+    margin-top:30px;
 }
 
 #pdf-footer {
-    margin: 0 -2pt 0 -2pt;
+    margin: 0;
     /*
     background-image: url("../images/pdf/corner.jpg");
     background-position: right bottom;

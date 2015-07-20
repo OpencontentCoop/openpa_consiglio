@@ -60,6 +60,7 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
             'data'        => strftime( '%d/%m/%Y', $currentPost->getObject()->Published),
             'invitato'    => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content() . ' ' . $userDataMap['cognome']->content(),
             'ruolo'       => $userDataMap['ruolo']->content(),
+            'indirizzo'   => $userDataMap['indirizzo']->content(),
             'luogo'       => $sedutaDataMAp['luogo']->content(),
             'organo'      => $organo->Name,
             'data_seduta' => strftime( '%A %d %B %Y,', $punto->getSeduta()->dataOra()),
@@ -67,8 +68,6 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
             'punti'       => $punti
 
         );
-
-
 
         if ($sedutaDataMAp['firmatario']->hasContent())
         {
@@ -79,8 +78,10 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
             $variables['firmatario'] = $firmatario->Name;
             if ($firmatarioDataMAp['firma']->hasContent())
             {
-                // todo: cambiare firma nella classe in img
-                $variables['firma'] = 'firma.png';
+                $siteINI = eZINI::instance( 'site.ini' );
+                $siteUrl = $siteINI->variable( 'SiteSettings', 'SiteURL' );
+                $image = $firmatarioDataMAp['firma']->content()->attribute('original');
+                $variables['firma'] = $siteUrl . '/' . $image['url'];
             }
         }
 
