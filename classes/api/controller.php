@@ -117,6 +117,45 @@ class ConsiglioApiController extends ezpRestMvcController
         return $result;
     }
 
+    public function doLoadSedutaPresenzeUtente()
+    {
+        $result = new ezpRestMvcResult();
+        if ( !is_numeric( $this->UserId ) )
+        {
+            throw new Exception( "UserId not found" );
+        }
+        $data = array();
+        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
+        if ( $seduta instanceof Seduta )
+        {
+            /** @var OpenPAConsiglioPresenza[] $presenze */
+            foreach( array( 'checkin', 'beacons', 'manual' ) as $type )
+            {
+                $data[$type] = null;
+                $presenze = OpenPAConsiglioPresenza::fetchObjectList(
+                    OpenPAConsiglioPresenza::definition(),
+                    null,
+                    array(
+                        'user_id' => $this->UserId,
+                        'type' => $type
+                    ),
+                    array( 'created_time' => 'desc' ),
+                    array( 'limit' => 1, 'offset' => 0 )
+                );
+                foreach ( $presenze as $presenza )
+                {
+                    $validPresenza = $presenza->jsonSerialize();
+                    if ( $validPresenza )
+                    {
+                        $data[$type] = $validPresenza;
+                    }
+                }
+            }
+        }
+        $result->variables = $data;
+        return $result;
+    }
+
     public function doAddPresenzaSeduta()
     {
         $result = new ezpRestMvcResult();

@@ -1,111 +1,3 @@
-<script src="{'javascript/socket.io-1.3.5.js'|ezdesign(no)}"></script>
-{literal}
-<script>
-    var CurrentSedutaId = {/literal}{$seduta.object_id}{literal};
-    var DataBaseUrl = "{/literal}{concat('consiglio/data/seduta/',$seduta.object_id)|ezurl(no)}{literal}/";
-    var socket = io('localhost:8000');
-    socket.on('connect', function(){
-    });
-    socket.on('presenze',function(data){
-        if ( data.seduta_id == CurrentSedutaId ){
-            $('#presenze_button').load( DataBaseUrl + ':consiglio:cruscotto_seduta:presenze');
-        }
-    });
-
-    var forms = [
-        {
-            name: '@tega',
-            fields: ['name', 'body'],
-            action: 'string',
-            onSend: function(data,container){console.log(data);container.modal('hide')}
-        },
-        {
-            name: '@getbootstrap',
-            fields: ['body'],
-            action: 'strong',
-            filterPostData: function(data){data.push({name:'pippo',value:'pluto'});return data},
-            onSend: function(data,container){console.log(data);container.modal('hide')}
-        }
-    ];
-    $('.modal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget) // Button that triggered the modal
-        var current = button.data('whatever') // Extract info from data-* attributes
-        var modal = $(this);
-        var currentActionSettings = [];
-        $.each(forms,function(i,v){if(v.name == current)currentActionSettings = v});
-        if(typeof currentActionSettings.action != "undefined") {
-            $.get(currentActionSettings.action, {current: current}, function (data) {
-                var currentSettings = {fields: []};
-                modal.data('current', current);
-                $.each(forms, function (i, v) {
-                    if (v.name == current) currentSettings = v;
-                });
-                modal.data('currentSettings', currentSettings);
-                modal.find('form')[0].reset();
-                modal.find('.modal-title').text('New message to ' + current);
-            });
-        }
-    });
-
-    $(document).on('click', '.modal button.btn-primary', function (e) {
-        var currentModal = $(e.currentTarget).parents('.modal');
-        var currentAction = currentModal.data('current');
-        var currentActionSettings = currentModal.data('currentSettings');
-        if (typeof currentActionSettings.action == 'string') {
-            var values = [];
-            $.each(currentActionSettings.fields, function (fieldIndex, fieldName) {
-                values.push({
-                    name: fieldName,
-                    value: currentModal.find('*[name="' + fieldName + '"]').val()
-                });
-            });
-            if (typeof currentActionSettings.filterPostData == 'function'){
-                values = currentActionSettings.filterPostData(values);
-            }
-            $.post(currentActionSettings.action, values, function (data) {
-                currentActionSettings.onSend(data,currentModal);
-            }).fail(function(response, status, xhr) {
-                handelResponseError(response, status, xhr);
-            });
-        }
-    });
-
-    var handelResponseError = function(response, status, xhr){
-        if ( status == 'error' )
-        {
-            var $container = $('<div class="alert alert-danger" />');
-            $.each( response.responseJSON.error_messages, function(i,v){
-                $container.append('<p>'+response.responseJSON.error_messages[i]+'</p>');
-            });
-            $('#alert_area').html( $container );
-        }
-    };
-
-    $(document).on( 'click', '#seduta_startstop_button a.btn', function(e){
-        var action = $(e.currentTarget);
-        $.get(action.data('url'), function () {
-            $('#punto_startstop_button').html('');
-            $('#seduta_startstop_button').load( DataBaseUrl + ':consiglio:cruscotto_seduta:seduta_startstop_button', function(){
-                $('#punto_startstop_button').load( DataBaseUrl + ':consiglio:cruscotto_seduta:punto_startstop_button');
-            });
-        }).fail(function(response, status, xhr) {
-            handelResponseError(response, status, xhr);
-        });
-    });
-
-    $(document).on( 'click', '#punto_startstop_button a.btn', function(e){
-        var action = $(e.currentTarget);
-        $.get(action.data('url'), function () {
-            $('#punto_startstop_button').load( DataBaseUrl + ':consiglio:cruscotto_seduta:punto_startstop_button',function(){
-                $('#odg_list').load( DataBaseUrl + ':consiglio:cruscotto_seduta:odg_list');
-            });
-        }).fail(function(response, status, xhr) {
-            handelResponseError(response, status, xhr);
-        });
-    })
-
-</script>
-{/literal}
 <div id="alert_area">
     {if count( $errors )}
         <div class="alert alert-danger">
@@ -146,58 +38,19 @@
         </div>
     </div>
 
-    <div id="content-area" class="col col-md-6">
+    <div class="col col-md-6" id="verbale">
         {include uri="design:consiglio/cruscotto_seduta/verbale.tpl" post=$seduta}
     </div>
 
     <div id="extra-area" class="col col-md-3">
-
-        <div class="widget">
-
-            <div class="widget_title">
-                <h3>Votazioni</h3>
-            </div>
-            <div class="widget_content">
-
-                <ul class="side_menu">
-                    <li>
-                        <a href="#">
-                            <b>Votazione pinco pallino Votazione pinco pallino Votazione pinco
-                                pallino Votazione pinco pallino</b>
-                            <small>Variazione Odg</small>
-                        </a>
-                        <button class="btn btn-md btn-block btn-info">
-                            Risultati
-                        </button>
-                        <br/>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <b>Votazione tizio caio</b>
-                            <small>Punto 1</small>
-                        </a>
-                        <button class="btn btn-md btn-block btn-warning" data-toggle="modal"
-                                data-whatever="@getbootstrap"
-                                data-target="#getbootstrapTemplate">
-                            Apri votazione
-                        </button>
-                        <br/>
-                    </li>
-                </ul>
-            </div>
-            <a id="seduta_startstop_button" class="btn btn-danger btn-lg btn-block"
-               data-toggle="modal"
-               data-whatever="@tega"
-               data-target="#tegaTemplate"><i
-                        class="fa fa-plus"></i> Crea
-                votazione</a>
+        <div class="widget" id="votazioni">
+            {include uri="design:consiglio/cruscotto_seduta/votazioni.tpl" post=$seduta}
         </div>
     </div>
 
 </div>
 
-
-<div class="modal fade" id="tegaTemplate" tabindex="-1" role="dialog"
+<div class="modal fade" id="creaVotazioneTemplate" tabindex="-1" role="dialog"
      aria-labelledby="previewLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -209,44 +62,239 @@
             <div class="modal-body">
                 <form action="">
                     <div class="form-group">
-                        <label for="recipient-name" class="control-label">Recipient:</label>
-                        <input type="text" class="form-control" name="name" id="recipient-name">
+                        <label for="recipient-name" class="control-label">Titolo breve:</label>
+                        <input type="text" class="form-control" name="shortText" id="recipient-name">
                     </div>
                     <div class="form-group">
-                        <label for="message-text" class="control-label">Message:</label>
-                        <textarea class="form-control" name="body" id="message-text"></textarea>
+                        <label for="message-text" class="control-label">Testo della votazione:</label>
+                        <textarea class="form-control" name="text" id="message-text"></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Send message</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary">Salva</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="getbootstrapTemplate" tabindex="-1" role="dialog"
-     aria-labelledby="previewLabel">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="startVotazioneTemplate" role="dialog" data-backdrop="static" aria-labelledby="previewLabel">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="previewLabel">New message</h4>
+                <h4 class="modal-title" id="previewLabel"></h4>
             </div>
             <div class="modal-body">
                 <form action="">
-                    <div class="form-group">
-                        <label for="message-text" class="control-label">Message:</label>
-                        <textarea class="form-control" name="body" id="message-text"></textarea>
-                    </div>
+                    <input id="currentVotazione" type="hidden" name="idVotazione" value="0" />
                 </form>
+
+                <div class="row" id="votazione_in_progress">
+                {def $registro_presenze = $seduta.registro_presenze}
+                {foreach $seduta.partecipanti as $partecipante}
+                    <div class="col-xs-2 user-{$partecipante.object_id}" style="opacity: .4">
+                        {if $registro_presenze.hash_user_id[$partecipante.object_id]}
+                        {content_view_gui content_object=$partecipante.object view="politico_box"}
+                        {/if}
+                    </div>
+                {/foreach}
+                {undef $registro_presenze}
+                </div>
+
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Send message</button>
+                <h4 id="timer" class="pull-left" style="display: none;"><strong><span class="minutes">00</span>:<span class="seconds">00</span></strong></h4>
+                <button id="cancelVotazioneButton" type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary">Apri votazione</button>
             </div>
         </div>
     </div>
 </div>
+
+<script src="{'javascript/socket.io-1.3.5.js'|ezdesign(no)}"></script>
+{literal}
+<script>
+    var CurrentSedutaId = {/literal}{$seduta.object_id}{literal};
+    var DataBaseUrl = "{/literal}{concat('consiglio/data/seduta/',$seduta.object_id)|ezurl(no)}{literal}/";
+    var ActionBaseUrl = "{/literal}{concat('consiglio/cruscotto_seduta/',$seduta.object_id)|ezurl(no)}{literal}/";
+    var timer;
+    var startTimer = function(){
+        var timerContainer = $("#timer");
+        var sec = 0;
+        function pad ( val ) { return val > 9 ? val : "0" + val; }
+        timer = setInterval( function(){
+            timerContainer.find(".seconds").html(pad(++sec%60));
+            timerContainer.find(".minutes").html(pad(parseInt(sec/60,10)));
+        }, 1000);
+        timerContainer.show();
+    };
+    var stopTimer = function(){
+        clearInterval ( timer );
+        var timerContainer = $("#timer").hide();
+        timerContainer.find(".seconds").html('00');
+        timerContainer.find(".minutes").html('00');
+    };
+    var Modals = [
+        {
+            name: 'creaVotazione',
+            title: 'Nuova votazione',
+            fields: ['shortText', 'text'],
+            action: ActionBaseUrl+'creaVotazione',
+            resetForm: true,
+            onShow: null,
+            onSent: function(data,modal){
+                $('#votazioni').load( DataBaseUrl + ':consiglio:cruscotto_seduta:votazioni');
+                modal.modal('hide');
+            }
+        },
+        {
+            name: 'startVotazione',
+            title: 'Avvia votazione',
+            fields: ['idVotazione'],
+            action: ActionBaseUrl+'startVotazione',
+            resetForm: true,
+            onShow: function(modal,button){
+                modal.find('#currentVotazione').val( button.data('votazione') );
+                modal.find('.modal-title').html( button.data('votazione_title') );
+            },
+            onSend: function(values,modal){
+                var currentSettings = modal.data('currentSettings');
+                modal.find('button.btn-primary').html('<i class="fa fa-spinner fa-spin"></i> Attendere');
+                if ( currentSettings.action == ActionBaseUrl+'stopVotazione' ) {
+                   stopTimer();
+                }
+            },
+            onSent: function(data,modal){
+                var current = modal.data('current')
+                var currentSettings = modal.data('currentSettings');
+                if ( currentSettings.action == ActionBaseUrl+'startVotazione' ) {
+                    startTimer();
+                    modal.find('button.btn-primary').html('Chiudi votazione');
+                    modal.find('#cancelVotazioneButton').hide();
+                    currentSettings.action = ActionBaseUrl + 'stopVotazione';
+                    modal.data('currentSettings', currentSettings);
+                }
+                else
+                {
+                    modal.modal('hide');
+                    modal.find('button.btn-primary').html('Apri votazione');
+                    modal.find('#cancelVotazioneButton').show();
+                    currentSettings.action = ActionBaseUrl + 'startVotazione';
+                    modal.data('currentSettings', currentSettings);
+                }
+                $('#votazioni').load( DataBaseUrl + ':consiglio:cruscotto_seduta:votazioni');
+            }
+        }
+    ];
+
+    var handelResponseError = function(response, status, xhr){
+        if ( status == 'error' ){
+            var $container = $('<div class="alert alert-danger" />');
+            $.each( response.responseJSON.error_messages, function(i,v){
+                $container.append('<p>'+response.responseJSON.error_messages[i]+'</p>');
+            });
+            $('#alert_area').html( $container );
+        }
+    };
+
+    var clearErrors = function(){
+        $('#alert_area').html('');
+    };
+
+    $('.modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var current = button.data('action'); // Extract info from data-* attributes
+        var modal = $(this);
+        var currentActionSettings = [];
+        $.each(Modals,function(i,v){
+            if(v.name == current){
+                currentActionSettings = v;
+                if ( currentActionSettings.resetForm == true )
+                    modal.find('form')[0].reset();
+                modal.find('.modal-title').html( currentActionSettings.title );
+            }
+        });
+        modal.data('current', current);
+        modal.data('currentSettings', currentActionSettings);
+        if ( jQuery.isFunction( currentActionSettings.onShow ) )
+            currentActionSettings.onShow( modal, button );
+    });
+
+    $(document).on('click', '.modal button.btn-primary', function (e) {
+        var currentModal = $(e.currentTarget).parents('.modal');
+        var currentAction = currentModal.data('current');
+        var currentActionSettings = currentModal.data('currentSettings');
+        if (typeof currentActionSettings.action == 'string') {
+            var values = [];
+            $.each(currentActionSettings.fields, function (fieldIndex, fieldName) {
+                values.push({
+                    name: fieldName,
+                    value: currentModal.find('*[name="' + fieldName + '"]').val()
+                });
+            });
+            if ( jQuery.isFunction( currentActionSettings.filterPostData ) )
+                values = currentActionSettings.filterPostData(values,currentModal);
+            if ( jQuery.isFunction( currentActionSettings.onSend ) )
+                currentActionSettings.onSend(values,currentModal);
+            $.ajax({
+                url: currentActionSettings.action,
+                method: 'POST',
+                data: values,
+                success: function (data) {
+                    if ( jQuery.isFunction( currentActionSettings.onSent ) )
+                        currentActionSettings.onSent(data,currentModal);
+                    clearErrors();
+                },
+                error: function(response, status, xhr) {
+                    currentModal.modal('hide');
+                    handelResponseError(response, status, xhr);
+                    if ( jQuery.isFunction( currentActionSettings.onError ) )
+                        currentActionSettings.onError(currentModal);
+                },
+                dataType: 'json'
+            });
+        }
+    });
+
+    $(document).on( 'click', '#seduta_startstop_button a.btn', function(e){
+        var action = $(e.currentTarget);
+        $.get(action.data('url'), function() {
+            $('#punto_startstop_button').html('');
+            $('#seduta_startstop_button').load( DataBaseUrl + ':consiglio:cruscotto_seduta:seduta_startstop_button', function(){
+                $('#punto_startstop_button').load( DataBaseUrl + ':consiglio:cruscotto_seduta:punto_startstop_button');
+                $('#verbale').load( DataBaseUrl + ':consiglio:cruscotto_seduta:verbale');
+            });
+            clearErrors();
+        });
+    });
+
+    $(document).on( 'click', '#punto_startstop_button a.btn', function(e){
+        var action = $(e.currentTarget);
+        $.get(action.data('url'), function() {
+            $('#punto_startstop_button').load( DataBaseUrl + ':consiglio:cruscotto_seduta:punto_startstop_button',function(){
+                $('#odg_list').load( DataBaseUrl + ':consiglio:cruscotto_seduta:odg_list');
+                $('#verbale').load( DataBaseUrl + ':consiglio:cruscotto_seduta:verbale');
+            });
+            clearErrors();
+        }).fail(function(response, status, xhr) {
+            handelResponseError(response, status, xhr);
+        });
+    });
+
+    var socket = io('localhost:8000');
+    socket.on('connect', function(){
+    });
+    socket.on('presenze',function(data){
+        if ( data.seduta_id == CurrentSedutaId ){
+            $('#presenze_button').load( DataBaseUrl + ':consiglio:cruscotto_seduta:presenze');
+        }
+    });
+    socket.on('votazione',function(data){
+        if ( data.seduta_id == CurrentSedutaId ){
+            $('#votazione_in_progress').find('.user-' + data.user_id).style({'opacity':1});
+        }
+    });
+
+</script>
+{/literal}

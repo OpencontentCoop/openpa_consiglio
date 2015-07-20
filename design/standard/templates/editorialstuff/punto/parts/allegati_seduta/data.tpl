@@ -18,7 +18,7 @@
                     </td>
                     <td>{$allegato.object.name|wash()}</td>
                     <td>{attribute_view_gui attribute=$allegato.object.data_map.tipo}</td>
-                    <td>{include uri='design:editorialstuff/default/parts/state.tpl' post=$allegato}</td>
+                    <td>{include uri='design:editorialstuff/default/parts/edit_state.tpl' post=$allegato}</td>
                     <td>{attribute_view_gui attribute=$allegato.object.data_map.file}</td>
                 </tr>
             {/foreach}

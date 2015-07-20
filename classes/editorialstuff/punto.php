@@ -339,6 +339,22 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 $this->createNotificationEvent( 'publish' );
             }
         }
+
+        if ( $beforeState->attribute( 'identifier' ) == 'published' && $afterState->attribute( 'identifier' ) == 'in_progress' )
+        {
+            OpenPAConsiglioPushNotifier::instance()->emit(
+                'start_punto',
+                $this->jsonSerialize()
+            );
+        }
+
+        if ( $beforeState->attribute( 'in_progress' ) == 'published' && $afterState->attribute( 'identifier' ) == 'closed' )
+        {
+            OpenPAConsiglioPushNotifier::instance()->emit(
+                'stop_punto',
+                $this->jsonSerialize()
+            );
+        }
     }
 
     /**
@@ -926,11 +942,46 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
     public function start()
     {
-        if ( $this->getSeduta()->currentState()->attribute( 'identifier' ) == 'in_progress' )
+        $seduta = $this->getSeduta();
+        if ( $seduta instanceof Seduta )
         {
-
+            if ( $seduta->currentState()->attribute( 'identifier' ) == 'in_progress' )
+            {
+                $puntoInProgress = $seduta->getPuntoInProgress();
+                if ( $puntoInProgress == false )
+                {
+                    $this->setState( 'punto.in_progress' );
+                    return true;
+                }
+                elseif( $puntoInProgress instanceof Punto && $puntoInProgress->id() == $this->id() )
+                {
+                    return true;
+                }
+                else
+                {
+                    throw new Exception( 'Il punto ' . $puntoInProgress->getObject()->attribute( 'name' ) . ' è in corso' );
+                }
+            }
         }
-        throw new Exception( 'Error' );
+        throw new Exception( 'Seduta in corso non trovata' );
+    }
+
+    public function stop()
+    {
+        $seduta = $this->getSeduta();
+        if ( $seduta instanceof Seduta )
+        {
+            if ( $this->currentState()->attribute( 'identifier' ) == 'in_progress' )
+            {
+                $puntoInProgress = $seduta->getPuntoInProgress();
+                if ( $puntoInProgress instanceof Punto && $puntoInProgress->id() == $this->id() )
+                {
+                    $this->setState( 'punto.closed' );
+                    return true;
+                }
+            }
+        }
+        throw new Exception( "Errore" ); //@todo
     }
 
 }

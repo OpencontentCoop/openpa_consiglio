@@ -22,6 +22,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $attributes[] = 'presenze';
         $attributes[] = 'partecipanti';
         $attributes[] = 'registro_presenze';
+        $attributes[] = 'votazioni';
         return $attributes;
     }
 
@@ -50,6 +51,9 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
         if ( $property == 'registro_presenze' )
             return $this->registroPresenze();
+
+        if ( $property == 'votazioni' )
+            return $this->votazioni();
 
         return parent::attribute( $property );
     }
@@ -137,12 +141,31 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     public function onChangeState( eZContentObjectState $beforeState, eZContentObjectState $afterState )
     {
-        foreach( $this->odg() as $punto )
+        if ( $beforeState->attribute( 'identifier' ) == 'pending' && $afterState->attribute( 'identifier' ) == 'published' )
         {
-            if ( $punto->is( '_public' ) )
+            foreach ( $this->odg() as $punto )
             {
-                $punto->createNotificationEvent( 'publish' );
+                if ( $punto->is( '_public' ) )
+                {
+                    $punto->createNotificationEvent( 'publish' );
+                }
             }
+        }
+
+        if ( $beforeState->attribute( 'identifier' ) == 'published' && $afterState->attribute( 'identifier' ) == 'in_progress' )
+        {
+            OpenPAConsiglioPushNotifier::instance()->emit(
+                'start_seduta',
+                $this->jsonSerialize()
+            );
+        }
+
+        if ( $beforeState->attribute( 'identifier' ) == 'in_progress' && $afterState->attribute( 'identifier' ) == 'closed' )
+        {
+            OpenPAConsiglioPushNotifier::instance()->emit(
+                'stop_seduta',
+                $this->jsonSerialize()
+            );
         }
     }
 
@@ -351,6 +374,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $data['total'] = count( $partecipanti );
         foreach( $partecipanti as $partecipante )
         {
+            //@todo gestire anomalie
             $presente = OpenPAConsiglioPresenza::getUserInOutInSeduta( $this, $partecipante->id() );
             $data['hash_user_id'][$partecipante->id()] = $presente;
             if ( $presente )
@@ -419,21 +443,40 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         }
     }
 
+    public function getPuntoInProgress()
+    {
+        if ( $this->currentState()->attribute( 'identifier' ) == 'in_progress' )
+        {
+            foreach ( $this->odg() as $punto )
+            {
+                if ( $punto->currentState()->attribute( 'identifier' ) == 'in_progress' )
+                {
+                    return $punto;
+                }
+            }
+        }
+        return false;
+    }
+
     public function start()
     {
         $this->setState( 'seduta.in_progress' );
-        OpenPAConsiglioPushNotifier::instance()->emit(
-            'start_seduta',
-            $this->jsonSerialize()
-        );
     }
 
     public function stop()
     {
         $this->setState( 'seduta.closed' );
-        OpenPAConsiglioPushNotifier::instance()->emit(
-            'stop_seduta',
-            $this->jsonSerialize()
-        );
+    }
+
+    public function votazioni()
+    {
+        $data = array();
+        /** @var eZContentObject $votazioni */
+        $votazioni = $this->getObject()->reverseRelatedObjectList( false, Votazione::sedutaClassAttributeId() );
+        foreach( $votazioni as $votazione )
+        {
+            $data[] = new Votazione( array( 'object_id' => $votazione->attribute( 'id' ) ), OCEditorialStuffHandler::instance( 'votazione' )->getFactory() );
+        }
+        return $data;
     }
 }

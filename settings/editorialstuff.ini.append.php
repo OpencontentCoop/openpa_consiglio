@@ -10,6 +10,7 @@ Identifiers[]=politico
 Identifiers[]=tecnico
 Identifiers[]=audizione
 Identifiers[]=materia
+Identifiers[]=votazione
 
 [Settings]
 DefaultFactoryClassName=OpenPAConsiglioDefaultFactory
@@ -121,3 +122,13 @@ AttributeIdentifiers[]
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 Name=Elenco materie
+
+[votazione]
+ClassIdentifier=votazione
+ClassName=VotazioneFactory
+CreationRepositoryNode=1316
+RepositoryNodes[]=1316
+StateGroup=stato_votazione
+States[pending]=In attesa
+States[in_progress]=In corso
+States[closed]=Conclusa

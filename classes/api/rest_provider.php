@@ -78,6 +78,15 @@ class ConsiglioApiProvider implements ezpRestProviderInterface
                     'http-get'
                 ), 1
             ),
+            'consiglioApiSedutaLoadPresenzeUtente' => new ezpRestVersionedRoute(
+                new ConsiglioApiRailsRoute(
+                    '/seduta/:Id/presenze/:UserId',
+                    'ConsiglioApiController',
+                    'loadSedutaPresenzeUtente',
+                    array(),
+                    'http-get'
+                ), 1
+            ),
             'consiglioApiSedutaAddPresenza' => new ezpRestVersionedRoute(
                 new ConsiglioApiRailsRoute(
                     '/seduta/:Id/presenza',

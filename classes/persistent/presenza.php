@@ -153,8 +153,10 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         );
     }
 
+    //@todo gestire anomalie manuale | checkIn | beacon
     static function getUserInOutInSeduta( Seduta $seduta, $userId )
     {
+        /** @var OpenPAConsiglioPresenza[] $presenze */
         $presenze = parent::fetchObjectList(
             self::definition(),
             null,

@@ -37,13 +37,14 @@ elseif ( $action )
             case 'startSeduta':
             {
                 $seduta->start();
-                break;
-            }
+            } break;
+
             case 'stopSeduta':
             {
                 $seduta->stop();
-                break;
-            }
+
+            } break;
+
             case 'startPunto':
             {
                 $puntoId = $actionParameters;
@@ -54,21 +55,73 @@ elseif ( $action )
                         $punto->start();
                     }
                 }
+            } break;
+
+            case 'stopPunto':
+            {
+                $puntoId = $actionParameters;
+                foreach ( $seduta->odg() as $punto )
+                {
+                    if ( $punto->id() == $puntoId )
+                    {
+                        $punto->stop();
+                    }
+                }
                 break;
             }
+
+            case 'creaVotazione':
+            {
+                Votazione::create(
+                    $seduta,
+                    $seduta->getPuntoInProgress(),
+                    $http->postVariable( 'shortText' ),
+                    $http->postVariable( 'text' ),
+                    'default'
+                );
+
+            } break;
+
+            case 'startVotazione':
+            {
+                $idVotazione = $http->postVariable( 'idVotazione' );
+                /** @var Votazione $votazione */
+                $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $idVotazione );
+                $votazione->start();
+            } break;
+
+            case 'stopVotazione':
+            {
+                $idVotazione = $http->postVariable( 'idVotazione' );
+                /** @var Votazione $votazione */
+                $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $idVotazione );
+                $votazione->stop();
+            } break;
         }
     }
     catch( Exception $e )
     {
         $errors[] = $e->getMessage();
     }
-    header('Content-Type: application/json');
+
     if ( count( $errors ) > 0 )
     {
+        header('Content-Type: application/json');
         header( 'HTTP/1.1 500 Internal Server Error' );
         echo json_encode(
             array(
                 'error_messages' => $errors
+            )
+        );
+    }
+    else
+    {
+        header('Content-Type: application/json');
+        header( 'HTTP/1.1 200 OK' );
+        echo json_encode(
+            array(
+                'response' => 'success',
+                'action' => $action
             )
         );
     }
