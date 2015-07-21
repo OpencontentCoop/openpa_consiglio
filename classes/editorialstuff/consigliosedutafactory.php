@@ -101,7 +101,6 @@ class ConsiglioSedutaFactory extends OCEditorialStuffPostDefaultFactory implemen
             );
         }
 
-        $fileName = $currentPost->attribute( 'name' );
         /** @var eZContentClass $objectClass */
         $objectClass = $currentPost->getObject()->attribute( 'content_class' );
         $languageCode = eZContentObject::defaultLanguage();
