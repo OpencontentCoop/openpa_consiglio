@@ -118,23 +118,6 @@
     var CurrentSedutaId = {/literal}{$seduta.object_id}{literal};
     var DataBaseUrl = "{/literal}{concat('consiglio/data/seduta/',$seduta.object_id)|ezurl(no)}{literal}/";
     var ActionBaseUrl = "{/literal}{concat('consiglio/cruscotto_seduta/',$seduta.object_id)|ezurl(no)}{literal}/";
-    var timer;
-    var startTimer = function(){
-        var timerContainer = $("#timer");
-        var sec = 0;
-        function pad ( val ) { return val > 9 ? val : "0" + val; }
-        timer = setInterval( function(){
-            timerContainer.find(".seconds").html(pad(++sec%60));
-            timerContainer.find(".minutes").html(pad(parseInt(sec/60,10)));
-        }, 1000);
-        timerContainer.show();
-    };
-    var stopTimer = function(){
-        clearInterval ( timer );
-        var timerContainer = $("#timer").hide();
-        timerContainer.find(".seconds").html('00');
-        timerContainer.find(".minutes").html('00');
-    };
     var Modals = [
         {
             name: 'creaVotazione',
@@ -189,6 +172,23 @@
         }
     ];
 
+    var timer;
+    var startTimer = function(){
+        var timerContainer = $("#timer");
+        var sec = 0;
+        function pad ( val ) { return val > 9 ? val : "0" + val; }
+        timer = setInterval( function(){
+            timerContainer.find(".seconds").html(pad(++sec%60));
+            timerContainer.find(".minutes").html(pad(parseInt(sec/60,10)));
+        }, 1000);
+        timerContainer.show();
+    };
+    var stopTimer = function(){
+        clearInterval ( timer );
+        var timerContainer = $("#timer").hide();
+        timerContainer.find(".seconds").html('00');
+        timerContainer.find(".minutes").html('00');
+    };
     var handelResponseError = function(response, status, xhr){
         if ( status == 'error' ){
             var $container = $('<div class="alert alert-danger" />');
@@ -198,11 +198,9 @@
             $('#alert_area').html( $container );
         }
     };
-
     var clearErrors = function(){
         $('#alert_area').html('');
     };
-
     $('.modal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
         var current = button.data('action'); // Extract info from data-* attributes
@@ -221,7 +219,6 @@
         if ( jQuery.isFunction( currentActionSettings.onShow ) )
             currentActionSettings.onShow( modal, button );
     });
-
     $(document).on('click', '.modal button.btn-primary', function (e) {
         var currentModal = $(e.currentTarget).parents('.modal');
         var currentAction = currentModal.data('current');
@@ -257,7 +254,6 @@
             });
         }
     });
-
     $(document).on( 'click', '#seduta_startstop_button a.btn', function(e){
         var action = $(e.currentTarget);
         $.get(action.data('url'), function() {
@@ -269,7 +265,6 @@
             clearErrors();
         });
     });
-
     $(document).on( 'click', '#punto_startstop_button a.btn', function(e){
         var action = $(e.currentTarget);
         $.get(action.data('url'), function() {
@@ -282,7 +277,6 @@
             handelResponseError(response, status, xhr);
         });
     });
-
     $('#page').hide();
     var socket = io('localhost:8000');
     socket.on('connect', function(){
@@ -298,6 +292,5 @@
             $('#votazione_in_progress').find('.user-' + data.user_id).css({'opacity':1});
         }
     });
-
 </script>
 {/literal}

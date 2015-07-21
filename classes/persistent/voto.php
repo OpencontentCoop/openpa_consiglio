@@ -3,6 +3,11 @@
 class OpenPAConsiglioVoto extends eZPersistentObject
 {
 
+    const CONTRARIO = 0;
+    const FAVOREVOLE = 1;
+    const ASTENUTO = 2;
+
+
     /**
      * @var eZUser
      */
@@ -125,6 +130,62 @@ class OpenPAConsiglioVoto extends eZPersistentObject
 
         $votazione = new OpenPAConsiglioVoto( $row );
         return $votazione;
+    }
+
+    public static function countVotanti( Votazione $votazione )
+    {
+        $result = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
+            array(),
+            array( 'votazione_id' => $votazione->id() ),
+            false,
+            null,
+            false,
+            false,
+            array( array( 'operation' => 'count( * )',
+                          'name' => 'count' ) ) );
+        return $result[0]['count'];
+    }
+
+    public static function countFavorevoli( Votazione $votazione )
+    {
+        $result = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
+            array(),
+            array( 'votazione_id' => $votazione->id(), 'value' => self::FAVOREVOLE ),
+            false,
+            null,
+            false,
+            false,
+            array( array( 'operation' => 'count( * )',
+                          'name' => 'count' ) ) );
+        return $result[0]['count'];
+    }
+
+    public static function countContrari( Votazione $votazione )
+    {
+        $result = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
+            array(),
+            array( 'votazione_id' => $votazione->id(), 'value' => self::CONTRARIO ),
+            false,
+            null,
+            false,
+            false,
+            array( array( 'operation' => 'count( * )',
+                          'name' => 'count' ) ) );
+        return $result[0]['count'];
+    }
+
+    public static function countAstenuti( Votazione $votazione )
+    {
+        $result = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
+            array(),
+            array( 'votazione_id' => $votazione->id(), 'value' => self::ASTENUTO ),
+            false,
+            null,
+            false,
+            false,
+            array( array( 'operation' => 'count( * )',
+                          'name' => 'count' ) ) );
+        return $result[0]['count'];
     }
 
     public function jsonSerialize()

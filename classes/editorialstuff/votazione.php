@@ -10,6 +10,30 @@ class Votazione extends OCEditorialStuffPost
     protected static $textIdentifier = 'text';
     protected static $typeIdentifier = 'type';
 
+    protected static $startDateIdentifier = 'start_datetime';
+    protected static $endDateIdentifier = 'end_datetime';
+
+    protected static $presentiIdentifier = 'presenti';
+    protected static $votantiIdentifier = 'votanti';
+    protected static $astenutiIdentifier = 'astenuti';
+    protected static $favorevoliIdentifier = 'favorevoli';
+    protected static $contrariIdentifier = 'contrari';
+
+    /**
+     * @var eZContentObjectAttribute[]
+     */
+    protected $dataMap;
+
+    public function __construct(
+        array $data = array(),
+        OCEditorialStuffPostFactoryInterface $factory
+    )
+    {
+        parent::__construct( $data, $factory );
+        $this->dataMap = $this->getObject()->attribute( 'data_map' );
+    }
+
+
     public function onChangeState( eZContentObjectState $beforeState, eZContentObjectState $afterState )
     {
     }
@@ -62,20 +86,57 @@ class Votazione extends OCEditorialStuffPost
     {
         $this->setState( 'stato_votazione.in_progress' );
         OpenPAConsiglioPushNotifier::instance()->emit( 'start_votazione', $this->jsonSerialize() );
+
+        $now = time();
+        $this->dataMap[self::$startDateIdentifier]->fromString( $now );
+        $this->dataMap[self::$startDateIdentifier]->store();
+
+        $registro = $this->getSeduta()->registroPresenze();
+        $this->dataMap['presenti']->fromString( $registro['in'] );
+        $this->dataMap['presenti']->store();
     }
 
     public function stop()
     {
         if ( $this->currentState()->attribute( 'identifier' ) == 'in_progress' )
         {
+            // registro la data di chiusura votazione
+            $now = time();
+            $this->dataMap[self::$endDateIdentifier]->fromString( $now );
+            $this->dataMap[self::$endDateIdentifier]->store();
+
+            // notifico tutti che la votazione è chiusa
             $fakeSerialized = $this->jsonSerialize();
             $fakeSerialized['stato'] = 'closed';
             OpenPAConsiglioPushNotifier::instance()->emit(
                 'stop_votazione',
                 $fakeSerialized
             );
+
+            // attendo 5 secondi per concludere le operazioni di voto
             sleep( 5 );
+
+            // chiudo la votazione
             $this->setState( 'stato_votazione.closed' );
+
+            // registro le statistiche
+            $votanti = OpenPAConsiglioVoto::countVotanti( $this );
+            $contrari = OpenPAConsiglioVoto::countContrari( $this );
+            $favorevoli = OpenPAConsiglioVoto::countFavorevoli( $this );
+            $astenuti = OpenPAConsiglioVoto::countAstenuti( $this );
+
+            $this->dataMap[self::$votantiIdentifier]->fromString( $votanti );
+            $this->dataMap[self::$votantiIdentifier]->store();
+
+            $this->dataMap[self::$contrariIdentifier]->fromString( $contrari );
+            $this->dataMap[self::$contrariIdentifier]->store();
+
+            $this->dataMap[self::$favorevoliIdentifier]->fromString( $favorevoli );
+            $this->dataMap[self::$favorevoliIdentifier]->store();
+
+            $this->dataMap[self::$astenutiIdentifier]->fromString( $astenuti );
+            $this->dataMap[self::$astenutiIdentifier]->store();
+
         }
         else
         {
@@ -154,7 +215,7 @@ class Votazione extends OCEditorialStuffPost
 
         if ( !$this->is( 'in_progress' ) )
         {
-            throw new Exception( 'Votazione non in corso' );
+            throw new Exception( "La votazione non e' aperta" );
         }
     }
 }
