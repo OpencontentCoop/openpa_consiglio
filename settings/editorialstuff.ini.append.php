@@ -11,6 +11,7 @@ Identifiers[]=tecnico
 Identifiers[]=audizione
 Identifiers[]=materia
 Identifiers[]=consiglio_seduta
+Identifiers[]=votazione
 
 [Settings]
 DefaultFactoryClassName=OpenPAConsiglioDefaultFactory
