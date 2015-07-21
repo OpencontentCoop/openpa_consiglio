@@ -117,6 +117,65 @@ class ConsiglioApiController extends ezpRestMvcController
         return $result;
     }
 
+    public function doLoadSedutaPresenzeUtente()
+    {
+        $result = new ezpRestMvcResult();
+        if ( !is_numeric( $this->UserId ) )
+        {
+            throw new Exception( "UserId not found" );
+        }
+        $data = array();
+        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
+        if ( $seduta instanceof Seduta )
+        {
+            /** @var OpenPAConsiglioPresenza[] $presenze */
+            foreach( array( 'checkin', 'beacons', 'manual' ) as $type )
+            {
+                $data[$type] = null;
+                $presenze = OpenPAConsiglioPresenza::fetchObjectList(
+                    OpenPAConsiglioPresenza::definition(),
+                    null,
+                    array(
+                        'user_id' => $this->UserId,
+                        'type' => $type
+                    ),
+                    array( 'created_time' => 'desc' ),
+                    array( 'limit' => 1, 'offset' => 0 )
+                );
+                foreach ( $presenze as $presenza )
+                {
+                    $validPresenza = $presenza->jsonSerialize();
+                    if ( $validPresenza )
+                    {
+                        $data[$type] = $validPresenza;
+                    }
+                }
+            }
+        }
+        $result->variables = $data;
+        return $result;
+    }
+
+    public function doLoadSedutaVotazioni()
+    {
+        $result = new ezpRestMvcResult();
+
+        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
+        if ( $seduta instanceof Seduta )
+        {
+            $votazioni = $seduta->votazioni();
+            foreach ( $votazioni as $votazione )
+            {
+                $validVotazione = $votazione->jsonSerialize();
+                if ( $validVotazione )
+                {
+                    $result->variables[] = $validVotazione;
+                }
+            }
+        }
+        return $result;
+    }
+
     public function doAddPresenzaSeduta()
     {
         $result = new ezpRestMvcResult();
@@ -129,8 +188,33 @@ class ConsiglioApiController extends ezpRestMvcController
         $type = isset( $this->request->post['type'] ) ? $this->request->post['type'] : null;
         $userId = isset( $this->request->post['user_id'] ) ? $this->request->post['user_id'] : eZUser::currentUserID();
         $presenza = $seduta->addPresenza( $inOut, $type, $userId );
-        $this->variables['result'] = 'success';
-        $this->variables['presenza_id'] = $presenza->attribute( 'id' );
+        $result->variables['result'] = 'success';
+        $result->variables['presenza_id'] = $presenza->attribute( 'id' );
+        return $result;
+    }
+
+    public function doLoadVotazione()
+    {
+        $result = new ezpRestMvcResult();
+        $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $this->Id );
+        if ( $votazione instanceof Votazione )
+            $result->variables = $votazione->jsonSerialize();
+        return $result;
+    }
+
+    public function doAddVotoVotazione()
+    {
+        $result = new ezpRestMvcResult();
+        $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $this->Id );
+        if ( !$votazione instanceof Votazione )
+        {
+            throw new Exception( "Post {$this->Id} is not a valid Votazione" );
+        }
+        $value = isset( $this->request->post['value'] ) ? $this->request->post['value'] : null;
+        $userId = isset( $this->request->post['user_id'] ) ? $this->request->post['user_id'] : eZUser::currentUserID();
+        $voto = $votazione->addVoto( $value, $userId );
+        $result->variables['result'] = 'success';
+        $result->variables['voto_id'] = $voto->attribute( 'id' );
         return $result;
     }
 
@@ -174,34 +258,6 @@ class ConsiglioApiController extends ezpRestMvcController
 //            /** @var Osservazione $osservazione */
 //            $result->variables[] = $osservazione->jsonSerialize();
 //        }
-        return $result;
-    }
-
-    // @todo
-    public function doLoadPuntoVotazioni()
-    {
-        $result = new ezpRestMvcResult();
-        return $result;
-    }
-
-    // @todo
-    public function doSetPuntoStatoVotazione()
-    {
-        $result = new ezpRestMvcResult();
-        return $result;
-    }
-
-    // @todo
-    public function doAddVotazionePunto()
-    {
-        $result = new ezpRestMvcResult();
-        return $result;
-    }
-
-    // @todo
-    public function doLoadVotazione()
-    {
-        $result = new ezpRestMvcResult();
         return $result;
     }
 

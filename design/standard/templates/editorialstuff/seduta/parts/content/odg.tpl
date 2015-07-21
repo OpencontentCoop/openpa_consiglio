@@ -49,7 +49,7 @@
                     <td>{$punto.count_documenti}</td>
                     <td>{$punto.count_invitati}</td>
                     <td>{$punto.count_osservazioni}</td>
-                    <td>{include uri='design:editorialstuff/punto/parts/state.tpl' post=$punto}</td>
+                    <td>{include uri='design:editorialstuff/punto/parts/edit_state.tpl' post=$punto}</td>
                     {*<td><i class="fa fa-reorder handle"></i> </td>*}
                 </tr>
             {/if}
