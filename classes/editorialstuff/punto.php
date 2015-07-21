@@ -922,6 +922,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
         return array(
             'id' => $this->id(),
+            'stato' => $this->currentState()->attribute( 'identifier' ),
             'seduta'  => (int)$this->attribute( 'seduta_id' ),
             'numero'  => $this->stringAttribute( 'n_punto', 'intval' ),
             'oggetto' => $this->dataMap['oggetto']->content(),
