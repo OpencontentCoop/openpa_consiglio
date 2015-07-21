@@ -17,7 +17,7 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
         $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
 
         /** @var eZContentObjectAttribute[] $dataMap */
-        $dataMap = $currentPost->attribute( 'object' )->dataMap();
+        $dataMap = $currentPost->getObject()->dataMap();
         $instance = OCEditorialStuffHandler::instance( 'punto' );
 
         $user = eZContentObject::fetch( $dataMap['user']->content()->ID );
@@ -48,8 +48,8 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
             );
         }
         ksort( $punti );
-
-        $first = array_shift( array_values( $punti ) );
+        $punti = array_values( $punti );
+        $first = array_shift( $punti );
         $ora = $first['ora'];
 
         $seduta = $punto->getSeduta()->getObject();
@@ -65,8 +65,8 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
             'invitato' => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content(
                 ) . ' ' . $userDataMap['cognome']->content(),
             'ruolo' => $userDataMap['ruolo']->content(),
-            'indirizzo' => $userDataMap['indirizzo']->content(),
-            'luogo' => $sedutaDataMAp['luogo']->content(),
+            'indirizzo' => isset( $userDataMap['indirizzo'] ) ? $userDataMap['indirizzo']->content() : '',
+            'luogo' => isset( $sedutaDataMAp['luogo'] ) ? $sedutaDataMAp['luogo']->content() : '',
             'organo' => $organo->Name,
             'data_seduta' => strftime( '%A %d %B %Y,', $punto->getSeduta()->dataOra() ),
             'ora' => $ora,
@@ -88,8 +88,14 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
             {
                 $siteINI = eZINI::instance( 'site.ini' );
                 $siteUrl = $siteINI->variable( 'SiteSettings', 'SiteURL' );
-                $image = $firmatarioDataMAp['firma']->content()->attribute( 'original' );
-                $variables['firma'] = $siteUrl . '/' . $image['url'];
+                $variables['firma'] = '';
+                if ( isset( $firmatarioDataMAp['firma'] )
+                     && $firmatarioDataMAp['firma']->attribute( 'data_type_string' ) == 'ezimage'
+                     && $firmatarioDataMAp['firma']->hasContent() )
+                {
+                    $image = $firmatarioDataMAp['firma']->content()->attribute( 'original' );
+                    $variables['firma'] = $siteUrl . '/' . $image['url'];
+                }
             }
         }
 

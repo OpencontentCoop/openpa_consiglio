@@ -48,7 +48,8 @@ class SedutaFactory extends OCEditorialStuffPostFactory implements OCEditorialSt
     {
         /** @var Seduta $currentPost */
         $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
-        $dataMap = $currentPost->attribute('object')->dataMap();
+        /** @var eZContentObjectAttribute[] $dataMap */
+        $dataMap = $currentPost->getObject()->dataMap();
 
         $odg = $currentPost->odg();
 
@@ -58,9 +59,10 @@ class SedutaFactory extends OCEditorialStuffPostFactory implements OCEditorialSt
             /** @var Punto $o */
             foreach ($odg as $o)
             {
+                /** @var eZContentObjectAttribute[] $tempDataMap */
                 $tempDataMap = $o->getObject()->dataMap();
                 $punti [$tempDataMap['n_punto']->content()] = array(
-                    'data_doc' => strftime('%d/%m/%Y  alle ore %H:%M',time()), // Todo: verificcare che data si deve inserire
+                    'data_doc' => strftime('%d/%m/%Y  alle ore %H:%M',time()), // Todo: verificare che data si deve inserire
                     'oggetto'  => $tempDataMap['oggetto']->content(),
                     'politico' => '',
                     'tecnico'  => '',
@@ -94,6 +96,7 @@ class SedutaFactory extends OCEditorialStuffPostFactory implements OCEditorialSt
         {
             $listFirmatario = $dataMap['firmatario']->content();
             $firmatario = eZContentObject::fetch($listFirmatario['relation_list'][0]['contentobject_id']);
+            /** @var eZContentObjectAttribute[] $firmatarioDataMAp */
             $firmatarioDataMAp = $firmatario->dataMap();
 
             $variables['firmatario'] = $firmatario->Name;
