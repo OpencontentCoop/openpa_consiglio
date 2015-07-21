@@ -21,10 +21,12 @@ class ConsiglioSedutaFactory extends OCEditorialStuffPostDefaultFactory implemen
         if (!$version)
         {
             $object = $currentPost->getObject();
+            /** @var eZContentObjectAttribute[] $dataMap */
             $dataMap = $object->dataMap();
 
             /** @var eZContentObject $seduta */
             $seduta = $dataMap['seduta']->content();
+            /** @var eZContentObjectAttribute[] $sedutaDataMap */
             $sedutaDataMap = $seduta->dataMap();
 
             $odg = json_decode($dataMap['odg']->content(), true);
@@ -65,10 +67,13 @@ class ConsiglioSedutaFactory extends OCEditorialStuffPostDefaultFactory implemen
                 return $module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' );
             }
 
+            /** @var eZContentObjectAttribute[] $dataMap */
             $dataMap = $object->dataMap();
 
             /** @var eZContentObject $seduta */
             $seduta = $dataMap['seduta']->content();
+
+            /** @var eZContentObjectAttribute[] $sedutaDataMap */
             $sedutaDataMap = $seduta->dataMap();
 
             $odg = json_decode($dataMap['odg']->content(), true);
@@ -88,6 +93,7 @@ class ConsiglioSedutaFactory extends OCEditorialStuffPostDefaultFactory implemen
             {
                 $listFirmatario = $sedutaDataMap['firmatario']->content();
                 $firmatario = eZContentObject::fetch($listFirmatario['relation_list'][0]['contentobject_id']);
+                /** @var eZContentObjectAttribute[] $firmatarioDataMAp */
                 $firmatarioDataMAp = $firmatario->dataMap();
 
                 $variables['firmatario'] = $firmatario->Name;

@@ -16,78 +16,86 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
     {
         $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
 
-        $dataMap = $currentPost->attribute('object')->dataMap();
+        /** @var eZContentObjectAttribute[] $dataMap */
+        $dataMap = $currentPost->attribute( 'object' )->dataMap();
         $instance = OCEditorialStuffHandler::instance( 'punto' );
 
-        $user = eZContentObject::fetch($dataMap['user']->content()->ID);
+        $user = eZContentObject::fetch( $dataMap['user']->content()->ID );
         $userDataMap = $user->dataMap();
 
         $punti = array();
         $punto = false;
         $listPunti = $dataMap['object']->content();
 
-        foreach ($listPunti['relation_list'] as $p)
+        foreach ( $listPunti['relation_list'] as $p )
         {
-            $tempPunto = eZContentObject::fetch($p['contentobject_id']);
+            $tempPunto = eZContentObject::fetch( $p['contentobject_id'] );
             $puntoDataMap = $tempPunto->dataMap();
 
-            if (!$punto)
+            if ( !$punto )
             {
                 /** @var Punto $punto */
-                $punto = $instance->getFactory()->instancePost( array( 'object_id' => $p['contentobject_id'] ) );
+                $punto = $instance->getFactory()->instancePost(
+                    array( 'object_id' => $p['contentobject_id'] )
+                );
                 $puntoDataMap = $punto->getObject()->dataMap();
             }
 
             $punti [$puntoDataMap['n_punto']->content()] = array(
                 'n_punto' => $puntoDataMap['n_punto']->content(),
-                'ora'     => $puntoDataMap['orario_trattazione']->toString(),
+                'ora' => $puntoDataMap['orario_trattazione']->toString(),
                 'oggetto' => $puntoDataMap['oggetto']->content()
             );
         }
-        ksort($punti);
+        ksort( $punti );
 
-        $first = array_shift(array_values($punti));
+        $first = array_shift( array_values( $punti ) );
         $ora = $first['ora'];
 
         $seduta = $punto->getSeduta()->getObject();
+        /** @var eZContentObjectAttribute[] $sedutaDataMAp */
         $sedutaDataMAp = $seduta->dataMap();
 
         $listOrgano = $sedutaDataMAp['organo']->content();
-        $organo = eZContentObject::fetch($listOrgano['relation_list'][0]['contentobject_id']);
+        $organo = eZContentObject::fetch( $listOrgano['relation_list'][0]['contentobject_id'] );
 
         $variables = array(
             'line_height' => 20,
-            'data'        => strftime( '%d/%m/%Y', $currentPost->getObject()->Published),
-            'invitato'    => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content() . ' ' . $userDataMap['cognome']->content(),
-            'ruolo'       => $userDataMap['ruolo']->content(),
-            'indirizzo'   => $userDataMap['indirizzo']->content(),
-            'luogo'       => $sedutaDataMAp['luogo']->content(),
-            'organo'      => $organo->Name,
-            'data_seduta' => strftime( '%A %d %B %Y,', $punto->getSeduta()->dataOra()),
-            'ora'         => $ora,
-            'punti'       => $punti
+            'data' => strftime( '%d/%m/%Y', $currentPost->getObject()->Published ),
+            'invitato' => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content(
+                ) . ' ' . $userDataMap['cognome']->content(),
+            'ruolo' => $userDataMap['ruolo']->content(),
+            'indirizzo' => $userDataMap['indirizzo']->content(),
+            'luogo' => $sedutaDataMAp['luogo']->content(),
+            'organo' => $organo->Name,
+            'data_seduta' => strftime( '%A %d %B %Y,', $punto->getSeduta()->dataOra() ),
+            'ora' => $ora,
+            'punti' => $punti
 
         );
 
-        if ($sedutaDataMAp['firmatario']->hasContent())
+        if ( $sedutaDataMAp['firmatario']->hasContent() )
         {
             $listFirmatario = $sedutaDataMAp['firmatario']->content();
-            $firmatario = eZContentObject::fetch($listFirmatario['relation_list'][0]['contentobject_id']);
+            $firmatario = eZContentObject::fetch(
+                $listFirmatario['relation_list'][0]['contentobject_id']
+            );
+            /** @var eZContentObjectAttribute[] $firmatarioDataMAp */
             $firmatarioDataMAp = $firmatario->dataMap();
 
             $variables['firmatario'] = $firmatario->Name;
-            if ($firmatarioDataMAp['firma']->hasContent())
+            if ( $firmatarioDataMAp['firma']->hasContent() )
             {
                 $siteINI = eZINI::instance( 'site.ini' );
                 $siteUrl = $siteINI->variable( 'SiteSettings', 'SiteURL' );
-                $image = $firmatarioDataMAp['firma']->content()->attribute('original');
+                $image = $firmatarioDataMAp['firma']->content()->attribute( 'original' );
                 $variables['firma'] = $siteUrl . '/' . $image['url'];
             }
         }
 
         $tpl = eZTemplate::factory();
         $tpl->resetVariables();
-        foreach( $variables as $name => $value )
+        foreach ( $variables as $name => $value )
         {
             $tpl->setVariable( $name, $value );
         }
