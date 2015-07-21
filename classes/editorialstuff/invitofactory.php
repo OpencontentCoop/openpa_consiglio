@@ -71,7 +71,7 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
             'indirizzo' => isset( $userDataMap['indirizzo'] ) ? $userDataMap['indirizzo']->content(
             ) : '',
             'luogo' => isset( $sedutaDataMAp['luogo'] ) ? $sedutaDataMAp['luogo']->content() : '',
-            'organo' => $organo->Name,
+            'organo' => $organo instanceof eZContentObject ? $organo->attribute( 'name' ) : '',
             'data_seduta' => $punto->getSeduta()->dataOra(),
             'punti' => $punti,
             'firmatario' => '',
