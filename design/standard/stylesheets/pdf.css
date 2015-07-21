@@ -1,12 +1,8 @@
 
 body {
     font-family: 'Arial Narrow', Arial, sans-serif;;
-    font-size: 10px;
+    font-size: 12px;
     line-height: normal;
-}
-
-#pdf-header header{
-    margin: 30px 30px 0 30px;
 }
 
 #pdf-content {
@@ -15,15 +11,25 @@ body {
 }
 
 #destinatari {
-    line-height: 10px;
+    line-height: 1em;
+    text-align: left;
+    padding-left: 230px;
+    font-style: italic;
+}
+
+#destinatari .cc{
+    text-indent: -25px;
 }
 
 #oggetto {
-    margin: 30px 0;
+    margin: 20px 0 10px;
+    font-style: italic;
 }
 
 #firma {
     margin-top:30px;
+    padding-left: 230px;
+    text-align: center;
 }
 
 #pdf-footer {
@@ -37,4 +43,45 @@ body {
 
 .page-break-after {
     page-break-after: always;
+}
+
+p.indent{
+    text-indent: 50px;
+}
+
+#data_luogo{
+    line-height: 1em;
+}
+
+#data_luogo strong{
+    text-decoration: underline;
+}
+
+ol{
+    list-style-position: outside;
+}
+
+.italic{
+    font-style: italic;
+}
+
+hr{
+    background: #000;
+    height: 1px;
+    border: none;
+}
+
+.fake_list_container{
+    padding-left: 20px;
+}
+
+.fake_list{
+    text-indent: -32px;
+}
+
+.fake_list span{
+    display: inline-block;
+    width: 25px;
+    margin-right: 5px;
+    text-align: right;
 }

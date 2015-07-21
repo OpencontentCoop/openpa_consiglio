@@ -6,9 +6,7 @@
 <body id="pdf-header">
 <header>
     <br>
-    <img src="http://{ezini('SiteSettings','SiteURL')}/extension/openpa_consiglio/design/standard/images/pdf/logo.jpg" height="50" >
-    <!-- <span class="report-name">SOME NAME HERE {pdf_name}</span>
-    <span class="report-date">{pdf_date}</span>-->
+    <img src="http://{ezini('SiteSettings','SiteURL')}/{"images/pdf/logo.jpg"|ezdesign(no)}" height="50" style="margin: 30px 30px 0 30px" >
 </header>
 
 </body>

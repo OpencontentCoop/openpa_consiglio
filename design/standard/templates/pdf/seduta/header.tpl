@@ -6,7 +6,7 @@
 <body id="pdf-header">
 <header>
     <br>
-    <img src="http://{ezini('SiteSettings','SiteURL')}/extension/openpa_consiglio/design/standard/images/pdf/logo.jpg" height="50" >
+    <img src="http://{ezini('SiteSettings','SiteURL')}/{"images/pdf/logo.jpg"|ezdesign(no)}" height="55" style="margin: 30px 30px 0" />
 </header>
 
 </body>

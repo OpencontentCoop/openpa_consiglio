@@ -34,7 +34,7 @@ class ConsiglioSedutaFactory extends OCEditorialStuffPostDefaultFactory implemen
         $dataOra = isset( $dataMap['data_ora'] ) ? $dataMap['data_ora']->toString() : 0;
 
         $variables = array(
-            'line_height' => isset( $parameters['line_height'] ) ? $parameters['line_height'] : 20,
+            'line_height' => isset( $parameters['line_height'] ) ? $parameters['line_height'] : 1.2,
             'data' => $objectVersion->attribute( 'created' ),
             'luogo' => $luogo,
             'organo' => $organo,

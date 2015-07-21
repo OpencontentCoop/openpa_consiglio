@@ -27,8 +27,8 @@ class OpenPAConsiglioPdf
             'margin-right' => '0',
             'margin-bottom' => '34',
             'margin-left' => '0',
-            'header-spacing' => 25,
-            'footer-spacing' => 0,
+            'header-spacing' => '10',
+            'footer-spacing' => '0',
             'disable-smart-shrinking',
             'no-outline',
             'user-style-sheet' => ltrim( eZURLOperator::eZDesign( eZTemplate::factory(), 'stylesheets/pdf.css', 'ezdesign' ), '/' ),
@@ -59,6 +59,7 @@ class OpenPAConsiglioPdf
 
         if ( eZINI::instance()->variable( 'DebugSettings', 'DebugOutput' ) == 'enabled' )
         {
+            echo $content;
             $pdf->createPdf();
             echo '<pre>';
             print_r($pdf);

@@ -16,6 +16,8 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
     {
         $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
 
+        $getParameters = array();
+
         /** @var eZContentObjectAttribute[] $dataMap */
         $dataMap = $currentPost->getObject()->dataMap();
         $instance = OCEditorialStuffHandler::instance( 'punto' );
@@ -38,6 +40,7 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
                 $punto = $instance->getFactory()->instancePost(
                     array( 'object_id' => $p['contentobject_id'] )
                 );
+                /** @var eZContentObjectAttribute[] $puntoDataMap */
                 $puntoDataMap = $punto->getObject()->dataMap();
             }
 
@@ -60,12 +63,13 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
         $organo = eZContentObject::fetch( $listOrgano['relation_list'][0]['contentobject_id'] );
 
         $variables = array(
-            'line_height' => 20,
+            'line_height' => isset( $getParameters['line_height'] ) ? $getParameters['line_height'] : 1.2,
             'data' => $currentPost->getObject()->attribute( 'published' ),
             'invitato' => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content(
                 ) . ' ' . $userDataMap['cognome']->content(),
             'ruolo' => $userDataMap['ruolo']->content(),
-            'indirizzo' => isset( $userDataMap['indirizzo'] ) ? $userDataMap['indirizzo']->content() : '',
+            'indirizzo' => isset( $userDataMap['indirizzo'] ) ? $userDataMap['indirizzo']->content(
+            ) : '',
             'luogo' => isset( $sedutaDataMAp['luogo'] ) ? $sedutaDataMAp['luogo']->content() : '',
             'organo' => $organo->Name,
             'data_seduta' => $punto->getSeduta()->dataOra(),
@@ -90,7 +94,8 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
                 $variables['firma'] = '';
                 if ( isset( $firmatarioDataMAp['firma'] )
                      && $firmatarioDataMAp['firma']->attribute( 'data_type_string' ) == 'ezimage'
-                     && $firmatarioDataMAp['firma']->hasContent() )
+                     && $firmatarioDataMAp['firma']->hasContent()
+                )
                 {
                     $image = $firmatarioDataMAp['firma']->content()->attribute( 'original' );
                     $variables['firma'] = $siteUrl . '/' . $image['url'];
@@ -106,15 +111,14 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
         }
         $content = $tpl->fetch( 'design:pdf/invito/invito.tpl' );
 
-        if ( eZINI::instance()->variable( 'DebugSettings', 'DebugOutput' ) == 'enabled' )
-        {
-            echo $content;
-            eZDisplayDebug();
-        }
-        else
-        {
-            OpenPAConsiglioPdf::create( 'Seduta', $content );
-        }
+        $fileName = $currentPost->attribute( 'name' );
+        /** @var eZContentClass $objectClass */
+        $objectClass = $currentPost->getObject()->attribute( 'content_class' );
+        $languageCode = eZContentObject::defaultLanguage();
+        $fileName = $objectClass->urlAliasName( $currentPost->getObject(), false, $languageCode );
+        $fileName = eZURLAliasML::convertToAlias( $fileName );
+        $fileName .= '.pdf';
+        OpenPAConsiglioPdf::create( $fileName, $content );
 
         eZExecution::cleanExit();
 
