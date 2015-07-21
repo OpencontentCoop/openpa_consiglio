@@ -88,7 +88,7 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
             /** @var eZContentObjectAttribute[] $firmatarioDataMAp */
             $firmatarioDataMAp = $firmatario->dataMap();
 
-            $variables['firmatario'] = $firmatario->Name;
+            $variables['firmatario'] = $firmatario->attribute( 'name' );
             if ( $firmatarioDataMAp['firma']->hasContent() )
             {
                 $siteINI = eZINI::instance( 'site.ini' );
@@ -112,8 +112,7 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
             $tpl->setVariable( $name, $value );
         }
         $content = $tpl->fetch( 'design:pdf/invito/invito.tpl' );
-
-        $fileName = $currentPost->attribute( 'name' );
+        
         /** @var eZContentClass $objectClass */
         $objectClass = $currentPost->getObject()->attribute( 'content_class' );
         $languageCode = eZContentObject::defaultLanguage();
