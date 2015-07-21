@@ -43,6 +43,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $attributes[] = 'count_invitati';
         $attributes[] = 'can_add_osservazioni';
         $attributes[] = 'notification_subscribers';
+        $attributes[] = 'votazioni';
 
         return $attributes;
     }
@@ -87,6 +88,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         if ( $property == 'notification_subscribers' )
         {
             return $this->notificationSubscribers();
+        }
+
+        if ( $property == 'votazioni' )
+        {
+            return $this->votazioni();
         }
 
         return parent::attribute( $property );
@@ -991,6 +997,28 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             }
         }
         throw new Exception( "Errore" ); //@todo
+    }
+
+    /**
+     * @return Votazione[]
+     */
+    public function votazioni()
+    {
+        $data = array();
+        /** @var eZContentObject $votazioni */
+        $votazioni = $this->getObject()->reverseRelatedObjectList(
+            false,
+            Votazione::puntoClassAttributeId()
+        );
+        foreach ( $votazioni as $votazione )
+        {
+            $data[] = new Votazione(
+                array( 'object_id' => $votazione->attribute( 'id' ) ),
+                OCEditorialStuffHandler::instance( 'votazione' )->getFactory()
+            );
+        }
+
+        return $data;
     }
 
 }

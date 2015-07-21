@@ -82,6 +82,20 @@ class Votazione extends OCEditorialStuffPost
         return null;
     }
 
+    public static function puntoClassAttributeId()
+    {
+        $class = eZContentClass::fetchByIdentifier( self::$classIdentifier );
+        if ( $class instanceof eZContentClass )
+        {
+            $attribute = $class->fetchAttributeByIdentifier( self::$puntoIdentifier );
+            if ( $attribute instanceof eZContentClassAttribute )
+            {
+                return $attribute->attribute( 'id' );
+            }
+        }
+        return null;
+    }
+
     public function start()
     {
         $this->setState( 'stato_votazione.in_progress' );
