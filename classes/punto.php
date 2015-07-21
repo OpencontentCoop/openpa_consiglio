@@ -902,11 +902,14 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     {
         $locale = eZLocale::instance();
 
+        // Todo: aggiungere data
+
         return array(
             'id' => $this->id(),
-            'seduta' => (int)$this->attribute( 'seduta_id' ),
-            'numero' => $this->stringAttribute( 'n_punto', 'intval' ),
-            'orario' => $locale->formatShortTime(
+            'seduta'  => (int)$this->attribute( 'seduta_id' ),
+            'numero'  => $this->stringAttribute( 'n_punto', 'intval' ),
+            'oggetto' => $this->dataMap['oggetto']->content(),
+            'orario'  => $locale->formatShortTime(
                 $this->dataMap['orario_trattazione']->content()->attribute( 'timestamp' )
             ),
             'materia' => $this->getMateria( 'name' ),
@@ -921,6 +924,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             'documenti' => $this->attribute( 'count_documenti' ),
             'invitati' => $this->attribute( 'count_invitati' ),
             'osservazioni' => $this->attribute( 'count_osservazioni' ),
+            'consenti_osservazioni' => $this->dataMap['consenti_osservazioni']->toString(),
+            'termine_osservazioni' => strftime(
+                '%d/%m/%Y  alle ore %H:%M',
+                $this->dataMap['termine_osservazioni']->toString()
+            )
         );
     }
 

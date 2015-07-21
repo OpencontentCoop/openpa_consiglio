@@ -10,6 +10,7 @@ Identifiers[]=politico
 Identifiers[]=tecnico
 Identifiers[]=audizione
 Identifiers[]=materia
+Identifiers[]=consiglio_seduta
 
 [Settings]
 DefaultFactoryClassName=OpenPAConsiglioDefaultFactory
@@ -70,6 +71,16 @@ States[referenti]=Referenti all'argomento
 AttributeIdentifiers[]
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+
+
+[consiglio_seduta]
+Name=Consiglio seduta
+ClassName=ConsiglioSedutaFactory
+ClassIdentifier=consiglio_seduta
+RepositoryNodes[]
+RepositoryNodes[]=1
+AttributeIdentifiers[]
+PersistentVariable[top_menu]=false
 
 
 [invitato]
