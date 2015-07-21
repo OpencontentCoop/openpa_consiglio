@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <script>
+    <script>{literal}
         function pagination() {
             var vars = {};
             var x = document.location.search.substring(1).split('&');
@@ -16,14 +16,14 @@
                 }
             }
         }
-    </script>
+        {/literal}</script>
 </head>
 <body id="pdf-footer" onload="pagination()">
 <!--
 <span class="copyright">© Copyright MySite. All rights reserved.</span>
 <span class="page"></span>-->
 
-<div  style="background-repeat: no-repeat; height:101px; background-image: url('http://localhost.openpa/extension/openpa_consiglio/design/standard/images/pdf/corner-footer.jpg'); background-position: bottom right">
+<div  style="background-repeat: no-repeat; height:101px; background-image: url('http://{ezini('SiteSettings','SiteURL')}/extension/openpa_consiglio/design/standard/images/pdf/corner-footer.jpg'); background-position: bottom right">
     <div style="padding-top: 30px">
         <hr style="margin: 0 40px; border: 0; height: 1px; background: #000;">
         <p style="text-align: center">

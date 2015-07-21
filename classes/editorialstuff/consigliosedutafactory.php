@@ -7,6 +7,75 @@ class ConsiglioSedutaFactory extends OCEditorialStuffPostDefaultFactory implemen
         return new ConsiglioSeduta( $data, $this );
     }
 
+    protected function getPdfContentFromVersion( eZContentObjectVersion $objectVersion, $parameters = array() )
+    {
+        if ( !$objectVersion instanceof eZContentObjectVersion )
+        {
+            throw new Exception( "ObjectVersion not found" );
+        }
+
+        /** @var eZContentObjectAttribute[] $dataMap */
+        $dataMap = $objectVersion->dataMap();
+
+        /** @var eZContentObject $seduta */
+        $seduta = $dataMap['seduta']->content();
+
+        /** @var eZContentObjectAttribute[] $sedutaDataMap */
+        $sedutaDataMap = $seduta->dataMap();
+
+        $odg = json_decode( $dataMap['odg']->content(), true );
+
+        $listOrgano = $sedutaDataMap['organo']->content();
+        $organo =  ( isset( $listOrgano['relation_list'][0]['contentobject_id'] ) ) ?
+            $organo = eZContentObject::fetch( $listOrgano['relation_list'][0]['contentobject_id'] )->attribute( 'name' ) : '';
+
+        $luogo = isset( $sedutaDataMap['luogo'] ) ? $sedutaDataMap['luogo']->content() : '';
+
+        $dataOra = isset( $dataMap['data_ora'] ) ? $dataMap['data_ora']->toString() : 0;
+
+        $variables = array(
+            'line_height' => isset( $parameters['line_height'] ) ? $parameters['line_height'] : 20,
+            'data' => $objectVersion->attribute( 'created' ),
+            'luogo' => $luogo,
+            'organo' => $organo,
+            'data_seduta' => $dataOra,
+            'odg' => $odg,
+            'firmatario' => '',
+            'firma' => '',
+        );
+
+        if ( isset( $sedutaDataMap['firmatario'] ) && $sedutaDataMap['firmatario']->hasContent() )
+        {
+            $listFirmatario = $sedutaDataMap['firmatario']->content();
+            if ( isset( $listFirmatario['relation_list'][0]['contentobject_id'] ) )
+            {
+                $firmatario = eZContentObject::fetch(
+                    $listFirmatario['relation_list'][0]['contentobject_id']
+                );
+                /** @var eZContentObjectAttribute[] $firmatarioDataMap */
+                $firmatarioDataMap = $firmatario->dataMap();
+
+                $variables['firmatario'] = $firmatario->attribute( 'name' );
+                if ( $firmatarioDataMap['firma']->hasContent()
+                     && $firmatarioDataMap['firma']->attribute( 'data_type_string' ) == 'ezimage' )
+                {
+                    $image = $firmatarioDataMap['firma']->content()->attribute( 'original' );
+                    $url = $image['url'];
+                    eZURI::transformURI( $url, false, 'full' );
+                    $variables['firma'] = $url;
+                }
+            }
+        }
+
+        $tpl = eZTemplate::factory();
+        $tpl->resetVariables();
+        foreach ( $variables as $name => $value )
+        {
+            $tpl->setVariable( $name, $value );
+        }
+        return $tpl->fetch( 'design:pdf/seduta/seduta.tpl' );
+
+    }
 
     public function downloadModuleResult(
         $parameters,
@@ -16,106 +85,33 @@ class ConsiglioSedutaFactory extends OCEditorialStuffPostDefaultFactory implemen
     )
     {
         $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
-
-
-        if (!$version)
+        $parameters = array();
+        if ( !$version )
         {
-            $object = $currentPost->getObject();
-            /** @var eZContentObjectAttribute[] $dataMap */
-            $dataMap = $object->dataMap();
-
-            /** @var eZContentObject $seduta */
-            $seduta = $dataMap['seduta']->content();
-            /** @var eZContentObjectAttribute[] $sedutaDataMap */
-            $sedutaDataMap = $seduta->dataMap();
-
-            $odg = json_decode($dataMap['odg']->content(), true);
-            $listOrgano = $sedutaDataMap['organo']->content();
-            $organo = eZContentObject::fetch($listOrgano['relation_list'][0]['contentobject_id']);
-
-            $variables = array(
-                'line_height' => 20,
-                'data'        => strftime( '%d/%m/%Y', $object->Published),
-                'luogo'       => $sedutaDataMap['luogo']->content(),
-                'organo'      => $organo->Name,
-                'data_seduta' => strftime( '%A %d %B %Y, alle ore %H:%M', $dataMap['data_ora']->toString()),
-                'odg'         => $odg
+            $content = $this->getPdfContentFromVersion(
+                $currentPost->getObject()->currentVersion(),
+                $parameters
             );
-
-            if ($sedutaDataMap['firmatario']->hasContent())
-            {
-                $listFirmatario = $sedutaDataMap['firmatario']->content();
-                $firmatario = eZContentObject::fetch($listFirmatario['relation_list'][0]['contentobject_id']);
-                $firmatarioDataMAp = $firmatario->dataMap();
-
-                $variables['firmatario'] = $firmatario->Name;
-                if ($firmatarioDataMAp['firma']->hasContent())
-                {
-                    $siteINI = eZINI::instance( 'site.ini' );
-                    $siteUrl = $siteINI->variable( 'SiteSettings', 'SiteURL' );
-                    $image = $firmatarioDataMAp['firma']->content()->attribute('original');
-                    $variables['firma'] = $siteUrl . '/' . $image['url'];
-                }
-            }
         }
         else
         {
-            /** @var eZContentObjectVersion $object */
-            $object = $currentPost->getObject()->version($version);
-            if ( !$object instanceof eZContentObjectVersion )
-            {
-                return $module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' );
-            }
-
-            /** @var eZContentObjectAttribute[] $dataMap */
-            $dataMap = $object->dataMap();
-
-            /** @var eZContentObject $seduta */
-            $seduta = $dataMap['seduta']->content();
-
-            /** @var eZContentObjectAttribute[] $sedutaDataMap */
-            $sedutaDataMap = $seduta->dataMap();
-
-            $odg = json_decode($dataMap['odg']->content(), true);
-            $listOrgano = $sedutaDataMap['organo']->content();
-            $organo = eZContentObject::fetch($listOrgano['relation_list'][0]['contentobject_id']);
-
-            $variables = array(
-                'line_height' => 20,
-                'data'        => strftime( '%d/%m/%Y', $object->Created),
-                'luogo'       => $sedutaDataMap['luogo']->content(),
-                'organo'      => $organo->Name,
-                'data_seduta' => strftime( '%A %d %B %Y, alle ore %H:%M', $dataMap['data_ora']->toString()),
-                'odg'         => $odg
+            $content = $this->getPdfContentFromVersion(
+                $currentPost->getObject()->version( $version ),
+                $parameters
             );
-
-            if ($sedutaDataMap['firmatario']->hasContent())
-            {
-                $listFirmatario = $sedutaDataMap['firmatario']->content();
-                $firmatario = eZContentObject::fetch($listFirmatario['relation_list'][0]['contentobject_id']);
-                /** @var eZContentObjectAttribute[] $firmatarioDataMAp */
-                $firmatarioDataMAp = $firmatario->dataMap();
-
-                $variables['firmatario'] = $firmatario->Name;
-                if ($firmatarioDataMAp['firma']->hasContent())
-                {
-                    $siteINI = eZINI::instance( 'site.ini' );
-                    $siteUrl = $siteINI->variable( 'SiteSettings', 'SiteURL' );
-                    $image = $firmatarioDataMAp['firma']->content()->attribute('original');
-                    $variables['firma'] = $siteUrl . '/' . $image['url'];
-                }
-            }
         }
 
-        $tpl = eZTemplate::factory();
-        $tpl->resetVariables();
-        foreach( $variables as $name => $value )
-        {
-            $tpl->setVariable( $name, $value );
-        }
-        $content = $tpl->fetch( 'design:pdf/seduta/seduta.tpl' );
-        OpenPAConsiglioPdf::create( 'Seduta', $content, false, 'seduta');
+        $fileName = $currentPost->attribute( 'name' );
+        /** @var eZContentClass $objectClass */
+        $objectClass = $currentPost->getObject()->attribute( 'content_class' );
+        $languageCode = eZContentObject::defaultLanguage();
+        $fileName = $objectClass->urlAliasName( $currentPost->getObject(), false, $languageCode );
+        $fileName = eZURLAliasML::convertToAlias( $fileName );
+        $fileName .= '.pdf';
+        OpenPAConsiglioPdf::create( $fileName, $content, 'pdf/seduta/' );
+
         eZExecution::cleanExit();
 
+        return true;
     }
 }

@@ -6,7 +6,10 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     protected $partecipanti;
 
-    public function __construct( array $data = array(), OCEditorialStuffPostFactoryInterface $factory )
+    public function __construct(
+        array $data = array(),
+        OCEditorialStuffPostFactoryInterface $factory
+    )
     {
         parent::__construct( $data, $factory );
     }
@@ -23,46 +26,65 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $attributes[] = 'partecipanti';
         $attributes[] = 'registro_presenze';
         $attributes[] = 'votazioni';
+
         return $attributes;
     }
 
     public function attribute( $property )
     {
-        if ( $property == 'data_ora')
+        if ( $property == 'data_ora' )
+        {
             return $this->dataOra();
+        }
 
-        if ( $property == 'referenti')
+        if ( $property == 'referenti' )
+        {
             return $this->referenti();
+        }
 
-        if ( $property == 'odg')
+        if ( $property == 'odg' )
+        {
             return $this->odg();
+        }
 
         if ( $property == 'count_documenti' )
+        {
             return $this->getCount( 'documenti' );
+        }
 
         if ( $property == 'documenti' )
+        {
             return $this->getAllegati( 'documenti' );
+        }
 
         if ( $property == 'presenze' )
+        {
             return $this->presenze();
+        }
 
         if ( $property == 'partecipanti' )
+        {
             return $this->partecipanti();
+        }
 
         if ( $property == 'registro_presenze' )
+        {
             return $this->registroPresenze();
+        }
 
         if ( $property == 'votazioni' )
+        {
             return $this->votazioni();
+        }
 
         return parent::attribute( $property );
     }
 
     public function reorderOdg()
     {
-        foreach( $this->odg() as $index => $punto )
+        foreach ( $this->odg() as $index => $punto )
         {
-            $number = $index +1;
+            $number = $index + 1;
             $punto->setNumber( $number );
         }
 
@@ -70,7 +92,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         if ($this->is( '_public' ))
         {
         */
-            ConsiglioSeduta::create($this->getObject());
+        ConsiglioSeduta::create( $this->getObject() );
         //}
     }
 
@@ -108,6 +130,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             'name' => 'Cronologia',
             'template_uri' => "design:{$templatePath}/parts/history.tpl"
         );
+
         return $tabs;
     }
 
@@ -131,8 +154,10 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                     'attribute' => $attributeIdentifier
                 )
             );
+
             return true;
         }
+
         return false;
     }
 
@@ -146,9 +171,16 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         return OCEditorialStuffHandler::instance( 'allegati_seduta' )->getFactory();
     }
 
-    public function onChangeState( eZContentObjectState $beforeState, eZContentObjectState $afterState )
+    public function onChangeState(
+        eZContentObjectState $beforeState,
+        eZContentObjectState $afterState
+    )
     {
-        if ( $beforeState->attribute( 'identifier' ) == 'pending' && $afterState->attribute( 'identifier' ) == 'published' )
+        if ( $beforeState->attribute( 'identifier' ) == 'pending'
+             && $afterState->attribute(
+                'identifier'
+            ) == 'published'
+        )
         {
             foreach ( $this->odg() as $punto )
             {
@@ -159,7 +191,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             }
         }
 
-        if ( $beforeState->attribute( 'identifier' ) == 'published' && $afterState->attribute( 'identifier' ) == 'in_progress' )
+        if ( $beforeState->attribute( 'identifier' ) == 'published'
+             && $afterState->attribute(
+                'identifier'
+            ) == 'in_progress'
+        )
         {
             OpenPAConsiglioPushNotifier::instance()->emit(
                 'start_seduta',
@@ -167,7 +203,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             );
         }
 
-        if ( $beforeState->attribute( 'identifier' ) == 'in_progress' && $afterState->attribute( 'identifier' ) == 'closed' )
+        if ( $beforeState->attribute( 'identifier' ) == 'in_progress'
+             && $afterState->attribute(
+                'identifier'
+            ) == 'closed'
+        )
         {
             OpenPAConsiglioPushNotifier::instance()->emit(
                 'stop_seduta',
@@ -196,6 +236,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         {
             return $dateTime->format( $returnFormat );
         }
+
         return $dateTime;
     }
 
@@ -211,7 +252,10 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     public function odg()
     {
         $sedutaId = $this->object->attribute( 'id' );
-        $items = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $sedutaId ) )->fetchItems(
+        $items = OCEditorialStuffHandler::instance(
+            'punto',
+            array( 'seduta' => $sedutaId )
+        )->fetchItems(
             array(
                 'limit' => 100,
                 'offset' => 0,
@@ -219,6 +263,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 'sort' => array( 'extra_orario_i' => 'asc' )
             )
         );
+
         //eZDebug::writeNotice( var_export( OCEditorialStuffHandler::getLastFetchData(), 1 ), __METHOD__ );
         return $items;
     }
@@ -227,10 +272,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     {
         $rows = array();
         $items = $this->odg();
-        foreach ($items as $v)
+        foreach ( $items as $v )
         {
+            /** @var eZContentObjectAttribute[] $tempDataMap */
             $tempDataMap = $v->getObject()->dataMap();
-            $rows [$tempDataMap['n_punto']->content()] = $v->jsonSerialize();
+            $rows[$tempDataMap['n_punto']->content()] = $v->jsonSerialize();
         }
 
         return $rows;
@@ -244,18 +290,19 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         {
             $factory = OCEditorialStuffHandler::instance( 'allegati_seduta' )->getFactory();
             $idArray = explode( '-', $this->dataMap[$identifier]->toString() );
-            foreach( $idArray as $id )
+            foreach ( $idArray as $id )
             {
                 try
                 {
                     $result[] = new Allegato( array( 'object_id' => $id ), $factory );
                 }
-                catch( Exception $e )
+                catch ( Exception $e )
                 {
 
                 }
             }
         }
+
         return $result;
     }
 
@@ -268,8 +315,10 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             {
                 unset( $contentArray[0] );
             }
+
             return count( $contentArray );
         }
+
         return 0;
     }
 
@@ -282,8 +331,10 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             {
                 return call_user_func( $callback, $string );
             }
+
             return $string;
         }
+
         return '';
     }
 
@@ -291,7 +342,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     {
         $data = array();
         $ids = explode( '-', $this->stringAttribute( $identifier ) );
-        foreach( $ids as $id )
+        foreach ( $ids as $id )
         {
             $related = eZContentObject::fetch( $id );
             if ( $related instanceof eZContentObject )
@@ -318,6 +369,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 }
             }
         }
+
         return empty( $data ) ? null : $data;
     }
 
@@ -336,11 +388,14 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     public function jsonSerialize()
     {
         if ( isset( $this->dataMap['data'] ) && $this->dataMap['data']->hasContent()
-             && isset( $this->dataMap['orario'] ) && $this->dataMap['orario']->hasContent() )
+             && isset( $this->dataMap['orario'] )
+             && $this->dataMap['orario']->hasContent()
+        )
         {
             try
             {
                 $competenza = $this->stringRelatedObjectAttribute( 'organo', 'name' );
+
                 return array(
                     'id' => $this->id(),
                     'competenza' => isset( $competenza[0] ) ? $competenza[0] : null,
@@ -355,6 +410,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
             }
         }
+
         return false;
     }
 
@@ -370,7 +426,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             $organoNodeId = $this->stringRelatedObjectAttribute( 'organo', 'main_node_id' );
             if ( is_array( $organoNodeId ) && is_numeric( $organoNodeId[0] ) )
             {
-                eZDebug::writeNotice('...');
+                eZDebug::writeNotice( '...' );
                 $this->partecipanti = OCEditorialStuffHandler::instance( 'politico' )->fetchItems(
                     array(
                         'filters' => array( 'meta_path_si:' . $organoNodeId[0] ),
@@ -380,6 +436,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 );
             }
         }
+
         return $this->partecipanti;
     }
 
@@ -393,16 +450,21 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         );
         $partecipanti = $this->partecipanti();
         $data['total'] = count( $partecipanti );
-        foreach( $partecipanti as $partecipante )
+        foreach ( $partecipanti as $partecipante )
         {
             //@todo gestire anomalie
             $presente = OpenPAConsiglioPresenza::getUserInOutInSeduta( $this, $partecipante->id() );
             $data['hash_user_id'][$partecipante->id()] = $presente;
             if ( $presente )
+            {
                 $data['in']++;
+            }
             else
+            {
                 $data['out']++;
+            }
         }
+
         return $data;
     }
 
@@ -430,6 +492,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             'presenze',
             $presenza->jsonSerialize()
         );
+
         return $presenza;
     }
 
@@ -440,7 +503,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         {
             OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId( $userId );
         }
-        catch( Exception $e )
+        catch ( Exception $e )
         {
             throw new Exception( 'Politico non trovato' );
         }
@@ -476,6 +539,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 }
             }
         }
+
         return false;
     }
 
@@ -496,11 +560,18 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     {
         $data = array();
         /** @var eZContentObject $votazioni */
-        $votazioni = $this->getObject()->reverseRelatedObjectList( false, Votazione::sedutaClassAttributeId() );
-        foreach( $votazioni as $votazione )
+        $votazioni = $this->getObject()->reverseRelatedObjectList(
+            false,
+            Votazione::sedutaClassAttributeId()
+        );
+        foreach ( $votazioni as $votazione )
         {
-            $data[] = new Votazione( array( 'object_id' => $votazione->attribute( 'id' ) ), OCEditorialStuffHandler::instance( 'votazione' )->getFactory() );
+            $data[] = new Votazione(
+                array( 'object_id' => $votazione->attribute( 'id' ) ),
+                OCEditorialStuffHandler::instance( 'votazione' )->getFactory()
+            );
         }
+
         return $data;
     }
 }

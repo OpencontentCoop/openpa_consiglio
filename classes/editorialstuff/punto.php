@@ -119,7 +119,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     {
         if ( isset( $this->dataMap['n_punto'] ) )
         {
-            $this->dataMap['n_punto']->fromString( $number );
+            $this->dataMap['n_punto']->fromString( intval( $number ) );
             $this->dataMap['n_punto']->store();
 
             $object = $this->getObject();

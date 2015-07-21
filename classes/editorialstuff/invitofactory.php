@@ -61,15 +61,14 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
 
         $variables = array(
             'line_height' => 20,
-            'data' => strftime( '%d/%m/%Y', $currentPost->getObject()->Published ),
+            'data' => $currentPost->getObject()->attribute( 'published' ),
             'invitato' => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content(
                 ) . ' ' . $userDataMap['cognome']->content(),
             'ruolo' => $userDataMap['ruolo']->content(),
             'indirizzo' => isset( $userDataMap['indirizzo'] ) ? $userDataMap['indirizzo']->content() : '',
             'luogo' => isset( $sedutaDataMAp['luogo'] ) ? $sedutaDataMAp['luogo']->content() : '',
             'organo' => $organo->Name,
-            'data_seduta' => strftime( '%A %d %B %Y,', $punto->getSeduta()->dataOra() ),
-            'ora' => $ora,
+            'data_seduta' => $punto->getSeduta()->dataOra(),
             'punti' => $punti
 
         );
@@ -107,7 +106,16 @@ class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEdit
         }
         $content = $tpl->fetch( 'design:pdf/invito/invito.tpl' );
 
-        OpenPAConsiglioPdf::create( 'Invito', $content );
+        if ( eZINI::instance()->variable( 'DebugSettings', 'DebugOutput' ) == 'enabled' )
+        {
+            echo $content;
+            eZDisplayDebug();
+        }
+        else
+        {
+            OpenPAConsiglioPdf::create( 'Seduta', $content );
+        }
+
         eZExecution::cleanExit();
 
     }

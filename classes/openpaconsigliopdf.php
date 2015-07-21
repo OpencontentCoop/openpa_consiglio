@@ -4,13 +4,15 @@ use mikehaertl\wkhtmlto\Pdf;
 
 class OpenPAConsiglioPdf
 {
-    public static function create($filename, $content, $forceDownload = false, $factory = false)
+    public static function create( $filename, $content, $templatePartsDirPath = 'pdf/', $forceDownload = false )
     {
+        // Todo: L'immagine di sfondo viene inserita tramite css, in caso provare fpdi
 
-        // Todo: L'immagine di sfono viene inserita tramite css, in caso provare fpdi
+        $headerTemplatePath = "design:{$templatePartsDirPath}header.tpl";
+        $header = self::createTempFile( $headerTemplatePath );
 
-        $header = $factory ? 'extension/openpa_consiglio/design/standard/templates/pdf/' . $factory . '/header.html' : 'extension/openpa_consiglio/design/standard/templates/pdf/header.html';
-        $footer = $factory ? 'extension/openpa_consiglio/design/standard/templates/pdf/' . $factory . '/footer.html' : 'extension/openpa_consiglio/design/standard/templates/pdf/footer.html';
+        $footerTemplatePath = "design:{$templatePartsDirPath}footer.tpl";
+        $footer = self::createTempFile( $footerTemplatePath );
 
         // Initialize the PDF using this library: https://github.com/mikehaertl/phpwkhtmltopdf
         $pdf = new Pdf();
@@ -29,7 +31,7 @@ class OpenPAConsiglioPdf
             'footer-spacing' => 0,
             'disable-smart-shrinking',
             'no-outline',
-            'user-style-sheet' => 'extension/openpa_consiglio/design/standard/stylesheets/pdf.css',
+            'user-style-sheet' => ltrim( eZURLOperator::eZDesign( eZTemplate::factory(), 'stylesheets/pdf.css', 'ezdesign' ), '/' ),
             'header-html' => $header,
             'footer-html' => $footer
 
@@ -49,19 +51,55 @@ class OpenPAConsiglioPdf
         // Fill the body of the PDF
         $pdf->addPage( $content );
 
-
         // Adds the backpage
         //$pdf->addPage( $tpl->fetch( 'design:pdf/backpage.tpl' ) );
 
         // Downloads the PDF
-        if ($forceDownload)
+
+
+        if ( eZINI::instance()->variable( 'DebugSettings', 'DebugOutput' ) == 'enabled' )
         {
-            $pdf->send( $filename . '.pdf' );
+            $pdf->createPdf();
+            echo '<pre>';
+            print_r($pdf);
+            echo '</pre>';
+            eZDisplayDebug();
+            eZExecution::cleanExit();
         }
         else
         {
-            $pdf->send();
+            if ( $forceDownload )
+            {
+                $pdf->send( $filename );
+            }
+            else
+            {
+                $pdf->send();
+            }
         }
-
     }
+
+    protected static function createTempFile( $templatePath, $templateVars = array() )
+    {
+        $tpl = eZTemplate::factory();
+        $tpl->resetVariables();
+        foreach ( $templateVars as $name => $value )
+        {
+            $tpl->setVariable( $name, $value );
+        }
+        $content = $tpl->fetch( $templatePath );
+        $cacheDirectory = eZSys::cacheDirectory();
+        $directory =  eZDir::path( array( $cacheDirectory, 'pdf_creator' ) );
+        $filename = md5( $content ) . '.html';
+        $filePath = $directory . '/' . $filename;
+        if ( !file_exists( $filePath ) )
+        {
+            eZFile::create( $filename, $directory, $content, true );
+            $perm = eZINI::instance()->variable( 'FileSettings', 'StorageFilePermissions' );
+            chmod( $filePath, octdec( $perm ) );
+        }
+        return $filePath;
+    }
+
+
 }

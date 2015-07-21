@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
 </head>
-<body id="pdf-content" style="line-height: {$line_height}pt; height:643px; background-image: url('http://localhost.openpa/extension/openpa_consiglio/design/standard/images/pdf/corner-content.jpg'); background-attachment: fixed; background-position: bottom right">
+<body id="pdf-content" style="line-height: {$line_height}pt; height:643px; background-image: url('http://{ezini('SiteSettings','SiteURL')}/extension/openpa_consiglio/design/standard/images/pdf/corner-content.jpg'); background-attachment: fixed; background-position: bottom right">
     <div style="margin: 0 100px">
         <p><i>Trento, {$data}</i></p>
 
