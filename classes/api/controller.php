@@ -208,21 +208,30 @@ class ConsiglioApiController extends ezpRestMvcController
         $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $this->Id );
         if ( $votazione instanceof Votazione )
         {
-            //@todo
-            $data = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
-                null,
-                array(
-                    'votazione_id' => $votazione->id(),
-                    'user_id' => intval( $this->UserId ),
-                ),
-                false,
-                null
-            );
-            $result->variables = array(
-                'result' => count( $data ) > 0 ? 'done' : 'pending',
+            $values = array(                
                 'user_id' => intval( $this->UserId ),
                 'votazione_id' => $votazione->id()
             );
+            
+            if ( $votazione->is( 'in_progress' ) )
+            {
+                //@todo
+                $data = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
+                    null,
+                    array(
+                        'votazione_id' => $votazione->id(),
+                        'user_id' => intval( $this->UserId ),
+                    ),
+                    false,
+                    null
+                );
+                $values['result'] = count( $data ) > 0 ? 'done' : 'waiting';
+            }
+            else
+            {
+                $values['result'] = $votazione->currentState()->attribute( 'identifier' );
+            }
+            $result->variables = $values;
         }
         else
         {
