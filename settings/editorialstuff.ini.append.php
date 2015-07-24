@@ -12,6 +12,7 @@ Identifiers[]=audizione
 Identifiers[]=materia
 Identifiers[]=consiglio_seduta
 Identifiers[]=votazione
+Identifiers[]=osservazioni
 
 [Settings]
 DefaultFactoryClassName=OpenPAConsiglioDefaultFactory
@@ -70,6 +71,21 @@ CreationButtonText=Crea nuovo allegato
 RepositoryNodes[]
 RepositoryNodes[]=1213
 StateGroup=visibilita_allegato_seduta
+States[consiglieri]=Consiglieri
+States[referenti]=Referenti all'argomento
+AttributeIdentifiers[]
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+
+[osservazioni]
+Name=Osservazioni ai punti delle sedute
+ClassName=OsservazioneFactory
+ClassIdentifier=osservazione
+CreationRepositoryNode=1207
+CreationButtonText=Crea nuova osservazione
+RepositoryNodes[]
+RepositoryNodes[]=1207
+StateGroup=visibilita_osservazione_seduta
 States[consiglieri]=Consiglieri
 States[referenti]=Referenti all'argomento
 AttributeIdentifiers[]

@@ -6,16 +6,14 @@
     <div class="row">
         <div class="col-md-12">
             <h3>
-                <a href="{concat('editorialstuff/edit/seduta/', $seduta.object_id)|ezurl(no)}">
-                    Seduta
-                    di {attribute_view_gui attribute=$seduta.object.data_map.organo show_link=false()}
-                </a>
+                Seduta di {attribute_view_gui attribute=$seduta.object.data_map.organo show_link=false()}
+                <a class="btn btn-primary btn-xs" href="{concat('editorialstuff/edit/seduta/', $seduta.object_id)|ezurl(no)}">LEGGI</a>
                 <span class="pull-right">{include uri='design:editorialstuff/seduta/parts/state.tpl' post=$seduta}</span>
             </h3>
         </div>
     </div>
     <div class="row">
-        <div class="col-md-2 events text-center">
+        <div class="col-sm-2 col-lg-1 events text-center">
 
             <div class="calendar-date" style="min-width: 50px">
                 <span class="month">{$seduta.data_ora|datetime( 'custom', '%M' )}</span>
@@ -23,7 +21,7 @@
                 <strong>ore {attribute_view_gui attribute=$seduta.object.data_map.orario}</strong>
             </div>
         </div>
-        <div class="col-md-10">
+        <div class="col-sm-10 col-lg-11">
 
             <div class="table-responsive">
                 <table class="table table-striped">
@@ -37,13 +35,16 @@
                             </td>
                             <td>
                                 {if $punto.can_add_osservazioni}
-                                    <a title="Aggiungi osservazione" data-toggle="tooltip" data-placement="top" class="btn btn-xs btn-info has-tooltip" href="{concat('editorialstuff/edit/punto/', $punto.object_id, '#tab_osservazioni')|ezurl(no)}"><i class="fa fa-plus"></i></a>
+                                    <a title="Aggiungi osservazione" data-toggle="tooltip" data-placement="top" class="btn btn-xs btn-info has-tooltip" href="{concat('editorialstuff/edit/punto/', $punto.object_id, '#tab_osservazioni')|ezurl(no)}">
+                                        <i class="fa fa-plus"></i> Aggiungi osservazione
+                                    </a>
                                 {/if}
                             </td>
                             <td>
-                                <a href="{concat('editorialstuff/edit/punto/', $punto.object_id)|ezurl(no)}">
-                                    {attribute_view_gui attribute=$punto.object.data_map.oggetto}
-                                </a>
+                                <a class="btn btn-primary btn-xs" href="{concat('editorialstuff/edit/punto/', $punto.object_id)|ezurl(no)}"><small>LEGGI</small></a>
+                            </td>
+                            <td>
+                                {attribute_view_gui attribute=$punto.object.data_map.oggetto}
                             </td>
                             <td>
                                 {if $punto.object.data_map.materia.has_content}
