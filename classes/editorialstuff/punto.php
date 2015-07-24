@@ -44,6 +44,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $attributes[] = 'can_add_osservazioni';
         $attributes[] = 'notification_subscribers';
         $attributes[] = 'votazioni';
+        $attributes[] = 'verbale';
 
         return $attributes;
     }
@@ -95,7 +96,17 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             return $this->votazioni();
         }
 
+        if ( $property == 'verbale' )
+        {
+            return $this->verbale();
+        }
+
         return parent::attribute( $property );
+    }
+
+    public function verbale()
+    {
+        return $this->getSeduta()->verbale( $this->id() );
     }
 
     /**

@@ -26,6 +26,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $attributes[] = 'partecipanti';
         $attributes[] = 'registro_presenze';
         $attributes[] = 'votazioni';
+        $attributes[] = 'verbale';
 
         return $attributes;
     }
@@ -77,7 +78,57 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             return $this->votazioni();
         }
 
+        if ( $property == 'verbale' )
+        {
+            return $this->verbale();
+        }
+
         return parent::attribute( $property );
+    }
+
+    public function verbale( $postId = null )
+    {
+        if ( $postId == null )
+        {
+            $postId = $this->id();
+        }
+        $verbali = array();
+        $data = $this->stringAttribute( 'verbale' );
+        if ( empty( $data ) )
+        {
+            $hash = array( $this->id() => '' );
+            foreach( $this->odg() as $punto )
+            {
+                $hash[$punto->id()] = '';
+            }
+            $this->saveVerbale( $hash );
+        }
+        $rows = explode( '&', $data );
+        foreach( $rows as $row )
+        {
+            $columns = explode( '|', $row );
+            $verbali[$columns[0]] = $columns[1];
+        }
+        return $verbali[$postId];
+    }
+
+    public function saveVerbale( $hash )
+    {
+        $data = array();
+        foreach( $hash as $id => $text )
+        {
+            $data[] = $id . '|' . $text;
+        }
+        $string = implode( '&', $data );
+        if ( isset( $this->dataMap['verbale'] ) )
+        {
+            $this->dataMap['verbale']->fromString( $string );
+            $this->dataMap['verbale']->store();
+        }
+        else
+        {
+            throw new Exception( "Attributo verbale non trovato" );
+        }
     }
 
     public function reorderOdg()

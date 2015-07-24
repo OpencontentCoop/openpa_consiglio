@@ -97,6 +97,14 @@ elseif ( $action )
                 $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $idVotazione );
                 $votazione->stop();
             } break;
+
+            case 'saveVerbale':
+            {
+                $seduta->saveVerbale( $http->postVariable( 'Verbale' ) );
+            } break;
+
+            default:
+                throw new Exception( "Richiesta non valida" );
         }
     }
     catch( Exception $e )

@@ -28,6 +28,7 @@ StateGroup=seduta
 States[draft]=Non visibile
 States[pending]=Non confermata
 States[published]=Confermata
+States[sent]=Invio convocazione
 States[in_progress]=In corso
 States[closed]=Conclusa
 Name=Elenco sedute

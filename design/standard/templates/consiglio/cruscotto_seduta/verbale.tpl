@@ -1,12 +1,16 @@
-{def $hasCurrentPunto = false()}
-{foreach $post.odg as $index => $punto}
-    {if $punto.current_state.identifier|eq('in_progress')}
-        <h4>Verbale {$punto.object.name|wash()}</h4>
-        <textarea class="form-control" rows="20"></textarea>
-        {set $hasCurrentPunto = true()}
-    {/if}
-{/foreach}
-{if $hasCurrentPunto|not()}
-<h4>Verbale {$post.object.name|wash()}</h4>
-<textarea class="form-control" rows="20"></textarea>
-{/if}
+<form>
+    {def $hasCurrentPunto = false()}
+    {foreach $post.odg as $index => $punto}
+        <div class="textarea-container" {if $punto.current_state.identifier|eq('in_progress')|not()}style="display: none"{/if}>
+            <h4>Verbale {$punto.object.name|wash()}</h4>
+            <textarea name="Verbale[{$punto.object.id}]" class="form-control"
+                      rows="20">{$punto.verbale}</textarea>
+            {if $punto.current_state.identifier|eq('in_progress')}{set $hasCurrentPunto = true()}{/if}
+        </div>
+    {/foreach}
+    <div class="textarea-container" {if $hasCurrentPunto}style="display: none"{/if}>
+        <h4>Verbale {$post.object.name|wash()}</h4>
+        <textarea name="Verbale[{$post.object.id}]" class="form-control"
+                  rows="20">{$post.verbale}</textarea>
+    </div>
+</form>

@@ -181,7 +181,12 @@ class Votazione extends OCEditorialStuffPost
             'seduta_id' => $this->stringAttribute( self::$sedutaIdentifier, 'intval' ),
             'punto_id' => $this->stringAttribute( self::$puntoIdentifier, 'intval' ),
             'tipo' => $this->stringAttribute( self::$typeIdentifier ),
-            'stato' => $this->currentState()->attribute( 'identifier' )
+            'stato' => $this->currentState()->attribute( 'identifier' ),
+            'presenti' => $this->is( 'closed' ) ? $this->stringAttribute( self::$presentiIdentifier, 'intval' ) : null,
+            'votanti' => $this->is( 'closed' ) ? $this->stringAttribute( self::$votantiIdentifier, 'intval' ) : null,
+            'favorevoli' => $this->is( 'closed' ) ? $this->stringAttribute( self::$favorevoliIdentifier, 'intval' ) : null,
+            'contrari' => $this->is( 'closed' ) ? $this->stringAttribute( self::$contrariIdentifier, 'intval' ) : null,
+            'astenuti' => $this->is( 'closed' ) ? $this->stringAttribute( self::$astenutiIdentifier, 'intval' ) : null
         );
     }
 

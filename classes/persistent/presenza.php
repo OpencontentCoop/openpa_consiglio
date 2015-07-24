@@ -88,7 +88,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
             'user_id' => $userId,
             'seduta_id' => $seduta->id(),
             'type' => (string) $type,
-            'in_out' => (int) $inOut,
+            'in_out' => intval( $inOut ),
             'created_time' => $createdTime
         ));
         return $presenza;
