@@ -201,6 +201,35 @@ class ConsiglioApiController extends ezpRestMvcController
             $result->variables = $votazione->jsonSerialize();
         return $result;
     }
+    
+    public function doLoadVotazioneUserStatus()
+    {
+        $result = new ezpRestMvcResult();
+        $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $this->Id );
+        if ( $votazione instanceof Votazione )
+        {
+            //@todo
+            $data = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
+                null,
+                array(
+                    'votazione_id' => $votazione->id(),
+                    'user_id' => intval( $this->UserId ),
+                ),
+                false,
+                null
+            );
+            $result->variables = array(
+                'result' => count( $data ) > 0 ? 'done' : 'pending',
+                'user_id' => intval( $this->UserId ),
+                'votazione_id' => $votazione->id()
+            );
+        }
+        else
+        {
+            throw new Exception( "{$this->Id} is not a valid Votazione" );
+        }
+        return $result;
+    }
 
     public function doAddVotoVotazione()
     {

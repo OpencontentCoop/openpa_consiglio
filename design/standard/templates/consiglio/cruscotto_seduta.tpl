@@ -277,10 +277,10 @@
             handelResponseError(response, status, xhr);
         });
     });
-    $('#page').hide();
+    //$('#page').hide();
     var socket = io('localhost:8000');
     socket.on('connect', function(){
-        $('#page').show();
+        //$('#page').show();
     });
     socket.on('presenze',function(data){
         if ( data.seduta_id == CurrentSedutaId ){

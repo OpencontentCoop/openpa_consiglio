@@ -7,7 +7,7 @@
         {foreach $post.votazioni as $votazione}
             <li>
                 <a href="#">
-                    <b>{$votazione.object.name|wash()}</b>
+                    <b>{$votazione.object.id|wash()} {$votazione.object.name|wash()}</b>
                     <small>{if $votazione.object.data_map.punto.has_content}{$votazione.object.data_map.punto.content.name|wash()}{else}seduta{/if}</small>
                 </a>
                 {if $votazione.current_state.identifier|eq('closed')}
