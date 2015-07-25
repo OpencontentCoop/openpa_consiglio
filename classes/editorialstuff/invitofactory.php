@@ -1,6 +1,6 @@
 <?php
 
-class InvitoFactory extends OCEditorialStuffPostDefaultFactory implements OCEditorialStuffPostDownloadableFactoryInterface
+class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorialStuffPostDownloadableFactoryInterface
 {
     public function instancePost( $data )
     {

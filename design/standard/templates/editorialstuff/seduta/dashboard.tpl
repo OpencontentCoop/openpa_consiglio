@@ -91,7 +91,7 @@
           
           {*Stato*}
           <td>
-            {include uri=concat('design:', $template_directory, '/parts/state.tpl')}
+            {include uri=concat('design:editorialstuff/consiglio_default/parts/edit_state.tpl')}
           </td>
           
           <td>
@@ -124,7 +124,7 @@
     </div>
 </div>
 
-{ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery' ) )}
+{ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'jquery.editorialstuff_default.js' ) )}
 
 <script>{literal}
     $(document).ready(function() {

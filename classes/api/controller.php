@@ -261,6 +261,26 @@ class ConsiglioApiController extends ezpRestMvcController
         return $result;
     }
 
+    public function doLoadPuntoVotazioni()
+    {
+        $result = new ezpRestMvcResult();
+
+        $punto = OCEditorialStuffHandler::instance( 'punto' )->fetchByObjectId( $this->Id );
+        if ( $punto instanceof Punto )
+        {
+            $votazioni = $punto->votazioni();
+            foreach ( $votazioni as $votazione )
+            {
+                $validVotazione = $votazione->jsonSerialize();
+                if ( $validVotazione )
+                {
+                    $result->variables[] = $validVotazione;
+                }
+            }
+        }
+        return $result;
+    }
+
     public function doLoadAllegato()
     {
         $result = new ezpRestMvcResult();

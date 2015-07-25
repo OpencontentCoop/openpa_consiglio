@@ -26,6 +26,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $attributes[] = 'partecipanti';
         $attributes[] = 'registro_presenze';
         $attributes[] = 'votazioni';
+        $attributes[] = 'verbale';
 
         return $attributes;
     }
@@ -77,7 +78,57 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             return $this->votazioni();
         }
 
+        if ( $property == 'verbale' )
+        {
+            return $this->verbale();
+        }
+
         return parent::attribute( $property );
+    }
+
+    public function verbale( $postId = null )
+    {
+        if ( $postId == null )
+        {
+            $postId = $this->id();
+        }
+        $verbali = array();
+        $data = $this->stringAttribute( 'verbale' );
+        if ( empty( $data ) )
+        {
+            $hash = array( $this->id() => '' );
+            foreach( $this->odg() as $punto )
+            {
+                $hash[$punto->id()] = '';
+            }
+            $this->saveVerbale( $hash );
+        }
+        $rows = explode( '&', $data );
+        foreach( $rows as $row )
+        {
+            $columns = explode( '|', $row );
+            $verbali[$columns[0]] = $columns[1];
+        }
+        return $verbali[$postId];
+    }
+
+    public function saveVerbale( $hash )
+    {
+        $data = array();
+        foreach( $hash as $id => $text )
+        {
+            $data[] = $id . '|' . $text;
+        }
+        $string = implode( '&', $data );
+        if ( isset( $this->dataMap['verbale'] ) )
+        {
+            $this->dataMap['verbale']->fromString( $string );
+            $this->dataMap['verbale']->store();
+        }
+        else
+        {
+            throw new Exception( "Attributo verbale non trovato" );
+        }
     }
 
     public function reorderOdg()
@@ -136,39 +187,58 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     public function addFile( eZContentObject $object, $attributeIdentifier )
     {
-        if ( isset( $this->dataMap[$attributeIdentifier] ) )
+        $result = false;
+        if ( $attributeIdentifier == 'documenti' )
         {
-            $ids = explode( '-', $this->dataMap[$attributeIdentifier]->toString() );
-            $ids[] = $object->attribute( 'id' );
-            $ids = array_unique( $ids );
-            $this->dataMap[$attributeIdentifier]->fromString( implode( '-', $ids ) );
-            $this->dataMap[$attributeIdentifier]->store();
-            eZSearch::addObject( $this->getObject() );
-            eZContentCacheManager::clearObjectViewCacheIfNeeded( $this->id() );
+            if ( isset( $this->dataMap[$attributeIdentifier] ) )
+            {
+                $ids = explode( '-', $this->dataMap[$attributeIdentifier]->toString() );
+                $ids[] = $object->attribute( 'id' );
+                $ids = array_unique( $ids );
+                $this->dataMap[$attributeIdentifier]->fromString( implode( '-', $ids ) );
+                $this->dataMap[$attributeIdentifier]->store();
+                eZSearch::addObject( $this->getObject() );
+                eZContentCacheManager::clearObjectViewCacheIfNeeded( $this->id() );
+
+                OCEditorialStuffHistory::addHistoryToObjectId(
+                    $this->id(),
+                    'add_file',
+                    array(
+                        'object_id' => $object->attribute( 'id' ),
+                        'name' => $object->attribute( 'name' ),
+                        'attribute' => $attributeIdentifier
+                    )
+                );
+                $result = true;
+            }
+        }
+
+        return $result;
+    }
+
+    public function removeFile( eZContentObject $object, $attributeIdentifier )
+    {
+        if ( $attributeIdentifier == 'documenti' )
+        {
             OCEditorialStuffHistory::addHistoryToObjectId(
                 $this->id(),
-                'add_file',
+                'remove_file',
                 array(
                     'object_id' => $object->attribute( 'id' ),
                     'name' => $object->attribute( 'name' ),
                     'attribute' => $attributeIdentifier
                 )
             );
-
-            return true;
         }
-
-        return false;
     }
 
-    public function removeFile( eZContentObject $object, $attributeIdentifier )
+    public function fileFactory( $attributeIdentifier )
     {
-        // TODO: Implement removeFile() method.
-    }
-
-    public function fileFactory()
-    {
-        return OCEditorialStuffHandler::instance( 'allegati_seduta' )->getFactory();
+        if ( $attributeIdentifier == 'documenti' )
+        {
+            return OCEditorialStuffHandler::instance( 'allegati_seduta' )->getFactory();
+        }
+        throw new Exception( "FileFactory for $attributeIdentifier not found" );
     }
 
     public function onChangeState(

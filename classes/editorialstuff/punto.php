@@ -43,6 +43,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $attributes[] = 'count_invitati';
         $attributes[] = 'can_add_osservazioni';
         $attributes[] = 'notification_subscribers';
+        $attributes[] = 'votazioni';
+        $attributes[] = 'verbale';
 
         return $attributes;
     }
@@ -89,7 +91,22 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             return $this->notificationSubscribers();
         }
 
+        if ( $property == 'votazioni' )
+        {
+            return $this->votazioni();
+        }
+
+        if ( $property == 'verbale' )
+        {
+            return $this->verbale();
+        }
+
         return parent::attribute( $property );
+    }
+
+    public function verbale()
+    {
+        return $this->getSeduta()->verbale( $this->id() );
     }
 
     /**
@@ -260,63 +277,132 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
     public function addFile( eZContentObject $object, $attributeIdentifier )
     {
-        if ( isset( $this->dataMap[$attributeIdentifier] ) )
+        $result = false;
+        if ( $attributeIdentifier == 'documenti' )
         {
-            $ids = explode( '-', $this->dataMap[$attributeIdentifier]->toString() );
-            $ids[] = $object->attribute( 'id' );
-            $ids = array_unique( $ids );
-            $this->dataMap[$attributeIdentifier]->fromString( implode( '-', $ids ) );
-            $this->dataMap[$attributeIdentifier]->store();
-            eZSearch::addObject( $this->getObject() );
-            eZContentCacheManager::clearObjectViewCacheIfNeeded( $this->id() );
+            if ( isset( $this->dataMap[$attributeIdentifier] ) )
+            {
+                $ids = explode( '-', $this->dataMap[$attributeIdentifier]->toString() );
+                $ids[] = $object->attribute( 'id' );
+                $ids = array_unique( $ids );
+                $this->dataMap[$attributeIdentifier]->fromString( implode( '-', $ids ) );
+                $this->dataMap[$attributeIdentifier]->store();
+                eZSearch::addObject( $this->getObject() );
+                eZContentCacheManager::clearObjectViewCacheIfNeeded( $this->id() );
 
+                OCEditorialStuffHistory::addHistoryToObjectId(
+                    $this->id(),
+                    'add_file',
+                    array(
+                        'object_id' => $object->attribute( 'id' ),
+                        'name' => $object->attribute( 'name' ),
+                        'attribute' => $attributeIdentifier
+                    )
+                );
+
+                try
+                {
+                    $allegato = OCEditorialStuffHandler::instance(
+                        'allegati_seduta'
+                    )->fetchByObjectId(
+                        $object->attribute( 'id' )
+                    );
+                    if ( $allegato instanceof OCEditorialStuffPostInterface )
+                    {
+                        $this->createNotificationEvent( 'add_file', $allegato );
+                    }
+                }
+                catch ( Exception $e )
+                {
+
+                }
+                $result = true;
+            }
+        }
+        elseif ( $attributeIdentifier == 'osservazioni' )
+        {
+            if ( isset( $this->dataMap[$attributeIdentifier] ) )
+            {
+                $ids = explode( '-', $this->dataMap[$attributeIdentifier]->toString() );
+                $ids[] = $object->attribute( 'id' );
+                $ids = array_unique( $ids );
+                $this->dataMap[$attributeIdentifier]->fromString( implode( '-', $ids ) );
+                $this->dataMap[$attributeIdentifier]->store();
+                eZSearch::addObject( $this->getObject() );
+                eZContentCacheManager::clearObjectViewCacheIfNeeded( $this->id() );
+
+                OCEditorialStuffHistory::addHistoryToObjectId(
+                    $this->id(),
+                    'add_osservazione',
+                    array(
+                        'object_id' => $object->attribute( 'id' ),
+                        'name' => $object->attribute( 'name' ),
+                        'attribute' => $attributeIdentifier
+                    )
+                );
+
+                try
+                {
+                    $osservazione = OCEditorialStuffHandler::instance(
+                        'osservazioni'
+                    )->fetchByObjectId(
+                        $object->attribute( 'id' )
+                    );
+                    if ( $osservazione instanceof OCEditorialStuffPostInterface )
+                    {
+                        $this->createNotificationEvent( 'add_osservazione', $osservazione );
+                    }
+                }
+                catch ( Exception $e )
+                {
+
+                }
+                $result = true;
+            }
+        }
+
+        return $result;
+    }
+
+    public function removeFile( eZContentObject $object, $attributeIdentifier )
+    {
+        if ( $attributeIdentifier == 'documenti' )
+        {
             OCEditorialStuffHistory::addHistoryToObjectId(
                 $this->id(),
-                'add_file',
+                'remove_file',
                 array(
                     'object_id' => $object->attribute( 'id' ),
                     'name' => $object->attribute( 'name' ),
                     'attribute' => $attributeIdentifier
                 )
             );
-
-            try
-            {
-                $allegato = OCEditorialStuffHandler::instance( 'allegati_seduta' )->fetchByObjectId(
-                    $object->attribute( 'id' )
-                );
-                if ( $allegato instanceof OCEditorialStuffPostInterface )
-                {
-                    $this->createNotificationEvent( 'add_file', $allegato );
-                }
-            }
-            catch ( Exception $e )
-            {
-
-            }
-
-            return true;
         }
-
-        return false;
+        elseif ( $attributeIdentifier == 'osservazioni' )
+        {
+            OCEditorialStuffHistory::addHistoryToObjectId(
+                $this->id(),
+                'remove_osservazione',
+                array(
+                    'object_id' => $object->attribute( 'id' ),
+                    'name' => $object->attribute( 'name' ),
+                    'attribute' => $attributeIdentifier
+                )
+            );
+        }
     }
 
-    public function removeFile( eZContentObject $object, $attributeIdentifier )
+    public function fileFactory( $attributeIdentifier )
     {
-        OCEditorialStuffHistory::addHistoryToObjectId(
-            $this->id(),
-            'remove_file',
-            array(
-                'object_id' => $object->attribute( 'id' ),
-                'name' => $object->attribute( 'name' ),
-                'attribute' => $attributeIdentifier
-            )
-        );
-    }
-
-    public function fileFactory()
-    {
-        return OCEditorialStuffHandler::instance( 'allegati_seduta' )->getFactory();
+        if ( $attributeIdentifier == 'documenti' )
+        {
+            return OCEditorialStuffHandler::instance( 'allegati_seduta' )->getFactory();
+        }
+        elseif ( $attributeIdentifier == 'osservazioni' )
+        {
+            return OCEditorialStuffHandler::instance( 'osservazione' )->getFactory();
+        }
+        throw new Exception( "FileFactory for $attributeIdentifier not found" );
     }
 
     /**
@@ -991,6 +1077,28 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             }
         }
         throw new Exception( "Errore" ); //@todo
+    }
+
+    /**
+     * @return Votazione[]
+     */
+    public function votazioni()
+    {
+        $data = array();
+        /** @var eZContentObject $votazioni */
+        $votazioni = $this->getObject()->reverseRelatedObjectList(
+            false,
+            Votazione::puntoClassAttributeId()
+        );
+        foreach ( $votazioni as $votazione )
+        {
+            $data[] = new Votazione(
+                array( 'object_id' => $votazione->attribute( 'id' ) ),
+                OCEditorialStuffHandler::instance( 'votazione' )->getFactory()
+            );
+        }
+
+        return $data;
     }
 
 }

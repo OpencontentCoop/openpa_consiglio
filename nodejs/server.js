@@ -8,6 +8,13 @@ var http = require('http').createServer(),
 http.listen(8000);
 
 var currentSA = arguments[0];
+
+if ( currentSA == undefined )
+{
+    console.log( "Specifica un site identifier" );
+    process.exit();
+}
+
 var baseFile = '/Users/luca/www/openpa.opencontent.it';
 var file = baseFile + '/var/' + currentSA + '/cache/push_notifications.json';
 
@@ -26,10 +33,14 @@ var emit = function(event, filename){
         }
     });
 };
+
+if ( !fs.exists( file ) )
+    fs.writeFile( file, '' );
+
 var fileWatcher;
-var watcher ={
+var watcher = {
     start: function(){
-        fileWatcher = fs.watch(file );
+        fileWatcher = fs.watch( file );
         fileWatcher.on( 'change', function(event, filename){
             emit(event, filename);
             watcher.restart();

@@ -1,23 +1,7 @@
 <?php
 
-class AllegatoFactory extends OCEditorialStuffPostFactory implements OCEditorialStuffPostFileFactoryInterface
+class AllegatoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorialStuffPostFileFactoryInterface
 {
-
-    /**
-     * @param OCEditorialStuffPostInterface $post
-     * @param eZContentObjectState $beforeState
-     * @param eZContentObjectState $afterState
-     *
-     * @return bool
-     */
-    public function onChangeState(
-        OCEditorialStuffPostInterface $post,
-        eZContentObjectState $beforeState,
-        eZContentObjectState $afterState
-    )
-    {
-        // TODO: Implement onChangeState() method.
-    }
 
     public function instancePost( $data )
     {

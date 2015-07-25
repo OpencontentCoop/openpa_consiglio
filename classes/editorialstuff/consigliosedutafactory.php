@@ -1,6 +1,6 @@
 <?php
 
-class ConsiglioSedutaFactory extends OCEditorialStuffPostDefaultFactory implements OCEditorialStuffPostDownloadableFactoryInterface
+class ConsiglioSedutaFactory extends OpenPAConsiglioDefaultFactory implements OCEditorialStuffPostDownloadableFactoryInterface
 {
     public function instancePost( $data )
     {

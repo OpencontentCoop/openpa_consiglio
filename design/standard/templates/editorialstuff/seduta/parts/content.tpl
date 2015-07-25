@@ -46,7 +46,16 @@
         <div class="row edit-row">
             <div class="col-md-3"><strong>{$attribute.contentclass_attribute_name}</strong></div>
             <div class="col-md-9">
-                {attribute_view_gui attribute=$attribute image_class=medium}
+                {if $identifier|eq('protocollo')}
+                    <a href="#" class="editable" data-type="text" data-name="protocollo"
+                       data-pk="{$attribute.id}"
+                       data-url="{concat('/edit/attribute/',$post.object.id,'/protocollo/1')|ezurl(no)}"
+                       data-title="Imposta protocollo">
+                        {attribute_view_gui attribute=$attribute}
+                    </a>
+                {else}
+                    {attribute_view_gui attribute=$attribute image_class=medium}
+                {/if}
             </div>
         </div>
     {/foreach}
