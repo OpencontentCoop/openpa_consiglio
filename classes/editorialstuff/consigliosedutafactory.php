@@ -73,7 +73,7 @@ class ConsiglioSedutaFactory extends OCEditorialStuffPostDefaultFactory implemen
         {
             $tpl->setVariable( $name, $value );
         }
-        return $tpl->fetch( 'design:pdf/seduta/seduta.tpl' );
+        return $tpl->fetch( 'design:pdf/seduta/seduta2.tpl' );
 
     }
 
@@ -107,7 +107,19 @@ class ConsiglioSedutaFactory extends OCEditorialStuffPostDefaultFactory implemen
         $fileName = $objectClass->urlAliasName( $currentPost->getObject(), false, $languageCode );
         $fileName = eZURLAliasML::convertToAlias( $fileName );
         $fileName .= '.pdf';
-        OpenPAConsiglioPdf::create( $fileName, $content, 'pdf/seduta/' );
+        //OpenPAConsiglioPdf::create( $fileName, $content, 'pdf/seduta/' );
+
+        //$xhtml                 = '<html><body><p>dasfadfasdfas</p></body></html>';
+        //$xhtml                 = $content;
+        //$pdf_file_name         = isset($params['pdf_file_name'])?$params['pdf_file_name'] : '' ;
+        $keys                  = array();
+        $subtree_expiry        = '';
+        $expiry                = 1 ;
+        $ignore_content_expiry = false;
+
+        $paradoxpdf = new ParadoxPDF();
+        $paradoxpdf->exportPDF( $content, $fileName,$keys, $subtree_expiry, $expiry, $ignore_content_expiry ) ;
+        //$paradoxpdf->generatePDF($content);
 
         eZExecution::cleanExit();
 
