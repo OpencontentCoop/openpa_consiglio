@@ -73,7 +73,7 @@ class ConsiglioSedutaFactory extends OpenPAConsiglioDefaultFactory implements OC
         {
             $tpl->setVariable( $name, $value );
         }
-        return $tpl->fetch( 'design:pdf/seduta/seduta2.tpl' );
+        return $tpl->fetch( 'design:pdf/seduta/seduta.tpl' );
 
     }
 
@@ -101,17 +101,14 @@ class ConsiglioSedutaFactory extends OpenPAConsiglioDefaultFactory implements OC
             );
         }
 
+
         /** @var eZContentClass $objectClass */
         $objectClass = $currentPost->getObject()->attribute( 'content_class' );
         $languageCode = eZContentObject::defaultLanguage();
         $fileName = $objectClass->urlAliasName( $currentPost->getObject(), false, $languageCode );
         $fileName = eZURLAliasML::convertToAlias( $fileName );
         $fileName .= '.pdf';
-        //OpenPAConsiglioPdf::create( $fileName, $content, 'pdf/seduta/' );
 
-        //$xhtml                 = '<html><body><p>dasfadfasdfas</p></body></html>';
-        //$xhtml                 = $content;
-        //$pdf_file_name         = isset($params['pdf_file_name'])?$params['pdf_file_name'] : '' ;
         $keys                  = array();
         $subtree_expiry        = '';
         $expiry                = 1 ;
@@ -119,7 +116,6 @@ class ConsiglioSedutaFactory extends OpenPAConsiglioDefaultFactory implements OC
 
         $paradoxpdf = new ParadoxPDF();
         $paradoxpdf->exportPDF( $content, $fileName,$keys, $subtree_expiry, $expiry, $ignore_content_expiry ) ;
-        //$paradoxpdf->generatePDF($content);
 
         eZExecution::cleanExit();
 

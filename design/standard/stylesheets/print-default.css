@@ -1,0 +1,122 @@
+body {
+    font-family:'Arial Narrow', Arial, sans-serif;
+    font-size:10pt;
+}
+
+/* Control page rendring: please refer to doc/doc.txt */
+@page {
+    size: a4 portrait;
+    margin: 1.5in 0.25in 1in 0.25in;
+    padding: 1em;
+    @top-left {
+        content: element(header);
+    }
+    @bottom-right {
+        content: element(footer);
+    }
+    background-repeat: no-repeat;
+    background-image: url('../images/pdf/corner-footer.jpg');
+    background-position: bottom right;
+}
+
+/*header as footer will automatically icluded in each pdf printed page*/
+#header
+{
+    display: block;
+    padding : 3px;
+    position: running(header);
+    height:110px;
+}
+#footer
+{
+    display: block;
+    position: running(footer);
+    height: 300px;
+    text-align:center;
+}
+
+#pagenumber:before {
+    content: counter(page);
+    font-family:"Arial","Helvetica",sans-serif;
+}
+
+#pagecount:before {
+    content: counter(pages);
+    font-family:"Arial","Helvetica",sans-serif;
+}
+
+/* Used for generating Table of content */
+#toc a::after { content: leader('.') target-counter(attr(href), page); }
+/* Use this class for first level titles */
+.page_break_before{ page-break-before: always; }
+
+/* Use this class for forcing page break inside pdf */
+.page_breaker{page-break-after:always;}
+
+
+a.modal{display:none !important; visibility:hidden !important;}
+
+h3
+{
+    margin:0;
+    padding:5px;
+    background: #CCCCCC !important;
+}
+
+
+table.list tbody th,
+table.list tbody td
+{
+    border-bottom:1px solid #bbb;
+    line-height: 21px;
+    padding: 0;
+    text-align: left;
+    vertical-align: top;
+    min-height:21px;
+}
+
+table.list tbody td
+{
+    padding: 8px;
+}
+
+table.list
+{
+    border:none;
+    width:100%;
+}
+
+.eztext
+{
+    min-height:100px;
+}
+
+.attribute-block {
+    line-height: 1.5;
+    page-break-inside:avoid;
+}
+
+.page-break
+{
+    page-break-after:always;
+}
+
+.logopg
+{
+    float:right;
+}
+
+.logopat
+{
+    float:left;
+}
+
+.option-row strong .ocpowerselection-item-index:before
+{
+    content:"X";
+}
+
+.euro
+{
+    margin:0;
+}

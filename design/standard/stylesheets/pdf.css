@@ -1,15 +1,3 @@
-
-body {
-    font-family: 'Arial Narrow', Arial, sans-serif;;
-    font-size: 12px;
-    line-height: normal;
-}
-
-#pdf-content {
-    height: 100%;
-    margin: 0;
-}
-
 #destinatari {
     line-height: 1em;
     text-align: left;
@@ -30,15 +18,6 @@ body {
     margin-top:30px;
     padding-left: 230px;
     text-align: center;
-}
-
-#pdf-footer {
-    margin: 0;
-    /*
-    background-image: url("../images/pdf/corner.jpg");
-    background-position: right bottom;
-    background-repeat: no-repeat;
-    */
 }
 
 .page-break-after {
