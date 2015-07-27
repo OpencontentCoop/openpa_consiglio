@@ -101,13 +101,21 @@ class ConsiglioSedutaFactory extends OpenPAConsiglioDefaultFactory implements OC
             );
         }
 
+
         /** @var eZContentClass $objectClass */
         $objectClass = $currentPost->getObject()->attribute( 'content_class' );
         $languageCode = eZContentObject::defaultLanguage();
         $fileName = $objectClass->urlAliasName( $currentPost->getObject(), false, $languageCode );
         $fileName = eZURLAliasML::convertToAlias( $fileName );
         $fileName .= '.pdf';
-        OpenPAConsiglioPdf::create( $fileName, $content, 'pdf/seduta/' );
+
+        $keys                  = array();
+        $subtree_expiry        = '';
+        $expiry                = 1 ;
+        $ignore_content_expiry = false;
+
+        $paradoxpdf = new ParadoxPDF();
+        $paradoxpdf->exportPDF( $content, $fileName,$keys, $subtree_expiry, $expiry, $ignore_content_expiry ) ;
 
         eZExecution::cleanExit();
 

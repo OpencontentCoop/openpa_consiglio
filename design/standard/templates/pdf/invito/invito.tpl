@@ -1,15 +1,21 @@
-<!doctype html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="utf-8">
+    <title></title>
+    {ezcss_load( array( 'pdf.css', 'print-default.css' ) )}
 </head>
-<body id="pdf-content"
-      style="padding: 0;margin: 0; background-repeat: no-repeat; background-image: url('http://{ezini('SiteSettings','SiteURL')}/{"images/pdf/corner-content.jpg"|ezdesign(no)}'); background-position: right 560px;">
-<div style="margin: 0 100px; line-height: {$line_height}em;height:660px;">
+<body>
+<div id="header">
+    <img src="{'images/pdf/logo.jpg'|ezdesign(no, full)}" height="50" style="margin: 30px 30px 0 30px" />
+</div>
+<div id="footer">
+    {*<span id="pagenumber"/> di <span id="pagecount"/>*}
+</div>
+<div id="content" style="line-height: {$line_height}em;">
     <p><i>Trento, {$data|datetime( 'custom', '%j %F %Y' )}</i></p>
 
     <div id="destinatari">
-        <p>{$invitato}{if $ruolo}<br>{$ruolo}{/if}{if $indirizzo}<br>{$indirizzo}{/if}</p>
+        <p>{$invitato}{if $ruolo}<br />{$ruolo}{/if}{if $indirizzo}<br />{$indirizzo}{/if}</p>
     </div>
 
     <p id="oggetto">OGGETTO: convocazione seduta
@@ -21,7 +27,7 @@
 
     <p id="data_luogo" style="text-align: center">
         <strong>{$data_seduta|datetime( 'custom', '%l %j %F %Y, alle ore %H:%i' )}</strong>
-        <br>presso la sede<br>
+        <br />presso la sede<br />
         {if $luogo}{$luogo}{else}Sala Consiglio - Via Torre Verde, 23 - TRENTO{/if}
     </p>
 
@@ -44,8 +50,8 @@
 
     {if $firmatario}
         <p id="firma">
-            Il Presidente<br/>
-            {$firmatario}<br/>
+            Il Presidente<br />
+            {$firmatario}<br />
             {if $firma}
                 <img src="{$firma}" width="100"/>
             {/if}
