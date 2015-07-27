@@ -1,6 +1,6 @@
 <?php
 
-class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileContainerInterface
+class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileContainerInterface, OCEditorialStuffPostInputActionInterface
 {
     const DATE_FORMAT = 'Y-m-d H:i:s';
 
@@ -18,6 +18,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     {
         $attributes = parent::attributes();
         $attributes[] = 'data_ora';
+        $attributes[] = 'data_ora_fine';
         $attributes[] = 'referenti';
         $attributes[] = 'odg';
         $attributes[] = 'count_documenti';
@@ -27,6 +28,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $attributes[] = 'registro_presenze';
         $attributes[] = 'votazioni';
         $attributes[] = 'verbale';
+        $attributes[] = 'protocollo';
 
         return $attributes;
     }
@@ -36,6 +38,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         if ( $property == 'data_ora' )
         {
             return $this->dataOra();
+        }
+
+        if ( $property == 'data_ora_fine' )
+        {
+            return $this->dataOraFine();
         }
 
         if ( $property == 'referenti' )
@@ -83,7 +90,22 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             return $this->verbale();
         }
 
+        if ( $property == 'protocollo' )
+        {
+            return $this->protocollo();
+        }
+
         return parent::attribute( $property );
+    }
+
+    protected function createUpdateConvocazione()
+    {
+        return ConvocazioneSeduta::create( $this->getObject() );
+    }
+
+    public function protocollo()
+    {
+        return $this->stringAttribute(  'protocollo', 'intval'  );
     }
 
     public function verbale( $postId = null )
@@ -139,12 +161,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             $punto->setNumber( $number );
         }
 
-        /*
-        if ($this->is( '_public' ))
-        {
-        */
-        ConsiglioSeduta::create( $this->getObject() );
-        //}
+        $this->createUpdateConvocazione();
     }
 
     public function tabs()
@@ -247,9 +264,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     )
     {
         if ( $beforeState->attribute( 'identifier' ) == 'pending'
-             && $afterState->attribute(
-                'identifier'
-            ) == 'published'
+             && $afterState->attribute( 'identifier' ) == 'published'
         )
         {
             foreach ( $this->odg() as $punto )
@@ -262,9 +277,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         }
 
         if ( $beforeState->attribute( 'identifier' ) == 'published'
-             && $afterState->attribute(
-                'identifier'
-            ) == 'in_progress'
+             && $afterState->attribute( 'identifier' ) == 'in_progress'
         )
         {
             OpenPAConsiglioPushNotifier::instance()->emit(
@@ -274,11 +287,15 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         }
 
         if ( $beforeState->attribute( 'identifier' ) == 'in_progress'
-             && $afterState->attribute(
-                'identifier'
-            ) == 'closed'
+             && $afterState->attribute( 'identifier' ) == 'closed'
         )
         {
+            if ( isset( $this->dataMap['orario_conclusione_effettivo'] ) )
+            {
+                $now = time();
+                $this->dataMap['orario_conclusione_effettivo']->fromString( $now );
+                $this->dataMap['orario_conclusione_effettivo']->store();
+            }
             OpenPAConsiglioPushNotifier::instance()->emit(
                 'stop_seduta',
                 $this->jsonSerialize()
@@ -310,6 +327,41 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         return $dateTime;
     }
 
+    /**
+     * @param string $returnFormat
+     *
+     * @return DateTime|string
+     */
+    public function dataOraFine( $returnFormat = 'U' )
+    {
+        if ( $this->is( 'closed' ) && isset( $this->dataMap['orario_conclusione_effettivo'] ) )
+        {
+            /** @var eZDate $data */
+            $data = $this->dataMap['orario_conclusione_effettivo']->content();
+
+            $dateTime = new DateTime();
+            $dateTime->setTimestamp( $data->attribute( 'timestamp' ) );
+        }
+        else
+        {
+            /** @var eZDate $data */
+            $data = $this->dataMap['data']->content();
+            /** @var eZTime $ora */
+            $ora = $this->dataMap['orario_conclusione']->content();
+
+            $dateTime = new DateTime();
+            $dateTime->setTimestamp( $data->attribute( 'timestamp' ) );
+            $dateTime->setTime( $ora->attribute( 'hour' ), $ora->attribute( 'minute' ) );
+        }
+
+        if ( $returnFormat )
+        {
+            return $dateTime->format( $returnFormat );
+        }
+
+        return $dateTime;
+    }
+
     public function referenti()
     {
         //@todo
@@ -322,17 +374,15 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     public function odg()
     {
         $sedutaId = $this->object->attribute( 'id' );
-        $items = OCEditorialStuffHandler::instance(
-            'punto',
-            array( 'seduta' => $sedutaId )
-        )->fetchItems(
-            array(
-                'limit' => 100,
-                'offset' => 0,
-                'filters' => 'submeta_seduta_di_riferimento___id_si:' . $this->id(),
-                'sort' => array( 'extra_orario_i' => 'asc' )
-            )
-        );
+        $items = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $sedutaId ) )
+            ->fetchItems(
+                array(
+                    'limit' => 100,
+                    'offset' => 0,
+                    'filters' => 'submeta_seduta_di_riferimento___id_si:' . $this->id(),
+                    'sort' => array( 'extra_orario_i' => 'asc' )
+                )
+            );
 
         //eZDebug::writeNotice( var_export( OCEditorialStuffHandler::getLastFetchData(), 1 ), __METHOD__ );
         return $items;
@@ -348,7 +398,6 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             $tempDataMap = $v->getObject()->dataMap();
             $rows[$tempDataMap['n_punto']->content()] = $v->jsonSerialize();
         }
-
         return $rows;
     }
 
@@ -470,7 +519,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                     'id' => $this->id(),
                     'competenza' => isset( $competenza[0] ) ? $competenza[0] : null,
                     'data_svolgimento' => $this->dataOra( self::DATE_FORMAT ),
-                    'protocollo' => $this->stringAttribute( 'protocollo', 'intval' ),
+                    'protocollo' => $this->protocollo(),
                     'stato' => $this->currentState()->attribute( 'identifier' ),
                     'documenti' => $this->attribute( 'count_documenti' )
                 );
@@ -629,7 +678,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     public function votazioni()
     {
         $data = array();
-        /** @var eZContentObject $votazioni */
+        /** @var eZContentObject[] $votazioni */
         $votazioni = $this->getObject()->reverseRelatedObjectList(
             false,
             Votazione::sedutaClassAttributeId()
@@ -643,5 +692,93 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         }
 
         return $data;
+    }
+
+    public function onCreate()
+    {
+        $this->createUpdateConvocazione();
+    }
+
+    public function onUpdate()
+    {
+        $this->createUpdateConvocazione();
+    }
+
+    public function executeAction( $actionIdentifier, $actionParameters, eZModule $module = null )
+    {
+        if ( $actionIdentifier == 'GetConvocazione' )
+        {
+            $convocazione = ConvocazioneSeduta::get( $this->getObject() );
+            $downloadUrl = 'editorialstuff/download/convocazione_seduta/' . $convocazione->attribute( 'id' ) . '?' . http_build_query( $actionParameters );
+            $module->redirectTo( $downloadUrl );
+        }
+        elseif ( $actionIdentifier == 'GetAttestatoPresenza' )
+        {
+            $politico = eZContentObject::fetch( $actionParameters['presente'] );
+            if ( $politico instanceof eZContentObject )
+            {
+                $tpl = eZTemplate::factory();
+                $tpl->resetVariables();
+                $tpl->setVariable( 'line_height', '1.2' );
+                $tpl->setVariable( 'seduta', $this );
+                $tpl->setVariable( 'politico', $politico );
+                $competenza = $this->stringRelatedObjectAttribute( 'organo', 'name' );
+
+                $tpl->setVariable( 'organo', $competenza );
+
+                if ( isset( $this->dataMap['firmatario'] ) && $this->dataMap['firmatario']->hasContent() )
+                {
+                    $listFirmatario = $this->dataMap['firmatario']->content();
+                    if ( isset( $listFirmatario['relation_list'][0]['contentobject_id'] ) )
+                    {
+                        $firmatario = eZContentObject::fetch(
+                            $listFirmatario['relation_list'][0]['contentobject_id']
+                        );
+                        /** @var eZContentObjectAttribute[] $firmatarioDataMap */
+                        $firmatarioDataMap = $firmatario->dataMap();
+
+                        $tpl->setVariable( 'firmatario', $firmatario->attribute( 'name' ) );
+                        if ( $firmatarioDataMap['firma']->hasContent()
+                             && $firmatarioDataMap['firma']->attribute( 'data_type_string' ) == 'ezimage' )
+                        {
+                            $image = $firmatarioDataMap['firma']->content()->attribute( 'original' );
+                            $url = $image['url'];
+                            eZURI::transformURI( $url, false, 'full' );
+                            $tpl->setVariable( 'firma', $url );
+                        }
+                    }
+                }
+
+
+                $content = $tpl->fetch( 'design:pdf/presenza/presenza.tpl' );
+
+                /** @var eZContentClass $objectClass */
+                $objectClass = $this->getObject()->attribute( 'content_class' );
+                $languageCode = eZContentObject::defaultLanguage();
+                $fileName = $objectClass->urlAliasName( $this->getObject(), false, $languageCode );
+                $fileName = eZURLAliasML::convertToAlias( $fileName );
+                $fileName .= '.' . $actionParameters['presente'] . '.pdf';
+
+                $parameters = array(
+                    'exporter' => 'paradox',
+                    'cache' => array(
+                        'keys' => array(),
+                        'subtree_expiry' => '',
+                        'expiry' => -1,
+                        'ignore_content_expiry' => false
+                    )
+                );
+
+                OpenPAConsiglioPdf::create( $fileName, $content, $parameters );
+
+                if ( eZINI::instance()->variable( 'DebugSettings', 'DebugOutput' ) == 'enabled' )
+                {
+                    echo '<pre>' . htmlentities( $content ) . '</pre>';
+                    eZDisplayDebug();
+                }
+                eZExecution::cleanExit();
+
+            }
+        }
     }
 }

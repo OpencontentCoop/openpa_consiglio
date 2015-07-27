@@ -2,17 +2,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    {ezcss_load( array( 'pdf.css', 'print-default.css' ) )}
+    {ezcss_load( array( 'print-default.css' ) )}
 </head>
 <body>
 <div id="header">
-    <img src="{'images/pdf/logo.jpg'|ezdesign(no, full)}" height="50" style="margin: 30px 30px 0 30px" />
 </div>
 <div id="footer">
     {*<span id="pagenumber"/> di <span id="pagecount"/>*}
 </div>
 <div id="content" style="line-height: {$line_height}em;">
-    <p><i>Trento, {$data|datetime( 'custom', '%j %F %Y' )}</i></p>
+    <p>
+        <i>Trento, {$data|datetime( 'custom', '%j %F %Y' )}</i><br />
+        <i>Prot. n. {$protocollo}</i>
+    </p>
 
     <div id="destinatari">
         <p>{$invitato}{if $ruolo}<br />{$ruolo}{/if}{if $indirizzo}<br />{$indirizzo}{/if}</p>
@@ -45,8 +47,7 @@
     </div>
 
 
-    <p class="indent">Confidando nella Sua partecipazione all'incontro, con l'occasione porgo
-        distinti saluti.</p>
+    <p class="indent">Confidando nella Sua partecipazione all'incontro, con l'occasione porgo distinti saluti.</p>
 
     {if $firmatario}
         <p id="firma">

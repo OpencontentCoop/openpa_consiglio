@@ -1,10 +1,10 @@
 <?php
 
-class ConsiglioSedutaFactory extends OpenPAConsiglioDefaultFactory implements OCEditorialStuffPostDownloadableFactoryInterface
+class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements OCEditorialStuffPostDownloadableFactoryInterface
 {
     public function instancePost( $data )
     {
-        return new ConsiglioSeduta( $data, $this );
+        return new ConvocazioneSeduta( $data, $this );
     }
 
     protected function getPdfContentFromVersion( eZContentObjectVersion $objectVersion, $parameters = array() )
@@ -33,6 +33,8 @@ class ConsiglioSedutaFactory extends OpenPAConsiglioDefaultFactory implements OC
 
         $dataOra = isset( $dataMap['data_ora'] ) ? $dataMap['data_ora']->toString() : 0;
 
+        $protocollo = isset( $dataMap['protocollo'] ) ? $dataMap['protocollo']->toString() : 0;
+
         $variables = array(
             'line_height' => isset( $parameters['line_height'] ) ? $parameters['line_height'] : 1.2,
             'data' => $objectVersion->attribute( 'created' ),
@@ -42,6 +44,7 @@ class ConsiglioSedutaFactory extends OpenPAConsiglioDefaultFactory implements OC
             'odg' => $odg,
             'firmatario' => '',
             'firma' => '',
+            'protocollo' => $protocollo
         );
 
         if ( isset( $sedutaDataMap['firmatario'] ) && $sedutaDataMap['firmatario']->hasContent() )
@@ -90,14 +93,14 @@ class ConsiglioSedutaFactory extends OpenPAConsiglioDefaultFactory implements OC
         {
             $content = $this->getPdfContentFromVersion(
                 $currentPost->getObject()->currentVersion(),
-                $parameters
+                $_GET
             );
         }
         else
         {
             $content = $this->getPdfContentFromVersion(
                 $currentPost->getObject()->version( $version ),
-                $parameters
+                $_GET
             );
         }
 
@@ -109,14 +112,23 @@ class ConsiglioSedutaFactory extends OpenPAConsiglioDefaultFactory implements OC
         $fileName = eZURLAliasML::convertToAlias( $fileName );
         $fileName .= '.pdf';
 
-        $keys                  = array();
-        $subtree_expiry        = '';
-        $expiry                = 1 ;
-        $ignore_content_expiry = false;
+        $parameters = array(
+            'exporter' => 'paradox',
+            'cache' => array(
+                'keys' => array(),
+                'subtree_expiry' => '',
+                'expiry' => -1,
+                'ignore_content_expiry' => false
+            )
+        );
 
-        $paradoxpdf = new ParadoxPDF();
-        $paradoxpdf->exportPDF( $content, $fileName,$keys, $subtree_expiry, $expiry, $ignore_content_expiry ) ;
+        OpenPAConsiglioPdf::create( $fileName, $content, $parameters );
 
+        if ( eZINI::instance()->variable( 'DebugSettings', 'DebugOutput' ) == 'enabled' )
+        {
+            echo '<pre>' . htmlentities( $content ) . '</pre>';
+            eZDisplayDebug();
+        }
         eZExecution::cleanExit();
 
         return true;

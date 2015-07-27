@@ -2,21 +2,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    {ezcss_load( array( 'pdf.css', 'print-default.css' ) )}
+    {ezcss_load( array( 'print-default.css' ) )}
 </head>
 <body>
 <div id="header">
-    <img src="{'images/pdf/logo.jpg'|ezdesign(no, full)}" height="50" style="margin: 30px 30px 0 30px" />
 </div>
 <div id="footer">
-    <div>
-        <hr style="margin: 0 100px; border: 0; height: 4px; background: #000;" />
-        <hr style="margin: 0 100px; border: 0; height: 4px; background: #fff;" />
-        <hr style="margin: 0 100px; border: 0; height: 1px; background: #000;" />
-        <p style="text-align: center">
+    <div class="nota">
+        <hr style="margin: 0; border: 0; height: 4px; background: #000;" />
+        <hr style="margin: 0; border: 0; height: 4px; background: #fff;" />
+        <hr style="margin: 0; border: 0; height: 1px; background: #000;" />
+        <p style="text-align:justify; margin: 0;font-size: .92em">
             <strong>
-                * SI PRECISA CHE LA CONVOCAZIONE VIENE INVIATA PER CONOSCENZA A TUTTI I SINDACI<br />
-                DEI COMUNI TRENTINI, AI SENSI DELL'ART.7, COMMA 3, DELLA L.P.7/2005
+                * SI PRECISA CHE LA CONVOCAZIONE VIENE INVIATA PER CONOSCENZA A TUTTI I SINDACI DEI COMUNI TRENTINI, AI SENSI DELL'ART.7, COMMA 3, DELLA L.P.7/2005
             </strong>
         </p>
     </div>
@@ -24,7 +22,10 @@
 </div>
 <div id="content" style="line-height: {$line_height}em;">
 
-    <p><i>Trento, {$data|datetime( 'custom', '%j %F %Y' )}</i></p>
+    <p>
+        <i>Trento, {$data|datetime( 'custom', '%j %F %Y' )}</i><br />
+        <i>Prot. n. {$protocollo}</i>
+    </p>
 
     <div id="destinatari">
         {if $organo|eq('Consiglio')}
@@ -63,13 +64,13 @@
 
     <p>per discutere il seguente ordine del giorno:</p>
 
-    <ol>
+    <div class="fake_list_container">
         {def $index = 0}
         {foreach $odg as $p}
             {set $index = $index|inc()}
-            <li>{$p.oggetto}{if $index|eq(count($odg))}.{else};{/if}</li>
+            <p class="fake_list"><span>{$p.numero}.</span> {$p.oggetto}{if $index|eq(count($odg))}.{else};{/if}</p>
         {/foreach}
-    </ol>
+    </div>
 
     <p class="indent">Si forniscono quindi, in allegato, le informazioni ritenute opportune in merito ai procedimenti previsti per i diversi argomenti posti all'ordine del giorno.</p>
     <p class="indent">PregandoVi di fornire preventiva comunicazione, qualora impossibilitati a partecipare, con l'occasione si porgono cordiali saluti.</p>

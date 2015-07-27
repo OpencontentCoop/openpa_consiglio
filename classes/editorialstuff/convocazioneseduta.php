@@ -1,9 +1,10 @@
 <?php
 
-class ConsiglioSeduta extends OCEditorialStuffPost
+class ConvocazioneSeduta extends OCEditorialStuffPost
 {
-    protected static $classIdentifier = 'consiglio_seduta';
+    protected static $classIdentifier = 'convocazione_seduta';
     protected static $sedutaIdentifier = 'seduta';
+    protected static $protocolloIdentifier = 'protocollo';
     protected static $odgIdentifier = 'odg';
     protected static $dataOraIdentifier = 'data_ora';
 
@@ -25,6 +26,12 @@ class ConsiglioSeduta extends OCEditorialStuffPost
         return implode( '_', $values );
     }
 
+    public static function get( eZContentObject $seduta )
+    {
+        $remoteId = self::generateRemoteId( $seduta );
+        return eZContentObject::fetchByRemoteID( $remoteId );
+    }
+
     /**
      * @param eZContentObject $seduta
      * @param eZContentObject $invitato
@@ -37,12 +44,12 @@ class ConsiglioSeduta extends OCEditorialStuffPost
         $remoteId = self::generateRemoteId( $seduta );
         $instance = OCEditorialStuffHandler::instance( 'seduta' );
         /** @var Seduta $postSeduta */
-        $postSeduta = $instance->getFactory()->instancePost( array( 'object_id' => $seduta->ID ) );
-        $consiglio = eZContentObject::fetchByRemoteID( $remoteId );
+        $postSeduta = $instance->getFactory()->instancePost( array( 'object_id' => $seduta->attribute( 'id' ) ) );
+        $convocazione = eZContentObject::fetchByRemoteID( $remoteId );
 
-        if ( !$consiglio instanceof eZContentObject )
+        if ( !$convocazione instanceof eZContentObject )
         {
-            $consiglio = eZContentFunctions::createAndPublishObject(
+            $convocazione = eZContentFunctions::createAndPublishObject(
                 array(
                     'class_identifier' => self::$classIdentifier,
                     'parent_node_id' => $seduta->attribute( 'main_node_id' ),
@@ -50,7 +57,8 @@ class ConsiglioSeduta extends OCEditorialStuffPost
                     'attributes' => array(
                         self::$sedutaIdentifier => $seduta->attribute( 'id' ),
                         self::$odgIdentifier => json_encode( $postSeduta->odgSerialized() ),
-                        self::$dataOraIdentifier => $postSeduta->dataOra()
+                        self::$dataOraIdentifier => $postSeduta->dataOra(),
+                        self::$protocolloIdentifier => $postSeduta->protocollo()
                     )
                 )
             );
@@ -58,17 +66,18 @@ class ConsiglioSeduta extends OCEditorialStuffPost
         else
         {
             eZContentFunctions::updateAndPublishObject(
-                $consiglio,
+                $convocazione,
                 array(
                     'attributes' => array(
                         self::$sedutaIdentifier => $seduta->attribute( 'id' ),
                         self::$odgIdentifier => json_encode( $postSeduta->odgSerialized() ),
-                        self::$dataOraIdentifier => $postSeduta->dataOra()
+                        self::$dataOraIdentifier => $postSeduta->dataOra(),
+                        self::$protocolloIdentifier => $postSeduta->protocollo()
                     )
                 )
             );
         }
 
-        return $consiglio;
+        return $convocazione;
     }
 }

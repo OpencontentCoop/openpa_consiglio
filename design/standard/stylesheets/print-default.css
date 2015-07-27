@@ -1,13 +1,19 @@
+@font-face {
+    font-family : "Arial Narrow";
+    src: url(../fonts/ArialNarrow.ttf);
+    -fs-pdf-font-embed: embed;
+    -fs-pdf-font-encoding: Identity-H;
+}
+
 body {
-    font-family:'Arial Narrow', Arial, sans-serif;
-    font-size:10pt;
+    font-family: "Arial Narrow";
+    font-size:12pt;
 }
 
 /* Control page rendring: please refer to doc/doc.txt */
 @page {
     size: a4 portrait;
-    margin: 1.5in 0.25in 1in 0.25in;
-    padding: 1em;
+    margin: 1.5in 1.25in 1.15in 1.25in;
     @top-left {
         content: element(header);
     }
@@ -15,34 +21,43 @@ body {
         content: element(footer);
     }
     background-repeat: no-repeat;
-    background-image: url('../images/pdf/corner-footer.jpg');
+    background-image: url('../images/pdf/footer.png');
     background-position: bottom right;
 }
 
 /*header as footer will automatically icluded in each pdf printed page*/
 #header
 {
+    margin-left: -.7in;
+    margin-top: 40px;
     display: block;
     padding : 3px;
+    height: 110px;
     position: running(header);
-    height:110px;
+    background-repeat: no-repeat;
+    background-image: url('../images/pdf/header.png');
+    background-position: top left;
 }
 #footer
 {
     display: block;
     position: running(footer);
-    height: 300px;
+    height: 340px;
     text-align:center;
+}
+
+#footer div.nota{
+    margin-top: 15px;
 }
 
 #pagenumber:before {
     content: counter(page);
-    font-family:"Arial","Helvetica",sans-serif;
+    font-family:"Arial Narrow", "Arial","Helvetica",sans-serif;
 }
 
 #pagecount:before {
     content: counter(pages);
-    font-family:"Arial","Helvetica",sans-serif;
+    font-family:"Arial Narrow", "Arial","Helvetica",sans-serif;
 }
 
 /* Used for generating Table of content */
@@ -54,69 +69,75 @@ body {
 .page_breaker{page-break-after:always;}
 
 
-a.modal{display:none !important; visibility:hidden !important;}
-
-h3
-{
-    margin:0;
-    padding:5px;
-    background: #CCCCCC !important;
-}
-
-
-table.list tbody th,
-table.list tbody td
-{
-    border-bottom:1px solid #bbb;
-    line-height: 21px;
-    padding: 0;
+#destinatari {
+    line-height: 1em;
     text-align: left;
-    vertical-align: top;
-    min-height:21px;
+    padding-left: 330px;
+    font-style: italic;
 }
 
-table.list tbody td
-{
-    padding: 8px;
+#destinatari .cc{
+    text-indent: -35px;
 }
 
-table.list
-{
-    border:none;
-    width:100%;
+#oggetto {
+    margin: 50px 0 30px;
+    font-style: italic;
 }
 
-.eztext
-{
-    min-height:100px;
+#firma {
+    margin-top:30px;
+    padding-left: 230px;
+    text-align: center;
 }
 
-.attribute-block {
-    line-height: 1.5;
-    page-break-inside:avoid;
+.page-break-after {
+    page-break-after: always;
+}
+
+p.indent{
+    text-indent: 60px;
+}
+
+#data_luogo{
+    line-height: 1.2em;
+}
+
+#data_luogo strong{
+    text-decoration: underline;
+}
+
+ol{
+    list-style-position: outside;
+}
+
+.italic{
+    font-style: italic;
+}
+
+hr{
+    background: #000;
+    height: 1px;
+    border: none;
+}
+
+.fake_list_container{
+    padding-left: 20px;
+}
+
+.fake_list{
+    text-indent: -33px;
+    margin-bottom: 0;
+}
+
+.fake_list span{
+    display: inline-block;
+    width: 25px;
+    margin-right: 5px;
+    text-align: right;
 }
 
 .page-break
 {
     page-break-after:always;
-}
-
-.logopg
-{
-    float:right;
-}
-
-.logopat
-{
-    float:left;
-}
-
-.option-row strong .ocpowerselection-item-index:before
-{
-    content:"X";
-}
-
-.euro
-{
-    margin:0;
 }

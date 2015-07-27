@@ -56,32 +56,30 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
         $ora = $first['ora'];
 
         $seduta = $punto->getSeduta()->getObject();
-        /** @var eZContentObjectAttribute[] $sedutaDataMAp */
-        $sedutaDataMAp = $seduta->dataMap();
+        /** @var eZContentObjectAttribute[] $sedutaDataMap */
+        $sedutaDataMap = $seduta->dataMap();
 
-        $listOrgano = $sedutaDataMAp['organo']->content();
+        $listOrgano = $sedutaDataMap['organo']->content();
         $organo = eZContentObject::fetch( $listOrgano['relation_list'][0]['contentobject_id'] );
 
         $variables = array(
             'line_height' => isset( $getParameters['line_height'] ) ? $getParameters['line_height'] : 1.2,
             'data' => $currentPost->getObject()->attribute( 'published' ),
-            'invitato' => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content(
-                ) . ' ' . $userDataMap['cognome']->content(),
+            'invitato' => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content() . ' ' . $userDataMap['cognome']->content(),
             'ruolo' => $userDataMap['ruolo']->content(),
-            'indirizzo' => isset( $userDataMap['indirizzo'] ) ? $userDataMap['indirizzo']->content(
-            ) : '',
-            'luogo' => isset( $sedutaDataMAp['luogo'] ) ? $sedutaDataMAp['luogo']->content() : '',
+            'indirizzo' => isset( $userDataMap['indirizzo'] ) ? $userDataMap['indirizzo']->content() : '',
+            'luogo' => isset( $sedutaDataMap['luogo'] ) ? $sedutaDataMap['luogo']->content() : '',
             'organo' => $organo instanceof eZContentObject ? $organo->attribute( 'name' ) : '',
             'data_seduta' => $punto->getSeduta()->dataOra(),
             'punti' => $punti,
             'firmatario' => '',
             'firma' => '',
-
+            'protocollo' => isset( $dataMap['protocollo'] ) ? $dataMap['protocollo']->toString() : '',
         );
 
-        if ( $sedutaDataMAp['firmatario']->hasContent() )
+        if ( $sedutaDataMap['firmatario']->hasContent() )
         {
-            $listFirmatario = $sedutaDataMAp['firmatario']->content();
+            $listFirmatario = $sedutaDataMap['firmatario']->content();
             $firmatario = eZContentObject::fetch(
                 $listFirmatario['relation_list'][0]['contentobject_id']
             );
@@ -120,14 +118,23 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
         $fileName = eZURLAliasML::convertToAlias( $fileName );
         $fileName .= '.pdf';
 
-        $keys                  = array();
-        $subtree_expiry        = '';
-        $expiry                = 1 ;
-        $ignore_content_expiry = false;
+        $parameters = array(
+            'exporter' => 'paradox',
+            'cache' => array(
+                'keys' => array(),
+                'subtree_expiry' => '',
+                'expiry' => -1,
+                'ignore_content_expiry' => false
+            )
+        );
 
-        $paradoxpdf = new ParadoxPDF();
-        $paradoxpdf->exportPDF( $content, $fileName,$keys, $subtree_expiry, $expiry, $ignore_content_expiry ) ;
+        OpenPAConsiglioPdf::create( $fileName, $content, $parameters );
 
+        if ( eZINI::instance()->variable( 'DebugSettings', 'DebugOutput' ) == 'enabled' )
+        {
+            echo '<pre>' . htmlentities( $content ) . '</pre>';
+            eZDisplayDebug();
+        }
         eZExecution::cleanExit();
 
     }

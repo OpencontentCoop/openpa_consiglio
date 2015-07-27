@@ -22,10 +22,12 @@ class DataHandlerTimeLinePresenzeSeduta implements OpenPADataHandlerInterface
     public function __construct( array $Params )
     {
         $module = isset( $Params['Module'] ) ? $Params['Module'] : false;
-        $sedutaId = eZHTTPTool::instance()->getVariable( 'seduta', isset( $Params['seduta'] ) ? $Params['seduta'] : 0 );
+        $sedutaId = eZHTTPTool::instance()->getVariable(
+            'seduta',
+            isset( $Params['seduta'] ) ? $Params['seduta'] : 0
+        );
         $this->seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $sedutaId );
         $this->startTime = eZHTTPTool::instance()->getVariable( 'startTime', null );
-        $this->format = eZHTTPTool::instance()->getVariable( 'format', 'dhtmlx' );
         if ( $module instanceof eZModule )
         {
             $module->setTitle( "Timeline Presenze seduta" );
@@ -37,80 +39,69 @@ class DataHandlerTimeLinePresenzeSeduta implements OpenPADataHandlerInterface
      */
     public function getData()
     {
+        //        return array(
+        //            'data' => array(
+        //                array(
+        //                    "id" => 1,
+        //                    "start_date" => "2013-04-01 11:30:00",
+        //                    "end_date" => "2013-04-01 18:00:00",
+        //                    "duration" => 240,
+        //                    "text" => "Nome",
+        //                    "values" => array(
+        //                        array( 1, 1 ),
+        //                        array( 0, 1 ),
+        //                        array( 1, 1 ),
+        //                        array( 0, 1 ),
+        //                        array( 1, 1 )
+        //                    )
+        //                ),
+        //                array(
+        //                    "id" => 2,
+        //                    "start_date" => "2013-04-01 14:30:00",
+        //                    "duration" => 1440,
+        //                    "text" => "Nome2",
+        //                    "values" => array(
+        //                        array( 0, 1 ),
+        //                        array( 1, 2.5 ),
+        //                        array( 0, 3.5 ),
+        //                        array( 1, 7 ),
+        //                        array( 0, 10 )
+        //                    )
+        //                )
+        //            )
+        //        );
+
         $data = array();
-        $presenze = OpenPAConsiglioPresenza::fetchBySeduta( $this->seduta, $this->startTime );
+        $helper = new OpenPAConsiglioPresenzaHelper( $this->seduta, $this->startTime );
+        $values = $helper->run();
 
-        if ( $this->format == 'jquery' )
-            $data = $this->retrieveForJqueryGantt( $presenze );
-        elseif ( $this->format == 'dhtmlx' )
-            $data = $this->retrieveForDhtmlxGantt( $presenze );
-
-        //echo '<pre>';print_r($data);die();
-        return $data;
-    }
-
-    /**
-     * @param OpenPAConsiglioPresenza[] $presenze
-     * @return array
-     */
-    protected function retrieveForJqueryGantt( $presenze )
-    {
-        /** @var OpenPAConsiglioPresenzaTimelineCollection[] $data */
-        $data = array();
-        foreach( $presenze as $presenza )
+        if ( eZHTTPTool::instance()->hasGetVariable( 'debug' ) )
         {
-            $userId = $presenza->attribute( 'user_id' );
-            if ( !isset( $data[$userId] ) )
+            return $values;
+        }
+
+        foreach ( $values as $value )
+        {
+            $link = 'editorialstuff/action/seduta/' . $this->seduta->id() . "?=ActionIdentifier=GetAttestatoPresenza&ActionParameters[presente]={$value->userId}";
+            eZURI::transformURI( $link );
+            $downloadText = "<a class=\"btn btn-success btn-xs\" herf=\"{$link}\"><i class=\"fa fa-download\"></i> Attestato</a>";
+            $item = array(
+                'id' => $value->userId,
+                'start_date' => $value->start,
+                'end_date' => $value->end,
+                'duration' => $value->duration,
+                'text' => $value->name,
+                'values' => array(),
+            );
+            foreach ( $value->intervals as $interval )
             {
-                $data[$userId] = OpenPAConsiglioPresenzaTimelineCollection::instance( $userId );
+                $item['values'][] = array( $interval[0], $interval[1] );
             }
-            $data[$userId]->add( $presenza );
+            $data[] = $item;
         }
-        $returnValues = array();
-        foreach( $data as $item )
-        {
-            $item->appendTo( $returnValues );
-        }
-        return $returnValues;
-    }
 
-    /**
-     * @param OpenPAConsiglioPresenza[] $presenze
-     * @return array
-     */
-    protected function retrieveForDhtmlxGantt( $presenze )
-    {
-        return array(
-            'data' => array(
-                array(
-                    "id" => 1,
-                    "start_date" => "2013-04-01 14:30:00",
-                    "duration" => 1440,
-                    "text" => "Nome",
-                    "values" => array(
-                        array( 1, 6 ),
-                        array( 0, 2.5 ),
-                        array( 1, 3.5 ),
-                        array( 0, 2 ),
-                        array( 1, 10 )
-                    )
-                ),
-                array(
-                    "id" => 2,
-                    "start_date" => "2013-04-01 14:30:00",
-                    "duration" => 1440,
-                    "text" => "Nome2",
-                    "values" => array(
-                        array( 0, 1 ),
-                        array( 1, 2.5 ),
-                        array( 0, 3.5 ),
-                        array( 1, 7 ),
-                        array( 0, 10 )
-                    )
-                )
-            )
-        );
-    }
+        return array( 'data' => $data );
 
+    }
 
 }

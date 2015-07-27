@@ -672,7 +672,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         );
     }
 
-    public function executeAction( $actionIdentifier, $actionParameters )
+    public function executeAction( $actionIdentifier, $actionParameters, eZModule $module = null )
     {
         if ( $actionIdentifier == 'AddInvitato' && isset( $actionParameters['invitato'] ) )
         {
@@ -966,28 +966,31 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $ids = explode( '-', $this->stringAttribute( $identifier ) );
         foreach ( $ids as $id )
         {
-            $related = eZContentObject::fetch( $id );
-            if ( $related instanceof eZContentObject )
+            if ( is_numeric( $id ) )
             {
-                if ( $attributeIdentifier )
+                $related = eZContentObject::fetch( $id );
+                if ( $related instanceof eZContentObject )
                 {
-                    if ( $related->hasAttribute( $attributeIdentifier ) )
+                    if ( $attributeIdentifier )
                     {
-                        $data[] = $related->attribute( $attributeIdentifier );
+                        if ( $related->hasAttribute( $attributeIdentifier ) )
+                        {
+                            $data[] = $related->attribute( $attributeIdentifier );
+                        }
+                        else
+                        {
+                            /** @var eZContentObjectAttribute[] $dataMap */
+                            $dataMap = $related->attribute( 'data_map' );
+                            if ( isset( $dataMap[$attributeIdentifier] ) )
+                            {
+                                $data[] = $dataMap[$attributeIdentifier]->toString();
+                            }
+                        }
                     }
                     else
                     {
-                        /** @var eZContentObjectAttribute[] $dataMap */
-                        $dataMap = $related->attribute( 'data_map' );
-                        if ( isset( $dataMap[$attributeIdentifier] ) )
-                        {
-                            $data[] = $dataMap[$attributeIdentifier]->toString();
-                        }
+                        $data[] = $related;
                     }
-                }
-                else
-                {
-                    $data[] = $related;
                 }
             }
         }

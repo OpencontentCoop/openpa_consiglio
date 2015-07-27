@@ -46,9 +46,9 @@
                         </a>
                     </td>
                     <td>{attribute_view_gui attribute=$punto.object.data_map.materia}</td>
-                    <td>{$punto.count_documenti}</td>
-                    <td>{$punto.count_invitati}</td>
-                    <td>{$punto.count_osservazioni}</td>
+                    <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_documenti')|ezurl(no)}">{$punto.count_documenti}</a></td>
+                    <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_inviti')|ezurl(no)}">{$punto.count_invitati}</a></td>
+                    <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_osservazioni')|ezurl(no)}">{$punto.count_osservazioni}</a></td>
                     <td>{include uri='design:editorialstuff/punto/parts/edit_state.tpl' post=$punto}</td>
                     {*<td><i class="fa fa-reorder handle"></i> </td>*}
                 </tr>

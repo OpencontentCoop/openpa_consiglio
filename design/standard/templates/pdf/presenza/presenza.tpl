@@ -2,37 +2,43 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    {ezcss_load( array( 'pdf.css', 'print-default.css' ) )}
+    {ezcss_load( array( 'print-default.css' ) )}
 </head>
 <body>
 <div id="header">
-    <img src="{'images/pdf/logo.jpg'|ezdesign(no, full)}" height="50" style="margin: 30px 30px 0 30px" />
 </div>
 <div id="footer">
     {*<span id="pagenumber"/> di <span id="pagecount"/>*}
 </div>
 <div id="content" style="line-height: {$line_height}em;">
-    <p><i>Trento, {$data}</i></p>
+    <p><i>Trento, {$seduta.object.data_map.orario_conclusione_effettivo.content.timestamp|datetime( 'custom', '%j %F %Y' )}</i></p>
 
-    <p style="text-align: right">{$politico}{if $ruolo}<br />{$ruolo}{/if}{if $indirizzo}<br />{$indirizzo}{/if}</p>
+    <div id="destinatari">
+        <p>{$politico.name|wash()} {attribute_view_gui attribute=$politico.data_map.ruolo}</p>
+        <p>{attribute_view_gui attribute=$politico.data_map.indirizzo}</p>
+    </div>
 
     <p><strong>OGGETTO: Attestazione di presenza</strong></p>
 
-    <p>Il sottoscritto, dott., Segretario con funzione verbalizzante la seduta, su richiesta del soggetto indirizzo</p>
+    <p>Il sottoscritto, {$firmatario}, Segretario con funzione verbalizzante la seduta, su richiesta del soggetto indirizzo</p>
 
     <p style="text-align: center"><strong>ATTESTA</strong></p>
 
-    <p>Che il Signor {$politico} ha partecipato:<br />alla seduta di Consiglio delle Autonomie Locali il giorno {$giorno}, dalle ore {$dalle} alle ore {$alle}.</p>
+    <p class="indent">che il Signor {$politico.name|wash()} ha partecipato:<br />alla seduta
+        {if $organo|eq('Consiglio')}
+            di Consiglio delle Autonomie Locali
+        {else}
+            di Giunta del Consiglio delle autonomie locali
+        {/if}
+        il giorno {$seduta.data_ora|datetime( 'custom', '%j %F %Y' )}, dalle ore {$seduta.data_ora|datetime( 'custom', '%H:%i' )} alle ore {$seduta.data_ora_fine|datetime( 'custom', '%H:%i' )}.</p>
 
-    <p>In fede</p>
+    <p class="indent">In fede</p>
 
-    {if $firmatario}
-        <p id="firma" style="text-align: right">{$firmatario}<br />
-            {if $firma}
-                <img src="{$firma}" width="100" >
-            {/if}
-        </p>
-    {/if}
+    <p id="firma" style="text-align: right">
+        Il Segretario verbalizzante<br />
+        {$firmatario}<br />
+        {if $firma}<img src="{$firma}" width="100" >{/if}
+    </p>
 </div>
 </body>
 </html>

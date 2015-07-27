@@ -32,11 +32,27 @@
                 </form>
             </div>
         {/if}
-        <div class="col-xs-6 col-md-2">
-            <a class="btn btn-info btn-lg" data-toggle="modal"
+        <div class="col-xs-6 col-md-4">
+            {*<a class="btn btn-info btn-lg" data-toggle="modal"
                data-load-remote="{concat( 'layout/set/modal/content/view/full/', $post.object.main_node_id )|ezurl('no')}"
-               data-remote-target="#preview .modal-content" href="#{*$post.url*}"
-               data-target="#preview">Anteprima</a>
+               data-remote-target="#preview .modal-content" href="#"
+               data-target="#preview">Anteprima</a>*}
+            <form action="{concat('editorialstuff/action/seduta/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post" class="form-inline">
+                <input type="hidden" name="ActionIdentifier" value="GetConvocazione" />
+
+                <div class="input-group-btn">
+                <select class="form-control input-lg" id="formInterlinea" tabindex="-1" name="ActionParameters[line_height]">
+                    <option value="1">Interlinea 1</option>
+                    <option value="1.1">Interlinea 2</option>
+                    <option selected="" value="1.2">Interlinea 3</option>
+                    <option value="1.3">Interlinea 4</option>
+                    <option value="1.4">Interlinea 5</option>
+                    <option value="1.5">Interlinea 6</option>
+                </select>
+
+                <button type="submit" class="btn btn-primary btn-lg" name="GetConvocazione">Download convocazione</button>
+                </div>
+            </form>
         </div>
     </div>
 

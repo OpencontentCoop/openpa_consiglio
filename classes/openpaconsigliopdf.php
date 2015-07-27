@@ -4,9 +4,23 @@ use mikehaertl\wkhtmlto\Pdf;
 
 class OpenPAConsiglioPdf
 {
-    public static function create( $filename, $content, $templatePartsDirPath = 'pdf/', $forceDownload = false )
+    protected static function exportParadoxPdf( $filename, $content, $parameters )
     {
-        // Todo: L'immagine di sfondo viene inserita tramite css, in caso provare fpdi
+        $paradoxPdf = new ParadoxPDF();
+        $paradoxPdf->exportPDF(
+            $content,
+            $filename,
+            $parameters['cache']['keys'],
+            $parameters['cache']['subtree_expiry'],
+            $parameters['cache']['expiry'],
+            $parameters['cache']['ignore_content_expiry']
+        );
+    }
+
+    protected static function exportWkHtmlToPdf( $filename, $content, $parameters )
+    {
+        $templatePartsDirPath = $parameters['template_parts_dir_path'];
+        $forceDownload = $parameters['force_download'];
 
         $headerTemplatePath = "design:{$templatePartsDirPath}header.tpl";
         $header = self::createTempFile( $headerTemplatePath );
@@ -78,6 +92,23 @@ class OpenPAConsiglioPdf
                 $pdf->send();
             }
         }
+    }
+
+
+    public static function create( $filename, $content, $parameters,  $templatePartsDirPath = 'pdf/', $forceDownload = false )
+    {
+        if ( isset( $parameters['exporter'] ) )
+        {
+            if ( $parameters['exporter'] == 'paradox' )
+            {
+                self::exportParadoxPdf( $filename, $content, $parameters );
+            }
+            elseif ( $parameters['exporter'] == 'wk' )
+            {
+                self::exportWkHtmlToPdf( $filename, $content, $parameters );
+            }
+        }
+
     }
 
     protected static function createTempFile( $templatePath, $templateVars = array() )

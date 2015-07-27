@@ -1,6 +1,25 @@
 {ezscript_require( array( 'dhtmlxgantt.js' ) )}
 {ezcss_require( array( 'dhtmlxgantt.css' ) )}
 
+
+{if $post.current_state.identifier|eq( 'closed' )}
+<h3>Attestati di presenza</h3>
+<table class="table">
+    {foreach $post.partecipanti as $partecipante}
+        <tr>
+            <td>{content_view_gui content_object=$partecipante.object view="politico_line"}</td>
+            <td>
+                <form action="{concat('editorialstuff/action/seduta/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post" id="add-invitato" class="form-horizontal">
+                        <input type="hidden" name="ActionIdentifier" value="GetAttestatoPresenza" />
+                        <input type="hidden" name="ActionParameters[presente]" value="{$partecipante.object_id}" />
+                        <button class="btn btn-success btn-md" type="submit" name="GetAttestatoPresenza"><i class=\"fa fa-download\"></i> Stampa attestato</button>
+                </form>
+            </td>
+        </tr>
+    {/foreach}
+</table>
+{/if}
+
 <div id="gantt_here" style='width:100%; height:800px;'></div>
 <script type="text/javascript">
     function loadGantt(){ldelim}
@@ -9,11 +28,25 @@
         gantt.config.details_on_dblclick = false;
         gantt.config.drag_progress = false;
         gantt.config.readonly = true;
-        gantt.config.date_grid = "%H:%i";
-        gantt.config.scale_unit = "hour";
-        gantt.config.duration_unit = "minute";
-        gantt.config.date_scale = "%H:%i";
+
+//        gantt.config.date_grid = "%H:%i";
+//        gantt.config.scale_unit = "hour";
+//        gantt.config.duration_unit = "minute";
+//        gantt.config.date_scale = "%H:%i";
+
         gantt.config.xml_date = "%Y-%m-%d %H:%i:%s";
+        gantt.config.scale_unit = "hour";
+        gantt.config.step = 1;
+        gantt.config.date_scale = "%H";
+        gantt.config.min_column_width = 30;
+        gantt.config.duration_unit = "minute";
+        gantt.config.duration_step = 60;
+        gantt.config.scale_height = 75;
+
+        gantt.config.subscales = [
+            {ldelim}unit:"minute", step:15, date : "%i"{rdelim}
+        ];
+
         gantt.init("gantt_here");
         gantt.templates.task_class = function(start, end, task){ldelim}
             if (task.values)
@@ -25,20 +58,22 @@
             if (!task.values) return task.text;
             for (index = 0; index < task.values.length; ++index) {ldelim}
                 if ( task.values[index][0] == 0) {ldelim}
-                    background = 'background:#fff';
+                    background = 'background:#000';
                 {rdelim}else{ldelim}
-                    background = '';
+                    background = 'background:#5cb85c';
                 {rdelim}
-                returnData += "<div class='gantt_task_line' style='border:none;position:relative;float:left;width:"+(70*task.values[index][1])+"px;"+background+"'><span style='visibility:hidden'>0</span></div>";;
+                var width = task.values[index][1];
+                returnData += "<div class='gantt_task_line' style='border:none;position:relative;float:left;width:"+(30*width)+"px;"+background+"'><span style='visibility:hidden'>0</span></div>";;
             {rdelim}
             return returnData;
         {rdelim};
         gantt.load({concat('/openpa/data/timeline_presenze_seduta?seduta=',$post.object_id)|ezurl()});
-        gantt.showDate(new Date(2013,04,02,14,30,0,0));
-        {*gantt.load({concat('javascript/data.json')|ezdesign()});*}
+        gantt.showDate(new Date());
     {rdelim}
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {ldelim}loadGantt(){rdelim});
-    //setInterval(function(){ldelim} loadGantt() {rdelim}, 3000);
+    {if $post.current_state.identifier|eq( 'in_progress' )}
+        setInterval(function(){ldelim} loadGantt() {rdelim}, 3000);
+    {/if}
 </script>
 <style>{literal}
     .complex_gantt_bar{

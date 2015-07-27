@@ -33,7 +33,20 @@
             </td>
             <td class="text-center">
                 {if $invito}
-                <a href="{concat( 'editorialstuff/download/invito/', $invito.id, '?format=pdf' )|ezurl('no')}" title="Stampa invito" class="btn btn-primary btn-xs">Stampa invito</a>
+                <form action="{concat( 'editorialstuff/download/invito/', $invito.id)|ezurl('no')}" enctype="multipart/form-data" method="get" class="form-inline">
+                    <div class="input-group-btn">
+                        <select class="form-control input-md" id="formInterlinea" tabindex="-1" name="line_height">
+                            <option value="1">Interlinea 1</option>
+                            <option value="1.1">Interlinea 2</option>
+                            <option selected="" value="1.2">Interlinea 3</option>
+                            <option value="1.3">Interlinea 4</option>
+                            <option value="1.4">Interlinea 5</option>
+                            <option value="1.5">Interlinea 6</option>
+                        </select>
+
+                        <button type="submit" class="btn btn-primary btn-md">Download invito</button>
+                    </div>
+                </form>
                 {/if}
             </td>
             {undef $invito}

@@ -10,7 +10,7 @@ Identifiers[]=politico
 Identifiers[]=tecnico
 Identifiers[]=audizione
 Identifiers[]=materia
-Identifiers[]=consiglio_seduta
+Identifiers[]=convocazione_seduta
 Identifiers[]=votazione
 Identifiers[]=osservazioni
 
@@ -93,10 +93,10 @@ PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 
 
-[consiglio_seduta]
-Name=Consiglio seduta
-ClassName=ConsiglioSedutaFactory
-ClassIdentifier=consiglio_seduta
+[convocazione_seduta]
+Name=Convocazioni seduta
+ClassName=ConvocazioneSedutaFactory
+ClassIdentifier=convocazione_seduta
 RepositoryNodes[]
 RepositoryNodes[]=1
 AttributeIdentifiers[]
