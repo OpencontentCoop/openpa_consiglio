@@ -6,4 +6,10 @@ class OsservazioneFactory extends AllegatoFactory
     {
         return new Osservazione( $data, $this );
     }
+
+    public function fileAttributeIdentifier()
+    {
+        return 'allegato';
+    }
+
 }

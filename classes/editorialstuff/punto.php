@@ -36,6 +36,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $attributes = parent::attributes();
         $attributes[] = 'seduta_id';
         $attributes[] = 'seduta';
+        $attributes[] = 'osservazioni';
         $attributes[] = 'count_osservazioni';
         $attributes[] = 'documenti';
         $attributes[] = 'count_documenti';
@@ -54,6 +55,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         if ( ( $property == 'seduta' || $property == 'seduta_id' ) )
         {
             return $this->getSeduta( $property == 'seduta' );
+        }
+
+        if ( $property == 'osservazioni' )
+        {
+            return $this->getOsservazioni( 'osservazioni' );
         }
 
         if ( $property == 'count_osservazioni' )
@@ -400,7 +406,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         }
         elseif ( $attributeIdentifier == 'osservazioni' )
         {
-            return OCEditorialStuffHandler::instance( 'osservazione' )->getFactory();
+            return OCEditorialStuffHandler::instance( 'osservazioni' )->getFactory();
         }
         throw new Exception( "FileFactory for $attributeIdentifier not found" );
     }
@@ -841,6 +847,34 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         if ( isset( $this->dataMap[$identifier] ) )
         {
             $factory = OCEditorialStuffHandler::instance( 'allegati_seduta' )->getFactory();
+            $idArray = explode( '-', $this->dataMap[$identifier]->toString() );
+            foreach ( $idArray as $id )
+            {
+                try
+                {
+                    $result[] = $factory->instancePost( array( 'object_id' => $id ) );
+                }
+                catch ( Exception $e )
+                {
+
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param $identifier
+     *
+     * @return Osservazione[]
+     */
+    protected function getOsservazioni( $identifier )
+    {
+        $result = array();
+        if ( isset( $this->dataMap[$identifier] ) )
+        {
+            $factory = OCEditorialStuffHandler::instance( 'osservazioni' )->getFactory();
             $idArray = explode( '-', $this->dataMap[$identifier]->toString() );
             foreach ( $idArray as $id )
             {

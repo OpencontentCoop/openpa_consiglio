@@ -15,27 +15,14 @@
                           class="upload-form form-horizontal">
                         <div class="form-group">
                             <label for="OsservazioneTitle"
-                                   class="col-sm-2 control-label">Titolo</label>
+                                   class="col-sm-2 control-label">Testo breve</label>
 
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" name="FileAttributes[name]"
-                                       id="OsservazioneTitle"/>
+                                <textarea class="form-control" name="FileAttributes[messaggio]"
+                                       id="OsservazioneTitle"></textarea>
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <label for="OsservazioneType"
-                                   class="col-sm-2 control-label">Tipo</label>
-
-                            <div class="col-sm-10">
-                                <select class="form-control" name="FileAttributes[type]"
-                                        id="OsservazioneType">
-                                    <option value="test">Test</option>
-                                    <option value="tost">Tost</option>
-                                </select>
-                            </div>
-                        </div>
-
+                        {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
                         <div class="form-group">
                             <label for="OsservazioneState"
                                    class="col-sm-2 control-label">Visibilità</label>
@@ -52,6 +39,23 @@
                                 </select>
                             </div>
                         </div>
+                        {/if}
+
+                        {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
+                            <div class="form-group">
+                                <label for="OsservazioneCreator"
+                                       class="col-sm-2 control-label">Autore</label>
+
+                                <div class="col-sm-10">
+                                    <select class="form-control" name="FileProperties[creator_id]"
+                                            id="OsservazioneCreator">
+                                        {foreach $post.seduta.partecipanti as $partecipante}
+                                            <option value="{$partecipante.object_id}">{$partecipante.object.name|wash()}</option>
+                                        {/foreach}
+                                    </select>
+                                </div>
+                            </div>
+                        {/if}
 
                         <div class="clearfix">
                     <span class="btn btn-success btn-lg fileinput-button pull-right">

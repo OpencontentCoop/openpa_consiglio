@@ -11,6 +11,10 @@ class AllegatoFactory extends OpenPAConsiglioDefaultFactory implements OCEditori
     public function editModuleResult( $parameters, OCEditorialStuffHandlerInterface $handler, eZModule $module )
     {
         $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
+        if ( !$currentPost instanceof OCEditorialStuffPostInterface )
+        {
+            return $currentPost;
+        }
         $tpl = $this->editModuleResultTemplate( $currentPost, $parameters, $handler, $module );
 
         $Result = array();
