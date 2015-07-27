@@ -114,6 +114,15 @@ class ConsiglioApiProvider implements ezpRestProviderInterface
                     'http-get'
                 ), 1
             ),
+            'consiglioApiVotazioneLoadUserStatus' => new ezpRestVersionedRoute(
+                new ConsiglioApiRailsRoute(
+                    '/votazione/:Id/user_status/:UserId',
+                    'ConsiglioApiController',
+                    'loadVotazioneUserStatus',
+                    array(),
+                    'http-get'
+                ), 1
+            ),
             'consiglioApiVotazioneAddVoto' => new ezpRestVersionedRoute(
                 new ConsiglioApiRailsRoute(
                     '/votazione/:Id',
