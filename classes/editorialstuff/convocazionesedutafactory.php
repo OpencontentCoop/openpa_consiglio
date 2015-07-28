@@ -122,12 +122,14 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
             )
         );
 
-        OpenPAConsiglioPdf::create( $fileName, $content, $parameters );
-
         if ( eZINI::instance()->variable( 'DebugSettings', 'DebugOutput' ) == 'enabled' )
         {
             echo '<pre>' . htmlentities( $content ) . '</pre>';
             eZDisplayDebug();
+        }
+        else
+        {
+            OpenPAConsiglioPdf::create( $fileName, $content, $parameters );
         }
         eZExecution::cleanExit();
 

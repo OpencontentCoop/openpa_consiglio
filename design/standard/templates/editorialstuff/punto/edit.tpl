@@ -54,3 +54,7 @@
 {ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-tabdrop.js', 'jquery.editorialstuff_default.js', 'ezjsc::jqueryUI', 'bootstrap-editable.min.js', ) )}
 {ezcss_require(array('bootstrap3-editable/css/bootstrap-editable.css','jquery.fileupload.css'))}
 
+# cron per cal
+35 6 * * *   cd /home/httpd/openpa.opencontent.it/html && $PHP runcronjobs.php -q -scal_backend > /dev/null
+20 5 * * 1  cd /home/httpd/openpa.opencontent.it/html && $PHP runcronjobs.php -q -scal_backend infrequent > /dev/null
+/5 * * * *  cd /home/httpd/openpa.opencontent.it/html && $PHP runcronjobs.php -q -scal_backend frequent > /dev/null
