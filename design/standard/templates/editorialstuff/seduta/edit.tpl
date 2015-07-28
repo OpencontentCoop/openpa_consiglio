@@ -48,5 +48,32 @@
     </div>
 </div>
 
-{ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-tabdrop.js', 'jquery.editorialstuff_default.js' ) )}
+{ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-tabdrop.js', 'jquery.editorialstuff_default.js', 'ezjsc::jqueryUI', 'bootstrap-editable.min.js' ) )}
+{ezcss_require(array('bootstrap3-editable/css/bootstrap-editable.css'))}
 
+{literal}<script>
+    $(document).ready(function(){
+        var editableOptions = {
+            success: function(response, newValue) {
+                reload('#odg');
+                return response;
+            },
+            error: function(response, newValue) {
+                if(response.responseJSON.status == 'error') return response.responseJSON.message;
+            }
+        };
+
+        function reload(tableID){
+            var self = $(tableID);
+            var url = self.data('url');
+            $.get(url,function (data) {
+                self.parent().html(data).find('.editable').editable(editableOptions);
+                //renumber_table('#odg');
+            });
+        }
+        $('.editable').editable(editableOptions);
+        reload('#odg');
+    })
+</script>
+
+{/literal}

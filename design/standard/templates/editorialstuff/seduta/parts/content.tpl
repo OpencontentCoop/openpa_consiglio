@@ -88,36 +88,6 @@
         </div>
     </div>
 
-    {ezcss_require(array('bootstrap3-editable/css/bootstrap-editable.css'))}
-    {ezscript_require( array( 'ezjsc::jquery', 'ezjsc::jqueryUI', 'bootstrap-editable.min.js' ) )}
-    {literal}<script>
-        $(document).ready(function(){
-            var editableOptions = {
-                success: function(response, newValue) {
-                    reload('#odg');
-                    return response;
-                },
-                error: function(response, newValue) {
-                    if(response.responseJSON.status == 'error') return response.responseJSON.message;
-                }
-            };
-
-            function reload(tableID){
-                var self = $(tableID);
-                var url = self.data('url');
-                $.get(url,function (data) {
-                    self.parent().html(data).find('.editable').editable(editableOptions);
-                    //renumber_table('#odg');
-                });
-            }
-
-            $('.editable').editable(editableOptions);
-            reload('#odg');
-        })
-    </script>
-
-    {/literal}
-
 </div>
 
 {*

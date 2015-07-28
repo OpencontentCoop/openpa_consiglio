@@ -51,6 +51,7 @@ PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 Name=Elenco punti
 
 [audizione]
+ClassName=AudizioneFactory
 ClassIdentifier=audizione
 CreationButtonText=Crea nuova audizione
 CreationRepositoryNode=1200
@@ -60,6 +61,10 @@ AttributeIdentifiers[]
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 Name=Elenco audizioni
+StateGroup=audizione
+States[draft]=Non visibile
+States[pending]=Non confermata
+States[published]=Confermata
 
 
 [allegati_seduta]

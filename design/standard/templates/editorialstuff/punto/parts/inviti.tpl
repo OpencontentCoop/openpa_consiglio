@@ -37,9 +37,6 @@
         </div>
     </div>
 </div>
-
-{ezcss_require(array('bootstrap3-editable/css/bootstrap-editable.css','jquery.fileupload.css'))}
-{ezscript_require( array( 'ezjsc::jquery', 'ezjsc::jqueryUI', 'bootstrap-editable.min.js', 'jquery.fileupload.js' ) )}
 {literal}
     <script>
         $(function () {
