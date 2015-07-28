@@ -10,6 +10,13 @@ $ViewList['test'] = array(
     'unordered_params' => array()
 );
 
+$ViewList['move'] = array(
+    'functions' => array( 'admin' ),
+    'script' => 'move.php',
+    'params' => array( 'FactoryIdentifier', 'ID' ),
+    'unordered_params' => array()
+);
+
 $ViewList['dashboard'] = array(
     'functions' => array( 'use' ),
     'script' => 'dashboard.php',

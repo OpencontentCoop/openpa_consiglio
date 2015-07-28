@@ -12,6 +12,7 @@
         <th>Invitati</th>
         <th>Oss</th>
         <th>Stato</th>
+        <th></th>
         {*<th width="1"></th>*}
     </tr>
     </thead>
@@ -44,12 +45,20 @@
                            data-title="Imposta oggetto">
                             {attribute_view_gui attribute=$punto.object.data_map.oggetto}
                         </a>
+                        {if $punto.object.data_map.alert.has_content}
+                            <div class="alert alert-warning">
+                                {attribute_view_gui attribute=$punto.object.data_map.alert}
+                            </div>
+                        {/if}
                     </td>
                     <td>{attribute_view_gui attribute=$punto.object.data_map.materia}</td>
                     <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_documenti')|ezurl(no)}">{$punto.count_documenti}</a></td>
                     <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_inviti')|ezurl(no)}">{$punto.count_invitati}</a></td>
                     <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_osservazioni')|ezurl(no)}">{$punto.count_osservazioni}</a></td>
                     <td>{include uri='design:editorialstuff/punto/parts/edit_state.tpl' post=$punto}</td>
+                    <td>
+                        <a href="{concat('consiglio/move/punto/',$punto.object.id)|ezurl(no)}" class="btn btn-warning btn-xs">Sposta</a>
+                    </td>
                     {*<td><i class="fa fa-reorder handle"></i> </td>*}
                 </tr>
             {/if}

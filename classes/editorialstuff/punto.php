@@ -177,7 +177,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             $seduta = $this->getSeduta();
             if ( $seduta instanceof Seduta )
             {
-                return $seduta->is( 'published' ) && $this->is( 'published' );
+                return ( $seduta->is( 'published' ) || $seduta->is( 'sent' ) ) && $this->is( 'published' );
             }
         }
 
@@ -440,7 +440,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             );
         }
 
-        if ( $beforeState->attribute( 'in_progress' ) == 'published' && $afterState->attribute( 'identifier' ) == 'closed' )
+        if ( $beforeState->attribute( 'identifier' ) == 'published' && $afterState->attribute( 'identifier' ) == 'closed' )
         {
             OpenPAConsiglioPushNotifier::instance()->emit(
                 'stop_punto',
@@ -681,6 +681,41 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             {
                 $this->addInvitato( $invitatoObject );
             }
+        }
+    }
+
+    public function moveIn( Seduta $seduta )
+    {
+        $currentSeduta = $this->getSeduta();
+        eZDebug::writeNotice( "Salvo alert", __METHOD__ );
+        $this->dataMap['alert']->fromString( SQLIContentUtils::getRichContent( '<p>Il punto è stato spostato dalla ' . $currentSeduta->getObject()->attribute( 'name' ) .'</p>' ) );
+        $this->dataMap['alert']->store();
+
+        eZDebug::writeNotice( "Aggiorno seduta di riferimento", __METHOD__ );
+        $this->dataMap['seduta_di_riferimento']->fromString( $seduta->id() );
+        $this->dataMap['seduta_di_riferimento']->store();
+
+        eZDebug::writeNotice( "Reindex punto", __METHOD__ );
+        eZSearch::addObject( $this->getObject(), true );
+
+        eZDebug::writeNotice( "Muovo punto", __METHOD__ );
+        $move = eZContentObjectTreeNodeOperations::move( $this->getObject()->attribute( 'main_node_id' ), $seduta->getObject()->attribute( 'main_node_id' ) );
+
+        if ( $this->is( '_public' ) )
+        {
+            eZDebug::writeNotice( "Creo notifica ", __METHOD__ );
+            $this->createNotificationEvent( 'update' );
+        }
+
+        eZDebug::writeNotice( "Aggiorno seduta {$currentSeduta->id()}", __METHOD__ );
+        $currentSeduta->reorderOdg();
+
+        eZDebug::writeNotice( "Aggiorno seduta {$seduta->id()}", __METHOD__ );
+        $seduta->reorderOdg();
+
+        if ( !$move )
+        {
+            eZDebug::writeError( "Spostamento non riuscito", __METHOD__ );
         }
     }
 

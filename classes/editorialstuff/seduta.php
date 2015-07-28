@@ -110,28 +110,33 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     public function verbale( $postId = null )
     {
-        if ( $postId == null )
+        if ( isset( $this->dataMap['verbale'] ) )
         {
-            $postId = $this->id();
-        }
-        $verbali = array();
-        $data = $this->stringAttribute( 'verbale' );
-        if ( empty( $data ) )
-        {
-            $hash = array( $this->id() => '' );
-            foreach( $this->odg() as $punto )
+            if ( $postId == null )
             {
-                $hash[$punto->id()] = '';
+                $postId = $this->id();
             }
-            $this->saveVerbale( $hash );
+            $verbali = array();
+            $data = $this->stringAttribute( 'verbale' );
+            if ( empty( $data ) )
+            {
+                $hash = array( $this->id() => '' );
+                foreach ( $this->odg() as $punto )
+                {
+                    $hash[$punto->id()] = '';
+                }
+                $this->saveVerbale( $hash );
+            }
+            $rows = explode( '&', $data );
+            foreach ( $rows as $row )
+            {
+                $columns = explode( '|', $row );
+                $verbali[$columns[0]] = $columns[1];
+            }
+
+            return $verbali[$postId];
         }
-        $rows = explode( '&', $data );
-        foreach( $rows as $row )
-        {
-            $columns = explode( '|', $row );
-            $verbali[$columns[0]] = $columns[1];
-        }
-        return $verbali[$postId];
+        return null;
     }
 
     public function saveVerbale( $hash )
@@ -149,7 +154,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         }
         else
         {
-            throw new Exception( "Attributo verbale non trovato" );
+            eZDebug::writeError( "Attributo verbale non trovato", __METHOD__ );
         }
     }
 
@@ -180,18 +185,20 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 'template_uri' => "design:{$templatePath}/parts/documenti.tpl"
             )
         );
+        if ( $currentUser->hasAccessTo( 'consiglio', 'admin' ) )
+        {
+            $tabs[] = array(
+                'identifier' => 'presenze',
+                'name' => 'Presenze',
+                'template_uri' => "design:{$templatePath}/parts/presenze.tpl"
+            );
+        }
 
-        $tabs[] = array(
-            'identifier' => 'presenze',
-            'name' => 'Presenze',
-            'template_uri' => "design:{$templatePath}/parts/presenze.tpl"
-        );
-
-        $tabs[] = array(
-            'identifier' => 'votazioni',
-            'name' => 'Votazioni e esito',
-            'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
-        );
+//        $tabs[] = array(
+//            'identifier' => 'votazioni',
+//            'name' => 'Votazioni e esito',
+//            'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
+//        );
 
         $tabs[] = array(
             'identifier' => 'history',

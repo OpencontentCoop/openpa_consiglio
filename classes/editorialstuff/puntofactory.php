@@ -85,7 +85,7 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
         $tpl = $this->editModuleResultTemplate( $currentPost, $parameters, $handler, $module );
 
         $Result = array();
-        $Result['content'] = $tpl->fetch( "design:{$this->getTemplateDirectory()}/edit.tpl" );
+        $tpl->setVariable( 'site_title', false );
         $contentInfoArray = array( 'url_alias' => 'editorialstuff/dashboard' );
         $contentInfoArray['persistent_variable'] = array( 'show_path' => true, 'site_title' => 'Dashboard' );
         if ( is_array( $tpl->variable( 'persistent_variable' ) ) )
@@ -120,6 +120,9 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
             }
             $Result['path'][] = array( 'url' => false, 'text' => $currentPost->getObject()->attribute( 'name' ) );
         }
+
+        $Result['content'] = $tpl->fetch( "design:{$this->getTemplateDirectory()}/edit.tpl" );
+
         return $Result;
     }
 
