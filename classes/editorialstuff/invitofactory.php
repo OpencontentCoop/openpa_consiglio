@@ -128,12 +128,14 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
             )
         );
 
-        OpenPAConsiglioPdf::create( $fileName, $content, $parameters );
-
         if ( eZINI::instance()->variable( 'DebugSettings', 'DebugOutput' ) == 'enabled' )
         {
             echo '<pre>' . htmlentities( $content ) . '</pre>';
             eZDisplayDebug();
+        }
+        else
+        {
+            OpenPAConsiglioPdf::create( $fileName, $content, $parameters );
         }
         eZExecution::cleanExit();
 
