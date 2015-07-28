@@ -590,7 +590,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             $template = 'punto/publish';
             $template .= in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? '/referente' : '/consigliere';
-            $this->createNotificationItem( $subscribersRule, $template );
+            $this->createNotificationItem( $event, $subscribersRule, $template );
         }
 
         $utentiAppassionati = $this->getAppassionati();
@@ -599,7 +599,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             foreach ( $utentiAppassionati as $subscribersRule )
             {
                 $template = 'punto/publish/interessato';
-                $this->createNotificationItem( $subscribersRule, $template );
+                $this->createNotificationItem( $event, $subscribersRule, $template );
             }
         }
     }
@@ -617,7 +617,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             $template = 'punto/update';
             $template .= in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? '/referente' : '/consigliere';
-            $this->createNotificationItem( $subscribersRule, $template );
+            $this->createNotificationItem( $event, $subscribersRule, $template );
         }
 
         $utentiAppassionati = $this->getAppassionati();
@@ -626,7 +626,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             foreach ( $utentiAppassionati as $subscribersRule )
             {
                 $template = 'punto/update/interessato';
-                $this->createNotificationItem( $subscribersRule, $template );
+                $this->createNotificationItem( $event, $subscribersRule, $template );
             }
         }
     }
@@ -644,7 +644,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             $template = 'punto/add_file';
             $template .= in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? '/referente' : '/consigliere';
-            $this->createNotificationItem( $subscribersRule, $template );
+            $this->createNotificationItem( $event, $subscribersRule, $template );
         }
 
         $utentiAppassionati = $this->getAppassionati();
@@ -653,7 +653,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             foreach ( $utentiAppassionati as $subscribersRule )
             {
                 $template = 'punto/add_file/interessato';
-                $this->createNotificationItem( $subscribersRule, $template );
+                $this->createNotificationItem( $event, $subscribersRule, $template );
             }
         }
     }
@@ -674,7 +674,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             $template = 'punto/update_file';
             $template .= in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? '/referente' : '/consigliere';
-            $this->createNotificationItem( $subscribersRule, $template );
+            $this->createNotificationItem( $event, $subscribersRule, $template );
         }
 
         $utentiAppassionati = $this->getAppassionati();
@@ -683,18 +683,19 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             foreach ( $utentiAppassionati as $subscribersRule )
             {
                 $template = 'punto/update_file/interessato';
-                $this->createNotificationItem( $subscribersRule, $template );
+                $this->createNotificationItem( $event, $subscribersRule, $template );
             }
         }
     }
 
     /**
+     * @param eZNotificationEventType $event
      * @param OCEditorialStuffNotificationRule $subscribersRule
-     * @param string $templateName
+     * @param $templateName
      *
      * @return OpenPAConsiglioNotificationItem
      */
-    protected function createNotificationItem( OCEditorialStuffNotificationRule $subscribersRule, $templateName )
+    protected function createNotificationItem( eZNotificationEventType $event, OCEditorialStuffNotificationRule $subscribersRule, $templateName )
     {
         //@todo digest a livello di user
 //        $type = $subscribersRule->attribute( 'use_digest' ) ?
@@ -715,9 +716,44 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             $time = $now->getTimestamp();
         }
 
+        $diff = array();
+        $notifiedVersion = $event->attribute( OCEditorialStuffEventType::FIELD_VERSION ) - 1;
+        if ( $notifiedVersion > 1 )
+        {
+            $current = $this->getObject()->currentVersion();
+            $version = $this->getObject()->version( $notifiedVersion );
+
+            if ( $version instanceof eZContentObjectVersion && $current instanceof eZContentObjectVersion )
+            {
+                if ( $version->attribute( 'version' ) != $current->attribute( 'version' ) )
+                {
+                    /** @var eZContentObjectAttribute[] $oldAttributes */
+                    $oldAttributes = $version->dataMap();
+                    /** @var eZContentObjectAttribute[] $newAttributes */
+                    $newAttributes = $current->dataMap();
+                    foreach ( $oldAttributes as $oldAttribute )
+                    {
+                        $newAttribute = $newAttributes[$oldAttribute->attribute( 'contentclass_attribute_identifier' )];
+                        /** @var eZContentClassAttribute $contentClassAttr */
+                        $contentClassAttr = $newAttribute->attribute( 'contentclass_attribute' );
+//                        $diff[$contentClassAttr->attribute( 'id' )] = $contentClassAttr->diff(
+//                            $oldAttribute,
+//                            $newAttribute,
+//                            false
+//                        );
+                        if ( $oldAttribute->toString() !== $newAttribute->toString() )
+                        {
+                            $diff[] = $newAttribute;
+                        }
+                    }
+                }
+            }
+        }
+
         $variables = array(
             'seduta' => $this->getSeduta(),
-            'punto' => $this
+            'punto' => $this,
+            'diff' => $diff
         );
 
         $tpl = eZTemplate::factory();

@@ -92,7 +92,6 @@ class OpenPAConsiglioDigestNotificationTransport extends OpenPAConsiglioNotifica
         foreach ( $digest as $userId => $notifications )
         {
             /** @var OpenPAConsiglioNotificationItem[] $notifications */
-
             $subject = 'Aggiornamenti di ' . date( 'd-m-Y' );
             $body = '';
             foreach ( $notifications as $notification )

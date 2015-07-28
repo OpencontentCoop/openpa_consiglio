@@ -10,7 +10,7 @@
                 <th>Destinatario</th>
                 <th>Oggetto</th>
                 <th>Tipo di avviso</th>
-                <th>Data di invio attesa</th>
+                <th>Data di invio prevista</th>
             </tr>
             {foreach $avvisi_da_inviare as $avviso}
                 <tr>
