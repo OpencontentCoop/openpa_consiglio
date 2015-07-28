@@ -54,62 +54,77 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     {
         if ( ( $property == 'seduta' || $property == 'seduta_id' ) )
         {
+            /** @return Seduta */
             return $this->getSeduta( $property == 'seduta' );
         }
 
         if ( $property == 'osservazioni' )
         {
+            /** @return Osservazione[] */
             return $this->getOsservazioni( 'osservazioni' );
         }
 
         if ( $property == 'count_osservazioni' )
         {
+            /** @return int */
             return $this->getCount( 'osservazioni' );
         }
 
         if ( $property == 'invitati' )
         {
+            /** @return OCEditorialStuffPostInterface[] */
             return $this->getInvitati();
         }
 
         if ( $property == 'count_invitati' )
         {
+            /** @return int */
             return $this->getCount( 'invitati' );
         }
 
         if ( $property == 'documenti' )
         {
+            /** @return Allegato[] */
             return $this->getAllegati( 'documenti' );
         }
 
         if ( $property == 'count_documenti' )
         {
+            /** @return int */
             return $this->getCount( 'documenti' );
         }
 
         if ( $property == 'can_add_osservazioni' )
         {
+            /** @return bool */
             return $this->canAddOsservazioni();
         }
 
         if ( $property == 'notification_subscribers' )
         {
+            /** @return int */
             return $this->notificationSubscribers();
         }
 
         if ( $property == 'votazioni' )
         {
+            /** @return Votazione[] */
             return $this->votazioni();
         }
 
         if ( $property == 'verbale' )
         {
+            /** @return string */
             return $this->verbale();
         }
 
         return parent::attribute( $property );
     }
 
+    /**
+     * @see Seduta::verbale
+     * @return string
+     */
     public function verbale()
     {
         return $this->getSeduta()->verbale( $this->id() );
@@ -185,7 +200,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     }
 
     /**
-     * Restituisce la seduta di riferimeno o null
+     * Restituisce la Seduta o l'ide Seduta di riferimento o null
      *
      * @param bool $asObject
      *
@@ -229,6 +244,9 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         return $this->seduta;
     }
 
+    /**
+     * @return array
+     */
     public function tabs()
     {
         $currentUser = eZUser::currentUser();
@@ -281,6 +299,12 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         return $tabs;
     }
 
+    /**
+     * @param eZContentObject $object
+     * @param string $attributeIdentifier
+     *
+     * @return bool
+     */
     public function addFile( eZContentObject $object, $attributeIdentifier )
     {
         $result = false;
@@ -370,6 +394,10 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         return $result;
     }
 
+    /**
+     * @param eZContentObject $object
+     * @param string $attributeIdentifier
+     */
     public function removeFile( eZContentObject $object, $attributeIdentifier )
     {
         if ( $attributeIdentifier == 'documenti' )
@@ -398,6 +426,12 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         }
     }
 
+    /**
+     * @param string $attributeIdentifier
+     *
+     * @return OCEditorialStuffPostFactoryInterface
+     * @throws Exception
+     */
     public function fileFactory( $attributeIdentifier )
     {
         if ( $attributeIdentifier == 'documenti' )
@@ -488,6 +522,12 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         }
     }
 
+    /**
+     * Reindicizza oggetto
+     * Richiede ordinamento odg
+     * Richiede iscrizione degli utenti alle notifiche
+     * Lancia evento 'create'
+     */
     public function onCreate()
     {
         eZSearch::addObject( $this->getObject(), true );

@@ -15,7 +15,7 @@ if ( currentSA == undefined )
     process.exit();
 }
 
-var baseFile = '/Users/luca/www/openpa.opencontent.it';
+var baseFile = '/home/httpd/openpa.opencontent.it/html';
 var file = baseFile + '/var/' + currentSA + '/cache/push_notifications.json';
 
 console.log( "Start for " + currentSA + ' watching file ' + file );
