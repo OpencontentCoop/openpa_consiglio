@@ -5,7 +5,14 @@
         </div>
     </div>
 {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
-<hr />
+    {def $class = fetch( content, class, hash( class_id, 'allegato_seduta' ) )
+    $tipo_attribute = false()}
+    {foreach $class.data_map as $identifier => $class_attribute}
+        {if $identifier|eq('tipo')}
+            {set $tipo_attribute = $class_attribute}
+        {/if}
+    {/foreach}
+    <hr />
     <div class="row">
         <div class="col-xs-12 col-md-8 col-md-offset-2">
             <div class="well">
@@ -21,9 +28,10 @@
                     <div class="form-group">
                         <label for="DocType" class="col-sm-2 control-label">Tipo</label>
                         <div class="col-sm-10">
-                            <select class="form-control" name="FileAttributes[type]" id="DocType">
-                                <option value="test">Test</option>
-                                <option value="tost">Tost</option>
+                            <select class="form-control" name="FileAttributes[tipo]" id="DocType">
+                                {foreach $tipo_attribute.content.options as $item}
+                                    <option value="{$item.name|wash()}">{$item.name|wash()}</option>
+                                {/foreach}
                             </select>
                         </div>
                     </div>
