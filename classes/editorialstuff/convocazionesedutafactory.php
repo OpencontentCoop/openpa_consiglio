@@ -88,7 +88,6 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
     )
     {
         $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
-        $parameters = array();
         if ( !$version )
         {
             $content = $this->getPdfContentFromVersion(
@@ -112,7 +111,7 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
         $fileName = eZURLAliasML::convertToAlias( $fileName );
         $fileName .= '.pdf';
 
-        $parameters = array(
+        $pdfParameters = array(
             'exporter' => 'paradox',
             'cache' => array(
                 'keys' => array(),
@@ -129,7 +128,7 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
         }
         else
         {
-            OpenPAConsiglioPdf::create( $fileName, $content, $parameters );
+            OpenPAConsiglioPdf::create( $fileName, $content, $pdfParameters );
         }
         eZExecution::cleanExit();
 

@@ -16,89 +16,95 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
     {
         $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
 
-        $getParameters = array();
+        $getParameters = $_GET;
 
         /** @var eZContentObjectAttribute[] $dataMap */
         $dataMap = $currentPost->getObject()->dataMap();
-        $instance = OCEditorialStuffHandler::instance( 'punto' );
+        $puntoFactory = OCEditorialStuffHandler::instance( 'punto' )->getFactory();
 
         $user = eZContentObject::fetch( $dataMap['user']->content()->ID );
         $userDataMap = $user->dataMap();
 
+        /** @var Punto[] $punti */
         $punti = array();
-        $punto = false;
-        $listPunti = $dataMap['object']->content();
+        $listPunti = explode( '-', $dataMap['object']->toString() );
 
-        foreach ( $listPunti['relation_list'] as $p )
+        foreach ( $listPunti as $puntoId )
         {
-            $tempPunto = eZContentObject::fetch( $p['contentobject_id'] );
-            $puntoDataMap = $tempPunto->dataMap();
-
-            if ( !$punto )
+            try
             {
                 /** @var Punto $punto */
-                $punto = $instance->getFactory()->instancePost(
-                    array( 'object_id' => $p['contentobject_id'] )
+                $punto = $puntoFactory->instancePost(
+                    array( 'object_id' => $puntoId )
                 );
                 /** @var eZContentObjectAttribute[] $puntoDataMap */
                 $puntoDataMap = $punto->getObject()->dataMap();
+
+                $punti[$puntoDataMap['n_punto']->content()] = $punto;
+            }
+            catch( Exception $e )
+            {
+                eZDebug::writeError( $e->getMessage() );
             }
 
-            $punti [$puntoDataMap['n_punto']->content()] = array(
-                'n_punto' => $puntoDataMap['n_punto']->content(),
-                'ora' => $puntoDataMap['orario_trattazione']->toString(),
-                'oggetto' => $puntoDataMap['oggetto']->content()
-            );
         }
         ksort( $punti );
-        $punti = array_values( $punti );
-        $first = array_shift( $punti );
-        $ora = $first['ora'];
+        $variables = array();
 
-        $seduta = $punto->getSeduta()->getObject();
-        /** @var eZContentObjectAttribute[] $sedutaDataMap */
-        $sedutaDataMap = $seduta->dataMap();
-
-        $listOrgano = $sedutaDataMap['organo']->content();
-        $organo = eZContentObject::fetch( $listOrgano['relation_list'][0]['contentobject_id'] );
-
-        $variables = array(
-            'line_height' => isset( $getParameters['line_height'] ) ? $getParameters['line_height'] : 1.2,
-            'data' => $currentPost->getObject()->attribute( 'published' ),
-            'invitato' => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content() . ' ' . $userDataMap['cognome']->content(),
-            'ruolo' => $userDataMap['ruolo']->content(),
-            'indirizzo' => isset( $userDataMap['indirizzo'] ) ? $userDataMap['indirizzo']->content() : '',
-            'luogo' => isset( $sedutaDataMap['luogo'] ) ? $sedutaDataMap['luogo']->content() : '',
-            'organo' => $organo instanceof eZContentObject ? $organo->attribute( 'name' ) : '',
-            'data_seduta' => $punto->getSeduta()->dataOra(),
-            'punti' => $punti,
-            'firmatario' => '',
-            'firma' => '',
-            'protocollo' => isset( $dataMap['protocollo'] ) ? $dataMap['protocollo']->toString() : '',
-        );
-
-        if ( $sedutaDataMap['firmatario']->hasContent() )
+        if ( !empty( $punti ) )
         {
-            $listFirmatario = $sedutaDataMap['firmatario']->content();
-            $firmatario = eZContentObject::fetch(
-                $listFirmatario['relation_list'][0]['contentobject_id']
-            );
-            /** @var eZContentObjectAttribute[] $firmatarioDataMAp */
-            $firmatarioDataMAp = $firmatario->dataMap();
 
-            $variables['firmatario'] = $firmatario->attribute( 'name' );
-            if ( $firmatarioDataMAp['firma']->hasContent() )
+            $punti = array_values( $punti );
+            /** @var Punto $riferimento */
+            $riferimento = array_shift( $punti );
+
+            $seduta = $riferimento->getSeduta();
+            /** @var eZContentObjectAttribute[] $sedutaDataMap */
+            $sedutaDataMap = $seduta->getObject()->dataMap();
+
+            $listOrgano = $sedutaDataMap['organo']->content();
+            $organo = eZContentObject::fetch( $listOrgano['relation_list'][0]['contentobject_id'] );
+
+            $variables = array(
+                'line_height' => isset( $getParameters['line_height'] ) ? $getParameters['line_height'] : 1.2,
+                'data' => $currentPost->getObject()->attribute( 'published' ),
+                'invitato' => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content() . ' ' . $userDataMap['cognome']->content(),
+                'ruolo' => $userDataMap['ruolo']->content(),
+                'indirizzo' => isset( $userDataMap['indirizzo'] ) ? $userDataMap['indirizzo']->content() : '',
+                'luogo' => isset( $sedutaDataMap['luogo'] ) ? $sedutaDataMap['luogo']->content() : '',
+                'organo' => $organo instanceof eZContentObject ? $organo->attribute( 'name' ) : '',
+                'data_seduta' => ( $seduta instanceof Seduta ) ? $seduta->dataOra() : null,
+                'punti' => $punti,
+                'firmatario' => '',
+                'firma' => '',
+                'protocollo' => isset( $dataMap['protocollo'] ) ? $dataMap['protocollo']->toString() : '',
+            );
+
+            if ( $sedutaDataMap['firmatario']->hasContent() )
             {
-                $siteINI = eZINI::instance( 'site.ini' );
-                $siteUrl = $siteINI->variable( 'SiteSettings', 'SiteURL' );
-                $variables['firma'] = '';
-                if ( isset( $firmatarioDataMAp['firma'] )
-                     && $firmatarioDataMAp['firma']->attribute( 'data_type_string' ) == 'ezimage'
-                     && $firmatarioDataMAp['firma']->hasContent()
-                )
+                $listFirmatario = $sedutaDataMap['firmatario']->content();
+                $firmatario = eZContentObject::fetch(
+                    $listFirmatario['relation_list'][0]['contentobject_id']
+                );
+                /** @var eZContentObjectAttribute[] $firmatarioDataMap */
+                $firmatarioDataMap = $firmatario->dataMap();
+
+                $variables['firmatario'] = $firmatario->attribute( 'name' );
+                if ( $firmatarioDataMap['firma']->hasContent() )
                 {
-                    $image = $firmatarioDataMAp['firma']->content()->attribute( 'original' );
-                    $variables['firma'] = $siteUrl . '/' . $image['url'];
+                    $siteINI = eZINI::instance( 'site.ini' );
+                    $siteUrl = $siteINI->variable( 'SiteSettings', 'SiteURL' );
+                    $variables['firma'] = '';
+                    if ( isset( $firmatarioDataMap['firma'] )
+                         && $firmatarioDataMap['firma']->attribute(
+                            'data_type_string'
+                        ) == 'ezimage'
+                         && $firmatarioDataMap['firma']->hasContent()
+                    )
+                    {
+                        $image = $firmatarioDataMap['firma']->content()->attribute( 'original' );
+                        $variables['firma'] = $siteUrl . '/' . $image['url'];
+                    }
                 }
             }
         }
@@ -118,7 +124,7 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
         $fileName = eZURLAliasML::convertToAlias( $fileName );
         $fileName .= '.pdf';
 
-        $parameters = array(
+        $pdfParameters = array(
             'exporter' => 'paradox',
             'cache' => array(
                 'keys' => array(),
@@ -135,7 +141,7 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
         }
         else
         {
-            OpenPAConsiglioPdf::create( $fileName, $content, $parameters );
+            OpenPAConsiglioPdf::create( $fileName, $content, $pdfParameters );
         }
         eZExecution::cleanExit();
 
