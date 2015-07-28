@@ -32,12 +32,12 @@
                 </form>
             </div>
         {/if}
-        <div class="col-xs-6 col-md-2">
+        {*<div class="col-xs-6 col-md-2">
             <a class="btn btn-info btn-lg" data-toggle="modal"
                data-load-remote="{concat( 'layout/set/modal/content/view/full/', $post.object.main_node_id )|ezurl('no')}"
-               data-remote-target="#preview .modal-content" href="#{*$post.url*}"
+               data-remote-target="#preview .modal-content" href="#"
                data-target="#preview">Anteprima</a>
-        </div>
+        </div>*}
     </div>
 
     <hr/>
