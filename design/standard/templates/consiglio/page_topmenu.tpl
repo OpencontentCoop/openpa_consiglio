@@ -17,6 +17,8 @@
             <ul class="horizontal_list main_menu clearfix">
                 <li class="menu-item{if $current_module|eq('consiglio/dashboard/')} current{/if}"><a href="{'consiglio/dashboard'|ezurl(no)}"><b>Bacheca</b></a></li>
                 <li class="menu-item{if $current_module|eq('consiglio/collaboration/')} current{/if}"><a href="{'consiglio/collaboration'|ezurl(no)}"><b>Area collaborativa</b></a></li>
+
+                {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
                 <li class="menu-item{if or($current_module|eq('editorialstuff/dashboard/seduta'),$current_module|eq('editorialstuff/dashboard/audizione'))} current{/if}">
                     <a href="#"><b>Attivit&agrave;</b></a>
                     <div class="sub_menu_wrap">
@@ -37,6 +39,7 @@
                         </ul>
                     </div>
                 </li>
+                {/if}
             </ul>
         </div>
 

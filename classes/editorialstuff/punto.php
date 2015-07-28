@@ -703,7 +703,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 //
 //        $time = $subscribersRule->attribute( 'use_digest' ) ? 'todo' : time(); //@todo
 
-        if ( $this->getSeduta()->is( 'sent' ) )
+        if ( $this->getSeduta()->isAfter( 'sent', true ) )
         {
             $type = OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT;
             $time = time();
