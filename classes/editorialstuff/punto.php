@@ -631,6 +631,21 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         }
     }
 
+    public function handleMoveNotification( $event, OCEditorialStuffPostInterface $refer = null )
+    {
+        $subscribersRules = OCEditorialStuffNotificationRule::fetchList(
+            null,
+            null,
+            $this->id()
+        );
+        $subscribersRules = array_merge( $subscribersRules, $this->getAppassionati() );
+        foreach ( $subscribersRules as $subscribersRule )
+        {
+            $template = 'punto/move';
+            $this->createNotificationItem( $event, $subscribersRule, $template );
+        }
+    }
+
     public function handleAddFileNotification( $event, OCEditorialStuffPostInterface $refer = null )
     {
         // prepara notifica per gli iscritti all'update
@@ -793,31 +808,21 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     public function moveIn( Seduta $seduta )
     {
         $currentSeduta = $this->getSeduta();
+
         eZDebug::writeNotice( "Salvo alert", __METHOD__ );
         $this->dataMap['alert']->fromString( SQLIContentUtils::getRichContent( '<p>Il punto è stato spostato dalla ' . $currentSeduta->getObject()->attribute( 'name' ) .'</p>' ) );
         $this->dataMap['alert']->store();
 
-        eZDebug::writeNotice( "Aggiorno seduta di riferimento", __METHOD__ );
-        $this->dataMap['seduta_di_riferimento']->fromString( $seduta->id() );
-        $this->dataMap['seduta_di_riferimento']->store();
-
-        eZDebug::writeNotice( "Reindex punto", __METHOD__ );
-        eZSearch::addObject( $this->getObject(), true );
+        $this->createNotificationEvent( 'move' );
 
         eZDebug::writeNotice( "Muovo punto", __METHOD__ );
         $move = eZContentObjectTreeNodeOperations::move( $this->getObject()->attribute( 'main_node_id' ), $seduta->getObject()->attribute( 'main_node_id' ) );
 
-        if ( $this->is( '_public' ) )
-        {
-            eZDebug::writeNotice( "Creo notifica ", __METHOD__ );
-            $this->createNotificationEvent( 'update' );
-        }
+        $this->onBeforeCreate();
+        $this->onCreate();
 
         eZDebug::writeNotice( "Aggiorno seduta {$currentSeduta->id()}", __METHOD__ );
         $currentSeduta->reorderOdg();
-
-        eZDebug::writeNotice( "Aggiorno seduta {$seduta->id()}", __METHOD__ );
-        $seduta->reorderOdg();
 
         if ( !$move )
         {
