@@ -28,19 +28,27 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
         /** @var Punto[] $punti */
         $punti = array();
         $listPunti = explode( '-', $dataMap['object']->toString() );
-
+        $seduta = null;
         foreach ( $listPunti as $puntoId )
         {
             try
             {
                 /** @var Punto $punto */
-                $punto = $puntoFactory->instancePost(
-                    array( 'object_id' => $puntoId )
-                );
+                $punto = new Punto( array( 'object_id' => $puntoId ), $puntoFactory );
                 /** @var eZContentObjectAttribute[] $puntoDataMap */
                 $puntoDataMap = $punto->getObject()->dataMap();
-
-                $punti[$puntoDataMap['n_punto']->content()] = $punto;
+                
+                $punti [$puntoDataMap['n_punto']->content()] = array(
+                    'n_punto' => $puntoDataMap['n_punto']->content(),
+                    'ora' => $puntoDataMap['orario_trattazione']->toString(),
+                    'oggetto' => $puntoDataMap['oggetto']->content()
+                );
+                
+                if ( !$seduta instanceof Seduta )
+                {
+                    $seduta = $punto->getSeduta();
+                }
+                
             }
             catch( Exception $e )
             {
@@ -51,14 +59,11 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
         ksort( $punti );
         $variables = array();
 
-        if ( !empty( $punti ) )
+        if ( !empty( $punti ) && $seduta instanceof Seduta )
         {
 
             $punti = array_values( $punti );
-            /** @var Punto $riferimento */
-            $riferimento = array_shift( $punti );
-
-            $seduta = $riferimento->getSeduta();
+            
             /** @var eZContentObjectAttribute[] $sedutaDataMap */
             $sedutaDataMap = $seduta->getObject()->dataMap();
 
