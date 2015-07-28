@@ -199,7 +199,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             $seduta = $this->getSeduta();
             if ( $seduta instanceof Seduta )
             {
-                return ( $seduta->is( 'published' ) || $seduta->is( 'sent' ) ) && $this->is( 'published' );
+                return $seduta->isAfter( 'published', true )  && $this->is( 'published' );
             }
         }
 
