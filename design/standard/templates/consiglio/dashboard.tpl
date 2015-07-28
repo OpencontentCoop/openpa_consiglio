@@ -20,7 +20,7 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">Ultimi contenuti modificati</h3>
+                <h3 class="panel-title">Le tue ultime osservazioni</h3>
             </div>
             <div class="panel-body">
                 {include uri='design:consiglio/dashboard/ultime.tpl'}
