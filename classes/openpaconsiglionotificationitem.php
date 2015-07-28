@@ -25,7 +25,7 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
                 'id' => array(
                     'name' => 'ID',
                     'datatype' => 'integer',
-                    'default' => null,
+                    'default' => 0,
                     'required' => true
                 ),
                 'object_id' => array(
@@ -84,6 +84,7 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
                 ),
             ),
             'keys' => array( 'id' ),
+            'increment_key' => 'id',
             'class_name' => 'OpenPAConsiglioNotificationItem',
             'name' => 'openpaconsiglionotificationitem',
             'function_attributes' => array(
@@ -112,7 +113,9 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
         if ( $transport->send( $this ) )
         {
             $this->setSent();
+            return true;
         }
+        return false;
     }
 
     public function setSent()

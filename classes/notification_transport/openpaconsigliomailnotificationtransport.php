@@ -7,18 +7,8 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
         $user = $item->getUser();
         if ( $user instanceof eZUser && $user->attribute( 'is_enabled' ) )
         {
-
             $ini = eZINI::instance();
             $mail = new eZMail();
-
-            $receiver = $user->attribute( 'email' );
-
-            if ( !$mail->validate( $receiver ) )
-            {
-                eZDebug::writeError( 'Error with receiver', __METHOD__ );
-
-                return false;
-            }
 
             $emailSender = $ini->variable( 'MailSettings', 'EmailSender' );
             if ( !$emailSender )
@@ -28,7 +18,17 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
 
             $senderName = $ini->variable( 'SiteSettings', 'SiteName' );
             $mail->setSender( $emailSender, $senderName );
-            $mail->setReceiver( $receiver );
+            foreach( $this->getUserAddresses( $user ) as $index => $address )
+            {
+                if ( $index == 0 )
+                {
+                    $mail->setReceiver( $address );
+                }
+                else
+                {
+                    $mail->addCc( $address );
+                }
+            }
 
             $mail->setSubject( $item->attribute( 'subject' ) );
 
@@ -38,7 +38,7 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
 
             $tpl->setVariable( 'content', $item->attribute( 'body' ) );
 
-            $content = $tpl->fetch( 'design:notification/mail_pagelayout.tpl' );
+            $content = $tpl->fetch( 'design:consiglio/notification/mail_pagelayout.tpl' );
             $mail->setBody( $content );
 
             if ( isset( $parameters['message_id'] ) )
@@ -82,30 +82,6 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
                 $i->setSent();
             }
         }
-    }
-
-    protected function prepareAddressString( $addressList, eZMail $mail )
-    {
-        if ( is_array( $addressList ) )
-        {
-            $validatedAddressList = array();
-            foreach ( $addressList as $address )
-            {
-                if ( $mail->validate( $address ) )
-                {
-                    $validatedAddressList[] = $address;
-                }
-            }
-            return $validatedAddressList;
-        }
-        else if ( strlen( $addressList ) > 0 )
-        {
-            if ( $mail->validate( $addressList ) )
-            {
-                return $addressList;
-            }
-        }
-        return false;
     }
 
 }

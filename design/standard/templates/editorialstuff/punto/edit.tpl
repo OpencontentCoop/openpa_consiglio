@@ -1,9 +1,9 @@
 <div class="row">
     <div class="col-md-12">
         <h1>
-            {$post.object.name|wash()}
-            {*<small><a href="{concat( 'editorialstuff/edit/seduta/', $post.seduta_id )|ezurl('no')}" title="Dettaglio" class="text-muted">{$post.seduta.object.name|wash()}</a></small>*}
+            {$post.object.name|wash()} <small>della {$post.seduta.object.name|wash()}</small>
         </h1>
+        <h2>{$post.object.data_map.oggetto.content|wash()}</h2>
         {include uri=concat('design:', $template_directory, '/parts/workflow.tpl') post=$post}
     </div>
 </div>

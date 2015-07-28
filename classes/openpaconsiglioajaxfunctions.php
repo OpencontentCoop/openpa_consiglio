@@ -21,7 +21,7 @@ class OpenPAConsiglioAjaxFunctions extends ezjscServerFunctions
                 //print_r($content[relation_list][0]['contentobject_id']);
                 //eZExecution::cleanExit();
 
-                return $content[relation_list][0]['contentobject_id'];
+                return $content['relation_list'][0]['contentobject_id'];
 
                 /*return array(
                     'has_content' => $has_content,

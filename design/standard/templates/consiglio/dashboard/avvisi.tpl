@@ -1,5 +1,5 @@
 {def $avvisi = fetch( 'consiglio', 'notification_items', hash( limit, 10,
-                                                               conditions, hash( 'user_id', fetch( user, current_user ).contentobject_id ),
+                                                               conditions, hash( 'type', 'Mail', 'sent', true(), 'user_id', fetch( user, current_user ).contentobject_id ),
                                                                sort, hash( 'created_time', 'desc' ) ) )}
 
 {if count( $avvisi )}

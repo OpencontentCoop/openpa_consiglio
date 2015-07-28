@@ -37,8 +37,11 @@
     </script>
 {/literal}
 
-{def $attribute_base = ContentObjectAttribute
-     $class_content = $attribute.class_content
+{if is_set($attribute_base)|not()}
+    {def $attribute_base = 'ContentObjectAttribute'}
+{/if}
+
+{def $class_content = $attribute.class_content
      $parent_node=cond( and( is_set( $class_content.default_placement.node_id ),
                            $class_content.default_placement.node_id|eq( 0 )|not ),
                            $class_content.default_placement.node_id, 1 )

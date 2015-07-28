@@ -46,6 +46,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $attributes[] = 'notification_subscribers';
         $attributes[] = 'votazioni';
         $attributes[] = 'verbale';
+        $attributes[] = 'materia';
 
         return $attributes;
     }
@@ -116,6 +117,12 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             /** @return string */
             return $this->verbale();
+        }
+
+        if ( $property == 'materia' )
+        {
+            /** @return string[] */
+            return $this->getMateria( 'name' );
         }
 
         return parent::attribute( $property );
@@ -286,7 +293,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             $tabs[] = array(
                 'identifier' => 'notifiche',
-                'name' => 'Gestione notifiche',
+                'name' => 'Mail di avviso',
                 'template_uri' => "design:{$templatePath}/parts/notifiche.tpl"
             );
         }
@@ -466,7 +473,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             }
         }
 
-        if ( $beforeState->attribute( 'identifier' ) == 'published' && $afterState->attribute( 'identifier' ) == 'in_progress' )
+        if ( $beforeState->attribute( 'identifier' ) == 'published'
+             && $afterState->attribute( 'identifier' ) == 'in_progress' )
         {
             OpenPAConsiglioPushNotifier::instance()->emit(
                 'start_punto',
@@ -474,7 +482,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             );
         }
 
-        if ( $beforeState->attribute( 'identifier' ) == 'published' && $afterState->attribute( 'identifier' ) == 'closed' )
+        if ( $beforeState->attribute( 'identifier' ) == 'published'
+             && $afterState->attribute( 'identifier' ) == 'closed' )
         {
             OpenPAConsiglioPushNotifier::instance()->emit(
                 'stop_punto',
@@ -553,6 +562,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             $this->getSeduta()->reorderOdg();
         }
 
+
         // TODO: serve un metodo che elimina i vecchi referenti
         $this->addUsersToNotifications();
 
@@ -564,50 +574,34 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
     public function handleCreateNotification( $event, OCEditorialStuffPostInterface $refer = null )
     {
+
+    }
+
+    public function handlePublishNotification( $event, OCEditorialStuffPostInterface $refer = null )
+    {
         // prepara notifica per gli iscritti all'update
         $subscribersRules = OCEditorialStuffNotificationRule::fetchList(
-            'punto/create',
+            'punto/publish',
             null,
             $this->id()
         );
 
         foreach ( $subscribersRules as $subscribersRule )
         {
-            $template = 'punto/create';
-            $template .= in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? '/referente' : '/default';
+            $template = 'punto/publish';
+            $template .= in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? '/referente' : '/consigliere';
             $this->createNotificationItem( $subscribersRule, $template );
         }
 
-        // Prepara notifica per gli interessati alla materia
-        $utentiAppassionati = array();
-        foreach ( $this->getMateria() as $materia )
-        {
-            if ( $materia instanceof eZContentObject )
-            {
-                $utentiAppassionati = array_merge(
-                    $utentiAppassionati,
-                    OCEditorialStuffNotificationRule::fetchList(
-                        'materia/like',
-                        null,
-                        $materia->attribute( 'id' )
-                    )
-                );
-            }
-        }
-        $utentiAppassionati = array_unique( $utentiAppassionati );
-
+        $utentiAppassionati = $this->getAppassionati();
         if ( !empty( $utentiAppassionati ) )
         {
             foreach ( $utentiAppassionati as $subscribersRule )
             {
-                $template = 'punto/create/interessato';
+                $template = 'punto/publish/interessato';
                 $this->createNotificationItem( $subscribersRule, $template );
             }
         }
-    }
-
-    public function handlePublishNotification( $event, OCEditorialStuffPostInterface $refer = null )
-    {
     }
 
     public function handleUpdateNotification( $event, OCEditorialStuffPostInterface $refer = null )
@@ -622,24 +616,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         foreach ( $subscribersRules as $subscribersRule )
         {
             $template = 'punto/update';
-            $template .= in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? '/referente' : '/default';
+            $template .= in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? '/referente' : '/consigliere';
             $this->createNotificationItem( $subscribersRule, $template );
         }
 
-        // Prepara notifica per gli interessati alla materia
-        $utentiAppassionati = array();
-        foreach ( $this->getMateria() as $materia )
-        {
-            $utentiAppassionati = array_merge(
-                $utentiAppassionati,
-                OCEditorialStuffNotificationRule::fetchList(
-                    'materia/like',
-                    null,
-                    $materia->attribute( 'id' )
-                )
-            );
-        }
-        $utentiAppassionati = array_unique( $utentiAppassionati );
+        $utentiAppassionati = $this->getAppassionati();
         if ( !empty( $utentiAppassionati ) )
         {
             foreach ( $utentiAppassionati as $subscribersRule )
@@ -652,8 +633,29 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
     public function handleAddFileNotification( $event, OCEditorialStuffPostInterface $refer = null )
     {
-        // prepara notifica per i referenti
-        // prepara notifica per gli invitati
+        // prepara notifica per gli iscritti all'update
+        $subscribersRules = OCEditorialStuffNotificationRule::fetchList(
+            'punto/add_file',
+            null,
+            $this->id()
+        );
+
+        foreach ( $subscribersRules as $subscribersRule )
+        {
+            $template = 'punto/add_file';
+            $template .= in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? '/referente' : '/consigliere';
+            $this->createNotificationItem( $subscribersRule, $template );
+        }
+
+        $utentiAppassionati = $this->getAppassionati();
+        if ( !empty( $utentiAppassionati ) )
+        {
+            foreach ( $utentiAppassionati as $subscribersRule )
+            {
+                $template = 'punto/add_file/interessato';
+                $this->createNotificationItem( $subscribersRule, $template );
+            }
+        }
     }
 
     public function handleUpdateFileNotification(
@@ -661,8 +663,29 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         OCEditorialStuffPostInterface $refer = null
     )
     {
-        // prepara notifica per i referenti
-        // prepara notifica per gli invitati
+        // prepara notifica per gli iscritti all'update
+        $subscribersRules = OCEditorialStuffNotificationRule::fetchList(
+            'punto/update_file',
+            null,
+            $this->id()
+        );
+
+        foreach ( $subscribersRules as $subscribersRule )
+        {
+            $template = 'punto/update_file';
+            $template .= in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? '/referente' : '/consigliere';
+            $this->createNotificationItem( $subscribersRule, $template );
+        }
+
+        $utentiAppassionati = $this->getAppassionati();
+        if ( !empty( $utentiAppassionati ) )
+        {
+            foreach ( $utentiAppassionati as $subscribersRule )
+            {
+                $template = 'punto/update_file/interessato';
+                $this->createNotificationItem( $subscribersRule, $template );
+            }
+        }
     }
 
     /**
@@ -673,21 +696,28 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
      */
     protected function createNotificationItem( OCEditorialStuffNotificationRule $subscribersRule, $templateName )
     {
-        $type = $subscribersRule->attribute( 'use_digest' ) ?
-            OpenPAConsiglioNotificationTransport::DIGEST_TRANSPORT : OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT;
+        //@todo digest a livello di user
+//        $type = $subscribersRule->attribute( 'use_digest' ) ?
+//            OpenPAConsiglioNotificationTransport::DIGEST_TRANSPORT : OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT;
+//
+//        $time = $subscribersRule->attribute( 'use_digest' ) ? 'todo' : time(); //@todo
 
-        $time = $subscribersRule->attribute( 'use_digest' ) ? 'todo' : time(); //@todo
+        if ( $this->getSeduta()->is( 'sent' ) )
+        {
+            $type = OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT;
+            $time = time();
+        }
+        else
+        {
+            $type = OpenPAConsiglioNotificationTransport::DIGEST_TRANSPORT;
+            $now = new DateTime();
+            $now->setTime( 20, 00 );
+            $time = $now->getTimestamp();
+        }
 
         $variables = array(
-            'seduta' => $this->getSeduta()->object->Name,
-            'oggetto' => $this->dataMap['oggetto']->content(),
-            'materia' => implode( '- ', $this->stringRelatedObjectAttribute( 'materia', 'name' ) ),
-            'data_seduta' => $this->getSeduta( true )->dataOra(),
-            'osservazioni' => $this->dataMap['consenti_osservazioni']->content(),
-            'termine_oss' => strftime(
-                '%d/%m/%Y  alle ore %H:%M',
-                $this->dataMap['termine_osservazioni']->toString()
-            )
+            'seduta' => $this->getSeduta(),
+            'punto' => $this
         );
 
         $tpl = eZTemplate::factory();
@@ -696,7 +726,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             $tpl->setVariable( $name, $value );
         }
-        $content = $tpl->fetch( 'design:consiglio/notification/email/' . $templateName . '.tpl');
+        $content = $tpl->fetch( 'design:consiglio/notification/mail/' . $templateName . '.tpl');
         $subject = $tpl->variable( 'subject' );
 
         return OpenPAConsiglioNotificationItem::create(
@@ -790,17 +820,14 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                     $userIds = $this->getIdsReferenti();
 
                     break;
+                case 'publish':
                 case 'update':
-                    $userIds = $this->getIdsReferenti();
-
-                    break;
                 case 'add_file':
-                    $userIds = $this->getIdsReferenti();
-
-                    break;
                 case 'update_file':
-                    $userIds = $this->getIdsReferenti();
-
+                    $userIds = array_merge(
+                        $this->getIdsReferenti(),
+                        $this->getSeduta()->partecipanti( false )
+                    );
                     break;
             }
             if ( count( $userIds ) )
@@ -892,6 +919,33 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         }
 
         return array_unique( $result );
+    }
+
+    /**
+     * Restituisce un array con gli id degli yenyi appassionati alla materia
+     *
+     * @return OCEditorialStuffNotificationRule[]
+     */
+    protected function getAppassionati()
+    {
+        // Prepara notifica per gli interessati alla materia
+        $utentiAppassionati = array();
+        foreach ( $this->getMateria() as $materia )
+        {
+            if ( $materia instanceof eZContentObject )
+            {
+                $utentiAppassionati = array_merge(
+                    $utentiAppassionati,
+                    OCEditorialStuffNotificationRule::fetchList(
+                        'materia/like',
+                        null,
+                        $materia->attribute( 'id' )
+                    )
+                );
+            }
+        }
+        $utentiAppassionati = array_unique( $utentiAppassionati );
+        return $utentiAppassionati;
     }
 
     /**

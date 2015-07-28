@@ -13,7 +13,7 @@ class OpenPAConsiglioNotificationTransport
      *
      * @return OpenPAConsiglioNotificationTransport
      */
-    public static function instance( $transport = false, $forceNewInstance = false )
+    final public static function instance( $transport = false, $forceNewInstance = false )
     {
         if (!$transport)
         {
@@ -35,13 +35,25 @@ class OpenPAConsiglioNotificationTransport
     }
 
     /**
+     * @return OpenPAConsiglioNotificationTransport[]
+     */
+    final public static function availableTransports()
+    {
+        return array(
+          self::instance( self::DEFAULT_TRANSPORT ),
+          self::instance( self::DIGEST_TRANSPORT )
+        );
+    }
+
+
+    /**
      * @param OpenPAConsiglioNotificationItem $item
      *
      * @return bool
      */
     public function send( OpenPAConsiglioNotificationItem $item )
     {
-        return true;
+        return false;
     }
 
     /**
@@ -49,7 +61,15 @@ class OpenPAConsiglioNotificationTransport
      */
     public function sendMassive( $parameters = array() )
     {
-        return true;
+        return false;
+    }
+
+    protected function getUserAddresses( eZUser $user )
+    {
+        //@todo
+        return array(
+            $user->attribute( 'email' )
+        );
     }
 }
 

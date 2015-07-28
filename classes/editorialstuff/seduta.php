@@ -545,14 +545,13 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         return OpenPAConsiglioPresenza::fetchBySeduta( $this, $startTime, $inOut, $type, $userId );
     }
 
-    public function partecipanti()
+    public function partecipanti( $asObject = true )
     {
         if ( $this->partecipanti === null )
         {
             $organoNodeId = $this->stringRelatedObjectAttribute( 'organo', 'main_node_id' );
             if ( is_array( $organoNodeId ) && is_numeric( $organoNodeId[0] ) )
             {
-                eZDebug::writeNotice( '...' );
                 $this->partecipanti = OCEditorialStuffHandler::instance( 'politico' )->fetchItems(
                     array(
                         'filters' => array( 'meta_path_si:' . $organoNodeId[0] ),
@@ -561,6 +560,16 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                     )
                 );
             }
+        }
+
+        if ( !$asObject )
+        {
+            $ids = array();
+            foreach( $this->partecipanti as $partecipante )
+            {
+                $ids[] = $partecipante->id();
+            }
+            return $ids;
         }
 
         return $this->partecipanti;
