@@ -40,6 +40,10 @@
 {literal}
     <script>
         $(function () {
+            var invitatiEditableOption = {
+                emptytext: 'nessuno',
+                error: function(response, newValue) {if(response.responseJSON.status == 'error') return response.responseJSON.message;}
+            };
             $(document).on("click", ":submit", function(e){
                 var currentAction = $(this).attr('name');
                 var form =  $(this).parents('form');
@@ -56,7 +60,7 @@
                             var self = $('#tableinviti');
                             var url = self.data('url');
                             $.get(url,function (data) {
-                                self.parent().html(data);
+                                self.parent().html(data).find('.edit-protocollo').editable(invitatiEditableOption);
                                 $('#add-invitato').show();
                                 $('#add-invitato-loading').hide();
                             });
@@ -65,10 +69,7 @@
                     e.preventDefault();
                 }
             });
-            $('.edit-protocollo').editable({
-                emptytext: 'nessuno',
-                error: function(response, newValue) {if(response.responseJSON.status == 'error') return response.responseJSON.message;}
-            });
+            $('.edit-protocollo').editable(invitatiEditableOption);
         });
     </script>
 {/literal}
