@@ -10,11 +10,12 @@
                 <th>Destinatario</th>
                 <th>Oggetto</th>
                 <th>Tipo di avviso</th>
+                <th>Data di invio attesa</th>
             </tr>
             {foreach $avvisi_da_inviare as $avviso}
                 <tr>
                     <td>
-                        {$avviso.created_time|l10n('shortdate')}
+                        {$avviso.created_time|l10n('shortdatetime')}
                     </td>
                     <td>
                         {fetch( content, object, hash( 'object_id', $avviso.user_id )).name|wash()}
@@ -45,12 +46,13 @@
                     <td>
                         {$avviso.type|wash()}
                     </td>
+                    <td> {$avviso.expected_send_time|l10n('shortdatetime')}</td>
                 </tr>
             {/foreach}
         </table>
     {/if}
 
-    {def $avvisi = fetch( 'consiglio', 'notification_items', hash( limit, 10, conditions, hash( 'type', 'Mail', 'object_id', $post.object_id, 'sent', 1 ), sort, hash( 'created_time', 'desc' ) ) )}
+    {def $avvisi = fetch( 'consiglio', 'notification_items', hash( limit, 10, conditions, hash( 'object_id', $post.object_id, 'sent', 1 ), sort, hash( 'created_time', 'desc' ) ) )}
 
     {if count( $avvisi )}
         <h2>Avvisi inviati</h2>
@@ -65,7 +67,7 @@
             {foreach $avvisi as $avviso}
                 <tr>
                     <td>
-                        {$avviso.created_time|l10n('shortdate')}
+                        {$avviso.created_time|l10n('shortdatetime')}
                     </td>
                     <td>
                         {fetch( content, object, hash( 'object_id', $avviso.user_id )).name|wash()}
@@ -98,7 +100,7 @@
                     </td>
                     <td>
                         {if $avviso.sent}
-                            {$avviso.sent_time|l10n('shortdate')}
+                            {$avviso.sent_time|l10n('shortdatetime')}
                         {/if}
                     </td>
                 </tr>

@@ -5,6 +5,11 @@ class OpenPAConsiglioDigestNotificationTransport extends OpenPAConsiglioNotifica
 
     public function sendMassive( $parameters = array() )
     {
+        $this->sendPerUser();
+    }
+
+    protected function sendPerUserAndObject()
+    {
         $digest = array();
         $items = OpenPAConsiglioNotificationItem::fetchItemsToSend(
             OpenPAConsiglioNotificationTransport::DIGEST_TRANSPORT
@@ -29,7 +34,7 @@ class OpenPAConsiglioDigestNotificationTransport extends OpenPAConsiglioNotifica
 
         foreach ( $digest as $userId => $postNotifications )
         {
-            foreach( $postNotifications as $objectId => $notifications )
+            foreach ( $postNotifications as $objectId => $notifications )
             {
                 /** @var OpenPAConsiglioNotificationItem[] $notifications */
 
@@ -59,6 +64,60 @@ class OpenPAConsiglioDigestNotificationTransport extends OpenPAConsiglioNotifica
                     {
                         $notification->setSent();
                     }
+                }
+            }
+        }
+    }
+
+    protected function sendPerUser()
+    {
+        $digest = array();
+        $items = OpenPAConsiglioNotificationItem::fetchItemsToSend(
+            OpenPAConsiglioNotificationTransport::DIGEST_TRANSPORT
+        );
+
+        foreach ( $items as $i )
+        {
+            $userId = $i->attribute( 'user_id' );
+            $objectId = $i->attribute( 'object_id' );
+
+            if ( !isset( $digest[$userId] ) )
+            {
+                $digest[$userId] = array();
+            }
+
+            $digest[$userId][] = $i;
+        }
+
+        foreach ( $digest as $userId => $notifications )
+        {
+            /** @var OpenPAConsiglioNotificationItem[] $notifications */
+
+            $subject = 'Aggiornamenti di ' . date( 'd-m-Y' );
+            $body = '';
+            foreach ( $notifications as $notification )
+            {
+                $body .= "<p><strong>{$notification->attribute( 'subject' )}</strong></p>{$notification->attribute( 'body' )}<hr />";
+            }
+
+            $now = time();
+            $notificationItem = OpenPAConsiglioNotificationItem::create(
+                array(
+                    'object_id' => null,
+                    'user_id' => $userId,
+                    'created_time' => $now,
+                    'type' => OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT,
+                    'subject' => $subject,
+                    'body' => $body,
+                    'expected_send_time' => $now
+                )
+            );
+
+            if ( $notificationItem->send() )
+            {
+                foreach ( $notifications as $notification )
+                {
+                    $notification->setSent();
                 }
             }
         }
