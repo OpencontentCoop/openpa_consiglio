@@ -31,14 +31,24 @@ class OpenPAConsiglioPresenzaHelper
     {
         /** @var OpenPAConsiglioPresenzaTimelineCollection[] $data */
         $data = array();
-        foreach( $this->presenze as $presenza )
+        if ( empty( $this->presenze ) )
         {
-            $userId = $presenza->attribute( 'user_id' );
-            if ( !isset( $data[$userId] ) )
+            foreach( $this->seduta->partecipanti( false ) as $userId )
             {
                 $data[$userId] = OpenPAConsiglioPresenzaTimelineCollection::instance( $userId );
             }
-            $data[$userId]->add( $presenza );
+        }
+        else
+        {
+            foreach( $this->presenze as $presenza )
+            {
+                $userId = $presenza->attribute( 'user_id' );
+                if ( !isset( $data[$userId] ) )
+                {
+                    $data[$userId] = OpenPAConsiglioPresenzaTimelineCollection::instance( $userId );
+                }
+                $data[$userId]->add( $presenza );
+            }
         }
         $returnValues = array();
         foreach( $data as $item )
