@@ -172,6 +172,8 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     public function tabs()
     {
         $currentUser = eZUser::currentUser();
+        $hasAccess = $currentUser->hasAccessTo( 'consiglio', 'admin' );
+        $isAdmin = $hasAccess['accessWord'] != 'no';
         $templatePath = $this->getFactory()->getTemplateDirectory();
         $tabs = array(
             array(
@@ -185,7 +187,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 'template_uri' => "design:{$templatePath}/parts/documenti.tpl"
             )
         );
-        if ( $currentUser->hasAccessTo( 'consiglio', 'admin' ) )
+        if ( $isAdmin )
         {
             $tabs[] = array(
                 'identifier' => 'presenze',
@@ -379,20 +381,39 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
      * @return Punto[]
      */
     public function odg()
-    {
-        $sedutaId = $this->object->attribute( 'id' );
-        $items = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $sedutaId ) )
-            ->fetchItems(
-                array(
-                    'limit' => 100,
-                    'offset' => 0,
-                    'filters' => 'submeta_seduta_di_riferimento___id_si:' . $this->id(),
-                    'sort' => array( 'extra_orario_i' => 'asc' )
-                )
-            );
+    {        
+        $factory = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $this->id() ) )->getFactory();
+        $attributeID = eZContentObjectTreeNode::classAttributeIDByIdentifier( 'punto/seduta_di_riferimento' );
+        $params = array(
+            'AllRelations' => eZContentFunctionCollection::contentobjectRelationTypeMask( array( 'attribute' ) ),
+            'AsObject' => true
+        );        
+        $reverseObjects = $this->getObject()->reverseRelatedObjectList( false, $attributeID, false, $params );
+        $items = array();
+        foreach( $reverseObjects as $object )
+        {
+            $dataMap = $object->attribute( 'data_map' );
+            $orario = $dataMap['orario_trattazione']->content();
+            if ( $orario instanceof eZTime )
+            {
+                $timestamp = $orario->attribute( 'time_of_day' );
+            }
+            $items[$timestamp] = new Punto( array( 'object_id' => $object->attribute( 'id' ) ), $factory );
+        }
+        //$sedutaId = $this->object->attribute( 'id' );
+        //$items = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $sedutaId ) )
+        //    ->fetchItems(
+        //        array(
+        //            'limit' => 100,
+        //            'offset' => 0,
+        //            'filters' => 'submeta_seduta_di_riferimento___id_si:' . $this->id(),
+        //            'sort' => array( 'extra_orario_i' => 'asc' )
+        //        )
+        //    );
 
         //eZDebug::writeNotice( var_export( OCEditorialStuffHandler::getLastFetchData(), 1 ), __METHOD__ );
-        return $items;
+        ksort( $items );
+        return array_values( $items );
     }
 
     public function odgSerialized()

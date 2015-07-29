@@ -257,6 +257,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     public function tabs()
     {
         $currentUser = eZUser::currentUser();
+        $hasAccess = $currentUser->hasAccessTo( 'consiglio', 'admin' );
+        $isAdmin = $hasAccess['accessWord'] != 'no';
         $templatePath = $this->getFactory()->getTemplateDirectory();
         $tabs = array(
             array(
@@ -275,22 +277,18 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 'template_uri' => "design:{$templatePath}/parts/osservazioni.tpl"
             )
         );
-        if ( $currentUser->hasAccessTo( 'consiglio', 'admin' ) )
+        if ( $isAdmin )
         {
             $tabs[] = array(
                 'identifier' => 'inviti',
                 'name' => 'Gestione inviti',
                 'template_uri' => "design:{$templatePath}/parts/inviti.tpl"
             );
-        }
-        $tabs[] = array(
-            'identifier' => 'votazioni',
-            'name' => 'Votazioni',
-            'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
-        );
-
-        if ( $currentUser->hasAccessTo( 'consiglio', 'admin' ) )
-        {
+            $tabs[] = array(
+                'identifier' => 'votazioni',
+                'name' => 'Votazioni',
+                'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
+            );
             $tabs[] = array(
                 'identifier' => 'notifiche',
                 'name' => 'Mail di avviso',

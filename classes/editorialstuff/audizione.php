@@ -86,6 +86,8 @@ class Audizione extends OCEditorialStuffPostNotifiable implements OCEditorialStu
     public function tabs()
     {
         $currentUser = eZUser::currentUser();
+        $hasAccess = $currentUser->hasAccessTo( 'consiglio', 'admin' );
+        $isAdmin = $hasAccess['accessWord'] != 'no';
         $templatePath = $this->getFactory()->getTemplateDirectory();
         $tabs = array(
             array(
@@ -105,7 +107,7 @@ class Audizione extends OCEditorialStuffPostNotifiable implements OCEditorialStu
             )
         );
 
-        if ( $currentUser->hasAccessTo( 'consiglio', 'admin' ) )
+        if ( $isAdmin )
         {
             $tabs[] = array(
                 'identifier' => 'notifiche',
