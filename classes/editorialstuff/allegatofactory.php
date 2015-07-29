@@ -86,7 +86,7 @@ class AllegatoFactory extends OpenPAConsiglioDefaultFactory implements OCEditori
             )
         );
         $params['attributes'][$this->fileAttributeIdentifier()] = $filePath;
-        if ( !isset( $params['attributes']['name'] ) || empty( $params['attributes']['name'] ) )
+        if ( !isset( $params['attributes']['name'] ) || trim( $params['attributes']['name'] ) == '' )
         {
             $name = basename( $filePath );
             $parts = explode( '.', $name );

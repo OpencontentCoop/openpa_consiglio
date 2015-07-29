@@ -85,7 +85,7 @@ class OsservazioneFactory extends AllegatoFactory
             )
         );
         $params['attributes'][$this->fileAttributeIdentifier()] = $filePath;
-        if ( !isset( $params['attributes']['messaggio'] ) || empty( $params['attributes']['messaggio'] ) )
+        if ( !isset( $params['attributes']['messaggio'] ) || trim( $params['attributes']['messaggio'] ) == '' )
         {
             $name = basename( $filePath );
             $parts = explode( '.', $name );
