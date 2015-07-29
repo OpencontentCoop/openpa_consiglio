@@ -103,6 +103,10 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
         if ( $currentPost instanceof Punto )
         {
             $seduta = $currentPost->attribute( 'seduta' );
+            if ( $seduta instanceof Seduta && !$seduta->getObject()->attribute( 'can_read' ) )
+            {
+                return $module->handleError( eZError::KERNEL_ACCESS_DENIED, 'kernel' );
+            }
             $sedutaFactoryConfiguration = OCEditorialStuffHandler::instance( 'seduta' )->getFactory()->getConfiguration();
             if ( $seduta instanceof Seduta )
             {

@@ -50,7 +50,7 @@
 
 {ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-tabdrop.js', 'jquery.editorialstuff_default.js', 'ezjsc::jqueryUI', 'bootstrap-editable.min.js' ) )}
 {ezcss_require(array('bootstrap3-editable/css/bootstrap-editable.css'))}
-
+{if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
 {literal}<script>
     $(document).ready(function(){
         var editableOptions = {
@@ -75,5 +75,5 @@
         reload('#odg');
     })
 </script>
-
+{/if}
 {/literal}
