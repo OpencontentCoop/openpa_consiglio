@@ -75,5 +75,5 @@
         reload('#odg');
     })
 </script>
-{/if}
 {/literal}
+{/if}
