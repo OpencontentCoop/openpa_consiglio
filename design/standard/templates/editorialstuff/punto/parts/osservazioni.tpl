@@ -61,7 +61,7 @@
                     <span class="btn btn-success btn-lg fileinput-button pull-right">
                         <i class="glyphicon glyphicon-plus"></i>
                         <span>Scegli file e salva</span>
-                        <input class="osservazioni" type="file" name="osservazioni[]"
+                        <input class="upload" type="file" name="DocFile[]"
                                data-url="{concat('editorialstuff/file/punto/upload/', $post.object.id, '/osservazioni' )|ezurl(no)}"/>
                     </span>
                         </div>
@@ -79,7 +79,7 @@
         <script>
             $(function () {
                 var osservazioni = $('#osservazioni_add');
-                osservazioni.find('.osservazioni').fileupload({
+                osservazioni.find('.upload').fileupload({
                     dropZone: osservazioni,
                     formData: function (form) {
                         return form.serializeArray();

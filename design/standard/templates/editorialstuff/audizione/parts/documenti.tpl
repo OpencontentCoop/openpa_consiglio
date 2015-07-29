@@ -50,7 +50,7 @@
                         <span class="btn btn-success btn-lg fileinput-button pull-right">
                             <i class="glyphicon glyphicon-plus"></i>
                             <span>Scegli file e salva</span>
-                            <input class="documenti" type="file" name="documenti[]" data-url="{concat('editorialstuff/file/audizione/upload/', $post.object.id, '/documenti' )|ezurl(no)}" />
+                            <input class="upload" type="file" name="DocFile[]" data-url="{concat('editorialstuff/file/audizione/upload/', $post.object.id, '/documenti' )|ezurl(no)}" />
                         </span>
                     </div>
 
@@ -67,7 +67,7 @@
     <script>
         $(function () {
             var allegati = $('#allegati_add');
-            allegati.find('.documenti').fileupload({
+            allegati.find('.upload').fileupload({
                 dropZone: allegati,
                 formData: function (form) {
                     return form.serializeArray();
