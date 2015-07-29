@@ -3,7 +3,7 @@
         <form class="form-inline" role="form" method="get"
               action={concat('editorialstuff/dashboard/', $factory_identifier )|ezurl()}>
 
-            <a href="{concat('add/new/',$factory_configuration.ClassIdentifier,'?parent=',$factory_configuration.CreationRepositoryNode)|ezurl(no)}" class="btn btn-primary">{$factory_configuration.CreationButtonText|wash()}</a>
+            <a href="{concat('editorialstuff/add/',$factory_identifier)|ezurl(no)}" class="btn btn-primary">{$factory_configuration.CreationButtonText|wash()}</a>
 
             <div class="form-group">
                 <input type="text" class="form-control" name="query" placeholder="Ricerca libera"

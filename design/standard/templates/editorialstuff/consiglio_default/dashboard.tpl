@@ -4,7 +4,7 @@
               action={concat('editorialstuff/dashboard/', $factory_identifier )|ezurl()}>
 
             {if $factory_configuration.CreationRepositoryNode}
-                <a href="{concat('add/new/',$factory_configuration.ClassIdentifier,'?parent=',$factory_configuration.CreationRepositoryNode)|ezurl(no)}" class="btn btn-primary">{$factory_configuration.CreationButtonText|wash()}</a>
+                <a href="{concat('editorialstuff/add/',$factory_identifier)|ezurl(no)}" class="btn btn-primary">{$factory_configuration.CreationButtonText|wash()}</a>
             {/if}
 
             <div class="form-group">

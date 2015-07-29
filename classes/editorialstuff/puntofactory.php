@@ -144,7 +144,7 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
                 'handler_method' => 'handleUpdateNotification'
             ),
             'move' => array(
-                'name' => 'Rimozione di un punto pubblicato',
+                'name' => 'Spostamento di un punto pubblicato',
                 'handler_method' => 'handleMoveNotification'
             ),
             'add_file' => array(

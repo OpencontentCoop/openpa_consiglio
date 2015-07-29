@@ -80,7 +80,7 @@
     <hr />
     <h2>
         Ordine del giorno
-        <a href="{concat('add/new/punto?parent=',$post.object.main_node_id)|ezurl(no)}" class="btn btn-info btn-md">Aggiungi punto</a>
+        <a href="{concat('editorialstuff/add/punto?parent=',$post.object.main_node_id)|ezurl(no)}" class="btn btn-info btn-md">Aggiungi punto</a>
     </h2>
     <div class="row">
         <div class="col-xs-12">
