@@ -25,9 +25,9 @@
 
     <input type="hidden" name="single_select_{$attribute.id}" value="1" />
     {if ne( count( $nestedNodesList ), 0)}
-        <select name="{$attribute_base}_data_object_relation_list_{$attribute.id}[]" id="attribute_{$attribute.contentclass_attribute.identifier}" class="form-control">
+        <select name="{$attribute_base}_data_object_relation_list_{$attribute.id}[]" id="attribute_{$attribute.contentclass_attribute.identifier}" class="form-control" data-placeholder="Seleziona...">
             {if $attribute.contentclass_attribute.is_required|not}
-                <option value="no_relation" {if eq( $attribute.content.relation_list|count, 0 )} selected="selected"{/if}>{'No relation'|i18n( 'design/standard/content/datatype' )}</option>
+                <option value="no_relation" {if eq( $attribute.content.relation_list|count, 0 )} selected="selected"{/if}></option>
             {/if}
             {section var=node loop=$nestedNodesList}
                 <option value="{$node.contentobject_id}"
