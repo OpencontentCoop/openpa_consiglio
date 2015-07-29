@@ -82,6 +82,15 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
     public function editModuleResult( $parameters, OCEditorialStuffHandlerInterface $handler, eZModule $module )
     {
         $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
+        if ( $currentPost instanceof Punto )
+        {
+            $seduta = $currentPost->attribute( 'seduta' );
+            if ( ( $seduta instanceof Seduta && !$seduta->getObject()->attribute( 'can_read' ) ) || !$seduta instanceof Seduta )
+            {
+                return $module->handleError( eZError::KERNEL_ACCESS_DENIED, 'kernel' );
+            }
+        }
+        
         $tpl = $this->editModuleResultTemplate( $currentPost, $parameters, $handler, $module );
 
         $Result = array();
@@ -103,7 +112,7 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
         if ( $currentPost instanceof Punto )
         {
             $seduta = $currentPost->attribute( 'seduta' );
-            if ( $seduta instanceof Seduta && !$seduta->getObject()->attribute( 'can_read' ) )
+            if ( ( $seduta instanceof Seduta && !$seduta->getObject()->attribute( 'can_read' ) ) || !$seduta instanceof Seduta )
             {
                 return $module->handleError( eZError::KERNEL_ACCESS_DENIED, 'kernel' );
             }
@@ -124,6 +133,10 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
                 }
             }
             $Result['path'][] = array( 'url' => false, 'text' => $currentPost->getObject()->attribute( 'name' ) );
+        }
+        else
+        {
+            return $module->handleError( eZError::KERNEL_ACCESS_DENIED, 'kernel' );
         }
 
         return $Result;
