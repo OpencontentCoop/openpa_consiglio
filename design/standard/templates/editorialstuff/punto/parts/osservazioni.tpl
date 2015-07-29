@@ -4,7 +4,7 @@
             {include uri=concat('design:', $template_directory, '/parts/osservazioni/data.tpl') post=$post}
         </div>
     </div>
-    {if $post.can_add_osservazioni}
+    {if or( fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' )), $post.can_add_osservazioni )}
         <hr/>
         <div class="row">
             <div class="col-xs-12 col-md-8 col-md-offset-2">
