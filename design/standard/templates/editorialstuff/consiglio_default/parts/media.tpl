@@ -33,6 +33,7 @@
     <script>
         $(function () {
             $('#upload-media').fileupload({
+                dropZone: $('#upload-form'),
                 dataType: 'json',
                 submit: function (e, data) {
                     $('#upload-form').hide();
