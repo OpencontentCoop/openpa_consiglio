@@ -86,6 +86,14 @@ class AllegatoFactory extends OpenPAConsiglioDefaultFactory implements OCEditori
             )
         );
         $params['attributes'][$this->fileAttributeIdentifier()] = $filePath;
+        if ( !isset( $params['attributes']['name'] ) || empty( $params['attributes']['name'] ) )
+        {
+            $name = basename( $filePath );
+            $parts = explode( '.', $name );
+            $suffix = array_pop( $parts );
+            $name = implode( '.', $parts );
+            $params['attributes']['name'] = $name;
+        }
         $contentObject = eZContentFunctions::createAndPublishObject( $params );
         if ( $contentObject instanceof eZContentObject )
         {
