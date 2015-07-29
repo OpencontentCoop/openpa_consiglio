@@ -32,6 +32,7 @@
                 </form>
             </div>
         {/if}
+		{if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
         <div class="col-xs-6 col-md-4">
             {*<a class="btn btn-info btn-lg" data-toggle="modal"
                data-load-remote="{concat( 'layout/set/modal/content/view/full/', $post.object.main_node_id )|ezurl('no')}"
@@ -54,6 +55,7 @@
                 </div>
             </form>
         </div>
+		{/if}
     </div>
 
     <hr/>
