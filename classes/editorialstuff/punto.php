@@ -470,24 +470,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 $this->createNotificationEvent( 'publish' );
             }
         }
-
-        if ( $beforeState->attribute( 'identifier' ) == 'published'
-             && $afterState->attribute( 'identifier' ) == 'in_progress' )
-        {
-            OpenPAConsiglioPushNotifier::instance()->emit(
-                'start_punto',
-                $this->jsonSerialize()
-            );
-        }
-
-        if ( $beforeState->attribute( 'identifier' ) == 'published'
-             && $afterState->attribute( 'identifier' ) == 'closed' )
-        {
-            OpenPAConsiglioPushNotifier::instance()->emit(
-                'stop_punto',
-                $this->jsonSerialize()
-            );
-        }
     }
 
     /**
@@ -1260,6 +1242,10 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 if ( $puntoInProgress == false )
                 {
                     $this->setState( 'punto.in_progress' );
+                    OpenPAConsiglioPushNotifier::instance()->emit(
+                        'start_punto',
+                        $this->jsonSerialize()
+                    );
                     return true;
                 }
                 elseif( $puntoInProgress instanceof Punto && $puntoInProgress->id() == $this->id() )
@@ -1286,6 +1272,10 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 if ( $puntoInProgress instanceof Punto && $puntoInProgress->id() == $this->id() )
                 {
                     $this->setState( 'punto.closed' );
+                    OpenPAConsiglioPushNotifier::instance()->emit(
+                        'stop_punto',
+                        $this->jsonSerialize()
+                    );
                     return true;
                 }
             }
