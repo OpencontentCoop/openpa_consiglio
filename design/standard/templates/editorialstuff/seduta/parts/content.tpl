@@ -4,7 +4,7 @@
     <div class="row">
 
         {if $post.object.can_edit}
-            <div class="col-xs-6 col-md-2">
+            <div class="col-xs-12 col-sm-12 col-md-2">
                 <form method="post" action="{"content/action"|ezurl(no)}" style="display: inline;">
                     <input type="hidden" name="ContentObjectLanguageCode"
                            value="{ezini( 'RegionalSettings', 'ContentObjectLocale', 'site.ini')}"/>
@@ -33,7 +33,7 @@
             </div>
         {/if}
 		{if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
-        <div class="col-xs-6 col-md-4">
+        <div class="col-xs-12 col-sm-6 col-md-5">
             {*<a class="btn btn-info btn-lg" data-toggle="modal"
                data-load-remote="{concat( 'layout/set/modal/content/view/full/', $post.object.main_node_id )|ezurl('no')}"
                data-remote-target="#preview .modal-content" href="#"
@@ -56,6 +56,12 @@
             </form>
         </div>
 		{/if}
+        {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
+            <div class="col-xs-12 col-sm-6 col-md-5">
+                <a target="_blank" class="btn btn-lg btn-warning pull-right" href="{concat('consiglio/cruscotto_seduta/', $post.object_id)|ezurl(no)}">Apri cruscotto</a>
+                <a target="_blank" class="btn btn-lg btn-warning pull-right" href="{concat('consiglio/monitor_sala/', $post.object_id)|ezurl(no)}">Apri monitor</a>
+            </div>
+        {/if}
     </div>
 
     <hr/>
