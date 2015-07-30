@@ -30,10 +30,18 @@ else
 {
     $Result = array();
 
-    $tpl->setVariable( 'errors', $errors );
-    $tpl->setVariable( 'seduta', $seduta );
-    $tpl->setVariable( 'title', 'Monitor' );
+    if ( !$seduta )
+    {
+        $Result['content'] = $tpl->fetch( 'design:consiglio/monitor_sala/select_seduta.tpl' );
+    }
+    else
+    {
 
-    $Result['content'] = $tpl->fetch( 'design:consiglio/monitor_sala.tpl' );
+        $tpl->setVariable( 'errors', $errors );
+        $tpl->setVariable( 'seduta', $seduta );
+        $tpl->setVariable( 'title', 'Monitor' );
+
+        $Result['content'] = $tpl->fetch( 'design:consiglio/monitor_sala.tpl' );
+    }
     $Result['pagelayout'] = 'consiglio/cruscotto_seduta_pagelayout.tpl';
 }

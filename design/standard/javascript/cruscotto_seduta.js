@@ -245,10 +245,10 @@ $(document).on('click', '#punto_startstop_button a.btn', function (e) {
 });
 
 $(document).ready(function () {
-    //$('#page').hide();
+    $('#page').hide();
 });
 
-var socket = io('dev.cal.opencontent.it:8090');
+var socket = io(SocketUrl+':'+SocketPort);
 
 socket.on('connect', function () {
     $('#page').show();

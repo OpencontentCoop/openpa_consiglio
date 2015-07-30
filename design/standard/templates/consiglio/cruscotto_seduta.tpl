@@ -157,12 +157,14 @@
 
 {ezscript_require( array( 'ezjsc::jquery' ) )}
 <script src="{'javascript/socket.io-1.3.5.js'|ezdesign(no)}"></script>
-{literal}
+
 <script>
-    var CurrentSedutaId = {/literal}{$seduta.object_id}{literal};
-    var SedutaDataBaseUrl = "{/literal}{concat('consiglio/data/seduta/',$seduta.object_id)|ezurl(no)}{literal}/";
-    var VotazioneDataBaseUrl = "{/literal}{'consiglio/data/votazione'|ezurl(no)}{literal}/";
-    var ActionBaseUrl = "{/literal}{concat('consiglio/cruscotto_seduta/',$seduta.object_id)|ezurl(no)}{literal}/";
+    var SocketUrl = "{openpaini('OpenPAConsiglio','SocketUrl','cal')}"
+    var SocketPort = "{openpaini('OpenPAConsiglio','SocketPort','8090')}";
+    var CurrentSedutaId = {$seduta.object_id};
+    var SedutaDataBaseUrl = "{concat('consiglio/data/seduta/',$seduta.object_id)|ezurl(no)}/";
+    var VotazioneDataBaseUrl = "{'consiglio/data/votazione'|ezurl(no)}/";
+    var ActionBaseUrl = "{concat('consiglio/cruscotto_seduta/',$seduta.object_id)|ezurl(no)}/";
 </script>
-{/literal}
+
 <script src="{'javascript/cruscotto_seduta.js'|ezdesign(no)}"></script>
