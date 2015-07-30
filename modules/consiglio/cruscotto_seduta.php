@@ -139,10 +139,17 @@ else
 {
     $Result = array();
 
-    $tpl->setVariable( 'errors', $errors );
-    $tpl->setVariable( 'seduta', $seduta );
-    $tpl->setVariable( 'title', 'Cruscotto' );
-
-    $Result['content'] = $tpl->fetch( 'design:consiglio/cruscotto_seduta.tpl' );
+    if ( !$seduta )
+    {
+        $Result['content'] = $tpl->fetch( 'design:consiglio/cruscotto_seduta/select_seduta.tpl' );
+    }
+    else
+    {
+        $tpl->setVariable( 'errors', $errors );
+        $tpl->setVariable( 'seduta', $seduta );
+        $tpl->setVariable( 'title', 'Cruscotto' );
+    
+        $Result['content'] = $tpl->fetch( 'design:consiglio/cruscotto_seduta.tpl' );
+    }
     $Result['pagelayout'] = 'consiglio/cruscotto_seduta_pagelayout.tpl';
 }
