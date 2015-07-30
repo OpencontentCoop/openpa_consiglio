@@ -14,6 +14,7 @@ class Allegato extends OCEditorialStuffPost
     {
         $attributes = parent::attributes();
         $attributes[] = 'riferimento';
+        $attributes[] = 'sostituito';
         return $attributes;
     }
 
@@ -22,7 +23,20 @@ class Allegato extends OCEditorialStuffPost
         if ( $property == 'riferimento' )
             return $this->getFirstReverseRelatedPost();
 
+        if ( $property == 'sostituito' )
+            return $this->isSostituito();
+
         return parent::attribute( $property );
+    }
+
+    public function isSostituito()
+    {
+        $dataMap = $this->getObject()->dataMap();
+        if ( isset( $dataMap['sostituito'] ) )
+        {
+            return (bool) $dataMap['sostituito']->attribute( 'data_int' );
+        }
+        return false;
     }
 
     public function onUpdate()
