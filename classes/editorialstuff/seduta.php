@@ -653,7 +653,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     }
 
     public function checkAccess( $userId )
-    {
+    {        
         //check $userId: se non è un politico viene sollevata eccezione
         try
         {
@@ -673,7 +673,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $now = new DateTime();
         if ( $dataOra->diff( $now )->days > 1 )
         {
-            throw new Exception( 'Seduta svolta in data ' . $dataOra->format( self::DATE_FORMAT ) );
+            //throw new Exception( 'Seduta svolta in data ' . $dataOra->format( self::DATE_FORMAT ) );
         }
 
         //check valid in progress Seduta
