@@ -356,11 +356,20 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             /** @var eZDate $data */
             $data = $this->dataMap['data']->content();
             /** @var eZTime $ora */
-            $ora = $this->dataMap['orario_conclusione']->content();
-
-            $dateTime = new DateTime();
-            $dateTime->setTimestamp( $data->attribute( 'timestamp' ) );
-            $dateTime->setTime( $ora->attribute( 'hour' ), $ora->attribute( 'minute' ) );
+            if ( isset( $this->dataMap['orario_conclusione'] ) && $this->dataMap['orario_conclusione']->hasContent() )
+            {
+                $ora = $this->dataMap['orario_conclusione']->content();
+    
+                $dateTime = new DateTime();
+                $dateTime->setTimestamp( $data->attribute( 'timestamp' ) );
+                $dateTime->setTime( $ora->attribute( 'hour' ), $ora->attribute( 'minute' ) );
+            }
+            else
+            {
+                $dateTime = new DateTime();
+                $dateTime->setTimestamp( $data->attribute( 'timestamp' ) );
+                $dateTime->setTime( 20, 0 );
+            }
         }
 
         if ( $returnFormat )
