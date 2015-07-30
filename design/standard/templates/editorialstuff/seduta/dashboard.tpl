@@ -83,7 +83,8 @@
           </td>
           
           <td>
-            {if $post.object.owner}{$post.object.owner.name|wash()}{else}?{/if}
+            {if $post.object.owner}{$post.object.owner.name|wash()}{else}?{/if}<br />
+			<small>Ultima modifica: {$post.object.main_node.modified_subnode|l10n('shortdatetime')}</small>
           </td>
 
           {*Data*}
