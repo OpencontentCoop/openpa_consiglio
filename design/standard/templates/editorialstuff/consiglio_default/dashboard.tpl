@@ -101,7 +101,11 @@
           {/if}
           
           <td>
+              {if $factory_identifier|eq('politico')}
+                  {content_view_gui content_object=$post.object view="politico_line"}
+              {else}
             <a data-toggle="modal" data-load-remote="{concat( 'layout/set/modal/content/view/full/', $post.object.main_node_id )|ezurl('no')}" data-remote-target="#preview .modal-content" href="#{*$post.url*}" data-target="#preview">{$post.object.name}</a>
+              {/if}
           </td>
       
       </tr>
