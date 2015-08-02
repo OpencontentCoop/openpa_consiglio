@@ -132,19 +132,24 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
         }
         else
         {
-            $data = OpenPAConsiglioPdf::create( $fileName, $content, $pdfParameters, false );
-            $fileContent = $data['content'];
-            $size = strlen( $fileContent );
-
-            /** @var ParadoxPDF $paradoxPdf */
-            $paradoxPdf = $data['exporter'];
+            $exportData = OpenPAConsiglioPdf::create( $fileName, $content, $pdfParameters, false );            
+            $fileContent = $exportData['content'];
+          
             if ( $data['attribute'] instanceof eZContentObjectAttribute )
-            {
-                $tempFile = eZSys::cacheDirectory() . '/' . $fileName;
-                eZFile::create( $fileName, eZSys::cacheDirectory(), $fileContent );
-                $data['attribute']->fromString( $fileName );
+            {                
+                $cacheDirectory = eZSys::cacheDirectory();
+                $directory =  eZDir::path( array( $cacheDirectory, 'pdf_creator' ) );
+                eZFile::create( $fileName, $directory, $fileContent );
+                $tempFile = $directory . '/' . $fileName;                
+                $data['attribute']->fromString( $tempFile );
                 $data['attribute']->store();
+                $handler = eZFileHandler::instance( false );
+                $handler->unlink( $tempFile );
             }
+            
+            /** @var ParadoxPDF $paradoxPdf */
+            $paradoxPdf = $exportData['exporter'];  
+            $size = strlen( $fileContent );
             $paradoxPdf->flushPDF( $fileContent, $fileName, $size );
 
         }
