@@ -26,15 +26,14 @@ class OpenPAConsiglioPushNotifier
     }
 
     public function emit( $identifier, $data )
-    {
-        $this->sendToMobile( $identifier, $data );
-
+    {        
         $this->data = array(
             'identifier' => $identifier,
             'data' => $data
         );
         $this->IsModified = true;
         $this->store();
+        $this->sendToMobile( $identifier, $data );
     }
 
     protected function sendToMobile( $identifier, $data )
@@ -77,13 +76,19 @@ class OpenPAConsiglioPushNotifier
                 );
                 break;
         }
-        if ( $url & !empty( $values ) )
+        
+        eZLog::write( var_export( $url, 1 ), 'runtime.log' );        
+        if ( $url )
         {
+            eZLog::write( var_export( $values, 1 ), 'runtime.log' );
             $ch = curl_init();
             curl_setopt( $ch, CURLOPT_URL, $url );
             curl_setopt( $ch, CURLOPT_POST, 1 );
             curl_setopt( $ch, CURLOPT_POSTFIELDS, $values );
-            curl_exec( $ch );
+            curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+            $result = curl_exec( $ch );        
+            eZLog::write( var_export( $result, 1 ), 'runtime.log' );
+            curl_close( $ch );
         }
     }
 

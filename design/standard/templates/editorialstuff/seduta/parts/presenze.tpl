@@ -58,7 +58,7 @@
             if (!task.values) return task.text;
             for (index = 0; index < task.values.length; ++index) {ldelim}
                 if ( task.values[index][0] == 0) {ldelim}
-                    background = 'background:#000';
+                    background = 'background:#eee';
                 {rdelim}else{ldelim}
                     background = 'background:#5cb85c';
                 {rdelim}

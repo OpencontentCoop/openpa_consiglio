@@ -33,15 +33,14 @@
 
 {def $registro_presenze = $seduta.registro_presenze}
 <div id="presenze">
-    <div class="row">
-        <div class="col col-md-12">
-            {foreach $seduta.partecipanti as $partecipante}
-                <div class="col-xs-2 user_presenza user-{$partecipante.object_id}"
-                        {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="opacity: .4"{/if}>
-                    {content_view_gui content_object=$partecipante.object view="politico_box"}
-                </div>
-            {/foreach}
-        </div>
+    <div class="row">        
+	  {foreach $seduta.partecipanti as $partecipante}
+		  <div class="col-xs-2 user_presenza user-{$partecipante.object_id}"
+				  {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="opacity: .4"{/if}>
+			  {content_view_gui content_object=$partecipante.object view="politico_box"}
+		  </div>
+		  {delimiter modulo=6}</div><div class="row">{/delimiter}
+	  {/foreach}        
     </div>
 </div>
 {undef $registro_presenze}

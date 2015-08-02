@@ -98,6 +98,14 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         return parent::attribute( $property );
     }
 
+    /**
+     * @see SedutaFactory::fields()
+     */
+    public function indexFromTime()
+    {
+        return ezfSolrDocumentFieldBase::preProcessValue( $this->dataOra(), 'date' );                
+    }
+    
     protected function createUpdateConvocazione()
     {
         return ConvocazioneSeduta::create( $this->getObject() );
@@ -285,9 +293,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             }
         }
 
-        if ( $beforeState->attribute( 'identifier' ) == 'published'
-             && $afterState->attribute( 'identifier' ) == 'in_progress'
-        )
+        if ( $afterState->attribute( 'identifier' ) == 'in_progress' )
         {
             OpenPAConsiglioPushNotifier::instance()->emit(
                 'start_seduta',
@@ -309,6 +315,21 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 'stop_seduta',
                 $this->jsonSerialize()
             );
+            
+            $registroPresenze = $this->registroPresenze();
+            $presenti = array();
+            foreach( $registroPresenze['hash_user_id'] as $userId => $bool )
+            {
+                if ( $bool )
+                {
+                    $presenti[] = $userId;
+                }
+            }
+            if ( isset( $this->dataMap['presenti'] ) )
+            {
+                $this->dataMap['presenti']->fromString( implode( '-', $presenti ) );
+                $this->dataMap['presenti']->store();
+            }
         }
     }
 

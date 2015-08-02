@@ -269,13 +269,13 @@ socket.on('voto', function (data) {
     }
 });
 
-$(document).ajaxStart(function() {
-    $("#loading" ).show();
-}).ajaxComplete(function() {
-    $("#loading" ).hide();
-}).ajaxError(function() {
-    $("#loading" ).hide();
-});
+//$(document).ajaxStart(function() {
+//    $("#loading" ).show();
+//}).ajaxComplete(function() {
+//    $("#loading" ).hide();
+//}).ajaxError(function() {
+//    $("#loading" ).hide();
+//});
 
 jQuery.fn.extend({
     setCursorPosition: function (position) {

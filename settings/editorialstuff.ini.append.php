@@ -132,8 +132,8 @@ PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 [politico]
 ClassIdentifier=politico
 CreationButtonText=Crea nuovo politico
-CreationRepositoryNode=1127
-RepositoryNodes[]=1127
+CreationRepositoryNode=668
+RepositoryNodes[]=668
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 

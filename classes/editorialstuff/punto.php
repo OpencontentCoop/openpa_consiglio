@@ -1316,12 +1316,12 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                     OpenPAConsiglioPushNotifier::instance()->emit(
                         'stop_punto',
                         $this->jsonSerialize()
-                    );
-                    return true;
+                    );                    
                 }
             }
         }
-        throw new Exception( "Errore" ); //@todo
+        return true;
+        //throw new Exception( "Errore" ); //@todo
     }
 
     /**
