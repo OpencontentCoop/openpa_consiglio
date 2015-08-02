@@ -76,7 +76,10 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
         {
             $tpl->setVariable( $name, $value );
         }
-        return $tpl->fetch( 'design:pdf/seduta/seduta.tpl' );
+        return array(
+            'content' => $tpl->fetch( 'design:pdf/seduta/seduta.tpl' ),
+            'attribute' => $sedutaDataMap['convocazione']
+        );
 
     }
 
@@ -90,19 +93,20 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
         $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
         if ( !$version )
         {
-            $content = $this->getPdfContentFromVersion(
+            $data = $this->getPdfContentFromVersion(
                 $currentPost->getObject()->currentVersion(),
                 $_GET
             );
         }
         else
         {
-            $content = $this->getPdfContentFromVersion(
+            $data = $this->getPdfContentFromVersion(
                 $currentPost->getObject()->version( $version ),
                 $_GET
             );
         }
 
+        $content = $data['content'];
 
         /** @var eZContentClass $objectClass */
         $objectClass = $currentPost->getObject()->attribute( 'content_class' );
@@ -128,7 +132,21 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
         }
         else
         {
-            OpenPAConsiglioPdf::create( $fileName, $content, $pdfParameters );
+            $data = OpenPAConsiglioPdf::create( $fileName, $content, $pdfParameters, false );
+            $fileContent = $data['content'];
+            $size = strlen( $fileContent );
+
+            /** @var ParadoxPDF $paradoxPdf */
+            $paradoxPdf = $data['exporter'];
+            if ( $data['attribute'] instanceof eZContentObjectAttribute )
+            {
+                $tempFile = eZSys::cacheDirectory() . '/' . $fileName;
+                eZFile::create( $fileName, eZSys::cacheDirectory(), $fileContent );
+                $data['attribute']->fromString( $fileName );
+                $data['attribute']->store();
+            }
+            $paradoxPdf->flushPDF( $fileContent, $fileName, $size );
+
         }
         eZExecution::cleanExit();
 

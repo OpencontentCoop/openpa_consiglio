@@ -4,20 +4,47 @@ use mikehaertl\wkhtmlto\Pdf;
 
 class OpenPAConsiglioPdf
 {
-    protected static function exportParadoxPdf( $filename, $content, $parameters )
+    protected static function exportParadoxPdf( $filename, $content, $parameters, $forceDownload )
     {
         $paradoxPdf = new ParadoxPDF();
-        $paradoxPdf->exportPDF(
-            $content,
-            $filename,
-            $parameters['cache']['keys'],
-            $parameters['cache']['subtree_expiry'],
-            $parameters['cache']['expiry'],
-            $parameters['cache']['ignore_content_expiry']
-        );
+        if ( $forceDownload )
+        {
+            $paradoxPdf->exportPDF(
+                $content,
+                $filename,
+                $parameters['cache']['keys'],
+                $parameters['cache']['subtree_expiry'],
+                $parameters['cache']['expiry'],
+                $parameters['cache']['ignore_content_expiry']
+            );
+            return true;
+        }
+        else
+        {
+            return array(
+                'content' => $paradoxPdf->generatePDF( $content ),
+                'exporter' => $paradoxPdf
+            );
+        }
     }
 
-    protected static function exportWkHtmlToPdf( $filename, $content, $parameters )
+    public static function create( $filename, $content, $parameters, $forceDownload = true )
+    {
+        if ( isset( $parameters['exporter'] ) )
+        {
+            if ( $parameters['exporter'] == 'paradox' )
+            {
+                return self::exportParadoxPdf( $filename, $content, $parameters, $forceDownload );
+            }
+            elseif ( $parameters['exporter'] == 'wk' )
+            {
+                return self::exportWkHtmlToPdf( $filename, $content, $parameters,$forceDownload );
+            }
+        }
+
+    }
+
+    protected static function exportWkHtmlToPdf( $filename, $content, $parameters, $forceDownload )
     {
         $templatePartsDirPath = $parameters['template_parts_dir_path'];
         $forceDownload = $parameters['force_download'];
@@ -85,31 +112,15 @@ class OpenPAConsiglioPdf
         {
             if ( $forceDownload )
             {
-                $pdf->send( $filename );
+                return $pdf->send( $filename );
             }
             else
             {
-                $pdf->send();
+                return $pdf->send();
             }
         }
     }
 
-
-    public static function create( $filename, $content, $parameters,  $templatePartsDirPath = 'pdf/', $forceDownload = false )
-    {
-        if ( isset( $parameters['exporter'] ) )
-        {
-            if ( $parameters['exporter'] == 'paradox' )
-            {
-                self::exportParadoxPdf( $filename, $content, $parameters );
-            }
-            elseif ( $parameters['exporter'] == 'wk' )
-            {
-                self::exportWkHtmlToPdf( $filename, $content, $parameters );
-            }
-        }
-
-    }
 
     protected static function createTempFile( $templatePath, $templateVars = array() )
     {
