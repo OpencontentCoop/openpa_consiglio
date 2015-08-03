@@ -20,7 +20,9 @@ var Modals = [
         onShow: function (modal, button) {
             modal.find('#currentVotazione').val(button.data('votazione'));
             modal.find('.modal-title').html(button.data('votazione_title'));
-            $('#votazione_in_progress').find('.user_voto').css({'opacity': 0.4});
+            var votazione = $('#votazione_in_progress');
+            votazione.find('.user_voto').css({'opacity': 0.4});
+            votazione.find('.user_buttons').hide().find('a').data('voto_id','');
         },
         onSend: function (values, modal) {
             var currentSettings = modal.data('currentSettings');
@@ -244,6 +246,32 @@ $(document).on('click', '#punto_startstop_button a.btn', function (e) {
     });
 });
 
+$(document).on('click', '#presenzeTemplate .user_buttons a', function (e) {
+  var current = $(e.currentTarget);
+  var action = current.data('action');
+  var user = current.data('user_id');
+  $.ajax({
+      url: ActionBaseUrl+action+'?uid='+user,
+      method: 'GET'
+  });
+});
+
+$(document).on('click', '#votazione_in_progress .user_buttons a', function (e) {
+  var current = $(e.currentTarget);
+  var action = current.data('action');
+  var user = current.data('user_id');
+  var voto = current.data('voto_id');
+  $.ajax({
+      url: ActionBaseUrl+action+'?uid='+user+'&vid='+voto,
+      method: 'GET',
+      success: function (data) {
+        var votazione = $('#votazione_in_progress');
+        var opacity = data.action == 'markVotoInvalid' ? 0.4 : 1;
+        votazione.find('.user-' + user).css({'opacity': opacity}).find(' .user_buttons').hide();
+      }
+  });
+});
+
 $(document).ready(function () {
     $('#page').hide();
 });
@@ -265,17 +293,21 @@ socket.on('presenze', function (data) {
 
 socket.on('voto', function (data) {
     if (data.seduta_id == CurrentSedutaId) {
-        $('#votazione_in_progress').find('.user-' + data.user_id).css({'opacity': 1});
+        var votazione = $('#votazione_in_progress');
+        votazione.find('.user-' + data.user_id).css({'opacity': 1});
+        if (data.anomaly) {
+          votazione.find('.user-' + data.user_id + ' .user_buttons').show().find('a').data('voto_id',data.id);
+        }
     }
 });
 
-//$(document).ajaxStart(function() {
-//    $("#loading" ).show();
-//}).ajaxComplete(function() {
-//    $("#loading" ).hide();
-//}).ajaxError(function() {
-//    $("#loading" ).hide();
-//});
+$(document).ajaxSend(function() {
+    $("#loading" ).show();
+}).ajaxComplete(function() {
+    $("#loading" ).hide();
+}).ajaxError(function() {
+    $("#loading" ).hide();
+});
 
 jQuery.fn.extend({
     setCursorPosition: function (position) {

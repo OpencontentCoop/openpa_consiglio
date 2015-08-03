@@ -1,7 +1,7 @@
 <?php
 
 $factory = OCEditorialStuffHandler::instance( 'votazione' )->getFactory();
-$votazione = new Votazione( array( 'object_id' => 2113 ), $factory );
+$votazione = new Votazione( array( 'object_id' => 2194 ), $factory );
 $votazione->stop();
 echo '<pre>';
 print_r( $votazione->jsonSerialize() );

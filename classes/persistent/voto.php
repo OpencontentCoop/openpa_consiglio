@@ -61,6 +61,12 @@ class OpenPAConsiglioVoto extends eZPersistentObject
                     'default' => null,
                     'required' => true
                 ),
+                'anomaly' => array(
+                    'name' => 'Anomaly',
+                    'datatype' => 'integer',
+                    'default' => null,
+                    'required' => false
+                ),
                 'created_time' => array(
                     'name' => 'CreatedTime',
                     'datatype' => 'integer',
@@ -106,7 +112,7 @@ class OpenPAConsiglioVoto extends eZPersistentObject
         $row = array(
             'user_id' => $userId,
             'seduta_id' => $seduta->id(),
-            'votazione_id' => $votazione->id()
+            'votazione_id' => $votazione->id()            
         );
 
         $alreadyExists = eZPersistentObject::fetchObject(
@@ -124,9 +130,12 @@ class OpenPAConsiglioVoto extends eZPersistentObject
         {
             throw new Exception( "Valore del voto ($value) non valido" );
         }
+        
+        $anomaly = OpenPAConsiglioPresenza::getUserInOutInSeduta( $seduta, $userId ) == false;
 
         $row['value'] = (string) $value;
         $row['created_time'] = $createdTime;
+        $row['anomaly'] = intval( $anomaly );
 
         $votazione = new OpenPAConsiglioVoto( $row );
         return $votazione;

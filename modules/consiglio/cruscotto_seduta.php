@@ -34,6 +34,35 @@ elseif ( $action )
     {
         switch ( $action )
         {
+            case 'markVotoValid':
+            {
+                $userId = $http->getVariable( 'uid' );
+                $votoId = $http->getVariable( 'vid' );
+            } break;
+            
+            case 'markVotoInvalid':
+            {
+                $userId = $http->getVariable( 'uid' );
+                $votoId = $http->getVariable( 'vid' );
+                $voto = OpenPAConsiglioVoto::fetch( $votoId );
+                if ( $voto->attribute( 'user_id' ) == $userId )
+                {
+                    $voto->remove();
+                }
+            } break;
+            
+            case 'markPresente':
+            {
+                $userId = $http->getVariable( 'uid' );
+                $seduta->addPresenza( 1, 'manual', $userId );
+            } break;
+
+            case 'markAssente':
+            {
+                $userId = $http->getVariable( 'uid' );
+                $seduta->addPresenza( 0, 'manual', $userId );
+            } break;
+            
             case 'startSeduta':
             {
                 $seduta->start();

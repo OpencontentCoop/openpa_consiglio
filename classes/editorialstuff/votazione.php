@@ -106,8 +106,8 @@ class Votazione extends OCEditorialStuffPost
         $this->dataMap[self::$startDateIdentifier]->store();
 
         $registro = $this->getSeduta()->registroPresenze();
-        $this->dataMap['presenti']->fromString( $registro['in'] );
-        $this->dataMap['presenti']->store();
+        $this->dataMap[self::$presentiIdentifier]->fromString( $registro['in'] );
+        $this->dataMap[self::$presentiIdentifier]->store();
     }
 
     public function stop()
@@ -132,7 +132,15 @@ class Votazione extends OCEditorialStuffPost
 
             // chiudo la votazione
             $this->setState( 'stato_votazione.closed' );
+            OpenPAConsiglioPushNotifier::instance()->emit(
+                'real_stop_votazione',
+                $this->jsonSerialize()
+            );
 
+            $registro = $this->getSeduta()->registroPresenze();
+            $this->dataMap[self::$presentiIdentifier]->fromString( $registro['in'] );
+            $this->dataMap[self::$presentiIdentifier]->store();
+            
             // registro le statistiche
             $votanti = OpenPAConsiglioVoto::countVotanti( $this );
             $contrari = OpenPAConsiglioVoto::countContrari( $this );
@@ -201,7 +209,7 @@ class Votazione extends OCEditorialStuffPost
             $userId = eZUser::currentUserID();
         }
         $seduta = $this->getSeduta();
-        $this->checkAccess( $userId );
+        $this->checkAccess( $userId );        
         $voto = OpenPAConsiglioVoto::create( $seduta, $this, $value, $userId );
         $voto->store();
         OpenPAConsiglioPushNotifier::instance()->emit(

@@ -1,4 +1,4 @@
-<h3>{attribute_view_gui attribute=$post.object.data_map.short_text}</h3>
+<h3>Risultati votazione {attribute_view_gui attribute=$post.object.data_map.short_text}</h3>
 <p class="text">{attribute_view_gui attribute=$post.object.data_map.text}</p>
 {if $post.current_state.identifier|eq('closed')}
 <dl class="dl-horizontal">

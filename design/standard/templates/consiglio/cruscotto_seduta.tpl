@@ -93,16 +93,23 @@
                     <input id="currentVotazione" type="hidden" name="idVotazione" value="0" />
                 </form>
 
-                <div class="row" id="votazione_in_progress">
+                <div id="votazione_in_progress">
+                <div class="row">
                 {def $registro_presenze = $seduta.registro_presenze}
                 {foreach $seduta.partecipanti as $partecipante}
-                    <div class="col-xs-2 user_voto user-{$partecipante.object_id}" style="opacity: .4">
-                        {*if $registro_presenze.hash_user_id[$partecipante.object_id]*}
-                        {content_view_gui content_object=$partecipante.object view="politico_box"}
-                        {*/if*}
+                    <div class="col-xs-6 user_voto user-{$partecipante.object_id}" style="opacity: .4">
+                        <p>
+                          {content_view_gui content_object=$partecipante.object view="politico_line"}
+                          <span class="user_buttons" style="display:none">
+                            {*<a class="btn btn-success btn-xs" data-action="markVotoValid" data-user_id="{$partecipante.object_id}"><i class="fa fa-check"></i></a>*}
+                            <a class="btn btn-danger btn-xs" data-action="markVotoInvalid" data-user_id="{$partecipante.object_id}"><i class="fa fa-close"></i></a>
+                          </span>
+                        </p>
                     </div>
+                    {delimiter modulo=6}</div><div class="row">{/delimiter}
                 {/foreach}
                 {undef $registro_presenze}
+                </div>
                 </div>
 
             </div>
@@ -144,9 +151,16 @@
             <div class="modal-body">
                 <div class="row">
                     {foreach $seduta.partecipanti as $partecipante}
-                        <div class="col-xs-2 user_presenza user-{$partecipante.object_id}" {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="opacity: .4"{/if}>
+                        <div class="col-xs-2" style="position:relative;">
+                          <div class="user_buttons" style="position:absolute; width:100%; top:0;z-index:10">
+                            <a class="btn btn-success btn-xs" data-action="markPresente" data-user_id="{$partecipante.object_id}"><i class="fa fa-check"></i></a>
+                            <a class="btn btn-danger btn-xs" data-action="markAssente" data-user_id="{$partecipante.object_id}"><i class="fa fa-close"></i></a>
+                          </div>
+                          <div class="user_presenza user-{$partecipante.object_id}" {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="opacity: .4"{/if}>                            
                             {content_view_gui content_object=$partecipante.object view="politico_box"}
+                          </div>
                         </div>
+                        {delimiter modulo=6}</div><div class="row">{/delimiter}
                     {/foreach}
                 </div>
             </div>
