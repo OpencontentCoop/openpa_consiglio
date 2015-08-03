@@ -26,6 +26,8 @@
 
 <hr/>
 
+{def $registro_presenze = $seduta.registro_presenze}
+
 <div class="row">
     <div id="sidebar-area" class="col col-md-3">
         <div class="widget">
@@ -63,15 +65,25 @@
                 <h4 class="modal-title" id="previewLabel">New message</h4>
             </div>
             <div class="modal-body">
-                <form action="">
-                    <div class="form-group">
+                <form action="">                    
+					<div class="form-group">
                         <label for="recipient-name" class="control-label">Titolo breve:</label>
                         <input type="text" class="form-control" name="shortText" id="recipient-name">
+                    </div>
+					<div class="form-group">
+                        <label for="message-point" class="control-label">La votazione riguarda il punto:</label>
+                        <select name="puntoId" id="message-point">
+						  <option>Nessuno</option>
+						  {foreach $seduta.odg as $punto}
+						  <option value="{$punto.object_id}" data-text="{$punto.object.data_map.oggetto.content|wash()}">{$punto.object.data_map.n_punto.content}</option>
+						  {/foreach}
+						</select>
+						<a id="popolaTestoVotazione" class="btn btn-xs btn-default" style="display: none" href="#">Popola il testo con l'oggetto del punto selezionato</a>
                     </div>
                     <div class="form-group">
                         <label for="message-text" class="control-label">Testo della votazione:</label>
                         <textarea class="form-control" name="text" id="message-text"></textarea>
-                    </div>
+                    </div>					
                 </form>
             </div>
             <div class="modal-footer">
@@ -93,24 +105,23 @@
                     <input id="currentVotazione" type="hidden" name="idVotazione" value="0" />
                 </form>
 
-                <div id="votazione_in_progress">
-                <div class="row">
-                {def $registro_presenze = $seduta.registro_presenze}
+              <div id="votazione_in_progress">
+                <div class="row">                
                 {foreach $seduta.partecipanti as $partecipante}
-                    <div class="col-xs-6 user_voto user-{$partecipante.object_id}" style="opacity: .4">
-                        <p>
-                          {content_view_gui content_object=$partecipante.object view="politico_line"}
-                          <span class="user_buttons" style="display:none">
-                            {*<a class="btn btn-success btn-xs" data-action="markVotoValid" data-user_id="{$partecipante.object_id}"><i class="fa fa-check"></i></a>*}
-                            <a class="btn btn-danger btn-xs" data-action="markVotoInvalid" data-user_id="{$partecipante.object_id}"><i class="fa fa-close"></i></a>
+                    <div class="col-xs-6">
+                        <p class="user_voto user-{$partecipante.object_id}" {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="opacity: .4"{/if}>
+                          <span class="text-success voto" style="display: none"><i class="fa fa-certificate"></i></span>														
+						  {content_view_gui content_object=$partecipante.object view="politico_line"}
+                          <span class="user_buttons pull-right">
+                            {*<a class="btn btn-success btn-xs" data-action="markVotoValid" data-user_id="{$partecipante.object_id}"><i class="fa fa-check"></i></a>*}														
+                            <a style="display:none" class="btn btn-danger btn-xs mark_invalid" data-action="markVotoInvalid" data-user_id="{$partecipante.object_id}">Non presente<br />annulla voto</a>
                           </span>
                         </p>
                     </div>
                     {delimiter modulo=6}</div><div class="row">{/delimiter}
-                {/foreach}
-                {undef $registro_presenze}
+                {/foreach}                
                 </div>
-                </div>
+              </div>
 
             </div>
             <div class="modal-footer">
@@ -138,8 +149,6 @@
         </div>
     </div>
 </div>
-
-{def $registro_presenze = $seduta.registro_presenze}
 <div class="modal fade" id="presenzeTemplate" tabindex="-1" role="dialog" aria-labelledby="previewLabel">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -151,14 +160,21 @@
             <div class="modal-body">
                 <div class="row">
                     {foreach $seduta.partecipanti as $partecipante}
-                        <div class="col-xs-2" style="position:relative;">
-                          <div class="user_buttons" style="position:absolute; width:100%; top:0;z-index:10">
-                            <a class="btn btn-success btn-xs" data-action="markPresente" data-user_id="{$partecipante.object_id}"><i class="fa fa-check"></i></a>
-                            <a class="btn btn-danger btn-xs" data-action="markAssente" data-user_id="{$partecipante.object_id}"><i class="fa fa-close"></i></a>
+                        <div class="col-xs-2" style="position:relative;">                          					  
+                          <div class="user_presenza user-{$partecipante.object_id}">
+							<div style="position: absolute;top:-5px;left:10px;" class="">
+							  <p class="btn btn-default btn-xs type checkin" style="display: none"><i class="fa fa-check-circle"></i></p>
+							  <p class="btn btn-default btn-xs type beacons" style="display: none"><i class="fa fa-wifi"></i></p>
+							  <p class="btn btn-default btn-xs type manual" style="display: none"><i class="fa fa-thumbs-up"></i></p>
+							</div>
+							<div class="name" {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="opacity: .4"{/if}>
+							  {content_view_gui content_object=$partecipante.object view="politico_box"}
+							</div>
                           </div>
-                          <div class="user_presenza user-{$partecipante.object_id}" {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="opacity: .4"{/if}>                            
-                            {content_view_gui content_object=$partecipante.object view="politico_box"}
-                          </div>
+						  <div class="user_buttons" style="position: absolute; top: -5px; right: 10px;">
+                            <a class="btn btn-default btn-xs" data-action="markPresente" data-user_id="{$partecipante.object_id}" title="Segna presente"><i class="fa fa-check"></i></a>							
+                            <a class="btn btn-default btn-xs" data-action="markAssente" data-user_id="{$partecipante.object_id}" title="Segna presente"><i class="fa fa-close"></i></a>
+                          </div>	
                         </div>
                         {delimiter modulo=6}</div><div class="row">{/delimiter}
                     {/foreach}

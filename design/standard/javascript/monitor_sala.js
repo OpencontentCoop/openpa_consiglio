@@ -10,9 +10,16 @@ socket.on('connect', function () {
 
 socket.on('presenze', function (data) {
     if (data.seduta_id == CurrentSedutaId) {
-        $('#presenze')
-            .find('.user-' + data.user_id)
-            .css({'opacity': data.in_out ? 1 : 0.4});
+        var inOutClass = data.in_out ? 'btn-success' : 'btn-danger';
+        var opacity = data.has_checkin ? 1 : 0.4;
+        var user = $('#presenze').find('.user-' + data.user_id);
+        user.find('.name').css({'opacity': opacity});
+        user.find('.type').removeClass('btn-success').removeClass('btn-danger').hide();
+        if (data.in_out == false && data.type == 'checkin') {
+            //code
+        }else{
+            user.find('.'+data.type).addClass(inOutClass).show();
+        }
     }
 });
 
@@ -33,12 +40,18 @@ socket.on('stop_punto', function (data) {
     }
 });
 
+socket.on('start_seduta', function (data) {
+    if (data.id == CurrentSedutaId) {
+        $('#seduta h1 small').html( 'Seduta in corso' );
+    }
+});
 socket.on('stop_seduta', function (data) {
     if (data.id == CurrentSedutaId) {
         $('#presenze').hide();
         $('#detail').hide();
         $('#text').show().find('.data').show();
-        $('#text').show().find( 'h1').html('Arrivederci!');
+        $('#seduta h1 small').html( 'Seduta non in corso' );
+        $('#text').show().find( 'h1').html('Arrivederci!');        
     }
 });
 
@@ -47,7 +60,7 @@ socket.on('start_votazione', function (data) {
         $('#presenze').hide();
         $('#detail').hide();
         $('#text').show().find('.data').hide();
-        $('#text').show().find('.alert').show().find( 'h1').html('<strong>Aperta votazione:</strong><br /> ' + data.short_text);
+        $('#text').show().find('.alert').show().find( 'h1').html('<strong>Aperta votazione:</strong><br /> ' + data.short_text + '<br /><small>'+data.text+'</smal>');
     }
 });
 

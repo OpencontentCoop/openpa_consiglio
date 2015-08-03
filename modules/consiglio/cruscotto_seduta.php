@@ -101,9 +101,20 @@ elseif ( $action )
 
             case 'creaVotazione':
             {
+                $votazionePunto = $seduta->getPuntoInProgress();
+                if ( $http->hasPostVariable( 'puntoId' ) )
+                {
+                    foreach ( $seduta->odg() as $punto )
+                    {
+                        if ( $punto->id() == $http->postVariable( 'puntoId' ) )
+                        {
+                            $votazionePunto = $punto;
+                        }
+                    }
+                }
                 Votazione::create(
                     $seduta,
-                    $seduta->getPuntoInProgress(),
+                    $votazionePunto,
                     $http->postVariable( 'shortText' ),
                     $http->postVariable( 'text' ),
                     'default'

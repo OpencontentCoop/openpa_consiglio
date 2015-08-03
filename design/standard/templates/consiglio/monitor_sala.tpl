@@ -8,6 +8,10 @@
     var ActionBaseUrl = "{concat('consiglio/cruscotto_seduta/',$seduta.object_id)|ezurl(no)}/";
 </script>
 <script src="{'javascript/monitor_sala.js'|ezdesign(no)}"></script>
+<style>
+  {literal}#detail p.text{font-size: .6em}{/literal}
+</style>
+
 
 {def $currentPunto = false()}
 {foreach $seduta.odg as $index => $punto}{if $punto.current_state.identifier|eq('in_progress')}
@@ -26,13 +30,14 @@
 
 <div id="seduta">
     <div class="row">
-          <div class="col col-md-3 text-center">
-            <img class="center-block" height="100" src="{'images/monitor_sala/logo.png'|ezdesign(no)}" />
-          </div>
-          <div class="col col-md-9 text-center">
-            <h1 class="text-center"><strong>{$seduta.object.name|wash()}</strong></h1>
-          </div>
-        </div>
+	  <div class="col col-md-3 text-center">
+		<img class="center-block" height="100" src="{'images/monitor_sala/logo.png'|ezdesign(no)}" />
+	  </div>
+	  <div class="col col-md-9 text-center">
+		<h1 class="text-center">
+		  <strong>{$seduta.object.name|wash()}</strong><br /><small>Seduta non in corso</small>
+		</h1>
+	  </div>        
     </div>
 </div>
 
@@ -48,8 +53,15 @@
     {/if}
 	  {foreach $seduta.partecipanti as $partecipante}
 		  <div class="col-xs-{$col} user_presenza user-{$partecipante.object_id}"
-				  {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="opacity: .4"{/if}>
-			  {content_view_gui content_object=$partecipante.object view="politico_box"}
+				  {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="position: relative;"{/if}>
+			  <div style="position: absolute;top:0;left:0;" class="">
+				<p class="btn btn-default btn-xs type checkin" style="display: none"><i class="fa fa-check-circle"></i></p>
+				<p class="btn btn-default btn-xs type beacons" style="display: none"><i class="fa fa-wifi"></i></p>
+				<p class="btn btn-default btn-xs type manual" style="display: none"><i class="fa fa-thumbs-up"></i></p>
+			  </div>
+			  <div class="name" {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="opacity: .4"{/if}>
+				{content_view_gui content_object=$partecipante.object view="politico_box"}
+			  </div>
 		  </div>
 		  {delimiter modulo=$modulo}</div><div class="row">{/delimiter}
 	  {/foreach}        

@@ -138,6 +138,7 @@ class Votazione extends OCEditorialStuffPost
             );
 
             $registro = $this->getSeduta()->registroPresenze();
+            eZLog::write( var_export( $registro, 1 ), 'runtime.log' );
             $this->dataMap[self::$presentiIdentifier]->fromString( $registro['in'] );
             $this->dataMap[self::$presentiIdentifier]->store();
             

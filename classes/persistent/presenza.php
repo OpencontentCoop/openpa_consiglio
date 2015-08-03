@@ -153,8 +153,8 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         );
     }
 
-    //@todo gestire anomalie manuale | checkIn | beacon
-    static function getUserInOutInSeduta( Seduta $seduta, $userId )
+    //@todo gestire anomalie manuale | checkin | beacon
+    static function getUserInOutInSeduta( Seduta $seduta, $userId, $asObject = false )
     {
         /** @var OpenPAConsiglioPresenza[] $presenze */
         $presenze = parent::fetchObjectList(
@@ -169,7 +169,14 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         );
         if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
         {
-            return $presenze[0]->attribute( 'in_out' );
+            if ( $asObject )
+            {
+                return $presenze[0];
+            }
+            else
+            {
+                return $presenze[0]->attribute( 'in_out' );
+            }
         }
         return false;
     }
@@ -184,6 +191,27 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         $this->UserID = $id;
     }
 
+    public function hasCheckin()
+    {
+        /** @var OpenPAConsiglioPresenza[] $presenze */
+        $presenze = parent::fetchObjectList(
+            self::definition(),
+            null,
+            array(
+                'seduta_id' => $this->attribute( 'seduta_id' ),
+                'user_id' => (int) $this->attribute( 'user_id' ),
+                'type' => 'checkin'
+            ),
+            array( 'created_time' => 'desc' ),
+            array( 'limit' => 1, 'offset' => 0 )
+        );
+        if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
+        {
+            return $presenze[0]->attribute( 'in_out' );
+        }
+        return false;
+    }
+    
     public function jsonSerialize()
     {
         $data = array();
@@ -207,6 +235,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
                 $data[$identifier] = $this->attribute( $identifier );
             }
         }
+        $data['has_checkin'] = (int) $this->hasCheckin();
         return $data;
     }
 }

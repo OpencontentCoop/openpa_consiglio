@@ -301,35 +301,12 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             );
         }
 
-        if ( $beforeState->attribute( 'identifier' ) == 'in_progress'
-             && $afterState->attribute( 'identifier' ) == 'closed'
-        )
-        {
-            if ( isset( $this->dataMap['orario_conclusione_effettivo'] ) )
-            {
-                $now = time();
-                $this->dataMap['orario_conclusione_effettivo']->fromString( $now );
-                $this->dataMap['orario_conclusione_effettivo']->store();
-            }
+        if ( $afterState->attribute( 'identifier' ) == 'closed' )
+        {            
             OpenPAConsiglioPushNotifier::instance()->emit(
                 'stop_seduta',
                 $this->jsonSerialize()
             );
-            
-            $registroPresenze = $this->registroPresenze();
-            $presenti = array();
-            foreach( $registroPresenze['hash_user_id'] as $userId => $bool )
-            {
-                if ( $bool )
-                {
-                    $presenti[] = $userId;
-                }
-            }
-            if ( isset( $this->dataMap['presenti'] ) )
-            {
-                $this->dataMap['presenti']->fromString( implode( '-', $presenti ) );
-                $this->dataMap['presenti']->store();
-            }
         }
     }
 
@@ -736,6 +713,28 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     public function stop()
     {
+        $registroPresenze = $this->registroPresenze();
+        $presenti = array();            
+        foreach( $registroPresenze['hash_user_id'] as $userId => $bool )
+        {                
+            if ( $bool )
+            {
+                $presenti[] = $userId; // salvo i presenti
+            }
+            $this->addPresenza( 0, 'checkin', $userId ); //eseguo il checkout 
+        }
+        eZLog::write( var_export( $presenti, 1 ), 'runtime.log' );
+        if ( isset( $this->dataMap['presenti'] ) )
+        {
+            $this->dataMap['presenti']->fromString( implode( '-', $presenti ) );
+            $this->dataMap['presenti']->store();
+        }
+        if ( isset( $this->dataMap['orario_conclusione_effettivo'] ) )
+        {
+            $now = time();
+            $this->dataMap['orario_conclusione_effettivo']->fromString( $now );
+            $this->dataMap['orario_conclusione_effettivo']->store();
+        }
         $this->setState( 'seduta.closed' );
     }
 
@@ -752,12 +751,12 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         );
         foreach ( $votazioni as $votazione )
         {
-            $data[] = new Votazione(
+            $data[$votazione->attribute( 'published' )] = new Votazione(
                 array( 'object_id' => $votazione->attribute( 'id' ) ),
                 OCEditorialStuffHandler::instance( 'votazione' )->getFactory()
             );
         }
-
+        krsort( $data );
         return $data;
     }
 

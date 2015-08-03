@@ -2,7 +2,7 @@ var Modals = [
     {
         name: 'creaVotazione',
         title: 'Nuova votazione',
-        fields: ['shortText', 'text'],
+        fields: ['shortText', 'text', 'puntoId'],
         action: ActionBaseUrl + 'creaVotazione',
         resetForm: true,
         onShow: null,
@@ -21,8 +21,8 @@ var Modals = [
             modal.find('#currentVotazione').val(button.data('votazione'));
             modal.find('.modal-title').html(button.data('votazione_title'));
             var votazione = $('#votazione_in_progress');
-            votazione.find('.user_voto').css({'opacity': 0.4});
-            votazione.find('.user_buttons').hide().find('a').data('voto_id','');
+            votazione.find('.voto').hide();        
+            votazione.find('a.mark_invalid').hide().data('voto_id','');              
         },
         onSend: function (values, modal) {
             var currentSettings = modal.data('currentSettings');
@@ -252,24 +252,53 @@ $(document).on('click', '#presenzeTemplate .user_buttons a', function (e) {
   var user = current.data('user_id');
   $.ajax({
       url: ActionBaseUrl+action+'?uid='+user,
-      method: 'GET'
+      method: 'GET',
+      error: function (response, status, xhr) {
+        handelResponseError(response, status, xhr);
+      }
   });
 });
 
-$(document).on('click', '#votazione_in_progress .user_buttons a', function (e) {
+$(document).on('click', '#votazione_in_progress .user_buttons a.mark_invalid', function (e) {
   var current = $(e.currentTarget);
   var action = current.data('action');
   var user = current.data('user_id');
   var voto = current.data('voto_id');
+  clearErrors();
   $.ajax({
       url: ActionBaseUrl+action+'?uid='+user+'&vid='+voto,
       method: 'GET',
       success: function (data) {
-        var votazione = $('#votazione_in_progress');
-        var opacity = data.action == 'markVotoInvalid' ? 0.4 : 1;
-        votazione.find('.user-' + user).css({'opacity': opacity}).find(' .user_buttons').hide();
+        var votazioneUser = $('#votazione_in_progress').find('.user-' + user);
+        votazioneUser.find('.voto').hide();
+        votazioneUser.find('a.mark_invalid').hide();
+      },
+      error: function (response, status, xhr) {
+        handelResponseError(response, status, xhr);
       }
   });
+});
+
+$(document).on('change', '#message-point', function (e) {
+    $('#popolaTestoVotazione').show();
+});
+
+$(document).on('click', '#popolaTestoVotazione', function (e) {
+    var value = $('#message-point').find('option:selected').data('text');
+    $('#message-text').val( value );
+    e.preventDefault();
+});
+
+$(document).on('click', '.stopVotazione', function (e) {
+    $.ajax({
+      url: ActionBaseUrl + 'stopVotazione',
+      data: {idVotazione:$(e.currentTarget).data('votazione')},
+      method: 'POST',
+      success: function (data) {
+        $('#votazioni').load(SedutaDataBaseUrl + ':consiglio:cruscotto_seduta:votazioni');
+      }
+    });
+    e.preventDefault();
 });
 
 $(document).ready(function () {
@@ -285,18 +314,26 @@ socket.on('connect', function () {
 socket.on('presenze', function (data) {
     if (data.seduta_id == CurrentSedutaId) {
         $('#presenze_button').load(SedutaDataBaseUrl + ':consiglio:cruscotto_seduta:presenze_button');
-        $('#presenzeTemplate')
-            .find('.user-' + data.user_id)
-            .css({'opacity': data.in_out ? 1 : 0.4});
+        var user = $('#presenzeTemplate').find('.user-' + data.user_id);
+        var inOutClass = data.in_out ? 'btn-success' : 'btn-danger';
+        var opacity = data.has_checkin ? 1 : 0.4;
+        user.find('.name').css({'opacity': opacity});
+        user.find('.type').removeClass('btn-success').removeClass('btn-danger').hide();
+        if (data.in_out == false && data.type == 'checkin') {
+            //code
+        }else{
+            user.find('.'+data.type).addClass(inOutClass).show();
+        }
+        $('#votazione_in_progress').find('.user-' + data.user_id ).css({'opacity': opacity});        
     }
 });
 
 socket.on('voto', function (data) {
     if (data.seduta_id == CurrentSedutaId) {
-        var votazione = $('#votazione_in_progress');
-        votazione.find('.user-' + data.user_id).css({'opacity': 1});
+        var votazioneUser = $('#votazione_in_progress').find('.user-' + data.user_id);
+        votazioneUser.find('.voto').show();
         if (data.anomaly) {
-          votazione.find('.user-' + data.user_id + ' .user_buttons').show().find('a').data('voto_id',data.id);
+          votazioneUser.find('a.mark_invalid').show().data('voto_id',data.id);
         }
     }
 });

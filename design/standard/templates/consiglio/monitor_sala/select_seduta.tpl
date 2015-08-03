@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col col-md-12">
-	{def $sedute = fetch( editorialstuff, posts, hash( factory_identifier, seduta, state, array( 'in_progress', 'sent', 'published' ) ) )}
-	<h1>Seleziona seduta</h1>
+	{def $sedute = fetch( editorialstuff, posts, hash( factory_identifier, seduta, state, array( 'in_progress', 'sent' ) ) )}
+	<h1>Seleziona seduta per monitor sala</h1>
 	<table class="table">
 	{foreach $sedute as $seduta}
 	  <tr>

@@ -136,6 +136,7 @@ class ConsiglioApiController extends ezpRestMvcController
                     OpenPAConsiglioPresenza::definition(),
                     null,
                     array(
+                        'seduta_id' => $seduta->id(),
                         'user_id' => $this->UserId,
                         'type' => $type
                     ),

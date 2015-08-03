@@ -59,6 +59,7 @@ CREATE TABLE openpa_consiglio_voto (
   votazione_id VARCHAR(50) DEFAULT NULL NOT NULL,
   value VARCHAR(100) DEFAULT NULL NOT NULL,
   anomaly INTEGER DEFAULT 0,
+  presenza_id INTEGER DEFAULT 0,
   created_time INTEGER DEFAULT 0
 );
 
