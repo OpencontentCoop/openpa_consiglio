@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-md-12">
-        <h1>{$post.object.name|wash()}</h1>
+        <h1>{$post.object.name|wash()} <small> ore {attribute_view_gui attribute=$post.object.data_map.orario}</small></h1>
         {include uri=concat('design:', $template_directory, '/parts/workflow.tpl') post=$post}
     </div>
 </div>

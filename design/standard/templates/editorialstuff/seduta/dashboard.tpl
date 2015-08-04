@@ -88,7 +88,7 @@
           </td>
 
           {*Data*}
-          <td>{$post.object.published|l10n('shortdate')}</td>
+          <td>{$post.data_ora|l10n('shortdatetime')}</td>
           
           {*Stato*}
           <td>

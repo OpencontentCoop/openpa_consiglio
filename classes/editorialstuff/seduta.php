@@ -763,11 +763,19 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     public function onCreate()
     {
         $this->createUpdateConvocazione();
+	$object = $this->getObject();
+	$object->setAttribute( 'published', $this->dataOra() );
+	$object->store();
+	eZSearch::addObject( $object );
     }
 
     public function onUpdate()
     {
         $this->createUpdateConvocazione();
+	$object = $this->getObject();
+        $object->setAttribute( 'published', $this->dataOra() );
+        $object->store();
+        eZSearch::addObject( $object );
     }
 
     public function executeAction( $actionIdentifier, $actionParameters, eZModule $module = null )
