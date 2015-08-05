@@ -1,6 +1,6 @@
 {ezscript_require(array('ezjs::jquery','jquery.editorialstuff_default.js'))}
 {def $materie_like = fetch( editorialstuff, notification_rules_post_ids, hash( type, 'materia/like', user_id, fetch(user,current_user).contentobject_id ) )}
-{def $sedute = fetch( editorialstuff, posts, hash( factory_identifier, seduta, sort, hash( 'seduta/data', 'asc' ) ) )}
+{def $sedute = fetch( editorialstuff, posts, hash( factory_identifier, seduta, sort, hash( 'published', 'desc' ) ) )}
 
 {foreach $sedute as $seduta}
     <div class="row">
