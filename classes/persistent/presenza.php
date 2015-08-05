@@ -66,7 +66,13 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
             'keys' => array( 'id' ),
             'increment_key' => 'id',
             'class_name' => 'OpenPAConsiglioPresenza',
-            'name' => 'openpa_consiglio_presenza'
+            'name' => 'openpa_consiglio_presenza',
+            "function_attributes" => array(
+                "has_checkin" => "hasCheckin",
+                "has_manual" => "hasManual",
+                "has_beacons" => "hasBeacons",
+                "is_in" => "isIn"
+            )
         );
     }
 
@@ -153,8 +159,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         );
     }
 
-    //@todo gestire anomalie manuale | checkin | beacon
-    static function getUserInOutInSeduta( Seduta $seduta, $userId, $asObject = false )
+    static function getUserInOutInSeduta( Seduta $seduta, $userId )
     {
         /** @var OpenPAConsiglioPresenza[] $presenze */
         $presenze = parent::fetchObjectList(
@@ -169,14 +174,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         );
         if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
         {
-            if ( $asObject )
-            {
-                return $presenze[0];
-            }
-            else
-            {
-                return $presenze[0]->attribute( 'in_out' );
-            }
+            return $presenze[0];
         }
         return false;
     }
@@ -191,6 +189,12 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         $this->UserID = $id;
     }
 
+    //@todo gestire priorità manuale | checkin | beacon
+    public function isIn()
+    {
+        return $this->attribute( 'in_out' );
+    }
+
     public function hasCheckin()
     {
         /** @var OpenPAConsiglioPresenza[] $presenze */
@@ -200,7 +204,52 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
             array(
                 'seduta_id' => $this->attribute( 'seduta_id' ),
                 'user_id' => (int) $this->attribute( 'user_id' ),
-                'type' => 'checkin'
+                'type' => 'checkin',
+                'created_time' => array( '<=', $this->attribute( 'created_time' ) )
+            ),
+            array( 'created_time' => 'desc' ),
+            array( 'limit' => 1, 'offset' => 0 )
+        );
+        if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
+        {
+            return $presenze[0]->attribute( 'in_out' );
+        }
+        return false;
+    }
+
+    public function hasManual()
+    {
+        /** @var OpenPAConsiglioPresenza[] $presenze */
+        $presenze = parent::fetchObjectList(
+            self::definition(),
+            null,
+            array(
+                'seduta_id' => $this->attribute( 'seduta_id' ),
+                'user_id' => (int) $this->attribute( 'user_id' ),
+                'type' => 'manual',
+                'created_time' => array( '<=', $this->attribute( 'created_time' ) )
+            ),
+            array( 'created_time' => 'desc' ),
+            array( 'limit' => 1, 'offset' => 0 )
+        );
+        if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
+        {
+            return $presenze[0]->attribute( 'in_out' );
+        }
+        return false;
+    }
+
+    public function hasBeacons()
+    {
+        /** @var OpenPAConsiglioPresenza[] $presenze */
+        $presenze = parent::fetchObjectList(
+            self::definition(),
+            null,
+            array(
+                'seduta_id' => $this->attribute( 'seduta_id' ),
+                'user_id' => (int) $this->attribute( 'user_id' ),
+                'type' => 'beacons',
+                'created_time' => array( '<=', $this->attribute( 'created_time' ) )
             ),
             array( 'created_time' => 'desc' ),
             array( 'limit' => 1, 'offset' => 0 )
@@ -221,8 +270,9 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
             {
                 $dateTime = DateTime::createFromFormat( 'U', $this->attribute( $identifier ) );
                 $data[$identifier] = $dateTime->format( Seduta::DATE_FORMAT );
+                $data[$identifier . 'stamp'] = $this->attribute( $identifier );
             }
-            elseif( in_array( $identifier, array( 'id', 'user_id', 'seduta_id') ) )
+            elseif( in_array( $identifier, array( 'id', 'user_id', 'seduta_id', "has_checkin", "has_manual", "has_beacons", "is_in") ) )
             {
                 $data[$identifier] = (int) $this->attribute( $identifier );
             }
@@ -235,7 +285,9 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
                 $data[$identifier] = $this->attribute( $identifier );
             }
         }
-        $data['has_checkin'] = (int) $this->hasCheckin();
+//        $data['has_checkin'] = (int) $this->hasCheckin();
+//        $data['has_manual'] = (int) $this->hasManual();
+//        $data['has_beacons'] = (int) $this->hasBeacons();
         return $data;
     }
 }

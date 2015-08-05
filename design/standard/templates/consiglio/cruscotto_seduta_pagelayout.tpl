@@ -29,8 +29,8 @@
 </head>
 
 <body>
-<div id="page" style="min-height: 100%; padding: 20px;">
-    <div class="container">
+<div id="page" style="min-height: 100%;">
+    <div class="container-fluid">
         {$module_result.content}
     </div>
 </div>

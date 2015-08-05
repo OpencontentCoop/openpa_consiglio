@@ -101,20 +101,20 @@ elseif ( $action )
 
             case 'creaVotazione':
             {
-                $votazionePunto = $seduta->getPuntoInProgress();
+                $puntoInProgress = $seduta->getPuntoInProgress();
                 if ( $http->hasPostVariable( 'puntoId' ) )
                 {
                     foreach ( $seduta->odg() as $punto )
                     {
                         if ( $punto->id() == $http->postVariable( 'puntoId' ) )
                         {
-                            $votazionePunto = $punto;
+                            $puntoInProgress = $punto;
                         }
                     }
                 }
                 Votazione::create(
                     $seduta,
-                    $votazionePunto,
+                    $puntoInProgress,
                     $http->postVariable( 'shortText' ),
                     $http->postVariable( 'text' ),
                     'default'
@@ -124,6 +124,11 @@ elseif ( $action )
 
             case 'startVotazione':
             {
+                $votazioneInProgress = $seduta->getVotazioneInProgress();
+                if ( $votazioneInProgress !== null )
+                {
+                    throw new Exception( "Una votazione è già aperta" );
+                }
                 $idVotazione = $http->postVariable( 'idVotazione' );
                 /** @var Votazione $votazione */
                 $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $idVotazione );
@@ -132,10 +137,17 @@ elseif ( $action )
 
             case 'stopVotazione':
             {
+                $votazioneInProgress = $seduta->getVotazioneInProgress();
+                if ( $votazioneInProgress === null )
+                {
+                    throw new Exception( "Non esistono votazioni aperte" );
+                }
                 $idVotazione = $http->postVariable( 'idVotazione' );
-                /** @var Votazione $votazione */
-                $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $idVotazione );
-                $votazione->stop();
+                if ( $idVotazione != $votazioneInProgress->id() )
+                {
+                    throw new Exception( "Si sta cercando di chiudere una votazione diversa da quella attualmente aperta" );
+                }
+                $votazioneInProgress->stop();
             } break;
 
             case 'saveVerbale':

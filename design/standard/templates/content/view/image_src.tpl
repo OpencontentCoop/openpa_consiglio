@@ -1,0 +1,1 @@
+{if $object|has_attribute( 'image' )}{$object|attribute( 'image' ).content[$image_class].url|ezroot(no)}{else}{concat('images/profile_', $image_class, '.jpg')|ezdesign(no)}{/if}

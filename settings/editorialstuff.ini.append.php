@@ -134,6 +134,7 @@ ClassIdentifier=politico
 CreationButtonText=Crea nuovo politico
 CreationRepositoryNode=668
 RepositoryNodes[]=668
+RepositoryNodes[]=1129
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 
@@ -162,6 +163,7 @@ CreationButtonText=Crea votazione
 ClassName=VotazioneFactory
 CreationRepositoryNode=1262
 RepositoryNodes[]=1262
+RepositoryNodes[]=1316
 StateGroup=stato_votazione
 States[pending]=In attesa
 States[in_progress]=In corso
