@@ -66,18 +66,8 @@ $(document).on('click', '.partecipante .actions a', function (e) {
 $(document).on('click', '.partecipante .stato-votazione a.mark_invalid', function (e) {
     e.preventDefault();
     var current = $(e.currentTarget);
-    var voto = current.data('voto_id');
-    clearErrors();
-    $.ajax({
-        url: current.data('action_url') + '&vid=' + voto,
-        method: 'GET',
-        success: function (data) {
-           current.hide().parent().removeClass('ha-votato');
-        },
-        error: function (response, status, xhr) {
-            handelResponseError(response, status, xhr);
-        }
-    });
+    var partecipante = Presenze.getPartecipante( current.parents( '.partecipante' ).data( 'partecipante' ) );
+    partecipante.removeVotoPartecipante(current.data());    
 });
 
 $(document).on('change', '#message-point', function (e) {

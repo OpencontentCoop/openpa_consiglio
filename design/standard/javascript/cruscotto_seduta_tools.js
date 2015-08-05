@@ -236,17 +236,43 @@ jQuery.fn.extend({
         }
         $(this).data('last_update', data.created_timestamp );
     },
+    
+    removeVotoPartecipante: function(data){      
+      clearErrors();
+      var self = $(this);
+      $.ajax({
+          url: data.action_url + '&vid=' + data.voto_id,
+          method: 'GET',
+          success: function (data) {
+            self.startVotoPartecipante();
+          },
+          error: function (response, status, xhr) {
+              handelResponseError(response, status, xhr);
+          }
+      });
+    },
 
+    startVotoPartecipante: function(){
+        var stato = $(this).find('.stato-votazione');
+        stato.removeClass( 'voto-anomalo' ).removeClass( 'ha-votato' ).addClass( 'deve-votare' );
+        stato.find('a.mark_invalid').hide(); 
+    },
+    
     startVotoPartecipanti: function(){
-        $('tr.partecipante .stato-votazione', $(this)).each( function(){
-            $(this).addClass( 'deve-votare' )
+        $('tr.partecipante', $(this)).each( function(){
+            $(this).startVotoPartecipante()
         });
+    },
+    
+    resetVotoPartecipante: function(){        
+        var stato = $(this).find('.stato-votazione');
+        stato.removeClass( 'ha-votato' ).removeClass( 'deve-votare' ).removeClass( 'voto-anomalo' );
+        stato.find('a.mark_invalid').hide();        
     },
 
     resetVotoPartecipanti: function(){
-        $('tr.partecipante .stato-votazione', $(this)).each( function(){
-            $(this).removeClass( 'ha-votato' ).removeClass( 'deve-votare' ).removeClass( 'voto-anomalo' );
-            $(this).find('a.mark_invalid').hide();
+        $('tr.partecipante', $(this)).each( function(){
+            $(this).resetVotoPartecipante();
         });
     },
 

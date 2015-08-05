@@ -661,6 +661,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     public function checkAccess( $userId )
     {        
+        if ( !in_array( $userId, $this->partecipanti( false ) ) )
+        {
+            throw new Exception( 'Politico non abilitato a presiedere in questa seduta' );
+        }
+        
         //check $userId: se non è un politico viene sollevata eccezione
         try
         {

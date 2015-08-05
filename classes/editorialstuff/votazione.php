@@ -210,7 +210,7 @@ class Votazione extends OCEditorialStuffPost
             $userId = eZUser::currentUserID();
         }
         $seduta = $this->getSeduta();
-        $this->checkAccess( $userId );        
+        $this->checkAccess( $seduta, $userId );        
         $voto = OpenPAConsiglioVoto::create( $seduta, $this, $value, $userId );
         $voto->store();
         OpenPAConsiglioPushNotifier::instance()->emit(
@@ -229,11 +229,21 @@ class Votazione extends OCEditorialStuffPost
         return OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $sedutaId );
     }
 
-    public function checkAccess( $userId )
+    public function checkAccess( $seduta, $userId )
     {
+        if ( !$seduta instanceof Seduta )
+        {
+            throw new Exception( 'Seduta non trovata' );
+        }
+        
+        if ( !in_array( $userId, $seduta->partecipanti( false ) ) )
+        {
+            throw new Exception( 'Politico non abilitato a votare in questa seduta' );
+        }
+        
         //check $userId: se non è un politico viene sollevata eccezione
         try
-        {
+        {            
             OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId( $userId );
         }
         catch( Exception $e )
