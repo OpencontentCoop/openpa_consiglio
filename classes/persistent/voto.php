@@ -87,6 +87,11 @@ class OpenPAConsiglioVoto extends eZPersistentObject
         );
     }
 
+    /**
+     * @param $id
+     *
+     * @return OpenPAConsiglioVoto
+     */
     static function fetch( $id )
     {
         return eZPersistentObject::fetchObject(
@@ -136,8 +141,8 @@ class OpenPAConsiglioVoto extends eZPersistentObject
         {
             throw new Exception( "Valore del voto ($value) non valido" );
         }
-        $presenza = OpenPAConsiglioPresenza::getUserInOutInSeduta( $seduta, $userId, true );
-        $anomaly =  $presenza->attribute( 'in_out' ) == false;
+        $presenza = OpenPAConsiglioPresenza::getUserInOutInSeduta( $seduta, $userId );
+        $anomaly =  $presenza->attribute( 'is_in' ) == false;
 
         $row['value'] = (string) $value;
         $row['created_time'] = $createdTime;
@@ -213,6 +218,7 @@ class OpenPAConsiglioVoto extends eZPersistentObject
             {
                 $dateTime = DateTime::createFromFormat( 'U', $this->attribute( $identifier ) );
                 $data[$identifier] = $dateTime->format( Seduta::DATE_FORMAT );
+                $data[$identifier . 'stamp'] = $this->attribute( $identifier );
             }
             elseif( in_array( $identifier, array( 'id', 'user_id', 'seduta_id', 'votazione_id' ) ) )
             {

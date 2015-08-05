@@ -29,6 +29,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $attributes[] = 'votazioni';
         $attributes[] = 'verbale';
         $attributes[] = 'protocollo';
+        $attributes[] = 'current_punto';
 
         return $attributes;
     }
@@ -93,6 +94,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         if ( $property == 'protocollo' )
         {
             return $this->protocollo();
+        }
+
+        if ( $property == 'current_punto' )
+        {
+            return $this->getPuntoInProgress();
         }
 
         return parent::attribute( $property );
@@ -609,16 +615,26 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             'total' => 0,
             'in' => 0,
             'out' => 0,
-            'hash_user_id' => array()
+            'hash_user_id' => array(),
+            'hash_user_id_presenza' => array()
         );
         $partecipanti = $this->partecipanti();
         $data['total'] = count( $partecipanti );
         foreach ( $partecipanti as $partecipante )
         {
-            //@todo gestire anomalie
-            $presente = OpenPAConsiglioPresenza::getUserInOutInSeduta( $this, $partecipante->id() );
+            $presenza = OpenPAConsiglioPresenza::getUserInOutInSeduta( $this, $partecipante->id() );
+            if ( $presenza instanceof OpenPAConsiglioPresenza )
+            {
+                $presente = $presenza->attribute( 'is_in' );
+            }
+            else
+            {
+                $presente = false;
+                $presenza = new OpenPAConsiglioPresenza( array() );
+            }
             $data['hash_user_id'][$partecipante->id()] = $presente;
-            if ( $presente )
+            $data['hash_user_id_presenza'][$partecipante->id()] = $presenza;
+            if (  $presente )
             {
                 $data['in']++;
             }
@@ -702,8 +718,22 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 }
             }
         }
+        return null;
+    }
 
-        return false;
+    public function getVotazioneInProgress()
+    {
+        if ( $this->currentState()->attribute( 'identifier' ) == 'in_progress' )
+        {
+            foreach ( $this->votazioni() as $votazione )
+            {
+                if ( $votazione->currentState()->attribute( 'identifier' ) == 'in_progress' )
+                {
+                    return $votazione;
+                }
+            }
+        }
+        return null;
     }
 
     public function start()

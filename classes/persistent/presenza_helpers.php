@@ -140,7 +140,7 @@ class OpenPAConsiglioPresenzaTimelineCollection
 
     protected function openValue( OpenPAConsiglioPresenza $presenza )
     {
-        if ( $this->current === null && $presenza->attribute( 'in_out' ) == 1 )
+        if ( $this->current === null && $presenza->attribute( 'is_in' ) )
         {
             $createdTime = $presenza->attribute( 'created_time' );
             $this->current = new OpenPAConsiglioPresenzaTimelineValue();
@@ -157,7 +157,7 @@ class OpenPAConsiglioPresenzaTimelineCollection
             $this->current->set( 'to', time() );
             $this->current = null;
         }
-        elseif ( $this->current instanceof OpenPAConsiglioPresenzaTimelineValue && $presenza->attribute( 'in_out' ) == 0 )
+        elseif ( $this->current instanceof OpenPAConsiglioPresenzaTimelineValue && $presenza->attribute( 'is_in' ) )
         {
             $createdTime = $presenza->attribute( 'created_time' );
             $this->current->set( 'to', (int) $createdTime );
@@ -247,6 +247,7 @@ class OpenPAConsiglioPresenzaTimelineDetectionCollection
         $value->label = $presenza->attribute( 'type' );
         $value->id = $presenza->attribute( 'id' );
         $value->in_out = $presenza->attribute( 'in_out' );
+        $value->is_in = $presenza->attribute( 'is_in' );
         $this->values[] = $value;
     }
 }

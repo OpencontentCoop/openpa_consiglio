@@ -1,0 +1,173 @@
+body, html {
+    margin: 0;
+    overflow: hidden;
+    height: 100%;
+}
+
+#page{
+    display: block;
+    height: 100%;
+    padding: 0;
+}
+
+.container-fluid{
+    height: 100%;
+}
+
+#alert_area{
+    position: relative;
+}
+#timer{
+    font-size: 2em;
+    right: 50px;
+    top: 15px;
+    position: absolute;
+    z-index: 10;
+}
+
+#loading{
+    position: absolute;
+    right: 10px;
+    top:10px;
+    z-index: 10;
+}
+
+h1.title {
+    font-size: 1.5em;
+    margin: 0;
+    text-align: left;
+    text-transform: none;
+    font-weight: bold;
+    background: #fff;
+    padding: 5px;
+}
+
+#top {
+    position: fixed;
+    width: 100%;
+    z-index: 2;
+    height: 30px;
+    font-size: 1.2em;
+    background: #fff;
+}
+
+#top > div {
+    line-height: 30px;
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+#body {
+    margin-top: 100px;
+    z-index: 1;
+    height: 100%;
+}
+
+#odg-col {
+    height: 92%;
+    overflow-y: scroll;
+}
+
+#verbale-col {
+    height: 92%;
+    overflow-y: scroll;
+}
+
+#votazioni-col {
+    height: 92%;
+    overflow-y: scroll;
+}
+
+#presenze-col {
+    height: 92%;
+    overflow-y: scroll;
+}
+
+.no-padding {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.no-padding h2 {
+    padding: 0 20px;
+}
+
+.blurred .foto,
+.blurred .nome {
+    opacity: .3;
+}
+
+.totale-partecipanti {
+    padding: 5px;
+    background: #333;
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+}
+
+.partecipante {
+
+}
+
+table tr.partecipante td {
+    padding: 3px;
+}
+
+.partecipante .stato-presenza {
+    width: 20px;
+    text-align: center;
+}
+
+.partecipante .stato-presenza .text-muted {
+    opacity: .3;
+}
+
+.partecipante .stato-presenza .text-success {
+    opacity: 1 !important;
+}
+
+.partecipante .stato-votazione {
+    width: 20px;
+    text-align: center;
+    line-height: 60px;
+}
+
+.partecipante .deve-votare{
+    background: #d9534f !important;
+}
+
+.partecipante .ha-votato{
+    background: #5cb85c !important;
+}
+
+.partecipante .voto-anomalo{
+    background: #f0ad4e !important;
+}
+
+.partecipante .foto {
+    width: 60px;
+}
+
+.partecipante .foto span {
+    display: block;
+    height: 60px;
+    width: 60px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.partecipante .nome {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-height: 60px;
+    max-width: 0;
+}
+
+.partecipante .actions {
+    line-height: 60px;
+    white-space: nowrap;
+    width: 60px;
+}

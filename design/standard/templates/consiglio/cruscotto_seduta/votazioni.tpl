@@ -1,49 +1,43 @@
-<div class="widget_title">
-    <h3>Votazioni</h3>
+<div class="list-group">
+    {foreach $post.votazioni as $votazione}
+        <div class="list-group-item{if $votazione.current_state.identifier|eq('in_progress')} list-group-item-danger{elseif $votazione.current_state.identifier|eq('closed')} list-group-item-info{/if}">
+
+            <a href="#"
+               data-toggle="modal"
+               data-target="#risultatiVotazioneTemplate"
+               data-modal_configuration="infoVotazione"
+               data-load_url="{concat('consiglio/data/votazione/',$votazione.object_id,'/parts:risultato_votazione')|ezurl(no)}">
+                <b>{*$votazione.object.id|wash()*}{$votazione.object.name|wash()}</b>
+                <small>{if $votazione.object.data_map.punto.has_content}{$votazione.object.data_map.punto.content.name|wash()}{else}seduta{/if}</small>
+            </a>
+
+            {if $votazione.current_state.identifier|eq('closed')}
+                <button class="btn btn-sm btn-block btn-info"
+                        data-toggle="modal"
+                        data-target="#risultatiVotazioneTemplate"
+                        data-modal_configuration="risultatiVotazione"
+                        data-load_url="{concat('consiglio/data/votazione/',$votazione.object_id,'/parts:risultato_votazione')|ezurl(no)}">
+                    Risultati
+                </button>
+            {elseif $votazione.current_state.identifier|eq('pending')}
+                <button class="btn btn-sm btn-block btn-warning start_votazione"
+                        data-add_to_verbale="Inizio votazione {$votazione.object.name|wash()}"
+                        data-verbale="{if $votazione.object.data_map.punto.has_content}{$votazione.object.data_map.punto.content.id}{else}{$post.object_id}{/if}"
+                        data-votazione="{$votazione.object_id}"
+                        data-action_url="{concat('consiglio/cruscotto_seduta/',$post.object_id,'/startVotazione')|ezurl(no)}">
+                    Apri votazione
+                </button>
+            {elseif $votazione.current_state.identifier|eq('in_progress')}
+                <button class="stopVotazione btn btn-sm btn-block btn-danger stop_votazione"
+                        data-add_to_verbale="Fine votazione {$votazione.object.name|wash()}"
+                        data-verbale="{if $votazione.object.data_map.punto.has_content}{$votazione.object.data_map.punto.content.id}{else}{$post.object_id}{/if}"
+                        data-votazione="{$votazione.object_id}"
+                        data-action_url="{concat('consiglio/cruscotto_seduta/',$$post.object_id,'/stopVotazione')|ezurl(no)}">
+                    Chiudi votazione
+                </button>
+            {/if}
+            <br/>
+        </div>
+    {/foreach}
 </div>
 
-<a id="seduta_startstop_button" class="btn btn-danger btn-sm btn-block"
-   data-toggle="modal"
-   data-action="creaVotazione"
-   data-target="#creaVotazioneTemplate">
-	<i class="fa fa-plus"></i> Crea votazione
-</a>
-
-<div class="widget_content">
-    <ul class="side_menu">
-        {foreach $post.votazioni as $votazione}
-            <li>
-                <a href="#">
-                    <b>{*$votazione.object.id|wash()*}{$votazione.object.name|wash()}</b>
-                    <small>{if $votazione.object.data_map.punto.has_content}{$votazione.object.data_map.punto.content.name|wash()}{else}seduta{/if}</small>
-                </a>
-                {if $votazione.current_state.identifier|eq('closed')}
-                    <button class="btn btn-md btn-block btn-info"
-                            data-toggle="modal"
-                            data-votazione_title="{$votazione.object.name|wash()}"
-                            data-votazione="{$votazione.object_id}"
-                            data-action="risultatiVotazione"
-                            data-target="#risultatiVotazioneTemplate">
-                        Risultati
-                    </button>
-                {elseif $votazione.current_state.identifier|eq('pending')}
-                    <button class="btn btn-md btn-block btn-warning"
-                            data-toggle="modal"
-                            data-votazione_title="{$votazione.object.name|wash()}"
-                            data-votazione="{$votazione.object_id}"
-                            data-action="startVotazione"
-                            data-target="#startVotazioneTemplate">
-                        Apri votazione
-                    </button>
-				{elseif $votazione.current_state.identifier|eq('in_progress')}
-                    <button class="stopVotazione btn btn-md btn-block btn-danger"
-							data-votazione="{$votazione.object_id}"
-							data-action="stopVotazione">
-                        Chiudi votazione
-                    </button>
-                {/if}
-                <br/>
-            </li>
-        {/foreach}
-    </ul>
-</div>
