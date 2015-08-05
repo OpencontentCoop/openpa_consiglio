@@ -291,12 +291,11 @@ class ConsiglioApiController extends ezpRestMvcController
     {
         $result = new ezpRestMvcResult();
         $punto = OCEditorialStuffHandler::instance( 'punto' )->fetchByObjectId( $this->Id );
-
-//        foreach( $punto->attribute( 'osservazioni' ) as $osservazione )
-//        {
-//            /** @var Osservazione $osservazione */
-//            $result->variables[] = $osservazione->jsonSerialize();
-//        }
+        foreach( $punto->attribute( 'osservazioni' ) as $osservazione )
+        {
+            /** @var Osservazione $osservazione */
+            $result->variables[] = $osservazione->jsonSerialize();
+        }
         return $result;
     }
 
