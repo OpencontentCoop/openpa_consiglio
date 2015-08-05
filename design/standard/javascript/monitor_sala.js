@@ -11,15 +11,11 @@ socket.on('connect', function () {
 socket.on('presenze', function (data) {
     if (data.seduta_id == CurrentSedutaId) {
         var inOutClass = data.in_out ? 'btn-success' : 'btn-danger';
-        var opacity = data.has_checkin ? 1 : 0.4;
+        var opacity = data.is_in ? 1 : 0.4;
         var user = $('#presenze').find('.user-' + data.user_id);
         user.find('.name').css({'opacity': opacity});
         user.find('.type').removeClass('btn-success').removeClass('btn-danger').hide();
-        if (data.in_out == false && data.type == 'checkin') {
-            //code
-        }else{
-            user.find('.'+data.type).addClass(inOutClass).show();
-        }
+        user.find('.'+data.type).addClass(inOutClass).show();
     }
 });
 

@@ -35,7 +35,14 @@
 	  </div>
 	  <div class="col col-md-9 text-center">
 		<h1 class="text-center">
-		  <strong>{$seduta.object.name|wash()}</strong><br /><small>Seduta non in corso</small>
+		  <strong>{$seduta.object.name|wash()}</strong><br />
+            <small>
+                {if $seduta.current_state.identifier|eq('in_progress')}
+                    Seduta in corso
+                {else}
+                    Seduta non in corso
+                {/if}
+            </small>
 		</h1>
 	  </div>        
     </div>

@@ -298,22 +298,6 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 }
             }
         }
-
-        if ( $afterState->attribute( 'identifier' ) == 'in_progress' )
-        {
-            OpenPAConsiglioPushNotifier::instance()->emit(
-                'start_seduta',
-                $this->jsonSerialize()
-            );
-        }
-
-        if ( $afterState->attribute( 'identifier' ) == 'closed' )
-        {            
-            OpenPAConsiglioPushNotifier::instance()->emit(
-                'stop_seduta',
-                $this->jsonSerialize()
-            );
-        }
     }
 
     /**
@@ -739,6 +723,10 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     public function start()
     {
         $this->setState( 'seduta.in_progress' );
+        OpenPAConsiglioPushNotifier::instance()->emit(
+            'start_seduta',
+            $this->jsonSerialize()
+        );
     }
 
     public function stop()
@@ -766,6 +754,10 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             $this->dataMap['orario_conclusione_effettivo']->store();
         }
         $this->setState( 'seduta.closed' );
+        OpenPAConsiglioPushNotifier::instance()->emit(
+            'stop_seduta',
+            $this->jsonSerialize()
+        );
     }
 
     /**
