@@ -110,6 +110,7 @@ PersistentVariable[top_menu]=false
 
 [invitato]
 ClassIdentifier=invitato
+ClassName=InvitatoFactory
 CreationButtonText=Crea nuovo invitato
 AttributeIdentifiers[]
 CreationRepositoryNode=1183
@@ -131,6 +132,7 @@ PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 
 [politico]
 ClassIdentifier=politico
+ClassName=PoliticoFactory
 CreationButtonText=Crea nuovo politico
 CreationRepositoryNode=668
 RepositoryNodes[]=668
@@ -140,6 +142,7 @@ PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 
 [tecnico]
 ClassIdentifier=tecnico
+ClassName=TecnicoFactory
 CreationButtonText=Crea nuovo tecnico
 CreationRepositoryNode=1168
 RepositoryNodes[]=1168

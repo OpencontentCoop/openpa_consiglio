@@ -4,12 +4,14 @@
     <div class="row">
 
         {if $post.object.can_edit}
-            <div class="col-xs-6 col-md-2">
+            <div class="col-xs-6 col-md-4">
                 <form method="post" action="{"content/action"|ezurl(no)}" style="display: inline;">
                     <input type="hidden" name="ContentObjectLanguageCode"
                            value="{ezini( 'RegionalSettings', 'ContentObjectLocale', 'site.ini')}"/>
-                    <button class="btn btn-info btn-lg" type="submit" name="EditButton">Modifica
-                    </button>
+					<div class="row">
+	                    <button class="btn btn-info btn-lg" type="submit" name="EditButton">Modifica</button>
+		                <button class="btn btn-danger btn-lg" type="submit" name="ActionRemove">Rimuovi</button>
+					</div>
                     <input type="hidden" name="HasMainAssignment" value="1"/>
                     <input type="hidden" name="ContentObjectID" value="{$post.object.id}"/>
                     <input type="hidden" name="NodeID" value="{$post.node.node_id}"/>

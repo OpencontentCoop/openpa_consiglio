@@ -32,12 +32,16 @@ class ConsiglioApiController extends ezpRestMvcController
         );
         $sedute = OCEditorialStuffHandler::instance( 'seduta' )->fetchItems( $parameters );
         $result = new ezpRestMvcResult();
+        /** @var Seduta $seduta */
         foreach( $sedute as $seduta )
         {
-            $seduta = $seduta->jsonSerialize();
-            if ( $seduta )
+            if ($seduta->isVisibleByApp())
             {
-                $result->variables[] = $seduta;
+                $seduta = $seduta->jsonSerialize();
+                if ( $seduta )
+                {
+                    $result->variables[] = $seduta;
+                }
             }
         }
         return $result;
@@ -81,12 +85,16 @@ class ConsiglioApiController extends ezpRestMvcController
         $result = new ezpRestMvcResult();
         /** @var Punto[] $odg */
         $odg = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id )->attribute( 'odg' );
+        /** @var Punto $punto */
         foreach( $odg as $punto )
         {
-            $validPunto = $punto->jsonSerialize();
-            if ( $validPunto )
+            if ( $punto->isVisibleByApp() )
             {
-                $result->variables[] = $validPunto;
+                $validPunto = $punto->jsonSerialize();
+                if ( $validPunto )
+                {
+                    $result->variables[] = $validPunto;
+                }
             }
         }
         return $result;
@@ -345,4 +353,21 @@ class ConsiglioApiController extends ezpRestMvcController
         }
     }
 
+    public function doLoadUtente()
+    {
+        $result = new ezpRestMvcResult();
+        $object = eZContentObject::fetch( $this->Id );
+
+        if ( $object instanceof eZContentObject )
+        {
+
+            $istances = OCEditorialStuffHandler::instances();
+            if (array_key_exists($object->attribute( 'class_identifier' ), $istances))
+            {
+                $user = OCEditorialStuffHandler::instance( $object->attribute( 'class_identifier' ) )->fetchByObjectId( $this->Id );
+                $result->variables = $user->jsonSerialize();
+            }
+        }
+        return $result;
+    }
 }

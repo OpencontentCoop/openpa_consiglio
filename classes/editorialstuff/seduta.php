@@ -109,9 +109,9 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
      */
     public function indexFromTime()
     {
-        return ezfSolrDocumentFieldBase::preProcessValue( $this->dataOra(), 'date' );                
+        return ezfSolrDocumentFieldBase::preProcessValue( $this->dataOra(), 'date' );
     }
-    
+
     protected function createUpdateConvocazione()
     {
         return ConvocazioneSeduta::create( $this->getObject() );
@@ -347,7 +347,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             if ( isset( $this->dataMap['orario_conclusione'] ) && $this->dataMap['orario_conclusione']->hasContent() )
             {
                 $ora = $this->dataMap['orario_conclusione']->content();
-    
+
                 $dateTime = new DateTime();
                 $dateTime->setTimestamp( $data->attribute( 'timestamp' ) );
                 $dateTime->setTime( $ora->attribute( 'hour' ), $ora->attribute( 'minute' ) );
@@ -378,13 +378,13 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
      * @return Punto[]
      */
     public function odg()
-    {        
+    {
         $factory = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $this->id() ) )->getFactory();
         $attributeID = eZContentObjectTreeNode::classAttributeIDByIdentifier( 'punto/seduta_di_riferimento' );
         $params = array(
             'AllRelations' => eZContentFunctionCollection::contentobjectRelationTypeMask( array( 'attribute' ) ),
             'AsObject' => true
-        );        
+        );
         $reverseObjects = $this->getObject()->reverseRelatedObjectList( false, $attributeID, false, $params );
         $items = array();
         foreach( $reverseObjects as $object )
@@ -395,7 +395,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             {
                 $timestamp = $orario->attribute( 'time_of_day' );
             }
-            $items[$timestamp] = new Punto( array( 'object_id' => $object->attribute( 'id' ) ), $factory );
+            $items[$timestamp][] = new Punto( array( 'object_id' => $object->attribute( 'id' ) ), $factory );
         }
         //$sedutaId = $this->object->attribute( 'id' );
         //$items = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $sedutaId ) )
@@ -410,7 +410,38 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
         //eZDebug::writeNotice( var_export( OCEditorialStuffHandler::getLastFetchData(), 1 ), __METHOD__ );
         ksort( $items );
-        return array_values( $items );
+        $odg = array();
+        foreach ($items as $i) {
+            $odg = array_merge($odg, $i);
+        }
+        return $odg;
+    }
+
+    /**
+     * @return Timestamps[]
+     */
+    public function odgTimes()
+    {
+        $factory = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $this->id() ) )->getFactory();
+        $attributeID = eZContentObjectTreeNode::classAttributeIDByIdentifier( 'punto/seduta_di_riferimento' );
+        $params = array(
+            'AllRelations' => eZContentFunctionCollection::contentobjectRelationTypeMask( array( 'attribute' ) ),
+            'AsObject' => true
+        );
+        $reverseObjects = $this->getObject()->reverseRelatedObjectList( false, $attributeID, false, $params );
+        $items = array();
+        foreach( $reverseObjects as $object )
+        {
+            $dataMap = $object->attribute( 'data_map' );
+            $orario = $dataMap['orario_trattazione']->content();
+            if ( $orario instanceof eZTime )
+            {
+                $timestamp = $orario->attribute( 'timestamp' );
+            }
+            $items[] = $timestamp;
+        }
+        asort( $items );
+        return ( $items );
     }
 
     public function odgSerialized()
@@ -659,13 +690,28 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         return $presenza;
     }
 
+    /**
+     * Checks if the object is visible by App
+     * @return bool
+     */
+
+    public function isVisibleByApp()
+    {
+        $notVisibleStates = array('draft', 'pending', 'published');
+        if (in_array($this->currentState()->attribute( 'identifier' ), $notVisibleStates))
+            return false;
+        else
+            return true;
+    }
+
+
     public function checkAccess( $userId )
-    {        
+    {
         if ( !in_array( $userId, $this->partecipanti( false ) ) )
         {
             throw new Exception( 'Politico non abilitato a presiedere in questa seduta' );
         }
-        
+
         //check $userId: se non è un politico viene sollevata eccezione
         try
         {
@@ -737,31 +783,41 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     public function stop()
     {
         $registroPresenze = $this->registroPresenze();
-        $presenti = array();            
+        $presenti = array();
         foreach( $registroPresenze['hash_user_id'] as $userId => $bool )
-        {                
+        {
             if ( $bool )
             {
                 $presenti[] = $userId; // salvo i presenti
             }
-            $this->addPresenza( 0, 'checkin', $userId ); //eseguo il checkout 
+            $this->addPresenza( 0, 'checkin', $userId ); //eseguo il checkout
         }
         eZLog::write( var_export( $presenti, 1 ), 'runtime.log' );
+
         if ( isset( $this->dataMap['presenti'] ) )
         {
+
             $this->dataMap['presenti']->fromString( implode( '-', $presenti ) );
             $this->dataMap['presenti']->store();
+
         }
+
         if ( isset( $this->dataMap['orario_conclusione_effettivo'] ) )
         {
             $now = time();
             $this->dataMap['orario_conclusione_effettivo']->fromString( $now );
             $this->dataMap['orario_conclusione_effettivo']->store();
         }
+
         $this->setState( 'seduta.closed' );
+
+        // Imposto lo stato manualmente a closed per un ritardo sulla transazione del db provocata dallo store del datamap
+        $fakeSerialize = $this->jsonSerialize();
+        $fakeSerialize['stato'] = 'closed';
+
         OpenPAConsiglioPushNotifier::instance()->emit(
             'stop_seduta',
-            $this->jsonSerialize()
+            $fakeSerialize
         );
     }
 

@@ -502,6 +502,34 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                         $parentNode->attribute( 'contentobject_id' )
                     );
                     $dataMap['seduta_di_riferimento']->store();
+
+                    /*
+                    // Verifico che non ci sia un punto nella seduta alla stessa ora, se si aumento l'orario di un minuto fino a trovare un orario libero
+                    // TODO: Sostituire con validazione e messaggio all'utente?
+                    $seduta = OCEditorialStuffHandler::instance( $parentNode->attribute( 'class_identifier' ) )->fetchByObjectId( $parentNode->ContentObjectID );
+                    $odgTimes = $seduta->odgTimes();
+
+                    $locale = eZLocale::instance();
+                    $orario = $dataMap['orario_trattazione']->content();
+                    $timestamp = '';
+                    if ( $orario instanceof eZTime )
+                    {
+                        $timestamp = $orario->attribute( 'timestamp' );
+                    }
+
+                    $saved = false;
+                    do {
+                        if (in_array( $timestamp, $odgTimes ))
+                        {
+                            $timestamp += 60;
+                        } else {
+                            $dataMap['orario_trattazione']->fromString( $locale->formatShortTime( $timestamp ));
+                            $dataMap['orario_trattazione']->store();
+                            $saved = true;
+                        }
+                    }
+                    while (!$saved);
+                    */
                 }
             }
         }
@@ -1217,6 +1245,20 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         }
 
         return $string;
+    }
+
+    /**
+     * Checks if the object is visible by App
+     * @return bool
+     */
+
+    public function isVisibleByApp()
+    {
+        $notVisibleStates = array('draft');
+        if (in_array($this->currentState()->attribute( 'identifier' ), $notVisibleStates))
+            return false;
+        else
+            return true;
     }
 
     /**
