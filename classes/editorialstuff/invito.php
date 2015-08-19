@@ -35,10 +35,11 @@ class Invito extends OCEditorialStuffPost
      * @return eZContentObject
      * @throws Exception
      */
-    public static function create( eZContentObject $puntoOdg, eZContentObject $invitato )
+    public static function create( eZContentObject $puntoOdg, eZContentObject $invitato, $ora = false )
     {
         $remoteId = self::generateRemoteId( $puntoOdg, $invitato );
         $invito = eZContentObject::fetchByRemoteID( $remoteId );
+
         if ( !$invito instanceof eZContentObject )
         {
             $invito = eZContentFunctions::createAndPublishObject( array(

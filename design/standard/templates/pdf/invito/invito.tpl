@@ -13,11 +13,13 @@
 <div id="content" style="line-height: {$line_height}em;">
     <p>
         <i>Trento, {$data|datetime( 'custom', '%j %F %Y' )}</i><br />
-        <i>Prot. n. {$protocollo}</i>
+        {if $protocollo}<i>Prot. n. {$protocollo}</i>{/if}
     </p>
 
     <div id="destinatari">
-        <p>{$invitato}{if $ruolo}<br />{$ruolo}{/if}{if $indirizzo}<br />{$indirizzo}{/if}</p>
+        <p>{if eq($sesso, 'Maschio')}Egregio Signor{else}Gent.ma> Signora{/if}</p>
+        <p>{$invitato}{if $ruolo}<br />{$ruolo}{/if}</p>
+        <p>{if $indirizzo}{$indirizzo}{/if}</p>
     </div>
 
     <p id="oggetto">OGGETTO: convocazione seduta
@@ -28,8 +30,8 @@
         ,</p>
 
     <p id="data_luogo" style="text-align: center">
-        <strong>{$data_seduta|datetime( 'custom', '%l %j %F %Y, alle ore %H:%i' )}</strong>
-        <br />presso la sede<br />
+        <strong>{$data_seduta|datetime( 'custom', '%l %j %F %Y alle ore %H:%i' )|downcase()}</strong>
+        <br />presso<br />
         {if $luogo}{$luogo}{else}Sala Consiglio - Via Torre Verde, 23 - TRENTO{/if}
     </p>
 

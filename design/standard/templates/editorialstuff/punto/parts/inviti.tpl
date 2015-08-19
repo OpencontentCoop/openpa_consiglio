@@ -17,12 +17,21 @@
                         <div class="col-sm-10">
                             <select class="form-control" name="ActionParameters[invitato]" id="invitato">
                                 <option></option>
-                                {foreach fetch( 'editorialstuff', 'posts', hash( 'factory_identifier', 'invitato', 'limit', 100, sort_by, hash( 'invitato/cognome', 'asc' )  ) ) as $invitato}
+                                {foreach fetch( 'editorialstuff', 'posts', hash( 'factory_identifier', 'invitato', 'limit', 100, sort_by, array( 'name', asc() ) ) ) as $invitato}
                                     <option value="{$invitato.object_id}">{$invitato.object.data_map.cognome.content|wash} {$invitato.object.data_map.nome.content|wash}</option>
                                 {/foreach}
                             </select>
                         </div>
                     </div>
+
+                    {*
+                    <div class="form-group">
+                        <label for="Ora" class="col-sm-2 control-label">Ora (hh:mm)</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="ActionParameters[ora]" id="ora" value="{$post.object.data_map.orario_trattazione.content.timestamp|datetime( 'custom', '%H:%i' )}">
+                        </div>
+                    </div>
+                    *}
 
                     <div class="clearfix">
                         <input type="hidden" name="ActionIdentifier" value="AddInvitato" />

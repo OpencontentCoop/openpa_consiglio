@@ -73,9 +73,10 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
             $variables = array(
                 'line_height' => isset( $getParameters['line_height'] ) ? $getParameters['line_height'] : 1.2,
                 'data' => $currentPost->getObject()->attribute( 'published' ),
+                'sesso' => $userDataMap['sesso']->toString(),
                 'invitato' => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content() . ' ' . $userDataMap['cognome']->content(),
-                'ruolo' => $userDataMap['ruolo']->content(),
-                'indirizzo' => isset( $userDataMap['indirizzo'] ) ? $userDataMap['indirizzo']->content() : '',
+                'ruolo' => nl2br($userDataMap['ruolo']->content()),
+                'indirizzo' => isset( $userDataMap['indirizzo'] ) ? nl2br($userDataMap['indirizzo']->content()) : '',
                 'luogo' => isset( $sedutaDataMap['luogo'] ) ? $sedutaDataMap['luogo']->content() : '',
                 'organo' => $organo instanceof eZContentObject ? $organo->attribute( 'name' ) : '',
                 'data_seduta' => ( $seduta instanceof Seduta ) ? $seduta->dataOra() : null,

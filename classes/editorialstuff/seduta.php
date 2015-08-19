@@ -879,33 +879,36 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 $tpl->setVariable( 'line_height', '1.2' );
                 $tpl->setVariable( 'seduta', $this );
                 $tpl->setVariable( 'politico', $politico );
+                $politicoDataMap = $politico->dataMap();
+                $tpl->setVariable( 'sesso', $politicoDataMap['sesso']->toString());
                 $competenza = $this->stringRelatedObjectAttribute( 'organo', 'name' );
 
                 $tpl->setVariable( 'organo', $competenza );
 
-                if ( isset( $this->dataMap['firmatario'] ) && $this->dataMap['firmatario']->hasContent() )
+                if ( $this->dataMap['segretario_verbalizzante']->hasContent() )
                 {
-                    $listFirmatario = $this->dataMap['firmatario']->content();
-                    if ( isset( $listFirmatario['relation_list'][0]['contentobject_id'] ) )
+                    $listSegretario = $this->dataMap['segretario_verbalizzante']->content();
+                    if ( isset( $listSegretario['relation_list'][0]['contentobject_id'] ) )
                     {
-                        $firmatario = eZContentObject::fetch(
-                            $listFirmatario['relation_list'][0]['contentobject_id']
+                        $segretario = eZContentObject::fetch(
+                            $listSegretario['relation_list'][0]['contentobject_id']
                         );
-                        /** @var eZContentObjectAttribute[] $firmatarioDataMap */
-                        $firmatarioDataMap = $firmatario->dataMap();
+                        /** @var eZContentObjectAttribute[] $segretarioDataMap */
+                        $segretarioDataMap = $segretario->dataMap();
 
-                        $tpl->setVariable( 'firmatario', $firmatario->attribute( 'name' ) );
-                        if ( $firmatarioDataMap['firma']->hasContent()
-                             && $firmatarioDataMap['firma']->attribute( 'data_type_string' ) == 'ezimage' )
+                        $tpl->setVariable( 'segretario', $segretario->attribute( 'name' ) );
+
+                        if ( $segretarioDataMap['firma']->hasContent()
+                             && $segretarioDataMap['firma']->attribute( 'data_type_string' ) == 'ezimage' )
                         {
-                            $image = $firmatarioDataMap['firma']->content()->attribute( 'original' );
+                            $image = $segretarioDataMap['firma']->content()->attribute( 'original' );
                             $url = $image['url'];
                             eZURI::transformURI( $url, false, 'full' );
                             $tpl->setVariable( 'firma', $url );
                         }
+
                     }
                 }
-
 
                 $content = $tpl->fetch( 'design:pdf/presenza/presenza.tpl' );
 
