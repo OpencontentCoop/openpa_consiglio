@@ -153,6 +153,8 @@ class Allegato extends OCEditorialStuffPost
             'data_pubblicazione' => DateTime::createFromFormat( 'U', $this->getObject()->attribute( 'published' ) )->format( self::DATE_FORMAT ),
             'data_ultima_modifica' => DateTime::createFromFormat( 'U', $this->getObject()->attribute( 'modified' ) )->format( self::DATE_FORMAT ),
             'visibilita' => $this->currentState()->attribute( 'identifier' ),
+            'title'      => $this->dataMap['name']->content(),
+            'type'       => $this->dataMap['tipo']->toString(),
             'file_name' => null,
             'file_mime_type' => null,
             'file_size' => null,

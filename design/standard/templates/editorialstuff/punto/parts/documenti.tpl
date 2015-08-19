@@ -37,7 +37,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="DocState" class="col-sm-2 control-label">Visibilità</label>
+                        <label for="DocState" class="col-sm-2 control-label">Visibilit&agrave;</label>
                         <div class="col-sm-10">
                             <select class="form-control" name="FileProperties[state_identifier]" id="DocState">
                                 <option value="visibilita_allegato_seduta.consiglieri">Consiglieri</option>

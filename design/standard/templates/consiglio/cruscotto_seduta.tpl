@@ -77,13 +77,13 @@
     <div id="votazioni-col" class="col-md-2">
         <h2 class="visible-xs visible-sm">
             Votazioni
-            <a class="btn btn-warning btn-xs"
-               data-toggle="modal"
-               data-target="#creaVotazioneTemplate"
-               data-modal_configuration="creaVotazione"
-               data-action_url="{concat('consiglio/cruscotto_seduta/',$seduta.object_id,'/creaVotazione')|ezurl(no)}">
-                <i class="fa fa-plus"></i> Crea
-            </a>
+                <a class="btn btn-warning btn-xs"
+                   data-toggle="modal"
+                   data-target="#creaVotazioneTemplate"
+                   data-modal_configuration="creaVotazione"
+                   data-action_url="{concat('consiglio/cruscotto_seduta/',$seduta.object_id,'/creaVotazione')|ezurl(no)}">
+                    <i class="fa fa-plus"></i> Crea
+                </a>
         </h2>
         <div id="votazioni" data-load_url="{concat('consiglio/data/seduta/',$seduta.object_id, '/:consiglio:cruscotto_seduta:votazioni')|ezurl(no)}">
             {include uri="design:consiglio/cruscotto_seduta/votazioni.tpl" post=$seduta}

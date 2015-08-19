@@ -294,12 +294,12 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 'name' => 'Mail di avviso',
                 'template_uri' => "design:{$templatePath}/parts/notifiche.tpl"
             );
+            $tabs[] = array(
+                'identifier' => 'history',
+                'name' => 'Cronologia',
+                'template_uri' => "design:{$templatePath}/parts/history.tpl"
+            );
         }
-        $tabs[] = array(
-            'identifier' => 'history',
-            'name' => 'Cronologia',
-            'template_uri' => "design:{$templatePath}/parts/history.tpl"
-        );
 
         return $tabs;
     }
@@ -502,6 +502,34 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                         $parentNode->attribute( 'contentobject_id' )
                     );
                     $dataMap['seduta_di_riferimento']->store();
+
+                    /*
+                    // Verifico che non ci sia un punto nella seduta alla stessa ora, se si aumento l'orario di un minuto fino a trovare un orario libero
+                    // TODO: Sostituire con validazione e messaggio all'utente?
+                    $seduta = OCEditorialStuffHandler::instance( $parentNode->attribute( 'class_identifier' ) )->fetchByObjectId( $parentNode->ContentObjectID );
+                    $odgTimes = $seduta->odgTimes();
+
+                    $locale = eZLocale::instance();
+                    $orario = $dataMap['orario_trattazione']->content();
+                    $timestamp = '';
+                    if ( $orario instanceof eZTime )
+                    {
+                        $timestamp = $orario->attribute( 'timestamp' );
+                    }
+
+                    $saved = false;
+                    do {
+                        if (in_array( $timestamp, $odgTimes ))
+                        {
+                            $timestamp += 60;
+                        } else {
+                            $dataMap['orario_trattazione']->fromString( $locale->formatShortTime( $timestamp ));
+                            $dataMap['orario_trattazione']->store();
+                            $saved = true;
+                        }
+                    }
+                    while (!$saved);
+                    */
                 }
             }
         }
@@ -780,6 +808,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             $invitatoObject = eZContentObject::fetch( $actionParameters['invitato'] );
             if ( $invitatoObject instanceof eZContentObject )
             {
+                //$ora =  $actionParameters['ora'];
                 $this->addInvitato( $invitatoObject );
             }
         }
@@ -881,7 +910,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
      *
      * @return bool
      */
-    protected function addInvitato( eZContentObject $object )
+    protected function addInvitato( eZContentObject $object, $ora = false )
     {
         try
         {
@@ -893,7 +922,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 if ( isset( $this->dataMap[$attributeIdentifier] ) )
                 {
                     // creo invito
-                    $invito = Invito::create( $this->getObject(), $invitato->getObject() );
+                    $invito = Invito::create( $this->getObject(), $invitato->getObject(), $ora );
 
                     if ( $invito instanceof eZContentObject )
                     {
@@ -1217,6 +1246,20 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         }
 
         return $string;
+    }
+
+    /**
+     * Checks if the object is visible by App
+     * @return bool
+     */
+
+    public function isVisibleByApp()
+    {
+        $notVisibleStates = array('draft');
+        if (in_array($this->currentState()->attribute( 'identifier' ), $notVisibleStates))
+            return false;
+        else
+            return true;
     }
 
     /**

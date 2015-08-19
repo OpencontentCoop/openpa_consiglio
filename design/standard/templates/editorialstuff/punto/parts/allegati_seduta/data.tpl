@@ -11,7 +11,7 @@
                 <th>Titolo</th>
                 <th>Tipo</th>
                 {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
-                <th>Visibilità</th>
+                <th>Visibilit&agrave;</th>
                 {/if}
                 <th>Download</th>
             </tr>
@@ -30,7 +30,10 @@
                         <a href="{concat( 'editorialstuff/edit/allegati_seduta/', $allegato.object.id )|ezurl('no')}" title="Dettaglio" class="btn btn-info btn-xs">Dettaglio</a>
                     </td>
                     <td>
-                        {$allegato.object.name|wash()}
+                        {if $allegato.sostituito}<strike>{/if}
+						{$allegato.object.name|wash()}
+                        {if $allegato.sostituito}</strike>{/if}
+
                         {if $allegato.sostituito}
                             <span class="label label-warning">sostituito</span>
                         {/if}

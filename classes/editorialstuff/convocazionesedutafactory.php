@@ -47,7 +47,7 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
             'protocollo' => $protocollo
         );
 
-        if ( isset( $sedutaDataMap['firmatario'] ) && $sedutaDataMap['firmatario']->hasContent() )
+        if ( $sedutaDataMap['firmatario']->hasContent() )
         {
             $listFirmatario = $sedutaDataMap['firmatario']->content();
             if ( isset( $listFirmatario['relation_list'][0]['contentobject_id'] ) )

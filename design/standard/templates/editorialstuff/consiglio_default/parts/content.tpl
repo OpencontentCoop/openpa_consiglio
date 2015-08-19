@@ -4,8 +4,9 @@
     <div class="row">
 
         {if $post.object.can_edit}
-            <div class="col-xs-6 col-md-2">
+            <div class="col-xs-6 col-md-4">
                 <form method="post" action="{"content/action"|ezurl(no)}" style="display: inline;">
+					<div class="row panel-body">
                     <input type="hidden" name="ContentObjectLanguageCode"
                            value="{ezini( 'RegionalSettings', 'ContentObjectLocale', 'site.ini')}"/>
                     <button class="btn btn-info btn-lg" type="submit" name="EditButton">Modifica
@@ -29,6 +30,13 @@
                            value="{concat('editorialstuff/edit/', $factory_identifier, '/',$post.object.id)}"/>
                     <input type="hidden" name="RedirectURIAfterPublish"
                            value="{concat('editorialstuff/edit/', $factory_identifier, '/',$post.object.id)}"/>
+
+					{if $post.object.can_remove}
+                        <button class="btn btn-danger btn-lg" type="submit" name="ActionRemove">Rimuovi</button>
+                        <input type="hidden" name="RedirectURIAfterRemove"
+                            value="{concat('editorialstuff/dashboard/', $factory_identifier)}" />
+                    {/if}
+                    </div>
                 </form>
             </div>
         {/if}
@@ -78,12 +86,14 @@
     </div>
 
     {foreach $post.content_attributes as $identifier => $attribute}
+		{if $attribute.has_content}
         <div class="row edit-row">
             <div class="col-md-3"><strong>{$attribute.contentclass_attribute_name}</strong></div>
             <div class="col-md-9">
                 {attribute_view_gui attribute=$attribute image_class=medium}
             </div>
         </div>
+		{/if}
     {/foreach}
 
 

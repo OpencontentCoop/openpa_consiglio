@@ -57,8 +57,8 @@
         è fissata per il giorno</p>
 
     <p id="data_luogo" style="text-align: center">
-        <strong>{$data_seduta|datetime( 'custom', '%l %j %F %Y, alle ore %H:%i' )}</strong>
-        <br />presso la sede<br />
+        <strong>{$data_seduta|datetime( 'custom', '%l %j %F %Y alle ore %H:%i' )|downcase()}</strong>
+        <br />presso<br />
         {if $luogo}{$luogo}{else}Sala Consiglio - Via Torre Verde, 23 - TRENTO{/if}
     </p>
 
@@ -88,31 +88,32 @@
     <div style="page-break-before:always;">
         <p class="italic"><strong>ALLEGATO</strong></p>
 
+        <div class="fake_list_container">
+            {foreach $odg as $k => $v}
+                <div class="allegato">
+                    <p class="italic"><strong>PUNTO {$k} o.d.g.: {$v.oggetto}</strong></p>
 
-        {foreach $odg as $k => $v}
-            <div class="allegato">
-                <p class="italic"><strong>PUNTO {$k} o.d.g.: {$v.oggetto}</strong></p>
-
-                <p>
-                    La documentazione di supporto alla discussione è pubblicata all'indirizzo
-                    cal.tn.it dal giorno {$v.data_doc}.<br />
-                    {if is_array($v.referente_politico)}
-                        Il referente politico dell'argomento {if gt($v.referente_politico|count(), 1)}sono{else}è{/if} {$v.referente_politico|implode( ', ')}.
-                        <br />
-                    {/if}
-                    {if is_array($v.referente_tecnico)}
-                        Il referente tecnico dell'argomento {if gt($v.referente_tecnico|count(), 1)}sono{else}è{/if} {$v.referente_tecnico|implode( ', ')}.
-                        <br />
-                    {/if}
-                    I Consiglieri interessati potranno rivolgersi ai referenti citati per ogni
-                    informazione ritenuta opportuna.<br />
-                    {if $v.consenti_osservazioni}
-                        Considerazioni o osservazioni puntuali rispetto all'argomento dovranno essere inoltrate utilizzando il sistema Rice, accedendo all'indirizzo cal.tn.it, entro il giorno {$v.termine_osservazioni}.
-                    {/if}
-                </p>
-            </div>
-            {delimiter}<hr />{/delimiter}
-        {/foreach}
+                    <p>
+                        La documentazione di supporto alla discussione è pubblicata all'indirizzo
+                        cal.tn.it dal giorno {$v.data_doc}.<br />
+                        {if is_array($v.referente_politico)}
+                            Il referente politico dell'argomento {if gt($v.referente_politico|count(), 1)}sono{else}è{/if} {$v.referente_politico|implode( ', ')}.
+                            <br />
+                        {/if}
+                        {if is_array($v.referente_tecnico)}
+                            Il referente tecnico dell'argomento {if gt($v.referente_tecnico|count(), 1)}sono{else}è{/if} {$v.referente_tecnico|implode( ', ')}.
+                            <br />
+                        {/if}
+                        I Consiglieri interessati potranno rivolgersi ai referenti citati per ogni
+                        informazione ritenuta opportuna.<br />
+                        {if $v.consenti_osservazioni}
+                            Considerazioni o osservazioni puntuali rispetto all'argomento dovranno essere inoltrate utilizzando il sistema Rice, accedendo all'indirizzo cal.tn.it, entro il giorno {$v.termine_osservazioni}.
+                        {/if}
+                    </p>
+                </div>
+                {delimiter}<hr />{/delimiter}
+            {/foreach}
+        </div>
 
     </div>
 </div>

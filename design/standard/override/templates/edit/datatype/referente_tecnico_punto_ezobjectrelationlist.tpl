@@ -20,7 +20,7 @@
      $nestedNodesList = fetch( content, tree, hash( parent_node_id, $parent_node,
                                                     class_filter_type,'include',
                                                     class_filter_array, array( 'tecnico' ),
-                                                    sort_by, array( 'name',true() ),
+                                                    sort_by, array( array( 'attribute', true(), 'tecnico/cognome' ), array( 'attribute', true(), 'tecnico/nome' ) ),
                                                     main_node_only, true() ) )}
 
     <input type="hidden" name="single_select_{$attribute.id}" value="1" />
@@ -40,7 +40,7 @@
                             {/foreach}
                         {/if}
                         >
-                    {$node.name|wash}</option>
+                    {$node.data_map.cognome.content|wash} {$node.data_map.nome.content|wash}</option>
             {/section}
         </select>
     {/if}

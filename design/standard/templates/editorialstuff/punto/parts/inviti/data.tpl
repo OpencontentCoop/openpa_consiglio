@@ -14,7 +14,9 @@
             <td class="text-center">
                 <a href="{concat( 'editorialstuff/edit/invitato/', $invitato.object.id )|ezurl('no')}" title="Dettaglio" class="btn btn-info btn-xs">Dettaglio</a>
             </td>
-            <td>{$invitato.object.name|wash()}</td>
+            <td>
+				<a data-toggle="modal" data-load-remote="{concat( 'layout/set/modal/content/view/full/', $invitato.object.main_node_id )|ezurl('no')}" data-remote-target="#preview .modal-content" href="#{*$post.url*}" data-target="#preview">{$invitato.object.name|wash()}</a>
+			</td>
             <td>
             {def $invito = fetch( 'content', 'object', hash( 'remote_id', concat( 'invito_', $post.seduta_id, '_', $invitato.object_id ) ) )}
             {if $invito}

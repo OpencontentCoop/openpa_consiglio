@@ -5,6 +5,31 @@
     -fs-pdf-font-encoding: Identity-H;
 }
 
+@font-face {
+    font-family : "Arial Narrow";
+    src: url(../fonts/ArialNarrowBold.ttf);
+    font-weight: bold;
+    -fs-pdf-font-embed: embed;
+    -fs-pdf-font-encoding: Identity-H;
+}
+
+@font-face {
+    font-family : "Arial Narrow";
+    src: url(../fonts/ArialNarrowItalic.ttf);
+    font-style: italic, oblique;
+    -fs-pdf-font-embed: embed;
+    -fs-pdf-font-encoding: Identity-H;
+}
+
+@font-face {
+    font-family : "Arial Narrow";
+    src: url(../fonts/ArialNarrowBoldItalic.ttf);
+    font-weight: bold;
+    font-style: italic, oblique;
+    -fs-pdf-font-embed: embed;
+    -fs-pdf-font-encoding: Identity-H;
+}
+
 body {
     font-family: "Arial Narrow";
     font-size:12pt;
@@ -36,6 +61,7 @@ body {
     position: running(header);
     background-repeat: no-repeat;
     background-image: url('../images/pdf/header.png');
+    background-size: 180px 70px;
     background-position: top left;
 }
 #footer
@@ -122,19 +148,20 @@ hr{
 }
 
 .fake_list_container{
-    padding-left: 20px;
+    /*padding-left: 20px;*/
+    text-align: justify;
 }
 
 .fake_list{
-    text-indent: -33px;
+    /*text-indent: -33px;*/
     margin-bottom: 0;
 }
 
 .fake_list span{
     display: inline-block;
-    width: 25px;
+    /*width: 25px;*/
     margin-right: 5px;
-    text-align: right;
+    /*text-align: right;*/
 }
 
 .page-break

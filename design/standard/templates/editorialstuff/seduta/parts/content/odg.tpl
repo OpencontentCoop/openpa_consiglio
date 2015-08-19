@@ -1,4 +1,8 @@
-{def $odg = $post.odg}
+{def $odg = $post.odg $is_editor=0}
+{if $post.object.can_edit}
+	{set $is_editor=1}
+{/if}
+
 <table class="table sorted_table" id="odg"
        data-url="{concat('/consiglio/data/seduta/',$post.object_id,'/parts:content:odg')|ezurl(no)}">
     <thead>
@@ -10,9 +14,11 @@
         <th>Materia</th>
         <th>Documenti</th>
         <th>Invitati</th>
-        <th>Oss</th>
+        <th>Osservazioni</th>
+	{if $is_editor}
         <th>Stato</th>
         <th></th>
+	{/if}
         {*<th width="1"></th>*}
     </tr>
     </thead>
@@ -55,10 +61,12 @@
                     <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_documenti')|ezurl(no)}">{$punto.count_documenti}</a></td>
                     <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_inviti')|ezurl(no)}">{$punto.count_invitati}</a></td>
                     <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_osservazioni')|ezurl(no)}">{$punto.count_osservazioni}</a></td>
+	{if $is_editor}
                     <td>{include uri='design:editorialstuff/punto/parts/edit_state.tpl' post=$punto}</td>
                     <td>
                         <a href="{concat('consiglio/move/punto/',$punto.object.id)|ezurl(no)}" class="btn btn-warning btn-xs">Sposta</a>
                     </td>
+	{/if}
                     {*<td><i class="fa fa-reorder handle"></i> </td>*}
                 </tr>
             {/if}

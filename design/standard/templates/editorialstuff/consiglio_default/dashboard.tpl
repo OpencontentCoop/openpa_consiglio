@@ -1,3 +1,4 @@
+
 <div class="row">
     <div class="col-sm-12" id="dashboard-filters-container">
         <form class="form-inline" role="form" method="get"
@@ -11,7 +12,6 @@
                 <input type="text" class="form-control" name="query" placeholder="Ricerca libera"
                        value="{$view_parameters.query|wash()}"/>
             </div>
-
             {if $states|count()}
             <div class="form-group">
                 <select class="form-control" name="state" id="dashboard-state-select">
@@ -22,6 +22,17 @@
                 </select>
             </div>
             {/if}
+
+			{*def $limits = array(10, 20, 50)}
+            <div class="form-group">
+                <select class="form-control" name="limit" id="dashboard-interval-select">
+                    <option value="">Limite</option>
+                    {foreach $limits as $limit}
+                        <option value="{$limit}" {if $view_parameters.limit|eq($limit)} selected="selected"{/if}>{$limit|wash()}</option>
+                    {/foreach}
+                </select>
+            </div>
+			*}
 
             {def $intervals = array(
                 hash( 'value', '-P1D', 'name', 'Ultimo giorno' ),
@@ -103,6 +114,7 @@
           <td>
               {if $factory_identifier|eq('politico')}
                   {content_view_gui content_object=$post.object view="politico_line"}
+            <a data-toggle="modal" data-load-remote="{concat( 'layout/set/modal/content/view/full/', $post.object.main_node_id )|ezurl('no')}" data-remote-target="#preview .modal-content" href="#{*$post.url*}" data-target="#preview">(Anteprima)</a>
               {else}
             <a data-toggle="modal" data-load-remote="{concat( 'layout/set/modal/content/view/full/', $post.object.main_node_id )|ezurl('no')}" data-remote-target="#preview .modal-content" href="#{*$post.url*}" data-target="#preview">{$post.object.name}</a>
               {/if}

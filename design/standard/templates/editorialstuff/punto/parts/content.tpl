@@ -4,12 +4,12 @@
     <div class="row">
 
         {if $post.object.can_edit}
-            <div class="col-xs-6 col-md-2">
+            <div class="col-xs-6 col-md-4">
                 <form method="post" action="{"content/action"|ezurl(no)}" style="display: inline;">
+					<div class="row">
+	                <button class="btn btn-info btn-lg" type="submit" name="EditButton">Modifica</button>
                     <input type="hidden" name="ContentObjectLanguageCode"
                            value="{ezini( 'RegionalSettings', 'ContentObjectLocale', 'site.ini')}"/>
-                    <button class="btn btn-info btn-lg" type="submit" name="EditButton">Modifica
-                    </button>
                     <input type="hidden" name="HasMainAssignment" value="1"/>
                     <input type="hidden" name="ContentObjectID" value="{$post.object.id}"/>
                     <input type="hidden" name="NodeID" value="{$post.node.node_id}"/>
@@ -29,6 +29,14 @@
                            value="{concat('editorialstuff/edit/', $factory_identifier, '/',$post.object.id)}"/>
                     <input type="hidden" name="RedirectURIAfterPublish"
                            value="{concat('editorialstuff/edit/', $factory_identifier, '/',$post.object.id)}"/>
+					{if $post.object.can_remove}
+		                <button class="btn btn-danger btn-lg" type="submit" name="ActionRemove">Rimuovi</button>
+						{def $parent = fetch(content,node,hash(node_id, $post.node.parent_node_id))}
+						<input type="hidden" name="RedirectURIAfterRemove" 
+							value="{concat('editorialstuff/edit/', $parent.class_identifier, '/',$parent.contentobject_id)}" />
+						{undef $parent}
+					{/if}
+					</div>
                 </form>
             </div>
         {/if}

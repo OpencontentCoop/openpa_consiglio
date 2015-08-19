@@ -14,17 +14,18 @@
     <p><i>Trento, {$seduta.object.data_map.orario_conclusione_effettivo.content.timestamp|datetime( 'custom', '%j %F %Y' )}</i></p>
 
     <div id="destinatari">
-        <p>{$politico.name|wash()} {attribute_view_gui attribute=$politico.data_map.ruolo}</p>
+        <p>{if eq($sesso, 'Maschio')}Egregio Signor{else}Gent.ma> Signora{/if}</p>
+        <p>{$politico.name|wash()}<br />{attribute_view_gui attribute=$politico.data_map.ruolo2}</p>
         <p>{attribute_view_gui attribute=$politico.data_map.indirizzo}</p>
     </div>
 
-    <p><strong>OGGETTO: Attestazione di presenza</strong></p>
+    <p>OGGETTO: Attestazione di presenza</p>
 
-    <p>Il sottoscritto, {$firmatario}, Segretario con funzione verbalizzante la seduta, su richiesta del soggetto indirizzo</p>
+    <p style="text-align: justify">Il sottoscritto, {$segretario}, Segretario con funzione verbalizzante la seduta, su richiesta del soggetto indirizzo</p>
 
-    <p style="text-align: center"><strong>ATTESTA</strong></p>
+    <p style="text-align: center">ATTESTA</p>
 
-    <p class="indent">che il Signor {$politico.name|wash()} ha partecipato:<br />alla seduta
+    <p style="text-align: justify">che {if eq($sesso, 'Maschio')}il Signor{else}la Signora{/if} {$politico.name|wash()} ha partecipato:<br />alla seduta
         {if $organo|eq('Consiglio')}
             di Consiglio delle Autonomie Locali
         {else}
@@ -36,8 +37,8 @@
 
     <p id="firma" style="text-align: right">
         Il Segretario verbalizzante<br />
-        {$firmatario}<br />
-        {if $firma}<img src="{$firma}" width="100" >{/if}
+        {$segretario}<br />
+        {if $firma}<img src="{$firma}" width="100" />{/if}
     </p>
 </div>
 </body>
