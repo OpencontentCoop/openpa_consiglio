@@ -148,20 +148,23 @@ hr{
 }
 
 .fake_list_container{
-    /*padding-left: 20px;*/
     text-align: justify;
 }
 
 .fake_list{
-    /*text-indent: -33px;*/
     margin-bottom: 0;
 }
 
-.fake_list span{
+.fake_list span.odg-number{
     display: inline-block;
-    /*width: 25px;*/
+    vertical-align: top;
+    width: 5%;
     margin-right: 5px;
-    /*text-align: right;*/
+}
+
+.fake_list span.odg-object{
+    display: inline-block;
+    width: 90%;
 }
 
 .page-break

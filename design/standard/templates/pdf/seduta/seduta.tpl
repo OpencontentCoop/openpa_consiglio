@@ -68,12 +68,12 @@
         {def $index = 0}
         {foreach $odg as $p}
             {set $index = $index|inc()}
-            <p class="fake_list"><span>{$p.numero}.</span> {$p.oggetto}{if $index|eq(count($odg))}.{else};{/if}</p>
+            <p class="fake_list"><span class="odg-number">{$p.numero}.</span> <span class="odg-object">{$p.oggetto}{if $index|eq(count($odg))}.{else};{/if}</span></p>
         {/foreach}
     </div>
 
-    <p class="indent">Si forniscono quindi, in allegato, le informazioni ritenute opportune in merito ai procedimenti previsti per i diversi argomenti posti all'ordine del giorno.</p>
-    <p class="indent">PregandoVi di fornire preventiva comunicazione, qualora impossibilitati a partecipare, con l'occasione si porgono cordiali saluti.</p>
+    <p class="indent" style="text-align: justify">Si forniscono quindi, in allegato, le informazioni ritenute opportune in merito ai procedimenti previsti per i diversi argomenti posti all'ordine del giorno.</p>
+    <p class="indent" style="text-align: justify">PregandoVi di fornire preventiva comunicazione, qualora impossibilitati a partecipare, con l'occasione si porgono cordiali saluti.</p>
 
     {if $firmatario}
         <p id="firma">
@@ -107,7 +107,7 @@
                         I Consiglieri interessati potranno rivolgersi ai referenti citati per ogni
                         informazione ritenuta opportuna.<br />
                         {if $v.consenti_osservazioni}
-                            Considerazioni o osservazioni puntuali rispetto all'argomento dovranno essere inoltrate utilizzando il sistema Rice, accedendo all'indirizzo cal.tn.it, entro il giorno {$v.termine_osservazioni}.
+                            Considerazioni o osservazioni puntuali rispetto all'argomento dovranno essere inoltrate utilizzando il sistema Comunweb, accedendo all'indirizzo cal.tn.it, entro il giorno {$v.termine_osservazioni}.
                         {/if}
                     </p>
                 </div>
