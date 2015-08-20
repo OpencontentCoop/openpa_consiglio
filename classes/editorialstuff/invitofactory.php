@@ -18,6 +18,8 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
 
         $getParameters = $_GET;
 
+        $locale = eZLocale::instance();
+
         /** @var eZContentObjectAttribute[] $dataMap */
         $dataMap = $currentPost->getObject()->dataMap();
         $puntoFactory = OCEditorialStuffHandler::instance( 'punto' )->getFactory();
@@ -37,18 +39,18 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
                 $punto = new Punto( array( 'object_id' => $puntoId ), $puntoFactory );
                 /** @var eZContentObjectAttribute[] $puntoDataMap */
                 $puntoDataMap = $punto->getObject()->dataMap();
-                
+
                 $punti [$puntoDataMap['n_punto']->content()] = array(
                     'n_punto' => $puntoDataMap['n_punto']->content(),
-                    'ora' => $puntoDataMap['orario_trattazione']->toString(),
+                    'ora' => $locale->formatShortTime($puntoDataMap['orario_trattazione']->content()->attribute( 'timestamp' )),
                     'oggetto' => $puntoDataMap['oggetto']->content()
                 );
-                
+
                 if ( !$seduta instanceof Seduta )
                 {
                     $seduta = $punto->getSeduta();
                 }
-                
+
             }
             catch( Exception $e )
             {
@@ -63,7 +65,9 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
         {
 
             $punti = array_values( $punti );
-            
+
+            $oraInvito = $dataMap['ora']->hasContent() ? $locale->formatShortTime($dataMap['ora']->content()->attribute( 'timestamp' )) : $punti[0]['ora'];
+
             /** @var eZContentObjectAttribute[] $sedutaDataMap */
             $sedutaDataMap = $seduta->getObject()->dataMap();
 
@@ -80,6 +84,7 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
                 'luogo' => isset( $sedutaDataMap['luogo'] ) ? $sedutaDataMap['luogo']->content() : '',
                 'organo' => $organo instanceof eZContentObject ? $organo->attribute( 'name' ) : '',
                 'data_seduta' => ( $seduta instanceof Seduta ) ? $seduta->dataOra() : null,
+                'ora_invito' => $oraInvito,
                 'punti' => $punti,
                 'firmatario' => '',
                 'firma' => '',

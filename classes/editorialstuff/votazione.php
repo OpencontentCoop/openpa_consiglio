@@ -130,13 +130,6 @@ class Votazione extends OCEditorialStuffPost
             // attendo 5 secondi per concludere le operazioni di voto
             sleep( 5 );
 
-            // chiudo la votazione
-            $this->setState( 'stato_votazione.closed' );
-            OpenPAConsiglioPushNotifier::instance()->emit(
-                'real_stop_votazione',
-                $this->jsonSerialize()
-            );
-
             $registro = $this->getSeduta()->registroPresenze();
             eZLog::write( var_export( $registro, 1 ), 'runtime.log' );
             $this->dataMap[self::$presentiIdentifier]->fromString( $registro['in'] );
@@ -159,6 +152,13 @@ class Votazione extends OCEditorialStuffPost
 
             $this->dataMap[self::$astenutiIdentifier]->fromString( $astenuti );
             $this->dataMap[self::$astenutiIdentifier]->store();
+
+            // chiudo la votazione
+            $this->setState( 'stato_votazione.closed' );
+            OpenPAConsiglioPushNotifier::instance()->emit(
+                'real_stop_votazione',
+                $this->jsonSerialize()
+            );
 
         }
         else

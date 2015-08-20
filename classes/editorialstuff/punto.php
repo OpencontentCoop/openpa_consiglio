@@ -1296,14 +1296,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 $this->dataMap['orario_trattazione']->content()->attribute( 'timestamp' )
             ),
             'materia' => $this->getMateria( 'name' ),
-            'referente_politico' => $this->stringRelatedObjectAttribute(
-                'referente_politico',
-                'name'
-            ),
-            'referente_tecnico' => $this->stringRelatedObjectAttribute(
-                'referente_tecnico',
-                'name'
-            ),
+            'referente_politico' => implode('', $this->stringRelatedObjectAttribute( 'referente_politico', 'titolo' )) . ' ' . implode('', $this->stringRelatedObjectAttribute( 'referente_politico', 'nome' )) . ' ' . implode('', $this->stringRelatedObjectAttribute( 'referente_politico', 'cognome' )),
+            'referente_tecnico' => implode('', $this->stringRelatedObjectAttribute( 'referente_tecnico', 'titolo' )) . ' ' . implode('', $this->stringRelatedObjectAttribute( 'referente_tecnico', 'nome' )) . ' ' . implode('', $this->stringRelatedObjectAttribute( 'referente_tecnico', 'cognome' )),
             'documenti' => $this->attribute( 'count_documenti' ),
             'invitati' => $this->attribute( 'count_invitati' ),
             'osservazioni' => $this->attribute( 'count_osservazioni' ),

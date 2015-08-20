@@ -17,7 +17,9 @@
     </p>
 
     <div id="destinatari">
-        <p>{if eq($sesso, 'Maschio')}Egregio Signor{else}Gent.ma> Signora{/if}</p>
+        {if $sesso}
+            <p>{if eq($sesso, 'Maschio')}Egregio Signor{else}Gent.ma Signora{/if}</p>
+        {/if}
         <p>{$invitato}{if $ruolo}<br />{$ruolo}{/if}</p>
         <p>{if $indirizzo}{$indirizzo}{/if}</p>
     </div>
@@ -30,7 +32,7 @@
         ,</p>
 
     <p id="data_luogo" style="text-align: center">
-        <strong>{$data_seduta|datetime( 'custom', '%l %j %F %Y alle ore %H:%i' )|downcase()}</strong>
+        <strong>{$data_seduta|datetime( 'custom', '%l %j %F %Y' )|downcase()} alle ore {$ora_invito}</strong>
         <br />presso<br />
         {if $luogo}{$luogo}{else}Sala Consiglio - Via Torre Verde, 23 - TRENTO{/if}
     </p>
@@ -44,7 +46,7 @@
 
     <div class="fake_list_container">
         {foreach $punti as $p}
-            <p class="fake_list"><span>{$p.n_punto}.</span> {$p.oggetto}</p>
+            <p class="fake_list"><span class="odg-number">{$p.n_punto}.</span> <span class="odg-object">{$p.oggetto}</span></p>
         {/foreach}
     </div>
 
