@@ -39,18 +39,18 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
                 $punto = new Punto( array( 'object_id' => $puntoId ), $puntoFactory );
                 /** @var eZContentObjectAttribute[] $puntoDataMap */
                 $puntoDataMap = $punto->getObject()->dataMap();
-                
+
                 $punti [$puntoDataMap['n_punto']->content()] = array(
                     'n_punto' => $puntoDataMap['n_punto']->content(),
                     'ora' => $locale->formatShortTime($puntoDataMap['orario_trattazione']->content()->attribute( 'timestamp' )),
                     'oggetto' => $puntoDataMap['oggetto']->content()
                 );
-                
+
                 if ( !$seduta instanceof Seduta )
                 {
                     $seduta = $punto->getSeduta();
                 }
-                
+
             }
             catch( Exception $e )
             {

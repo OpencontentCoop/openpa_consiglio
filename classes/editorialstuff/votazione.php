@@ -129,7 +129,6 @@ class Votazione extends OCEditorialStuffPost
 
             // attendo 5 secondi per concludere le operazioni di voto
             sleep( 5 );
-            
             $registro = $this->getSeduta()->registroPresenze();
             eZLog::write( var_export( $registro, 1 ), 'runtime.log' );
             $this->dataMap[self::$presentiIdentifier]->fromString( $registro['in'] );
