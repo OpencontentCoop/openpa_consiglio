@@ -1296,16 +1296,13 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 $this->dataMap['orario_trattazione']->content()->attribute( 'timestamp' )
             ),
             'materia' => $this->getMateria( 'name' ),
-            'referente_politico' => implode('', (array)$this->stringRelatedObjectAttribute( 'referente_politico', 'titolo' )) . ' ' . implode('', (array)$this->stringRelatedObjectAttribute( 'referente_politico', 'nome' )) . ' ' . implode('', (array)$this->stringRelatedObjectAttribute( 'referente_politico', 'cognome' )),
-            'referente_tecnico' => implode('', (array)$this->stringRelatedObjectAttribute( 'referente_tecnico', 'titolo' )) . ' ' . implode('', (array)$this->stringRelatedObjectAttribute( 'referente_tecnico', 'nome' )) . ' ' . implode('', (array)$this->stringRelatedObjectAttribute( 'referente_tecnico', 'cognome' )),
+            'referente_politico' => $this->stringRelatedObjectAttribute( 'referente_politico', 'name' ),
+            'referente_tecnico' => $this->stringRelatedObjectAttribute( 'referente_tecnico', 'name' ),
             'documenti' => $this->attribute( 'count_documenti' ),
             'invitati' => $this->attribute( 'count_invitati' ),
             'osservazioni' => $this->attribute( 'count_osservazioni' ),
-            'consenti_osservazioni' => $this->dataMap['consenti_osservazioni']->toString(),
-            'termine_osservazioni' => strftime(
-                '%d/%m/%Y  alle ore %H:%M',
-                $this->dataMap['termine_osservazioni']->toString()
-            )
+            'consenti_osservazioni' => intval( $this->dataMap['consenti_osservazioni']->toString() ),
+            'termine_osservazioni' => $this->dataMap['termine_osservazioni']->hasContent() ? strftime( '%d/%m/%Y  alle ore %H:%M', $this->dataMap['termine_osservazioni']->toString() ) : null            
         );
     }
 
