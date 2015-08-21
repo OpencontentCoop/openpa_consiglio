@@ -14,7 +14,7 @@
     <p><i>Trento, {$seduta.object.data_map.orario_conclusione_effettivo.content.timestamp|datetime( 'custom', '%j %F %Y' )}</i></p>
 
     <div id="destinatari">
-        <p>{if eq($sesso, 'Maschio')}Egregio Signor{else}Gent.ma> Signora{/if}</p>
+        <p>{if eq($sesso, 'Maschio')}Egregio Signor{else}Gent.ma Signora{/if}</p>
         <p>{$politico.name|wash()}<br />{attribute_view_gui attribute=$politico.data_map.ruolo2}</p>
         <p>{attribute_view_gui attribute=$politico.data_map.indirizzo}</p>
     </div>

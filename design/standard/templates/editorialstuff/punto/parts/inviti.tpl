@@ -17,7 +17,7 @@
                         <div class="col-sm-10">
                             <select class="form-control" name="ActionParameters[invitato]" id="invitato">
                                 <option></option>
-                                {foreach fetch( 'editorialstuff', 'posts', hash( 'factory_identifier', 'invitato', 'limit', 100, sort_by, array( 'name', asc() ) ) ) as $invitato}
+                                {foreach fetch( 'editorialstuff', 'posts', hash( 'factory_identifier', 'invitato', 'limit', 100, sort_by, hash( 'name', asc ) ) ) as $invitato}
                                     <option value="{$invitato.object_id}">{$invitato.object.data_map.cognome.content|wash} {$invitato.object.data_map.nome.content|wash}</option>
                                 {/foreach}
                             </select>
@@ -53,6 +53,10 @@
                 emptytext: 'nessuno',
                 error: function(response, newValue) {if(response.responseJSON.status == 'error') return response.responseJSON.message;}
             };
+            var oraEditableOption = {
+                success: function(data){ var label = $( this ).parent().find('.label-ora'); if (label.hasClass( 'text-info' )) {label.attr('class', 'text-warning'); label.text(' (Orario impostato Manualmente)');}},
+                error: function(response, newValue) {if(response.responseJSON.status == 'error') return response.responseJSON.message;}
+            };
             $(document).on("click", ":submit", function(e){
                 var currentAction = $(this).attr('name');
                 var form =  $(this).parents('form');
@@ -69,7 +73,9 @@
                             var self = $('#tableinviti');
                             var url = self.data('url');
                             $.get(url,function (data) {
-                                self.parent().html(data).find('.edit-protocollo').editable(invitatiEditableOption);
+                                self.parent().html(data);
+                                $('.edit-protocollo').editable(invitatiEditableOption);
+                                $('.edit-ora').editable(oraEditableOption);
                                 $('#add-invitato').show();
                                 $('#add-invitato-loading').hide();
                             });
@@ -79,6 +85,7 @@
                 }
             });
             $('.edit-protocollo').editable(invitatiEditableOption);
+            $('.edit-ora').editable(oraEditableOption);
         });
     </script>
 {/literal}

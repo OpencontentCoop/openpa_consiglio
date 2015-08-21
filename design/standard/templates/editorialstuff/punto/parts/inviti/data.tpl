@@ -1,3 +1,4 @@
+{def $inviti = array()}
 <table class="table sorted_table" id="tableinviti"
        data-url="{concat('/consiglio/data/punto/',$post.object_id,'/parts:inviti:data')|ezurl(no)}">
     <thead>
@@ -5,20 +6,28 @@
         <th width="1"></th>
         <th>Titolo</th>
         <th>Protocollo invito</th>
+        <th>Ora</th>
         <th width="1"></th>
     </tr>
     </thead>
     <tbody>
     {foreach $post.invitati as $invitato}
         <tr>
+            {def $invito = fetch( 'content', 'object', hash( 'remote_id', concat( 'invito_', $post.seduta_id, '_', $invitato.object_id ) ) )}
+            {def $stuff_post = object_handler($invito).gestione_sedute_consiglio.stuff}
+            {set $inviti = array()}
+            {foreach $stuff_post.punti as $i}
+                {if ne($i.object_id, $post.object.id)}
+                    {set $inviti = $inviti|append($i.n_punto)}
+                {/if}
+            {/foreach}
             <td class="text-center">
                 <a href="{concat( 'editorialstuff/edit/invitato/', $invitato.object.id )|ezurl('no')}" title="Dettaglio" class="btn btn-info btn-xs">Dettaglio</a>
             </td>
+            <td>{$invitato.object.name|wash()}{if gt($inviti|count(), 0)}<br><small>Invitato anche {if gt($inviti|count(), 1)}ai punti{else}al punto{/if} {$inviti|implode(', ')}</small>{/if}</td>
             <td>
-				<a data-toggle="modal" data-load-remote="{concat( 'layout/set/modal/content/view/full/', $invitato.object.main_node_id )|ezurl('no')}" data-remote-target="#preview .modal-content" href="#{*$post.url*}" data-target="#preview">{$invitato.object.name|wash()}</a>
-			</td>
-            <td>
-            {def $invito = fetch( 'content', 'object', hash( 'remote_id', concat( 'invito_', $post.seduta_id, '_', $invitato.object_id ) ) )}
+
+                {*$stuff_post.punti[0]|attribute(show)*}
             {if $invito}
                 <a href="#" class="edit-protocollo" data-type="text" data-name="protocollo"
                    data-pk="{$invito.data_map.protocollo.id}"
@@ -31,7 +40,33 @@
                     {/if}
                 </a>
             {/if}
-
+            </td>
+            <td>
+                {if $invito}
+                    <a href="#" class="edit-ora" data-type="text" data-name="ora"
+                       data-pk="{$invito.data_map.ora.id}"
+                       data-url="{concat('/edit/attribute/',$invito.id,'/ora/1')|ezurl(no)}"
+                       data-title="Imposta orario">
+                        {if $invito.data_map.ora.has_content}
+                            {attribute_view_gui attribute=$invito.data_map.ora}
+                        {else}
+                            {if eq($stuff_post.punti[0].object_id, $post.object.id)}
+                                {attribute_view_gui attribute=$post.object.data_map.orario_trattazione}
+                            {else}
+                                {$stuff_post.punti[0].ora}
+                            {/if}
+                        {/if}
+                    </a>
+                    {if $invito.data_map.ora.has_content}
+                        <span class="label-ora text-danger"> (Orario impostato manualmente)</span>
+                    {else}
+                        {if eq($stuff_post.punti[0].object_id, $post.object.id)}
+                            <span class="label-ora text-info"> (Orario di trattazione del punto) </span>
+                        {else}
+                            <span class="label-ora text-warning"> (Orario di trattazione del punto precendete)</span>
+                        {/if}
+                    {/if}
+                {/if}
             </td>
             <td class="text-center">
                 {if $invito}

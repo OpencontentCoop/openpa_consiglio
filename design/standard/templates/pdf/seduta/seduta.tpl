@@ -92,24 +92,17 @@
             {foreach $odg as $k => $v}
                 <div class="allegato">
                     <p class="italic"><strong>PUNTO {$k} o.d.g.: {$v.oggetto}</strong></p>
-
-                    <p>
-                        La documentazione di supporto alla discussione è pubblicata all'indirizzo
-                        cal.tn.it dal giorno {$v.data_doc}.<br />
-                        {if is_array($v.referente_politico)}
-                            Il referente politico dell'argomento {if gt($v.referente_politico|count(), 1)}sono{else}è{/if} {$v.referente_politico|implode( ', ')}.
-                            <br />
-                        {/if}
-                        {if is_array($v.referente_tecnico)}
-                            Il referente tecnico dell'argomento {if gt($v.referente_tecnico|count(), 1)}sono{else}è{/if} {$v.referente_tecnico|implode( ', ')}.
-                            <br />
-                        {/if}
-                        I Consiglieri interessati potranno rivolgersi ai referenti citati per ogni
-                        informazione ritenuta opportuna.<br />
-                        {if $v.consenti_osservazioni}
-                            Considerazioni o osservazioni puntuali rispetto all'argomento dovranno essere inoltrate utilizzando il sistema Comunweb, accedendo all'indirizzo cal.tn.it, entro il giorno {$v.termine_osservazioni}.
-                        {/if}
-                    </p>
+                    <p style="margin:0">La documentazione di supporto alla discussione è pubblicata all'indirizzo cal.tn.it dal giorno {$v.data_doc}.</p>
+                    {if is_array($v.referente_politico)}
+                      <p style="margin:0">Il referente politico dell'argomento {if gt($v.referente_politico|count(), 1)}sono{else}è{/if} {$v.referente_politico|implode( ', ')}.</p>
+                    {/if}
+                    {if is_array($v.referente_tecnico)}
+                        <p style="margin:0">Il referente tecnico dell'argomento {if gt($v.referente_tecnico|count(), 1)}sono{else}è{/if} {$v.referente_tecnico|implode( ', ')}.</p>                            
+                    {/if}
+                    <p style="margin:0">I Consiglieri interessati potranno rivolgersi ai referenti citati per ogni informazione ritenuta opportuna.</p>
+                    {if $v.consenti_osservazioni}
+                        <p style="margin:0">Considerazioni o osservazioni puntuali rispetto all'argomento dovranno essere inoltrate utilizzando il sistema Comunweb, accedendo all'indirizzo cal.tn.it, entro il giorno {$v.termine_osservazioni}.</p>
+                    {/if}                    
                 </div>
                 {delimiter}<hr />{/delimiter}
             {/foreach}
