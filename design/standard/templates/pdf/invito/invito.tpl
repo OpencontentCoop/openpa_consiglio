@@ -17,10 +17,11 @@
     </p>
 
     <div id="destinatari">
+        <p>
         {if $sesso}
-            <p>{if eq($sesso, 'Maschio')}Egregio Signor{else}Gent.ma Signora{/if}</p>
+            {if eq($sesso, 'Maschio')}Egregio Signor{else}Gent.ma Signora{/if}<br />
         {/if}
-        <p>{$invitato}{if $ruolo}<br />{$ruolo}{/if}<br />
+        {$invitato}{if $ruolo}<br />{$ruolo}{/if}<br />
         {if $indirizzo}{$indirizzo}{/if}</p>
     </div>
 
