@@ -86,7 +86,8 @@ $(document).on('click', '.modal button.btn-primary', function (e) {
 
 var handelResponseError = function (response, status, xhr) {
     if (status == 'error') {
-        var $container = $('<div class="alert alert-danger" />');
+        var $container = $('<div class="alert alert-danger alert-dismissible" />');
+        $container.append('<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
         $.each(response.responseJSON.error_messages, function (i, v) {
             $container.append('<p>' + response.responseJSON.error_messages[i] + '</p>');
         });
