@@ -154,12 +154,13 @@ jQuery.fn.extend({
 
     startVotazione: function(id){
         var self = $(this);
+        var content = self.html();
+        self.html('<i class="fa fa-spinner fa-spin"></i> Attendere');
         $.ajax({
             url: self.data('action_url'),
             method: 'POST',
             data: {idVotazione:self.data('votazione')},
             success: function (data) {
-                self.html('<i class="fa fa-spinner fa-spin"></i> Attendere');
                 startTimer();
                 Presenze.startVotoPartecipanti();
                 var text = "\n" + self.data('add_to_verbale') + ' ' + currentDate() + "\n";
@@ -169,6 +170,7 @@ jQuery.fn.extend({
             },
             error: function (response, status, xhr) {
                 handelResponseError(response, status, xhr);
+                self.html(content);
             },
             dataType: 'json'
         });
