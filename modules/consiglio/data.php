@@ -31,5 +31,5 @@ catch ( Exception $e )
 }
 
 echo $data;
-//eZDisplayDebug();
+if ( eZUser::currentUser()->hasAccessTo( 'consiglio', 'admin' ) && eZHTTPTool::instance()->hasGetVariable( 'debug' ) ) eZDisplayDebug();
 eZExecution::cleanExit();
