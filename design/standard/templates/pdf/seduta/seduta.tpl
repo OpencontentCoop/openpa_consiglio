@@ -45,15 +45,11 @@
     </div>
 
     <p id="oggetto">
-        {if $organo|eq('Consiglio')}
-            OGGETTO: convocazione seduta di {$organo}
-        {else}
-            OGGETTO: convocazione seduta di Giunta del Consiglio delle autonomie locali
-        {/if}
+        OGGETTO: convocazione seduta {if $organo|eq('Giunta')}della Giunta{/if} del Consiglio delle autonomie locali
     </p>
 
     <p class="indent">Con la presente si informa che la seduta
-        di {if $organo|eq('Giunta')}Giunta del Consiglio delle autonomie locali{else}{$organo}{/if}
+        {if $organo|eq('Giunta')}della Giunta{/if} del Consiglio delle autonomie locali
         è fissata per il giorno</p>
 
     <p id="data_luogo" style="text-align: center">

@@ -28,8 +28,7 @@
         di {if $organo|eq('Giunta')}Giunta del Consiglio delle autonomie locali{else}{$organo}{/if}</p>
 
     <p class="indent">Con la presente ho il piacere di invitarla alla riunione
-        {if $organo|eq('Giunta')}della Giunta del Consiglio delle autonomie locali{else}del {$organo}{/if}
-        ,</p>
+        {if $organo|eq('Giunta')}della Giunta{/if} del Consiglio delle autonomie locali,</p>
 
     <p id="data_luogo" style="text-align: center">
         <strong>{$data_seduta|datetime( 'custom', '%l %j %F %Y' )|downcase()} alle ore {$ora_invito}</strong>
