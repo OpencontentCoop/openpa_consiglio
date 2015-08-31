@@ -25,6 +25,7 @@
                         <ul class="sub_menu">
                             <li><a href="{'editorialstuff/dashboard/seduta'|ezurl(no)}">Sedute</a></li>
                             <li><a href="{'editorialstuff/dashboard/audizione'|ezurl(no)}">Audizioni</a></li>
+                            <li><a href="{'editorialstuff/dashboard/designazione'|ezurl(no)}">Audizioni</a></li>
                         </ul>
                     </div>
                 </li>
