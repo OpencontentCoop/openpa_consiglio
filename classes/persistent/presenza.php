@@ -13,6 +13,14 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
      */
     protected $seduta;
 
+    protected $CreatedTime;
+
+    protected $UserID;
+
+    protected $SedutaID;
+
+    protected $Type;
+
     function OpenPAConsiglioPresenza( $row = array() )
     {
         $this->PersistentDataDirty = false;
@@ -92,10 +100,10 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
 
         $presenza = new OpenPAConsiglioPresenza( array(
             'user_id' => $userId,
-            'seduta_id' => $seduta->id(),
+            'seduta_id' => intval( $seduta->id() ),
             'type' => (string) $type,
             'in_out' => intval( $inOut ),
-            'created_time' => $createdTime
+            'created_time' => intval( $createdTime )
         ));
         return $presenza;
     }
@@ -120,7 +128,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
      */
     static function fetchBySeduta( Seduta $seduta, $startTime = null, $inOut = null, $type = null, $userId = null )
     {
-        $conds = array( 'seduta_id' => $seduta->id() );
+        $conds = array( 'seduta_id' => intval( $seduta->id() ) );
         if ( $startTime !== null )
         {
             $startTimestamp = $endTimestamp = false;
@@ -166,7 +174,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
             self::definition(),
             null,
             array(
-                'seduta_id' => $seduta->id(),
+                'seduta_id' => intval( $seduta->id() ),
                 'user_id' => (int) $userId
             ),
             array( 'created_time' => 'desc' ),
@@ -202,10 +210,10 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
             self::definition(),
             null,
             array(
-                'seduta_id' => $this->attribute( 'seduta_id' ),
+                'seduta_id' => intval( $this->attribute( 'seduta_id' ) ),
                 'user_id' => (int) $this->attribute( 'user_id' ),
                 'type' => 'checkin',
-                'created_time' => array( '<=', $this->attribute( 'created_time' ) )
+                'created_time' => array( '<=', intval( $this->attribute( 'created_time' ) ) )
             ),
             array( 'created_time' => 'desc' ),
             array( 'limit' => 1, 'offset' => 0 )
@@ -219,22 +227,26 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
 
     public function hasManual()
     {
-        /** @var OpenPAConsiglioPresenza[] $presenze */
-        $presenze = parent::fetchObjectList(
-            self::definition(),
-            null,
-            array(
-                'seduta_id' => $this->attribute( 'seduta_id' ),
-                'user_id' => (int) $this->attribute( 'user_id' ),
-                'type' => 'manual',
-                'created_time' => array( '<=', $this->attribute( 'created_time' ) )
-            ),
-            array( 'created_time' => 'desc' ),
-            array( 'limit' => 1, 'offset' => 0 )
-        );
-        if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
+        $sedutaId = $this->attribute( 'seduta_id' );
+        if ( !empty( $sedutaId ) )
         {
-            return $presenze[0]->attribute( 'in_out' );
+            /** @var OpenPAConsiglioPresenza[] $presenze */
+            $presenze = parent::fetchObjectList(
+                self::definition(),
+                null,
+                array(
+                    'seduta_id' => $this->attribute( 'seduta_id' ),
+                    'user_id' => (int)$this->attribute( 'user_id' ),
+                    'type' => 'manual',
+                    'created_time' => array( '<=', $this->attribute( 'created_time' ) )
+                ),
+                array( 'created_time' => 'desc' ),
+                array( 'limit' => 1, 'offset' => 0 )
+            );
+            if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
+            {
+                return $presenze[0]->attribute( 'in_out' );
+            }
         }
         return false;
     }
@@ -246,10 +258,10 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
             self::definition(),
             null,
             array(
-                'seduta_id' => $this->attribute( 'seduta_id' ),
+                'seduta_id' => intval( $this->attribute( 'seduta_id' ) ),
                 'user_id' => (int) $this->attribute( 'user_id' ),
                 'type' => 'beacons',
-                'created_time' => array( '<=', $this->attribute( 'created_time' ) )
+                'created_time' => array( '<=', intval( $this->attribute( 'created_time' ) ) )
             ),
             array( 'created_time' => 'desc' ),
             array( 'limit' => 1, 'offset' => 0 )

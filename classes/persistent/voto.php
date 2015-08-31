@@ -167,6 +167,42 @@ class OpenPAConsiglioVoto extends eZPersistentObject
         return $result[0]['count'];
     }
 
+    public static function votanti( Votazione $votazione, $asObjects = false, $checkConsistency = false, $valueCondition = null )
+    {
+        $conds = array( 'votazione_id' => $votazione->id() );
+        if ( $valueCondition !== null )
+        {
+            $conds['value'] = $valueCondition;
+        }
+        $users = array();
+        /** @var OpenPAConsiglioVoto[] $voti */
+        $voti = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
+            null,
+            $conds,
+            false,
+            null
+        );
+        foreach( $voti as $voto )
+        {
+            if ( $asObjects || $checkConsistency )
+            {
+                $user = eZUser::fetch( $voto->attribute( 'user_id' ) );
+                if ( $user instanceof eZUser )
+                {
+                    if ( !$asObjects )
+                        $user = $user->id();
+                }
+            }
+            else
+            {
+                $user = $voto->attribute( 'user_id' );
+            }
+            if ( $user )
+                $users[] = $user;
+        }
+        return $users;
+    }
+
     public static function countFavorevoli( Votazione $votazione )
     {
         $result = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
@@ -179,6 +215,11 @@ class OpenPAConsiglioVoto extends eZPersistentObject
             array( array( 'operation' => 'count( * )',
                           'name' => 'count' ) ) );
         return $result[0]['count'];
+    }
+
+    public static function favorevoli( Votazione $votazione, $asObjects = false, $checkConsistency = false )
+    {
+        return self::votanti( $votazione, $asObjects, $checkConsistency, self::FAVOREVOLE );
     }
 
     public static function countContrari( Votazione $votazione )
@@ -195,6 +236,11 @@ class OpenPAConsiglioVoto extends eZPersistentObject
         return $result[0]['count'];
     }
 
+    public static function contrari( Votazione $votazione, $asObjects = false, $checkConsistency = false )
+    {
+        return self::votanti( $votazione, $asObjects, $checkConsistency, self::CONTRARIO );
+    }
+
     public static function countAstenuti( Votazione $votazione )
     {
         $result = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
@@ -207,6 +253,11 @@ class OpenPAConsiglioVoto extends eZPersistentObject
             array( array( 'operation' => 'count( * )',
                           'name' => 'count' ) ) );
         return $result[0]['count'];
+    }
+
+    public static function astenuti( Votazione $votazione, $asObjects = false, $checkConsistency = false )
+    {
+        return self::votanti( $votazione, $asObjects, $checkConsistency, self::ASTENUTO );
     }
 
     public function jsonSerialize()

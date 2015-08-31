@@ -1,7 +1,9 @@
 {def $partecipanti = $post.partecipanti}
 <table class="table table-striped">
     {foreach $partecipanti as $partecipante}
-        <tr class="partecipante{if $registro_presenze.hash_user_id[$partecipante.object_id]|not} blurred{/if}" data-partecipante="{$partecipante.object_id}" data-last_update="{$registro_presenze.hash_user_id_presenza[$partecipante.object_id].created_time}">
+        <tr class="partecipante{if $registro_presenze.hash_user_id[$partecipante.object_id]|not} blurred{/if}"
+            data-partecipante="{$partecipante.object_id}"
+            data-last_update="{$registro_presenze.hash_user_id_presenza[$partecipante.object_id].created_time}">
             <td class="stato-presenza">
                 <span class="checkin {if $registro_presenze.hash_user_id_presenza[$partecipante.object_id].has_checkin}text-success{else}text-muted{/if}"><i class="fa fa-check-circle"></i></span>
                 <span class="beacons {if $registro_presenze.hash_user_id_presenza[$partecipante.object_id].has_beacons}text-success{else}text-muted{/if}"><i class="fa fa-wifi"></i></span>

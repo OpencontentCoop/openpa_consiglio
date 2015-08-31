@@ -33,6 +33,44 @@ class Votazione extends OCEditorialStuffPost
         $this->dataMap = $this->getObject()->attribute( 'data_map' );
     }
 
+    public function attributes()
+    {
+        $attributes = parent::attributes();
+        return array_merge( $this->fnAttributes, $attributes );
+    }
+
+    private $fnAttributes = array(
+        'presenti',
+        'votanti',
+        'favorevoli',
+        'contrari',
+        'astenuti'
+    );
+
+    public function attribute( $property )
+    {
+        if ( in_array( $property, $this->fnAttributes ) )
+        {
+            /** @return string[] */
+            return $this->getUsers( $property );
+        }
+
+        return parent::attribute( $property );
+    }
+
+    protected function getUsers( $type )
+    {
+        if ( $type == 'votanti' || $type == 'presenti' ) //@todo calcolare presenti con Presenza
+            return OpenPAConsiglioVoto::votanti( $this, true );
+        elseif ( $type == 'favorevoli' )
+            return OpenPAConsiglioVoto::favorevoli( $this, true );
+        elseif ( $type == 'contrari' )
+            return OpenPAConsiglioVoto::contrari( $this, true );
+        elseif ( $type == 'astenuti' )
+            return OpenPAConsiglioVoto::astenuti( $this, true );
+        else
+            return array();
+    }
 
     public function onChangeState( eZContentObjectState $beforeState, eZContentObjectState $afterState )
     {
