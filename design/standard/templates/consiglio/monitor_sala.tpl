@@ -54,9 +54,9 @@
 <div id="presenze" {if $currentPunto}style="display:none"{/if}>
     <div class="row">
     {def $partecipanti = $seduta.partecipanti}
-    {def $col = 2 $modulo = 6}
+    {def $col = 2 $modulo = 6 $size = 'medium'}
     {if $partecipanti|count()|gt(18)}
-      {set $col = 1 $modulo = 12}
+      {set $col = 2 $modulo = 6 $size = 'medium'}
     {/if}
 	  {foreach $seduta.partecipanti as $partecipante}
 		  <div class="col-xs-{$col} user_presenza user-{$partecipante.object_id}"
@@ -67,7 +67,7 @@
 				<p class="btn btn-default btn-xs type manual" style="display: none"><i class="fa fa-thumbs-up"></i></p>
 			  </div>
 			  <div class="name" {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="opacity: .4"{/if}>
-				{content_view_gui content_object=$partecipante.object view="politico_box"}
+				{content_view_gui content_object=$partecipante.object view="politico_box" size=$size}
 			  </div>
 		  </div>
 		  {delimiter modulo=$modulo}</div><div class="row">{/delimiter}
