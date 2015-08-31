@@ -101,21 +101,13 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
                 $firmatarioDataMap = $firmatario->dataMap();
 
                 $variables['firmatario'] = $firmatario->attribute( 'name' );
-                if ( $firmatarioDataMap['firma']->hasContent() )
+                if ( $firmatarioDataMap['firma']->hasContent()
+                     && $firmatarioDataMap['firma']->attribute( 'data_type_string' ) == 'ezimage' )
                 {
-                    $siteINI = eZINI::instance( 'site.ini' );
-                    $siteUrl = $siteINI->variable( 'SiteSettings', 'SiteURL' );
-                    $variables['firma'] = '';
-                    if ( isset( $firmatarioDataMap['firma'] )
-                         && $firmatarioDataMap['firma']->attribute(
-                            'data_type_string'
-                        ) == 'ezimage'
-                         && $firmatarioDataMap['firma']->hasContent()
-                    )
-                    {
-                        $image = $firmatarioDataMap['firma']->content()->attribute( 'original' );
-                        $variables['firma'] = $siteUrl . '/' . $image['url'];
-                    }
+                    $image = $firmatarioDataMap['firma']->content()->attribute( 'original' );
+                    $url = $image['url'];
+                    eZURI::transformURI( $url, false, 'full' );
+                    $variables['firma'] = $url;
                 }
             }
         }

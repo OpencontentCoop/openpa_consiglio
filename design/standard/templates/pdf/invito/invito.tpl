@@ -20,15 +20,15 @@
         {if $sesso}
             <p>{if eq($sesso, 'Maschio')}Egregio Signor{else}Gent.ma Signora{/if}</p>
         {/if}
-        <p>{$invitato}{if $ruolo}<br />{$ruolo}{/if}</p>
-        <p>{if $indirizzo}{$indirizzo}{/if}</p>
+        <p>{$invitato}{if $ruolo}<br />{$ruolo}{/if}<br />
+        {if $indirizzo}{$indirizzo}{/if}</p>
     </div>
 
     <p id="oggetto">OGGETTO: convocazione seduta
         di {if $organo|eq('Giunta')}Giunta del Consiglio delle autonomie locali{else}{$organo}{/if}</p>
 
     <p class="indent">Con la presente ho il piacere di invitarla alla riunione
-        di {if $organo|eq('Giunta')}Giunta del Consiglio delle autonomie locali{else}{$organo}{/if}
+        {if $organo|eq('Giunta')}della Giunta del Consiglio delle autonomie locali{else}del {$organo}{/if}
         ,</p>
 
     <p id="data_luogo" style="text-align: center">
@@ -45,8 +45,10 @@
     {/if}
 
     <div class="fake_list_container">
+        {def $count = 1}
         {foreach $punti as $p}
-            <p class="fake_list"><span class="odg-number">{$p.n_punto}.</span> <span class="odg-object">{$p.oggetto}</span></p>
+            <p class="fake_list"><span class="odg-number">{$p.n_punto}.</span> <span class="odg-object">{$p.oggetto}{if $count|eq(count($punti))}.{else};{/if}</span></p>
+            {set $count = $count|inc()}
         {/foreach}
     </div>
 
