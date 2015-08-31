@@ -98,16 +98,27 @@ class Votazione extends OCEditorialStuffPost
 
     public function start()
     {
-        $this->setState( 'stato_votazione.in_progress' );
-        OpenPAConsiglioPushNotifier::instance()->emit( 'start_votazione', $this->jsonSerialize() );
+        $seduta = $this->getSeduta();
+        if ( $seduta instanceof Seduta && $seduta->is( 'in_progress' ) )
+        {
+            $this->setState( 'stato_votazione.in_progress' );
+            OpenPAConsiglioPushNotifier::instance()->emit(
+                'start_votazione',
+                $this->jsonSerialize()
+            );
 
-        $now = time();
-        $this->dataMap[self::$startDateIdentifier]->fromString( $now );
-        $this->dataMap[self::$startDateIdentifier]->store();
+            $now = time();
+            $this->dataMap[self::$startDateIdentifier]->fromString( $now );
+            $this->dataMap[self::$startDateIdentifier]->store();
 
-        $registro = $this->getSeduta()->registroPresenze();
-        $this->dataMap[self::$presentiIdentifier]->fromString( $registro['in'] );
-        $this->dataMap[self::$presentiIdentifier]->store();
+            $registro = $this->getSeduta()->registroPresenze();
+            $this->dataMap[self::$presentiIdentifier]->fromString( $registro['in'] );
+            $this->dataMap[self::$presentiIdentifier]->store();
+        }
+        else
+        {
+            throw new Exception( "La seduta non è in corso" );
+        }
     }
 
     public function stop()
