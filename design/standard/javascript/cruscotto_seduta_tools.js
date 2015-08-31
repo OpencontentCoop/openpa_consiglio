@@ -153,16 +153,17 @@ jQuery.fn.extend({
     },
 
     startVotazione: function(id){
-        $(this).html('<i class="fa fa-spinner fa-spin"></i> Attendere');
-        startTimer();
-        Presenze.startVotoPartecipanti();
-        var text = "\n" + $(this).data('add_to_verbale') + ' ' + currentDate() + "\n";
-        Verbale.showVerbale($(this).data('verbale'),text);
+        var self = $(this);
         $.ajax({
-            url: $(this).data('action_url'),
+            url: self.data('action_url'),
             method: 'POST',
-            data: {idVotazione:$(this).data('votazione')},
+            data: {idVotazione:self.data('votazione')},
             success: function (data) {
+                self.html('<i class="fa fa-spinner fa-spin"></i> Attendere');
+                startTimer();
+                Presenze.startVotoPartecipanti();
+                var text = "\n" + self.data('add_to_verbale') + ' ' + currentDate() + "\n";
+                Verbale.showVerbale(self.data('verbale'),text);
                 Votazioni.reload();
                 clearErrors();
             },
