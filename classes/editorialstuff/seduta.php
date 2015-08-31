@@ -211,11 +211,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             );
         }
 
-        //        $tabs[] = array(
-        //            'identifier' => 'votazioni',
-        //            'name' => 'Votazioni e esito',
-        //            'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
-        //        );
+        $tabs[] = array(
+            'identifier' => 'votazioni',
+            'name' => 'Votazioni e esito',
+            'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
+        );
 
         $tabs[] = array(
             'identifier' => 'history',

@@ -307,11 +307,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 'name' => 'Gestione inviti',
                 'template_uri' => "design:{$templatePath}/parts/inviti.tpl"
             );
-            $tabs[] = array(
-                'identifier' => 'votazioni',
-                'name' => 'Votazioni',
-                'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
-            );
+//            $tabs[] = array(
+//                'identifier' => 'votazioni',
+//                'name' => 'Votazioni',
+//                'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
+//            );
             $tabs[] = array(
                 'identifier' => 'notifiche',
                 'name' => 'Mail di avviso',
