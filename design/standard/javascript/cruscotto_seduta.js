@@ -92,7 +92,7 @@ $(document).on('click', '.stopVotazione', function (e) {
 });
 
 $(document).ready(function () {
-    $('#page').hide();
+    $("#loading").addClass( 'text-danger' ).show();
     Presenze.sortPartecipanti();
 });
 
@@ -106,7 +106,7 @@ $(document).ajaxSend(function () {
 var socket = io(SocketUrl + ':' + SocketPort);
 
 socket.on('connect', function () {
-    $('#page').show();
+    $("#loading").removeClass( 'text-danger' ).hide();
 });
 
 socket.on('presenze', function (data) {

@@ -32,7 +32,7 @@
                         data-add_to_verbale="Fine votazione {$votazione.object.name|wash()}"
                         data-verbale="{if $votazione.object.data_map.punto.has_content}{$votazione.object.data_map.punto.content.id}{else}{$post.object_id}{/if}"
                         data-votazione="{$votazione.object_id}"
-                        data-action_url="{concat('consiglio/cruscotto_seduta/',$$post.object_id,'/stopVotazione')|ezurl(no)}">
+                        data-action_url="{concat('consiglio/cruscotto_seduta/',$post.object_id,'/stopVotazione')|ezurl(no)}">
                     Chiudi votazione
                 </button>
             {/if}
