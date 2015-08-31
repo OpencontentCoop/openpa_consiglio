@@ -26,6 +26,7 @@
             <div class="table-responsive">
                 <table class="table table-striped">
                     {foreach $seduta.odg as $punto}
+                        {if $punto.object.can_read}
                         <tr>
                             <td>
                                 {attribute_view_gui attribute=$punto.object.data_map.n_punto}
@@ -54,6 +55,7 @@
                                 {/if}
                             </td>
                         </tr>
+                        {/if}
                     {/foreach}
                 </table>
             </div>
