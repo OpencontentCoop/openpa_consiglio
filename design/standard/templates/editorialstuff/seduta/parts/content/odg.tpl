@@ -25,32 +25,32 @@
     <tbody>
     {if count($odg)|gt(0)}
         {foreach $odg as $punto}
-            {if $punto.seduta_id|eq($post.object_id)}
+            {if and( $punto.seduta_id|eq($post.object_id), $punto.object.can_read )}
                 <tr>
                     <td class="text-center">
                         <a href="{concat( 'editorialstuff/edit/punto/', $punto.object.id )|ezurl('no')}"
                            title="Dettaglio" class="btn btn-info btn-xs">Dettaglio</a>
                     </td>
-                    <td class='priority' data-name="n_punto"
+                    <td class='priority' {if $is_editor} data-name="n_punto"
                         data-pk="{$punto.object.data_map.n_punto.id}"
-                        data-url="{concat('/edit/attribute/',$punto.object.id,'/n_punto')|ezurl(no)}">
+                        data-url="{concat('/edit/attribute/',$punto.object.id,'/n_punto')|ezurl(no)}" {/if}>
                         {$punto.object.data_map.n_punto.data_int|wash()}
                     </td>
                     <td>
-                        <a href="#" class="editable" data-type="text" data-name="orario_trattazione"
+                        {if $is_editor}<a href="#" class="editable" data-type="text" data-name="orario_trattazione"
                            data-pk="{$punto.object.data_map.orario_trattazione.id}"
                            data-url="{concat('/edit/attribute/',$punto.object.id,'/orario_trattazione/1')|ezurl(no)}"
-                           data-title="Imposta orario">
+                           data-title="Imposta orario">{/if}
                             {attribute_view_gui attribute=$punto.object.data_map.orario_trattazione}
-                        </a>
+                        {if $is_editor}</a>{/if}
                     </td>
                     <td>
-                        <a href="#" class="editable" data-type="text" data-name="oggetto"
+                        {if $is_editor}<a href="#" class="editable" data-type="text" data-name="oggetto"
                            data-pk="{$punto.object.data_map.oggetto.id}"
                            data-url="{concat('/edit/attribute/',$punto.object.id,'/oggetto/1')|ezurl(no)}"
-                           data-title="Imposta oggetto">
+                           data-title="Imposta oggetto">{/if}
                             {attribute_view_gui attribute=$punto.object.data_map.oggetto}
-                        </a>
+                        {if $is_editor}</a>{/if}
                         {if $punto.object.data_map.alert.has_content}
                             <div class="alert alert-warning">
                                 {attribute_view_gui attribute=$punto.object.data_map.alert}
@@ -61,12 +61,12 @@
                     <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_documenti')|ezurl(no)}">{$punto.count_documenti}</a></td>
                     <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_inviti')|ezurl(no)}">{$punto.count_invitati}</a></td>
                     <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_osservazioni')|ezurl(no)}">{$punto.count_osservazioni}</a></td>
-	{if $is_editor}
+	                {if $is_editor}
                     <td>{include uri='design:editorialstuff/punto/parts/edit_state.tpl' post=$punto}</td>
                     <td>
                         <a href="{concat('consiglio/move/punto/',$punto.object.id)|ezurl(no)}" class="btn btn-warning btn-xs">Sposta</a>
                     </td>
-	{/if}
+	                {/if}
                     {*<td><i class="fa fa-reorder handle"></i> </td>*}
                 </tr>
             {/if}
