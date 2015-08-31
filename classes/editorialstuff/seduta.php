@@ -119,7 +119,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     public function protocollo()
     {
-        return $this->stringAttribute(  'protocollo', 'intval'  );
+        return $this->stringAttribute( 'protocollo', 'intval' );
     }
 
     public function verbale( $postId = null )
@@ -150,13 +150,14 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
             return $verbali[$postId];
         }
+
         return null;
     }
 
     public function saveVerbale( $hash )
     {
         $data = array();
-        foreach( $hash as $id => $text )
+        foreach ( $hash as $id => $text )
         {
             $data[] = $id . '|' . $text;
         }
@@ -210,11 +211,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             );
         }
 
-//        $tabs[] = array(
-//            'identifier' => 'votazioni',
-//            'name' => 'Votazioni e esito',
-//            'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
-//        );
+        //        $tabs[] = array(
+        //            'identifier' => 'votazioni',
+        //            'name' => 'Votazioni e esito',
+        //            'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
+        //        );
 
         $tabs[] = array(
             'identifier' => 'history',
@@ -344,7 +345,9 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             /** @var eZDate $data */
             $data = $this->dataMap['data']->content();
             /** @var eZTime $ora */
-            if ( isset( $this->dataMap['orario_conclusione'] ) && $this->dataMap['orario_conclusione']->hasContent() )
+            if ( isset( $this->dataMap['orario_conclusione'] )
+                 && $this->dataMap['orario_conclusione']->hasContent()
+            )
             {
                 $ora = $this->dataMap['orario_conclusione']->content();
 
@@ -379,15 +382,27 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
      */
     public function odg()
     {
-        $factory = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $this->id() ) )->getFactory();
-        $attributeID = eZContentObjectTreeNode::classAttributeIDByIdentifier( 'punto/seduta_di_riferimento' );
+        $factory = OCEditorialStuffHandler::instance(
+            'punto',
+            array( 'seduta' => $this->id() )
+        )->getFactory();
+        $attributeID = eZContentObjectTreeNode::classAttributeIDByIdentifier(
+            'punto/seduta_di_riferimento'
+        );
         $params = array(
-            'AllRelations' => eZContentFunctionCollection::contentobjectRelationTypeMask( array( 'attribute' ) ),
+            'AllRelations' => eZContentFunctionCollection::contentobjectRelationTypeMask(
+                array( 'attribute' )
+            ),
             'AsObject' => true
         );
-        $reverseObjects = $this->getObject()->reverseRelatedObjectList( false, $attributeID, false, $params );
+        $reverseObjects = $this->getObject()->reverseRelatedObjectList(
+            false,
+            $attributeID,
+            false,
+            $params
+        );
         $items = array();
-        foreach( $reverseObjects as $object )
+        foreach ( $reverseObjects as $object )
         {
             $dataMap = $object->attribute( 'data_map' );
             $orario = $dataMap['orario_trattazione']->content();
@@ -395,7 +410,10 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             {
                 $timestamp = $orario->attribute( 'time_of_day' );
             }
-            $items[$timestamp][] = new Punto( array( 'object_id' => $object->attribute( 'id' ) ), $factory );
+            $items[$timestamp][] = new Punto(
+                array( 'object_id' => $object->attribute( 'id' ) ),
+                $factory
+            );
         }
         //$sedutaId = $this->object->attribute( 'id' );
         //$items = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $sedutaId ) )
@@ -411,26 +429,40 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         //eZDebug::writeNotice( var_export( OCEditorialStuffHandler::getLastFetchData(), 1 ), __METHOD__ );
         ksort( $items );
         $odg = array();
-        foreach ($items as $i) {
-            $odg = array_merge($odg, $i);
+        foreach ( $items as $i )
+        {
+            $odg = array_merge( $odg, $i );
         }
+
         return $odg;
     }
 
     /**
-     * @return Timestamps[]
+     * @return string[]
      */
     public function odgTimes()
     {
-        $factory = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $this->id() ) )->getFactory();
-        $attributeID = eZContentObjectTreeNode::classAttributeIDByIdentifier( 'punto/seduta_di_riferimento' );
+        $factory = OCEditorialStuffHandler::instance(
+            'punto',
+            array( 'seduta' => $this->id() )
+        )->getFactory();
+        $attributeID = eZContentObjectTreeNode::classAttributeIDByIdentifier(
+            'punto/seduta_di_riferimento'
+        );
         $params = array(
-            'AllRelations' => eZContentFunctionCollection::contentobjectRelationTypeMask( array( 'attribute' ) ),
+            'AllRelations' => eZContentFunctionCollection::contentobjectRelationTypeMask(
+                array( 'attribute' )
+            ),
             'AsObject' => true
         );
-        $reverseObjects = $this->getObject()->reverseRelatedObjectList( false, $attributeID, false, $params );
+        $reverseObjects = $this->getObject()->reverseRelatedObjectList(
+            false,
+            $attributeID,
+            false,
+            $params
+        );
         $items = array();
-        foreach( $reverseObjects as $object )
+        foreach ( $reverseObjects as $object )
         {
             $dataMap = $object->attribute( 'data_map' );
             $orario = $dataMap['orario_trattazione']->content();
@@ -441,6 +473,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             $items[] = $timestamp;
         }
         asort( $items );
+
         return ( $items );
     }
 
@@ -454,6 +487,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             $tempDataMap = $v->getObject()->dataMap();
             $rows[$tempDataMap['n_punto']->content()] = $v->jsonSerialize();
         }
+
         return $rows;
     }
 
@@ -614,10 +648,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         if ( !$asObject )
         {
             $ids = array();
-            foreach( $this->partecipanti as $partecipante )
+            foreach ( $this->partecipanti as $partecipante )
             {
                 $ids[] = $partecipante->id();
             }
+
             return $ids;
         }
 
@@ -649,7 +684,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             }
             $data['hash_user_id'][$partecipante->id()] = $presente;
             $data['hash_user_id_presenza'][$partecipante->id()] = $presenza;
-            if (  $presente )
+            if ( $presente )
             {
                 $data['in']++;
             }
@@ -692,16 +727,21 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     /**
      * Checks if the object is visible by App
+     *
      * @return bool
      */
 
     public function isVisibleByApp()
     {
-        $notVisibleStates = array('draft', 'pending', 'published');
-        if (in_array($this->currentState()->attribute( 'identifier' ), $notVisibleStates))
+        $notVisibleStates = array( 'draft', 'pending', 'published' );
+        if ( in_array( $this->currentState()->attribute( 'identifier' ), $notVisibleStates ) )
+        {
             return false;
+        }
         else
+        {
             return true;
+        }
     }
 
 
@@ -753,6 +793,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 }
             }
         }
+
         return null;
     }
 
@@ -768,6 +809,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 }
             }
         }
+
         return null;
     }
 
@@ -784,7 +826,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     {
         $registroPresenze = $this->registroPresenze();
         $presenti = array();
-        foreach( $registroPresenze['hash_user_id'] as $userId => $bool )
+        foreach ( $registroPresenze['hash_user_id'] as $userId => $bool )
         {
             if ( $bool )
             {
@@ -840,22 +882,23 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             );
         }
         krsort( $data );
+
         return $data;
     }
 
     public function onCreate()
     {
         $this->createUpdateConvocazione();
-	$object = $this->getObject();
-	$object->setAttribute( 'published', $this->dataOra() );
-	$object->store();
-	eZSearch::addObject( $object );
+        $object = $this->getObject();
+        $object->setAttribute( 'published', $this->dataOra() );
+        $object->store();
+        eZSearch::addObject( $object );
     }
 
     public function onUpdate()
     {
         $this->createUpdateConvocazione();
-	$object = $this->getObject();
+        $object = $this->getObject();
         $object->setAttribute( 'published', $this->dataOra() );
         $object->store();
         eZSearch::addObject( $object );
@@ -866,7 +909,9 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         if ( $actionIdentifier == 'GetConvocazione' )
         {
             $convocazione = ConvocazioneSeduta::get( $this->getObject() );
-            $downloadUrl = 'editorialstuff/download/convocazione_seduta/' . $convocazione->attribute( 'id' ) . '?' . http_build_query( $actionParameters );
+            $downloadUrl = 'editorialstuff/download/convocazione_seduta/' . $convocazione->attribute(
+                    'id'
+                ) . '?' . http_build_query( $actionParameters );
             $module->redirectTo( $downloadUrl );
         }
         elseif ( $actionIdentifier == 'GetAttestatoPresenza' )
@@ -880,7 +925,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 $tpl->setVariable( 'seduta', $this );
                 $tpl->setVariable( 'politico', $politico );
                 $politicoDataMap = $politico->dataMap();
-                $tpl->setVariable( 'sesso', $politicoDataMap['sesso']->toString());
+                $tpl->setVariable( 'sesso', $politicoDataMap['sesso']->toString() );
                 $competenza = $this->stringRelatedObjectAttribute( 'organo', 'name' );
 
                 $tpl->setVariable( 'organo', $competenza );
@@ -899,9 +944,14 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                         $tpl->setVariable( 'segretario', $segretario->attribute( 'name' ) );
 
                         if ( $segretarioDataMap['firma']->hasContent()
-                             && $segretarioDataMap['firma']->attribute( 'data_type_string' ) == 'ezimage' )
+                             && $segretarioDataMap['firma']->attribute(
+                                'data_type_string'
+                            ) == 'ezimage'
+                        )
                         {
-                            $image = $segretarioDataMap['firma']->content()->attribute( 'original' );
+                            $image = $segretarioDataMap['firma']->content()->attribute(
+                                'original'
+                            );
                             $url = $image['url'];
                             eZURI::transformURI( $url, false, 'full' );
                             $tpl->setVariable( 'firma', $url );

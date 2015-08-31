@@ -47,6 +47,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $attributes[] = 'votazioni';
         $attributes[] = 'verbale';
         $attributes[] = 'materia';
+        $attributes[] = 'data_doc';
 
         return $attributes;
     }
@@ -125,7 +126,29 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             return $this->getMateria( 'name' );
         }
 
+        if ( $property == 'data_doc' )
+        {
+            /** @return string[] */
+            return $this->getDataDoc();
+        }
+
         return parent::attribute( $property );
+    }
+
+    /**
+     * calcola la data della prima documentazione allegata in base alla history
+     */
+    public function getDataDoc()
+    {
+        $conds = array( 'handler' => 'history', 'object_id' => $this->id(), 'type' => 'add_file' );
+        $sort = array( 'created_time' => 'asc' );
+        $aLimit = array( 'offset' => 0, 'length' => 1 );
+        $firstFileHistory = OCEditorialStuffHistory::fetchObjectList( OCEditorialStuffHistory::definition(), null, $conds, $sort, $aLimit );
+        if ( isset( $firstFileHistory[0] ) && $firstFileHistory[0] instanceof OCEditorialStuffHistory )
+        {
+            return $firstFileHistory[0]->attribute( 'created_time' );
+        }
+        return null;
     }
 
     /**
@@ -1397,8 +1420,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     {
         $locale = eZLocale::instance();
 
-        // Todo: aggiungere data
-
         return array(
             'id' => $this->id(),
             'stato' => $this->currentState()->attribute( 'identifier' ),
@@ -1413,6 +1434,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             'referente_politico' => $this->stringRelatedObjectAttribute( 'referente_politico', 'name' ),
             'referente_tecnico' => $this->stringRelatedObjectAttribute( 'referente_tecnico', 'name' ),
             'documenti' => $this->attribute( 'count_documenti' ),
+            'data_doc' => $this->attribute( 'data_doc' ),
             'invitati' => $this->attribute( 'count_invitati' ),
             'osservazioni' => $this->attribute( 'count_osservazioni' ),
             'consenti_osservazioni' => intval( $this->dataMap['consenti_osservazioni']->toString() ),
