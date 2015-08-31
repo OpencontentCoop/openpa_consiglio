@@ -14,7 +14,7 @@
                 {foreach $post.votazioni as $votazione}
                     <tr>
                         <td class="text-center">
-                            <a href="{concat( 'editorialstuff/edit/votazioni/', $votazione.object.id )|ezurl('no')}" title="Dettaglio" class="btn btn-info btn-xs">Dettaglio</a>
+                            <a href="{concat( 'editorialstuff/edit/votazione/', $votazione.object.id )|ezurl('no')}" title="Dettaglio" class="btn btn-info btn-xs">Dettaglio</a>
                         </td>
                         <td>{$votazione.object.published|l10n('shortdate')}</td>
                         <td>{attribute_view_gui attribute=$votazione.object.data_map.short_text}</td>
