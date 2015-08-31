@@ -57,7 +57,7 @@
                 success: function(data){ var label = $( this ).parent().find('.label-ora'); if (label.hasClass( 'text-info' )) {label.attr('class', 'text-warning'); label.text(' (Orario impostato Manualmente)');}},
                 error: function(response, newValue) {if(response.responseJSON.status == 'error') return response.responseJSON.message;}
             };
-            $(document).on("click", ":submit", function(e){
+            $(document).on("click", ".well :submit", function(e){
                 var currentAction = $(this).attr('name');
                 var form =  $(this).parents('form');
                 if ( form.attr('id') == 'add-invitato' ){

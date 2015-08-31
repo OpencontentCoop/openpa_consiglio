@@ -116,4 +116,40 @@ class Invito extends OCEditorialStuffPost
         }
         return $invito;
     }
+
+    /**
+     * @param eZContentObject $puntoOdg
+     * @param eZContentObject $invitato
+     */
+    public static function remove( eZContentObject $puntoOdg, eZContentObject $invitato )
+    {
+        $remoteId = self::generateRemoteId( $puntoOdg, $invitato );
+        $invito = eZContentObject::fetchByRemoteID( $remoteId );
+        if ( $invito instanceof eZContentObject )
+        {
+            /** @var eZContentObjectAttribute[] $dataMap */
+            $dataMap = $invito->attribute( 'data_map' );
+            $objectIds =  explode( '-', $dataMap[self::$objectIdentifier]->toString() );
+            $removeId = $puntoOdg->attribute( 'id' );
+            foreach( $objectIds as $index => $id )
+            {
+                if ( $id == $removeId )
+                {
+                    unset( $objectIds[$index] );
+                }
+            }
+            if ( count( $objectIds ) == 0 )
+            {
+                eZContentOperationCollection::deleteObject( array( $invito->attribute( 'main_node_id' ) ) );
+            }
+            else
+            {
+                $objectIdsString = implode( '-', array_unique( $objectIds ) );
+                $dataMap[self::$objectIdentifier]->fromString( $objectIdsString );
+                $dataMap[self::$objectIdentifier]->store();
+                eZSearch::addObject( $invito, true );
+                eZContentCacheManager::clearObjectViewCacheIfNeeded( $invito->attribute( 'id' ) );
+            }
+        }
+    }
 }

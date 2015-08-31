@@ -66,7 +66,7 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
 
             $punti = array_values( $punti );
 
-            $oraInvito = $dataMap['ora']->hasContent() ? $locale->formatShortTime($dataMap['ora']->content()->attribute( 'timestamp' )) : $punti[0]['ora'];
+            $oraInvito = isset( $dataMap['ora'] ) && $dataMap['ora']->hasContent() ? $locale->formatShortTime($dataMap['ora']->content()->attribute( 'timestamp' )) : $punti[0]['ora'];
 
             /** @var eZContentObjectAttribute[] $sedutaDataMap */
             $sedutaDataMap = $seduta->getObject()->dataMap();
@@ -77,7 +77,7 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
             $variables = array(
                 'line_height' => isset( $getParameters['line_height'] ) ? $getParameters['line_height'] : 1.2,
                 'data' => $currentPost->getObject()->attribute( 'published' ),
-                'sesso' => $userDataMap['sesso']->toString(),
+                'sesso' =>  isset( $userDataMap['sesso'] ) ? $userDataMap['sesso']->toString() : '',
                 'invitato' => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content() . ' ' . $userDataMap['cognome']->content(),
                 'ruolo' => nl2br($userDataMap['ruolo']->content()),
                 'indirizzo' => isset( $userDataMap['indirizzo'] ) ? nl2br($userDataMap['indirizzo']->content()) : '',

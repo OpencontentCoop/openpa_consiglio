@@ -407,18 +407,66 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     {
         if ( $attributeIdentifier == 'documenti' )
         {
-            OCEditorialStuffHistory::addHistoryToObjectId(
-                $this->id(),
-                'remove_file',
-                array(
-                    'object_id' => $object->attribute( 'id' ),
-                    'name' => $object->attribute( 'name' ),
-                    'attribute' => $attributeIdentifier
-                )
-            );
+            if ( isset( $this->dataMap[$attributeIdentifier] ) )
+            {
+                $ids = explode( '-', $this->dataMap[$attributeIdentifier]->toString() );
+                $removeId = $object->attribute( 'id' );
+                foreach( $ids as $index => $id )
+                {
+                    if ( $id == $removeId )
+                    {
+                        unset( $ids[$index] );
+                    }
+                }
+                $ids = array_unique( $ids );
+                $this->dataMap[$attributeIdentifier]->fromString( implode( '-', $ids ) );
+                $this->dataMap[$attributeIdentifier]->store();
+                eZSearch::addObject( $this->getObject() );
+                eZContentCacheManager::clearObjectViewCacheIfNeeded( $this->id() );
+
+                OCEditorialStuffHistory::addHistoryToObjectId(
+                    $this->id(),
+                    'remove_file',
+                    array(
+                        'object_id' => $object->attribute( 'id' ),
+                        'name' => $object->attribute( 'name' ),
+                        'attribute' => $attributeIdentifier
+                    )
+                );
+
+                try
+                {
+                    $allegato = OCEditorialStuffHandler::instance( 'allegati_seduta' )
+                        ->fetchByObjectId( $object->attribute( 'id' ) );
+                    if ( $allegato instanceof OCEditorialStuffPostInterface )
+                    {
+                        $this->createNotificationEvent( 'remove_file', $allegato );
+                    }
+                }
+                catch ( Exception $e )
+                {
+
+                }
+            }
+
         }
         elseif ( $attributeIdentifier == 'osservazioni' )
         {
+            $ids = explode( '-', $this->dataMap[$attributeIdentifier]->toString() );
+            $removeId = $object->attribute( 'id' );
+            foreach( $ids as $index => $id )
+            {
+                if ( $id == $removeId )
+                {
+                    unset( $ids[$index] );
+                }
+            }
+            $ids = array_unique( $ids );
+            $this->dataMap[$attributeIdentifier]->fromString( implode( '-', $ids ) );
+            $this->dataMap[$attributeIdentifier]->store();
+            eZSearch::addObject( $this->getObject() );
+            eZContentCacheManager::clearObjectViewCacheIfNeeded( $this->id() );
+
             OCEditorialStuffHistory::addHistoryToObjectId(
                 $this->id(),
                 'remove_osservazione',
@@ -813,6 +861,16 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             }
         }
 
+        if ( $actionIdentifier == 'RemoveInvitato' && isset( $actionParameters['invitato'] ) )
+        {
+            $invitatoObject = eZContentObject::fetch( $actionParameters['invitato'] );
+            if ( $invitatoObject instanceof eZContentObject )
+            {
+                //$ora =  $actionParameters['ora'];
+                $this->removeInvitato( $invitatoObject );
+            }
+        }
+
         if ( $actionIdentifier == 'SortAllegati'
              && isset( $actionParameters['identifier'] )
              && isset( $actionParameters['sort_ids'] ) )
@@ -962,6 +1020,62 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
         return false;
     }
+
+    protected function removeInvitato( eZContentObject $object )
+    {
+        try
+        {
+            $attributeIdentifier = 'invitati';
+            $invitatoFactory = OCEditorialStuffHandler::instance( 'invitato' );
+            $invitato = $invitatoFactory->fetchByObjectId( $object->attribute( 'id' ) );
+            $removeId = $object->attribute( 'id' );
+            if ( $invitato instanceof OCEditorialStuffPostInterface )
+            {
+                if ( isset( $this->dataMap[$attributeIdentifier] ) )
+                {
+                    Invito::remove( $this->getObject(), $invitato->getObject() );
+
+                    // aggiorno attributo del punto
+                    $ids = explode( '-', $this->dataMap[$attributeIdentifier]->toString() );
+                    foreach( $ids as $index => $id )
+                    {
+                        if ( $id == $removeId )
+                        {
+                            unset( $ids[$index] );
+                        }
+                    }
+                    $ids = array_unique( $ids );
+                    $this->dataMap[$attributeIdentifier]->fromString( implode( '-', $ids ) );
+                    $this->dataMap[$attributeIdentifier]->store();
+                    eZSearch::addObject( $this->getObject() );
+                    eZContentCacheManager::clearObjectViewCacheIfNeeded( $this->id() );
+
+                    // aggiorno storia del punto
+                    OCEditorialStuffHistory::addHistoryToObjectId(
+                        $this->id(),
+                        'remove_invitato',
+                        array(
+                            'object_id' => $invitato->id(),
+                            'name' => $invitato->getObject()->attribute( 'name' )
+                        )
+                    );
+
+                    // notifico il punto
+                    $this->createNotificationEvent( 'remove_invitato', $invitato );
+
+                    return true;
+                }
+            }
+        }
+        catch ( Exception $e )
+        {
+
+        }
+
+        return false;
+    }
+
+
 
     /**
      * Restituisce un array con gli id dei referenti politici e tecnici

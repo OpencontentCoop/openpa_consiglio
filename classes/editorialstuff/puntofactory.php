@@ -171,7 +171,11 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
             'update_file' => array(
                 'name' => 'Aggiornamento di un allegato ad un punto pubblicato',
                 'handler_method' => 'handleUpdateFileNotification'
-            )
+            ),
+            'remove_file' => array(
+                'name' => 'Rimozione di un allegato ad un punto pubblicato',
+                'handler_method' => 'handleRemoveFileNotification'
+            ),
         );
     }
 }

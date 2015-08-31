@@ -1,0 +1,1 @@
+Rimossa osservazione {$item.parameters.name|wash()} da {$item.parameters.attribute|wash()}

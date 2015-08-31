@@ -8,6 +8,9 @@
         <th>Protocollo invito</th>
         <th>Ora</th>
         <th width="1"></th>
+        {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
+            <th></th>
+        {/if}
     </tr>
     </thead>
     <tbody>
@@ -86,6 +89,15 @@
                 </form>
                 {/if}
             </td>
+            {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
+                <td>
+                    <form action="{concat('editorialstuff/action/punto/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post" id="add-invitato" class="form-horizontal">
+                        <input type="hidden" name="ActionIdentifier" value="RemoveInvitato" />
+                        <input type="hidden" name="ActionParameters[invitato]" value="{$invitato.object_id}" />
+                        <button type="submit" name="RemoveInvitato" class="btn btn-link btn-xs"><i class="fa fa-trash"></i></button>
+                    </form>
+                </td>
+            {/if}
             {undef $invito}
         </tr>
     {/foreach}

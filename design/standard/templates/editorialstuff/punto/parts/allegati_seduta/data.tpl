@@ -14,6 +14,9 @@
                 <th>Visibilit&agrave;</th>
                 {/if}
                 <th>Download</th>
+                {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
+                    <th></th>
+                {/if}
             </tr>
             </thead>
             <tbody>
@@ -43,6 +46,9 @@
                     <td>{include uri='design:editorialstuff/default/parts/edit_state.tpl' post=$allegato}</td>
                     {/if}
                     <td>{attribute_view_gui attribute=$allegato.object.data_map.file}</td>
+                    {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
+                        <td><a href="{concat('editorialstuff/file/punto/remove/', $post.object.id, '/documenti/', $allegato.object.id )|ezurl(no)}" class="btn btn-link btn-xs"><i class="fa fa-trash"></i></a></td>
+                    {/if}
                 </tr>
             {/foreach}
             </tbody>
