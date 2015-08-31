@@ -24,8 +24,7 @@
         {if $indirizzo}{$indirizzo}{/if}</p>
     </div>
 
-    <p id="oggetto">OGGETTO: convocazione seduta
-        di {if $organo|eq('Giunta')}Giunta del Consiglio delle autonomie locali{else}{$organo}{/if}</p>
+    <p id="oggetto">OGGETTO: convocazione seduta {if $organo|eq('Giunta')}della Giunta{/if} del Consiglio delle autonomie locali</p>
 
     <p class="indent">Con la presente ho il piacere di invitarla alla riunione
         {if $organo|eq('Giunta')}della Giunta{/if} del Consiglio delle autonomie locali,</p>
@@ -39,7 +38,7 @@
     {if gt($punti|count(), 1)}
         <p>Per la trattazione dei seguenti punti posti all'ordine del giorno, concernenti:</p>
     {else}
-        <p>Per la trattazione del punto {$punti[0].n_punto} posto all'ordine del giorno,
+        <p>per la trattazione del punto {$punti[0].n_punto} posto all'ordine del giorno,
             concernente:</p>
     {/if}
 
