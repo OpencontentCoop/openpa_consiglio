@@ -123,7 +123,7 @@ class Politico extends OCEditorialStuffPost
              && $this->dataMap['image']->attribute( 'data_type_string' ) == 'ezimage'
         )
         {
-            $image = $this->dataMap['image']->content()->attribute( 'extentsquaremedium' );
+            $image = $this->dataMap['image']->content()->attribute( 'squaremedium' );
             $imageUrl = $image['url'];
             eZURI::transformURI( $imageUrl, false, 'full' );
         }
