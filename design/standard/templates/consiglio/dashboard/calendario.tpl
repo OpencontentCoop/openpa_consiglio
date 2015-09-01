@@ -50,7 +50,9 @@
                             <td>
                                 {if $punto.object.data_map.materia.has_content}
                                     {foreach $punto.object.data_map.materia.content.relation_list as $item}
-                                        <span class="label {if $materie_like|contains($item.contentobject_id)}label-warning{else}label-default{/if}">{fetch(content, object, hash(object_id,$item.contentobject_id)).name|shorten('30')|wash()}</span>
+                                        <span class="label {if $materie_like|contains($item.contentobject_id)}label-warning{else}label-default{/if}">
+										  {fetch(content, object, hash(object_id,$item.contentobject_id)).name|shorten('30')|wash()}
+										</span>
                                     {/foreach}
                                 {/if}
                             </td>

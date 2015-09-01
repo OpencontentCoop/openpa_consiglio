@@ -17,7 +17,8 @@
             </thead>
             <tbody>
             {foreach $post.osservazioni as $osservazione}
-                <tr>
+                {if $osservazione.object.can_read}
+				<tr>
                     <td class="text-center">
                         <a href="{concat( 'editorialstuff/edit/osservazioni/', $osservazione.object.id )|ezurl('no')}" title="Dettaglio" class="btn btn-info btn-xs">Dettaglio</a>
                     </td>
@@ -33,6 +34,7 @@
                         <td><a href="{concat('editorialstuff/file/punto/remove/', $post.object.id, '/osservazioni/', $osservazione.object.id )|ezurl(no)}" class="btn btn-link btn-xs"><i class="fa fa-trash"></i></a></td>
                     {/if}
                 </tr>
+				{/if}
             {/foreach}
             </tbody>
         </table>

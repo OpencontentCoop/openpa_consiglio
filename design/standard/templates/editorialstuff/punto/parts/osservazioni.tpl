@@ -15,14 +15,14 @@
                           class="upload-form form-horizontal">
                         <div class="form-group">
                             <label for="OsservazioneTitle"
-                                   class="col-sm-2 control-label">Testo breve</label>
+                                   class="col-sm-2 control-label">Titolo</label>
 
                             <div class="col-sm-10">
                                 <textarea class="form-control" name="FileAttributes[messaggio]"
                                        id="OsservazioneTitle"></textarea>
                             </div>
                         </div>
-                        {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
+                        {*if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))*}
                         <div class="form-group">
                             <label for="OsservazioneState"
                                    class="col-sm-2 control-label">Visibilità</label>
@@ -39,7 +39,7 @@
                                 </select>
                             </div>
                         </div>
-                        {/if}
+                        {*/if*}
 
                         {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
                             <div class="form-group">
