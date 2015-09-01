@@ -1,5 +1,5 @@
 {def $userAccount = fetch(user,current_user)}
-<form action="{concat("content/edit/",$userAccount.contentobject_id)|ezurl(no)}" method="post"
+<form action="{"user/edit/"|ezurl(no)}" method="post"
       name="Edit">
 
     <dl class="dl-horizontal">
