@@ -888,6 +888,12 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         eZDebug::writeNotice( "Aggiorno seduta {$seduta->id()}", __METHOD__ );
         $seduta->reorderOdg();
 
+        eZDebug::writeNotice( "Aggiorno inviti", __METHOD__ );
+        foreach( $this->getInvitati() as $invitato )
+        {
+            Invito::move( $this->getObject(), $invitato->getObject(), $currentSeduta, $seduta );
+        }
+
         if ( !$move )
         {
             eZDebug::writeError( "Spostamento non riuscito", __METHOD__ );
@@ -1216,7 +1222,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     }
 
     /**
-     * @return OCEditorialStuffPostInterface[]
+     * @return Invitato[]
      */
     protected function getInvitati()
     {

@@ -32,6 +32,7 @@ class Invito extends OCEditorialStuffPost
         $locale = eZLocale::instance();
         $puntoFactory = OCEditorialStuffHandler::instance( 'punto' )->getFactory();
 
+        /** @var eZContentObjectAttribute[] $dataMap */
         $dataMap = $this->object->dataMap();
         $listPunti = explode( '-', $dataMap['object']->toString() );
         foreach ( $listPunti as $puntoId )
@@ -43,10 +44,13 @@ class Invito extends OCEditorialStuffPost
                 /** @var eZContentObjectAttribute[] $puntoDataMap */
                 $puntoDataMap = $punto->getObject()->dataMap();
 
+                /** @var eZDateTime $orarioTrattazione */
+                $orarioTrattazione = $puntoDataMap['orario_trattazione']->content();
+
                 $punti [$puntoDataMap['n_punto']->content()] = array(
                     'object_id' => $punto->object->ID,
                     'n_punto' => $puntoDataMap['n_punto']->content(),
-                    'ora' => $locale->formatShortTime($puntoDataMap['orario_trattazione']->content()->attribute( 'timestamp' )),
+                    'ora' => $locale->formatShortTime($orarioTrattazione->attribute( 'timestamp' )),
                     'oggetto' => $puntoDataMap['oggetto']->content()
                 );
             }
@@ -64,15 +68,19 @@ class Invito extends OCEditorialStuffPost
 
     }
 
-    protected static function generateRemoteId( eZContentObject $puntoOdg, eZContentObject $invitato )
+    protected static function generateRemoteId(
+        eZContentObject $puntoOdg,
+        eZContentObject $invitato,
+        Seduta $seduta = null )
     {
         $punto = new Punto(
             array( 'object_id' => $puntoOdg->attribute( 'id' ) ),
             OCEditorialStuffPostFactory::instance( 'punto')
         );
+        $sedutaId = $seduta instanceof Seduta ? $seduta->id() : $punto->getSeduta( false );
         $values = array(
             self::$classIdentifier,
-            $punto->getSeduta( false ),
+            $sedutaId,
             $invitato->attribute( 'id' ),
         );
         return implode( '_', $values );
@@ -81,13 +89,13 @@ class Invito extends OCEditorialStuffPost
     /**
      * @param eZContentObject $puntoOdg
      * @param eZContentObject $invitato
+     * @param Seduta $seduta
      *
-     * @return eZContentObject
-     * @throws Exception
+     * @return eZContentObject|null
      */
-    public static function create( eZContentObject $puntoOdg, eZContentObject $invitato )
+    public static function create( eZContentObject $puntoOdg, eZContentObject $invitato, Seduta $seduta = null )
     {
-        $remoteId = self::generateRemoteId( $puntoOdg, $invitato );
+        $remoteId = self::generateRemoteId( $puntoOdg, $invitato, $seduta );
         $invito = eZContentObject::fetchByRemoteID( $remoteId );
 
         if ( !$invito instanceof eZContentObject )
@@ -120,10 +128,11 @@ class Invito extends OCEditorialStuffPost
     /**
      * @param eZContentObject $puntoOdg
      * @param eZContentObject $invitato
+     * @param Seduta $seduta
      */
-    public static function remove( eZContentObject $puntoOdg, eZContentObject $invitato )
+    public static function remove( eZContentObject $puntoOdg, eZContentObject $invitato, Seduta $seduta = null )
     {
-        $remoteId = self::generateRemoteId( $puntoOdg, $invitato );
+        $remoteId = self::generateRemoteId( $puntoOdg, $invitato, $seduta );
         $invito = eZContentObject::fetchByRemoteID( $remoteId );
         if ( $invito instanceof eZContentObject )
         {
@@ -151,5 +160,16 @@ class Invito extends OCEditorialStuffPost
                 eZContentCacheManager::clearObjectViewCacheIfNeeded( $invito->attribute( 'id' ) );
             }
         }
+    }
+
+
+    public static function move(
+        eZContentObject $puntoOdg,
+        eZContentObject $invitato,
+        Seduta $fromSeduta,
+        Seduta $toSeduta )
+    {
+        Invito::remove( $puntoOdg, $invitato, $fromSeduta );
+        Invito::create( $puntoOdg, $invitato, $toSeduta );
     }
 }
