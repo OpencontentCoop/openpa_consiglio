@@ -143,6 +143,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $conds = array( 'handler' => 'history', 'object_id' => $this->id(), 'type' => 'add_file' );
         $sort = array( 'created_time' => 'asc' );
         $aLimit = array( 'offset' => 0, 'length' => 1 );
+        /** @var OCEditorialStuffHistory[] $firstFileHistory */
         $firstFileHistory = OCEditorialStuffHistory::fetchObjectList( OCEditorialStuffHistory::definition(), null, $conds, $sort, $aLimit );
         if ( isset( $firstFileHistory[0] ) && $firstFileHistory[0] instanceof OCEditorialStuffHistory )
         {
@@ -640,15 +641,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             $this->getSeduta()->reorderOdg();
         }
-
-
-        // TODO: serve un metodo che elimina i vecchi referenti
-        $this->addUsersToNotifications();
-
-        if ( $this->is( '_public' ) )
-        {
-            $this->createNotificationEvent( 'update' );
-        }
     }
 
     public function handleCreateNotification( $event, OCEditorialStuffPostInterface $refer = null )
@@ -678,33 +670,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             foreach ( $utentiAppassionati as $subscribersRule )
             {
                 $template = 'punto/publish/interessato';
-                $this->createNotificationItem( $event, $subscribersRule, $template );
-            }
-        }
-    }
-
-    public function handleUpdateNotification( $event, OCEditorialStuffPostInterface $refer = null )
-    {
-        // prepara notifica per gli iscritti all'update
-        $subscribersRules = OCEditorialStuffNotificationRule::fetchList(
-            'punto/update',
-            null,
-            $this->id()
-        );
-
-        foreach ( $subscribersRules as $subscribersRule )
-        {
-            $template = 'punto/update';
-            $template .= in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? '/referente' : '/consigliere';
-            $this->createNotificationItem( $event, $subscribersRule, $template );
-        }
-
-        $utentiAppassionati = $this->getAppassionati();
-        if ( !empty( $utentiAppassionati ) )
-        {
-            foreach ( $utentiAppassionati as $subscribersRule )
-            {
-                $template = 'punto/update/interessato';
                 $this->createNotificationItem( $event, $subscribersRule, $template );
             }
         }
@@ -828,13 +793,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                     foreach ( $oldAttributes as $oldAttribute )
                     {
                         $newAttribute = $newAttributes[$oldAttribute->attribute( 'contentclass_attribute_identifier' )];
-                        /** @var eZContentClassAttribute $contentClassAttr */
-                        $contentClassAttr = $newAttribute->attribute( 'contentclass_attribute' );
-//                        $diff[$contentClassAttr->attribute( 'id' )] = $contentClassAttr->diff(
-//                            $oldAttribute,
-//                            $newAttribute,
-//                            false
-//                        );
                         if ( $oldAttribute->toString() !== $newAttribute->toString() )
                         {
                             $diff[] = $newAttribute;
@@ -991,7 +949,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
      *
      * @return bool
      */
-    protected function addInvitato( eZContentObject $object, $ora = false )
+    protected function addInvitato( eZContentObject $object )
     {
         try
         {
@@ -1003,7 +961,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 if ( isset( $this->dataMap[$attributeIdentifier] ) )
                 {
                     // creo invito
-                    $invito = Invito::create( $this->getObject(), $invitato->getObject(), $ora );
+                    $invito = Invito::create( $this->getObject(), $invitato->getObject() );
 
                     if ( $invito instanceof eZContentObject )
                     {
@@ -1419,6 +1377,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     public function jsonSerialize()
     {
         $locale = eZLocale::instance();
+        /** @var eZDateTime $orarioTrattazione */
+        $orarioTrattazione = $this->dataMap['orario_trattazione']->content();
 
         return array(
             'id' => $this->id(),
@@ -1428,7 +1388,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             'numero'  => $this->stringAttribute( 'n_punto', 'intval' ),
             'oggetto' => $this->dataMap['oggetto']->content(),
             'orario'  => $locale->formatShortTime(
-                $this->dataMap['orario_trattazione']->content()->attribute( 'timestamp' )
+                $orarioTrattazione->attribute( 'timestamp' )
             ),
             'materia' => $this->getMateria( 'name' ),
             'referente_politico' => $this->stringRelatedObjectAttribute( 'referente_politico', 'name' ),
@@ -1500,7 +1460,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     public function votazioni()
     {
         $data = array();
-        /** @var eZContentObject $votazioni */
+        /** @var eZContentObject[] $votazioni */
         $votazioni = $this->getObject()->reverseRelatedObjectList(
             false,
             Votazione::puntoClassAttributeId()

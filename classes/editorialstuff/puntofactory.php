@@ -149,33 +149,33 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
     {
         return array(
             'create' => array(
-                'name' => 'Creazione di un nuovo punto',
+                'name' => 'Creazione di un nuovo punto non pubblico',
                 'handler_method' => 'handleCreateNotification'
             ),
             'publish' => array(
                 'name' => 'Pubblicazione di un nuovo punto',
                 'handler_method' => 'handlePublishNotification'
             ),
-            'update' => array(
-                'name' => 'Aggiornamento di un punto pubblicato',
-                'handler_method' => 'handleUpdateNotification'
-            ),
             'move' => array(
-                'name' => 'Spostamento di un punto pubblicato',
+                'name' => 'Spostamento di un punto',
                 'handler_method' => 'handleMoveNotification'
             ),
             'add_file' => array(
-                'name' => 'Inserimento di un allegato ad un punto pubblicato',
+                'name' => 'Inserimento di un allegato ad un punto',
                 'handler_method' => 'handleAddFileNotification'
             ),
             'update_file' => array(
-                'name' => 'Aggiornamento di un allegato ad un punto pubblicato',
+                'name' => 'Aggiornamento di un allegato ad un punto',
                 'handler_method' => 'handleUpdateFileNotification'
             ),
             'remove_file' => array(
-                'name' => 'Rimozione di un allegato ad un punto pubblicato',
+                'name' => 'Rimozione di un allegato ad un punto',
                 'handler_method' => 'handleRemoveFileNotification'
             ),
+            'add_osservazione' => array(
+                'name' => 'Inserimento di un\'osservazione ad un punto',
+                'handler_method' => 'handleAddFileNotification'
+            )
         );
     }
 }
