@@ -29,6 +29,7 @@ class Audizione extends OCEditorialStuffPostNotifiable implements OCEditorialStu
     public function attributes()
     {
         $attributes = parent::attributes();
+        $attributes[] = 'data_ora';
         $attributes[] = 'osservazioni';
         $attributes[] = 'count_osservazioni';
         $attributes[] = 'documenti';
@@ -41,6 +42,11 @@ class Audizione extends OCEditorialStuffPostNotifiable implements OCEditorialStu
 
     public function attribute( $property )
     {
+        if ( $property == 'data_ora' )
+        {
+            return $this->dataMap['data_trattazione']->content()->attribute( 'timestamp' );
+        }
+
         if ( $property == 'osservazioni' )
         {
             /** @return Osservazione[] */
@@ -78,6 +84,14 @@ class Audizione extends OCEditorialStuffPostNotifiable implements OCEditorialStu
         }
 
         return parent::attribute( $property );
+    }
+
+    public function indexFromTime()
+    {
+        return ezfSolrDocumentFieldBase::preProcessValue(
+            $this->attribute( 'data_ora' ),
+            'date'
+        );
     }
 
     /**
