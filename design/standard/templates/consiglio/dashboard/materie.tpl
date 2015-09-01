@@ -1,5 +1,5 @@
 {def $materie_like = fetch( editorialstuff, notification_rules_post_ids, hash( type, 'materia/like', user_id, fetch(user,current_user).contentobject_id ) )}
-{def $materie = fetch( editorialstuff, posts, hash( factory_identifier, materia, sort, hash( 'name', 'asc' ) ) )}
+{def $materie = fetch( editorialstuff, posts, hash( factory_identifier, materia, limit, 1000, sort, hash( 'name', 'asc' ) ) )}
 
 <form class="form" action="{'consiglio/like'|ezurl(no)}">
 <table class="table table-striped">

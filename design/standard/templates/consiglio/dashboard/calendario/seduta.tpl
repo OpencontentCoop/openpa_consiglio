@@ -30,6 +30,12 @@
                                 <strong>{attribute_view_gui attribute=$punto.object.data_map.orario_trattazione}</strong>
                             </td>
                             <td>
+                                {if $punto.object|has_attribute('termine_osservazioni')}
+                                <small>
+                                    <strong>Termine oservazioni:</strong><br />
+                                    {attribute_view_gui attribute=$punto.object.data_map.termine_osservazioni}
+                                </small>
+                                {/if}
                                 {if $punto.can_add_osservazioni}
                                     <a title="Aggiungi osservazione" data-toggle="tooltip" data-placement="top" class="btn btn-xs btn-info has-tooltip" href="{concat('editorialstuff/edit/punto/', $punto.object_id, '#tab_osservazioni')|ezurl(no)}">
                                         <i class="fa fa-plus"></i> Aggiungi osservazione
@@ -46,7 +52,7 @@
                                 {if $punto.object.data_map.materia.has_content}
                                     {foreach $punto.object.data_map.materia.content.relation_list as $item}
                                         {def $materia = fetch(content, object, hash(object_id,$item.contentobject_id))}
-                                        <span class="label {if $materie_like|contains($item.contentobject_id)}label-warning{else}label-default{/if}">{$materia.name|shorten('30')|wash()}</span>
+                                        <p class="{if $materie_like|contains($item.contentobject_id)}text-warning{/if}"><small><strong>Materia</strong>: {$materia.name|wash()}</small></p>
                                         {undef $materia}
                                     {/foreach}
                                 {/if}
