@@ -361,8 +361,8 @@ class ConsiglioApiController extends ezpRestMvcController
         if ( $object instanceof eZContentObject )
         {
 
-            $istances = OCEditorialStuffHandler::instances();
-            if (array_key_exists($object->attribute( 'class_identifier' ), $istances))
+            $instances = OCEditorialStuffHandler::instances();
+            if (array_key_exists($object->attribute( 'class_identifier' ), $instances))
             {
                 $user = OCEditorialStuffHandler::instance( $object->attribute( 'class_identifier' ) )->fetchByObjectId( $this->Id );
                 $result->variables = $user->jsonSerialize();

@@ -13,6 +13,7 @@ class Politico extends OCEditorialStuffPost
 
     /**
      * Restituisce il toString dell'attributo $identifier filtrato da $callback (se presente)
+     *
      * @param string $identifier
      * @param Callable $callback
      *
@@ -92,6 +93,7 @@ class Politico extends OCEditorialStuffPost
      * ruolo                        string        descrizione del ruolo nell’organizzazione
      * struttura_di_appartenenza    string        descrizione della/e struttura/e di appartenenza
      * immagine                     string        url assoluto immagine
+     *
      * @see ConsiglioApiController
      * @return array
      */
@@ -102,20 +104,24 @@ class Politico extends OCEditorialStuffPost
 
         // Recupero gli indirizzi email
         $email = array();
-        if ( $this->dataMap['email']->hasContent())
+        if ( $this->dataMap['email']->hasContent() )
         {
-            $email []= $this->dataMap['email']->content();
+            $email [] = $this->dataMap['email']->content();
         }
 
-        if ( $this->dataMap['altre_email']->hasContent())
+        if ( $this->dataMap['altre_email']->hasContent() )
         {
-            $email = array_merge($email, explode('&', $this->dataMap['altre_email']->toString()));
+            $email = array_merge(
+                $email,
+                explode( '&', $this->dataMap['altre_email']->toString() )
+            );
         }
 
-        // Ricavo l'ulr dell'immagine se presente
+        // Ricavo l'url dell'immagine se presente
         $imageUrl = '';
         if ( $this->dataMap['image']->hasContent()
-            && $this->dataMap['image']->attribute( 'data_type_string' ) == 'ezimage' )
+             && $this->dataMap['image']->attribute( 'data_type_string' ) == 'ezimage'
+        )
         {
             $image = $this->dataMap['image']->content()->attribute( 'original' );
             $imageUrl = $image['url'];
@@ -123,17 +129,17 @@ class Politico extends OCEditorialStuffPost
         }
 
         return array(
-            'id'                         => $this->id(),
-            'type'                       => $this->object->ClassIdentifier,
-            'nome'                       => $this->dataMap['nome']->content(),
-            'cognome'                    => $this->dataMap['cognome']->content(),
-            'email'                      => array_unique($email),
-            'ruolo'                      => $this->dataMap['ruolo']->content(),
-            'struttura_di_appartenenza'  => $this->stringRelatedObjectAttribute(
+            'id' => $this->id(),
+            'type' => $this->object->ClassIdentifier,
+            'nome' => $this->dataMap['nome']->content(),
+            'cognome' => $this->dataMap['cognome']->content(),
+            'email' => array_unique( $email ),
+            'ruolo' => $this->dataMap['ruolo']->content(),
+            'struttura_di_appartenenza' => $this->stringRelatedObjectAttribute(
                 'gruppo_politico',
                 'titolo'
             ),
-            'immagine'                   => $imageUrl
+            'immagine' => $imageUrl
         );
     }
 }

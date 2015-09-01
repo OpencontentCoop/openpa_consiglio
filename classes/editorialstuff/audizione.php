@@ -3,7 +3,7 @@
 class Audizione extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPostFileContainerInterface, OCEditorialStuffPostInputActionInterface
 {
     /**
-     * @var AudizionFactory
+     * @var AudizioneFactory
      */
     protected $factory;
 
