@@ -13,7 +13,7 @@
 <div id="timer" style="display: none;"><strong><span class="minutes">00</span>:<span class="seconds">00</span></strong></div>
 <div style="display:none;" id="loading"><i class="fa fa-gear fa-spin fa-2x"></i></div>
 
-<div id="alert_area">
+<div id="alert_area" style="position: absolute; z-index: 1000; width: 96%; left: 2%; top: 4%;">
     {if count( $errors )}
         <div class="alert alert-danger alert-dismissible">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
