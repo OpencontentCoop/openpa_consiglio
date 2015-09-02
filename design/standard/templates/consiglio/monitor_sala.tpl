@@ -61,7 +61,7 @@
 	  {foreach $seduta.partecipanti as $partecipante}
 		  <div class="col-xs-{$col} user_presenza user-{$partecipante.object_id}"
 				  {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="position: relative;"{/if}>
-			  <div style="position: absolute;top:0;left:20px;" class="">
+			  <div style="position: absolute;top:0;left:0;" class="">
 				<p class="btn btn-default btn-xs type checkin" style="display: none"><i class="fa fa-check-circle"></i></p>
 				<p class="btn btn-default btn-xs type beacons" style="display: none"><i class="fa fa-wifi"></i></p>
 				<p class="btn btn-default btn-xs type manual" style="display: none"><i class="fa fa-thumbs-up"></i></p>
