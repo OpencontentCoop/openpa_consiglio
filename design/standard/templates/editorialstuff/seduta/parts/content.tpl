@@ -65,8 +65,8 @@
 		{/if}
         {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
             <div class="col-xs-12 col-sm-6 col-md-5">
-                <a target="_blank" class="btn btn-lg btn-warning pull-right" href="{concat('consiglio/cruscotto_seduta/', $post.object_id)|ezurl(no)}">Apri cruscotto</a>
-                <a target="_blank" class="btn btn-lg btn-warning pull-right" href="{concat('consiglio/monitor_sala/', $post.object_id)|ezurl(no)}">Apri monitor</a>
+                <a target="_blank" class="btn btn-lg btn-warning pull-right" href="{concat('consiglio/cruscotto_seduta/', $post.object_id)|ezurl(no)}"><i class="fa fa-dashboard"></i> Apri cruscotto</a>
+                <a target="_blank" class="btn btn-lg btn-warning pull-right" href="{concat('consiglio/monitor_sala/', $post.object_id)|ezurl(no)}"><i class="fa fa-desktop"></i> Apri monitor</a>
             </div>
         {/if}
     </div>
