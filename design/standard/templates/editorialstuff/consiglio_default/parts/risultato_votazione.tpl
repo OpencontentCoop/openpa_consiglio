@@ -5,7 +5,7 @@
     <tr>
       <th>Presenti</th>
       <td class="presenti">{attribute_view_gui attribute=$post.object.data_map.presenti}</td>
-      <td class="presenti">{foreach $post.presenti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}</td>
+      <td class="presenti">{*foreach $post.presenti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach*}</td>
     </tr>
     <tr>
       <th>Votanti</th>
@@ -20,7 +20,7 @@
     <tr>
       <th>Contrari</th>
       <td class="contrari">{attribute_view_gui attribute=$post.object.data_map.contrari}</td>
-        <td class="contrari">{foreach $post.contrari as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}){/foreach}</td>
+        <td class="contrari">{foreach $post.contrari as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}</td>
     </tr>
     <tr>
       <th>Astenuti</th>
