@@ -61,13 +61,16 @@
 	  {foreach $seduta.partecipanti as $partecipante}
 		  <div class="col-xs-{$col} user_presenza user-{$partecipante.object_id}"
 				  {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="position: relative;"{/if}>
-			  <div style="position: absolute;top:0;left:0;" class="">
+			  <div style="position: absolute;top:0;left:20px;" class="">
 				<p class="btn btn-default btn-xs type checkin" style="display: none"><i class="fa fa-check-circle"></i></p>
 				<p class="btn btn-default btn-xs type beacons" style="display: none"><i class="fa fa-wifi"></i></p>
 				<p class="btn btn-default btn-xs type manual" style="display: none"><i class="fa fa-thumbs-up"></i></p>
 			  </div>
 			  <div class="name" {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="opacity: .4"{/if}>
-				{content_view_gui content_object=$partecipante.object view="politico_box" size=$size}
+				<div style="height:105px; background: url({if $partecipante.object|has_attribute( 'image' )}{$partecipante.object|attribute( 'image' ).content[medium].url|ezroot(no)}{else}{'images/profile_medium.jpg'|ezdesign(no)}{/if}) top center no-repeat; background-size: contain"></div>
+<p class="text-center">
+    <strong>{$partecipante.object.name|wash()}</strong>
+</p>
 			  </div>
 		  </div>
 		  {delimiter modulo=$modulo}</div><div class="row">{/delimiter}
