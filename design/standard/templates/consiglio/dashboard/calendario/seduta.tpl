@@ -10,7 +10,7 @@
         <h3>
             Seduta di {attribute_view_gui attribute=$post.object.data_map.organo show_link=false()}
             <span>{include uri='design:editorialstuff/seduta/parts/state.tpl' post=$post}</span>
-            <a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#detail-{$post.object_id}" aria-expanded="false" aria-controls="collapseExample">Apri qui</a>
+            <a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#detail-{$post.object_id}" aria-expanded="false" aria-controls="collapseExample">Ordine del giorno</a>
             <a class="btn btn-primary btn-xs" href="{concat('editorialstuff/edit/seduta/', $post.object_id)|ezurl(no)}">Vai al dettaglio</a>
         </h3>
     </div>
