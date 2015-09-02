@@ -65,22 +65,22 @@ h1.title {
 }
 
 #odg-col {
-    height: 92%;
+    height: 80%;
     overflow-y: scroll;
 }
 
 #verbale-col {
-    height: 92%;
+    height: 80%;
     overflow-y: scroll;
 }
 
 #votazioni-col {
-    height: 92%;
+    height: 80%;
     overflow-y: scroll;
 }
 
 #presenze-col {
-    height: 92%;
+    height: 80%;
     overflow-y: scroll;
 }
 
