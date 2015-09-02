@@ -2,11 +2,13 @@
 <p class="text">{attribute_view_gui attribute=$post.object.data_map.text}</p>
 {if $post.current_state.identifier|eq('closed')}
 <table class="list">
+    {* TODO
     <tr>
       <th>Presenti</th>
       <td class="presenti">{attribute_view_gui attribute=$post.object.data_map.presenti}</td>
-      <td class="presenti">{*foreach $post.presenti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach*}</td>
+      <td class="presenti">{foreach $post.presenti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}</td>
     </tr>
+    *}
     <tr>
       <th>Votanti</th>
       <td class="votanti">{attribute_view_gui attribute=$post.object.data_map.votanti}</td>
