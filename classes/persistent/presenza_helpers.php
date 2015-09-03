@@ -62,7 +62,7 @@ class OpenPAConsiglioPresenzaHelper
                 }
             }
         }        
-        $returnValues = array();
+        $returnValues = array();        
         foreach( $data as $item )
         {
             //$item->appendToArray( $returnValues );
@@ -84,7 +84,7 @@ class OpenPAConsiglioPresenzaTimelineCollection
 
     public $end;
 
-    public $endTimeStamp;
+    public static $endTimeStamp;
 
     public $duration;
 
@@ -96,6 +96,11 @@ class OpenPAConsiglioPresenzaTimelineCollection
      * @var OpenPAConsiglioPresenzaTimelineValue
      */
     protected $current;
+    
+    /**
+     * @var OpenPAConsiglioPresenza
+     */
+    protected $currentPresenza;
 
     public $name;
 
@@ -133,50 +138,42 @@ class OpenPAConsiglioPresenzaTimelineCollection
     }
 
     public function add( OpenPAConsiglioPresenza $presenza )
-    {
-        $this->openValue( $presenza)->closeValue( $presenza );
-        $this->detections->addValue( $presenza );
-    }
-
-    protected function openValue( OpenPAConsiglioPresenza $presenza )
-    {
+    {        
+        $this->closeValue( $presenza );        
         if ( $this->current === null && $presenza->attribute( 'is_in' ) )
         {
             $createdTime = $presenza->attribute( 'created_time' );
             $this->current = new OpenPAConsiglioPresenzaTimelineValue();
             $this->current->set( 'from', (int) $createdTime );
         }
-        return $this;
+        $this->detections->addValue( $presenza );
     }
 
     protected function closeValue( OpenPAConsiglioPresenza $presenza = null )
     {
-        if ( $this->current instanceof OpenPAConsiglioPresenzaTimelineValue && $presenza == null )
-        {
-            $this->values[] = $this->current;
-            $this->current->set( 'to', time() );
-            $this->current = null;
-        }
-        elseif ( $this->current instanceof OpenPAConsiglioPresenzaTimelineValue && $presenza->attribute( 'is_in' ) )
+        if ( $this->current instanceof OpenPAConsiglioPresenzaTimelineValue && $presenza instanceof OpenPAConsiglioPresenza && !$presenza->attribute( 'is_in' ) )
         {
             $createdTime = $presenza->attribute( 'created_time' );
             $this->current->set( 'to', (int) $createdTime );
             $this->values[] = $this->current;
             $this->current = null;
         }
+        elseif( $this->current instanceof OpenPAConsiglioPresenzaTimelineValue && !$presenza instanceof OpenPAConsiglioPresenza )
+        {
+            $this->current->set( 'to', time() );
+            $this->values[] = $this->current;
+            $this->current = null;
+        }
         return $this;
-    }
+    }    
 
     public function get( Seduta $seduta, $startTime = null )
     {
         $this->closeValue();
 
         $this->startTimeStamp = $seduta->dataOra();
-        $this->endTimeStamp = $seduta->dataOraFine();
-
-        $this->start = $seduta->dataOra( 'Y-m-d H:i:s' );
-        $this->end = $seduta->dataOraFine( 'Y-m-d H:i:s' );
-        $this->duration = ( $this->endTimeStamp - $this->startTimeStamp ) / 60;
+        if ( self::$endTimeStamp === null )
+            self::$endTimeStamp = $seduta->dataOraFine() + 60 * 15;
 
         $timeline = array();
         $currentStart = $this->startTimeStamp;
@@ -184,9 +181,9 @@ class OpenPAConsiglioPresenzaTimelineCollection
         {
             $fromTimeStamp = $value->fromTimeStamp;
             $toTimeStamp = $value->toTimeStamp;
-            if ( $toTimeStamp > $this->endTimeStamp )
+            if ( $toTimeStamp > self::$endTimeStamp )
             {
-                $toTimeStamp = $this->endTimeStamp;
+                self::$endTimeStamp = $toTimeStamp + 60;
             }
 
             $diff = $fromTimeStamp - $currentStart;
@@ -210,6 +207,11 @@ class OpenPAConsiglioPresenzaTimelineCollection
             }
         }
         $this->intervals = $timeline;
+        
+        $this->start = date("Y-m-d H:i:s", $this->startTimeStamp );
+        $this->end = date("Y-m-d H:i:s", self::$endTimeStamp );
+        $this->duration = ( self::$endTimeStamp - $this->startTimeStamp ) / 60;
+        
         return $this;
     }
 }
@@ -241,9 +243,9 @@ class OpenPAConsiglioPresenzaTimelineDetectionCollection
     public function addValue( OpenPAConsiglioPresenza $presenza )
     {
         $createdTime = $presenza->attribute( 'created_time' );
-        $value = new OpenPAConsiglioPresenzaTimelineValue();
-        $value->set( 'from', (int)$createdTime );
-        $value->set( 'to', (int)$createdTime + 1 );
+        $value = new OpenPAConsiglioPresenzaTimelineDetectionValue();
+        $value->timestamp = (int)$createdTime;
+        $value->time = date("Y-m-d H:i:s", $createdTime );
         $value->label = $presenza->attribute( 'type' );
         $value->id = $presenza->attribute( 'id' );
         $value->in_out = $presenza->attribute( 'in_out' );
@@ -252,11 +254,21 @@ class OpenPAConsiglioPresenzaTimelineDetectionCollection
     }
 }
 
+class OpenPAConsiglioPresenzaTimelineDetectionValue
+{
+    public $time;
+    public $timestamp;
+    public $label;
+    public $id;
+    public $in_out;
+    public $is_in;
+}
+
 class OpenPAConsiglioPresenzaTimelineValue
 {
     public $from;
-    public $fromTimeStamp;
     public $to;
+    public $fromTimeStamp;    
     public $toTimeStamp;
     //public $label;
 

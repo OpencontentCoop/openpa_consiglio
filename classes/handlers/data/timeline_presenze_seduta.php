@@ -92,11 +92,12 @@ class DataHandlerTimeLinePresenzeSeduta implements OpenPADataHandlerInterface
                 'duration' => $value->duration,
                 'text' => $value->name,
                 'values' => array(),
+                'detections' => $value->detections->values
             );
             foreach ( $value->intervals as $interval )
             {
-                $item['values'][] = array( $interval[0], $interval[1] );
-            }
+                $item['values'][] = array( $interval[0], $interval[1], $interval[3] );
+            }            
             $data[] = $item;
         }
 
