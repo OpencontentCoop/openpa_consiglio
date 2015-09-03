@@ -197,7 +197,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         $this->UserID = $id;
     }
 
-    //@todo gestire priorità manuale | checkin | beacon
+    //@todo gestire priorità manuale | checkin | beacons
     public function isIn()
     {
         return $this->attribute( 'in_out' );

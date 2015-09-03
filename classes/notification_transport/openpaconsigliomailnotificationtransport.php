@@ -45,6 +45,7 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
             {
                 $mail->addExtraHeader( 'Message-ID', $parameters['message_id'] );
             }
+            //@ MessagedID automatico
             if ( isset( $parameters['references'] ) )
             {
                 $mail->addExtraHeader( 'References', $parameters['references'] );
@@ -53,6 +54,7 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
             {
                 $mail->addExtraHeader( 'In-Reply-To', $parameters['reply_to'] );
             }
+            //@ MessagedID automatico
             if ( isset( $parameters['from'] ) )
             {
                 $mail->setSenderText( $parameters['from'] );
