@@ -10,5 +10,6 @@ Handlers[percentuale_presenze_seduta]=DataHandlerPercentualePresenzeSeduta
 [OpenPAConsiglio]
 #SocketUrl=cal
 SocketPort=8090
+BackendEndPoint=http://consiglio.u-hopper.com
 
 */ ?>

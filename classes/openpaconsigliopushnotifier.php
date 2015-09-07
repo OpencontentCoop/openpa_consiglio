@@ -38,6 +38,7 @@ class OpenPAConsiglioPushNotifier
 
     protected function sendToMobile( $identifier, $data )
     {
+        $endPoint = OpenPAINI::variable( 'OpenPAConsiglio', 'BackendEndPoint' );
         $url = false;
         $values = array();
         $dateTime = new DateTime();
@@ -46,7 +47,7 @@ class OpenPAConsiglioPushNotifier
         {
             case 'start_seduta':
             case 'stop_seduta':
-                $url = 'http://consiglio.u-hopper.com/api/consiglio/seduta';
+                $url = $endPoint . '/api/consiglio/seduta';
                 $values = array(
                     'id' => $data['id'],
                     'type' => $data['stato'],
@@ -57,7 +58,7 @@ class OpenPAConsiglioPushNotifier
 
             case 'start_punto':
             case 'stop_punto':
-                $url = 'http://consiglio.u-hopper.com/api/consiglio/punto';
+                $url = $endPoint . '/api/consiglio/punto';
                 $values = array(
                     'id' => $data['id'],
                     'type' => $data['stato'],
@@ -67,7 +68,7 @@ class OpenPAConsiglioPushNotifier
 
             case 'start_votazione':
             case 'stop_votazione':
-                $url = 'http://consiglio.u-hopper.com/api/consiglio/votazione';
+                $url = $endPoint . '/api/consiglio/votazione';
                 $values = array(
                     'id' => $data['id'],
                     'type' => $data['stato'],
