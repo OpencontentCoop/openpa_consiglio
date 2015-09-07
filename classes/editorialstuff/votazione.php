@@ -2,22 +2,24 @@
 
 class Votazione extends OCEditorialStuffPost
 {
-    protected static $classIdentifier = 'votazione';
+    /**
+     * @var OpenPAConsiglioVotazioneResultHandlerInterface[]
+     */
+    private static $_resultHandlers = array();
 
-    protected static $sedutaIdentifier = 'seduta';
-    protected static $puntoIdentifier = 'punto';
-    protected static $shortTextIdentifier = 'short_text';
-    protected static $textIdentifier = 'text';
-    protected static $typeIdentifier = 'type';
-
-    protected static $startDateIdentifier = 'start_datetime';
-    protected static $endDateIdentifier = 'end_datetime';
-
-    protected static $presentiIdentifier = 'presenti';
-    protected static $votantiIdentifier = 'votanti';
-    protected static $astenutiIdentifier = 'astenuti';
-    protected static $favorevoliIdentifier = 'favorevoli';
-    protected static $contrariIdentifier = 'contrari';
+    public static $classIdentifier = 'votazione';
+    public static $sedutaIdentifier = 'seduta';
+    public static $puntoIdentifier = 'punto';
+    public static $shortTextIdentifier = 'short_text';
+    public static $textIdentifier = 'text';
+    public static $typeIdentifier = 'type';
+    public static $startDateIdentifier = 'start_datetime';
+    public static $endDateIdentifier = 'end_datetime';
+    public static $presentiIdentifier = 'presenti';
+    public static $votantiIdentifier = 'votanti';
+    public static $astenutiIdentifier = 'astenuti';
+    public static $favorevoliIdentifier = 'favorevoli';
+    public static $contrariIdentifier = 'contrari';
 
     /**
      * @var eZContentObjectAttribute[]
@@ -31,6 +33,30 @@ class Votazione extends OCEditorialStuffPost
     {
         parent::__construct( $data, $factory );
         $this->dataMap = $this->getObject()->attribute( 'data_map' );
+    }
+
+    public function getResultHandler()
+    {
+        $currentType = $this->stringAttribute( self::$typeIdentifier );
+        if ( !isset( self::$_resultHandlers[$currentType] ) )
+        {
+            $factoryConfiguration = $this->getFactory()->getConfiguration();
+            $availableHandlers = $factoryConfiguration['VotazioneResultHandlers'];
+
+            $handlerClassName = isset( $availableHandlers[$currentType] ) ? $availableHandlers[$currentType] : 'OpenPAConsiglioVotazioneResultHandlerDefault';
+            if ( class_exists( $handlerClassName ) )
+            {
+                $handlerInstance = new $handlerClassName();
+                if ( $handlerInstance instanceof OpenPAConsiglioVotazioneResultHandlerInterface )
+                {
+                    self::$_resultHandlers[$currentType] = $handlerInstance;
+                }
+            }
+            throw new Exception(
+                "Non è stato trovato un gestore valido per le votazioni di tipo $currentType"
+            );
+        }
+        return self::$_resultHandlers[$currentType]->setCurrentVotazione( $this );
     }
 
     public function attributes()
@@ -60,14 +86,16 @@ class Votazione extends OCEditorialStuffPost
 
     protected function getUsers( $type )
     {
-        if ( $type == 'votanti' || $type == 'presenti' ) //@todo calcolare presenti con Presenza
-            return OpenPAConsiglioVoto::votanti( $this, true );
+        if ( $type == 'presenti' )
+            return $this->getResultHandler()->getPresenti();
+        elseif ( $type == 'votanti' )
+            return $this->getResultHandler()->getVotanti();
         elseif ( $type == 'favorevoli' )
-            return OpenPAConsiglioVoto::favorevoli( $this, true );
+            return $this->getResultHandler()->getFavorevoli();
         elseif ( $type == 'contrari' )
-            return OpenPAConsiglioVoto::contrari( $this, true );
+            return $this->getResultHandler()->getContrari();
         elseif ( $type == 'astenuti' )
-            return OpenPAConsiglioVoto::astenuti( $this, true );
+            return $this->getResultHandler()->getAstenuti();
         else
             return array();
     }
@@ -178,28 +206,8 @@ class Votazione extends OCEditorialStuffPost
 
             // attendo 5 secondi per concludere le operazioni di voto
             sleep( 5 );
-            $registro = $this->getSeduta()->registroPresenze();
-            eZLog::write( var_export( $registro, 1 ), 'runtime.log' );
-            $this->dataMap[self::$presentiIdentifier]->fromString( $registro['in'] );
-            $this->dataMap[self::$presentiIdentifier]->store();
-            
-            // registro le statistiche
-            $votanti = OpenPAConsiglioVoto::countVotanti( $this );
-            $contrari = OpenPAConsiglioVoto::countContrari( $this );
-            $favorevoli = OpenPAConsiglioVoto::countFavorevoli( $this );
-            $astenuti = OpenPAConsiglioVoto::countAstenuti( $this );
 
-            $this->dataMap[self::$votantiIdentifier]->fromString( $votanti );
-            $this->dataMap[self::$votantiIdentifier]->store();
-
-            $this->dataMap[self::$contrariIdentifier]->fromString( $contrari );
-            $this->dataMap[self::$contrariIdentifier]->store();
-
-            $this->dataMap[self::$favorevoliIdentifier]->fromString( $favorevoli );
-            $this->dataMap[self::$favorevoliIdentifier]->store();
-
-            $this->dataMap[self::$astenutiIdentifier]->fromString( $astenuti );
-            $this->dataMap[self::$astenutiIdentifier]->store();
+            $this->getResultHandler()->register();
 
             // chiudo la votazione
             $this->setState( 'stato_votazione.closed' );
@@ -304,4 +312,15 @@ class Votazione extends OCEditorialStuffPost
             throw new Exception( "La votazione non e' aperta" );
         }
     }
+
+    public static function removeByID( $votazioneId )
+    {
+        $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $votazioneId );
+        if ( $votazione instanceof Votazione && $votazione->isBefore( 'pending', true ) )
+        {
+            $object = $votazione->getObject();
+            eZContentOperationCollection::deleteObject( array( $object->attribute( 'main_node_id' ) ) );
+        }
+    }
+
 }

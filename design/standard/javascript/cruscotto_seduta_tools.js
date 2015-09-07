@@ -199,6 +199,23 @@ jQuery.fn.extend({
         });
     },
 
+    removeVotazione: function(id){
+        $.ajax({
+            url: $(this).data('action_url'),
+            method: 'POST',
+            data: {idVotazione:$(this).data('votazione')},
+            success: function (data) {
+                Votazioni.reload();
+                clearErrors();
+            },
+            error: function (response, status, xhr) {
+                Votazioni.reload();
+                handelResponseError(response, status, xhr);
+            },
+            dataType: 'json'
+        });
+    },
+
     getPartecipante: function(id){
         return $(this).find("[data-partecipante='" + id + "']");
     },

@@ -628,10 +628,16 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         return OpenPAConsiglioPresenza::fetchBySeduta( $this, $startTime, $inOut, $type, $userId );
     }
 
+    /**
+     * @param bool $asObject
+     *
+     * @return OCEditorialStuffPostInterface[]|integer[]
+     */
     public function partecipanti( $asObject = true )
     {
         if ( $this->partecipanti === null )
         {
+            $this->partecipanti = array();
             $organoNodeId = $this->stringRelatedObjectAttribute( 'organo', 'main_node_id' );
             if ( is_array( $organoNodeId ) && is_numeric( $organoNodeId[0] ) )
             {

@@ -10,6 +10,13 @@
                 <b>{*$votazione.object.id|wash()*}{$votazione.object.name|wash()}</b>
                 <small>{if $votazione.object.data_map.punto.has_content}{$votazione.object.data_map.punto.content.name|wash()}{else}seduta{/if}</small>
             </a>
+            {if $votazione.current_state.identifier|eq('pending')}
+                <a href="#" class="remove_votazione"
+                   data-votazione="{$votazione.object_id}"
+                   data-action_url="{concat('consiglio/cruscotto_seduta/',$post.object_id,'/removeVotazione')|ezurl(no)}">
+                    <i class="fa fa-trash"></i>
+                </a>
+            {/if}
 
             {if $votazione.current_state.identifier|eq('closed')}
                 <button class="btn btn-sm btn-block btn-info"

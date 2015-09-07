@@ -14,6 +14,13 @@
                         <input type="text" class="form-control" name="shortText" id="recipient-name">
                     </div>
                     <div class="form-group">
+                        <label for="votazione-type" class="control-label">Tipologia di votazione:</label>
+                        <select name="type" id="votazione-type">
+                            <option value="semplice">MAGGIORANZA SEMPLICE</option>
+                            <option value="assegnati">MAGGIORANZA ASSEGNATI</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="message-point" class="control-label">La votazione riguarda il punto:</label>
                         <select name="puntoId" id="message-point">
                             <option>Nessuno</option>
@@ -98,7 +105,7 @@
         {
             name: 'creaVotazione',
             title: 'Nuova votazione',
-            fields: ['shortText', 'text', 'puntoId'],
+            fields: ['shortText', 'text', 'puntoId', 'type'],
             resetForm: true,
             onShow: null,
             onSent: function (data, modal) {

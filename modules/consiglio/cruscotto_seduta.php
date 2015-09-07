@@ -117,7 +117,7 @@ elseif ( $action )
                     $puntoInProgress,
                     $http->postVariable( 'shortText' ),
                     $http->postVariable( 'text' ),
-                    'default'
+                    $http->hasPostVariable( 'type' ) ? $http->postVariable( 'type' ) : 'default'
                 );
 
             } break;
@@ -148,6 +148,12 @@ elseif ( $action )
                     throw new Exception( "Si sta cercando di chiudere una votazione diversa da quella attualmente aperta" );
                 }
                 $votazioneInProgress->stop();
+            } break;
+
+            case 'removeVotazione':
+            {
+                $idVotazione = $http->postVariable( 'idVotazione' );
+                Votazione::removeByID( $idVotazione );
             } break;
 
             case 'saveVerbale':

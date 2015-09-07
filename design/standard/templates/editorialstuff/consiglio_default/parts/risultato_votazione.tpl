@@ -1,4 +1,7 @@
-<h3>{if $post.current_state.identifier|eq('closed')}Risultati votazione{else}Votazione{/if} {attribute_view_gui attribute=$post.object.data_map.short_text}</h3>
+<h3>
+    {if $post.current_state.identifier|eq('closed')}Risultati votazione{else}Votazione{/if} {attribute_view_gui attribute=$post.object.data_map.short_text}
+    <small>{attribute_view_gui attribute=$post.object.data_map.type}</small>
+</h3>
 <p class="text">{attribute_view_gui attribute=$post.object.data_map.text}</p>
 {if $post.current_state.identifier|eq('closed')}
 <table class="list">

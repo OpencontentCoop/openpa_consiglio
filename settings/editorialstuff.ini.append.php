@@ -173,3 +173,6 @@ States[in_progress]=In corso
 States[closed]=Conclusa
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+VotazioneResultHandlers[]
+VotazioneResultHandlers[]=semplice
+VotazioneResultHandlers[]=assegnati

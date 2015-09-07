@@ -85,9 +85,15 @@ $(document).on('click', '.start_votazione', function (e) {
     e.preventDefault();
 });
 
-$(document).on('click', '.stopVotazione', function (e) {
+$(document).on('click', '.stop_votazione', function (e) {
     var votazione = Votazioni.getVotazione( $(e.currentTarget).data('votazione') );
     votazione.stopVotazione();
+    e.preventDefault();
+});
+
+$(document).on('click', '.remove_votazione', function (e) {
+    var votazione = Votazioni.getVotazione( $(e.currentTarget).data('votazione') );
+    votazione.removeVotazione();
     e.preventDefault();
 });
 
