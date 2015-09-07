@@ -14,11 +14,13 @@
                         <input type="text" class="form-control" name="shortText" id="recipient-name">
                     </div>
                     <div class="form-group">
-                        <label for="votazione-type" class="control-label">Tipologia di votazione:</label>
-                        <select name="type" id="votazione-type">
-                            <option value="semplice">MAGGIORANZA SEMPLICE</option>
-                            <option value="assegnati">MAGGIORANZA ASSEGNATI</option>
-                        </select>
+                        {foreach fetch( consiglio, tipi_votazione ) as $index => $tipo}
+                        <div class="radio">
+                            <label style="font-weight: 100;">
+                                <input type="radio" name="type" value="{$tipo.identifier}" {if $index|eq(0)}checked="checked" {/if}/> {$tipo.description}
+                            </label>
+                        </div>
+                        {/foreach}
                     </div>
                     <div class="form-group">
                         <label for="message-point" class="control-label">La votazione riguarda il punto:</label>
@@ -117,7 +119,7 @@
             name: 'infoVotazione',
             title: 'Informazioni votazione',
             onShow: function (modal, button) {
-                modal.find('.modal-body').html('');
+                modal.find('.modal-body').html('<div class="text-center"><i class="fa fa-gear fa-spin fa-2x"></i></div>');
                 modal.find('.modal-body').load( button.data('load_url') );
             }
         },
@@ -125,7 +127,7 @@
             name: 'risultatiVotazione',
             title: 'Risultati votazione',
             onShow: function (modal, button) {
-                modal.find('.modal-body').html('');
+                modal.find('.modal-body').html('<div class="text-center"><i class="fa fa-gear fa-spin fa-2x"></i></div>');
                 modal.find('.modal-body').load( button.data('load_url') );
             }
         }

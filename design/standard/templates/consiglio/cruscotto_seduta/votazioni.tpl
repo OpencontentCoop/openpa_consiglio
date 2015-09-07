@@ -3,6 +3,7 @@
         <div class="list-group-item{if $votazione.current_state.identifier|eq('in_progress')} list-group-item-danger{elseif $votazione.current_state.identifier|eq('closed')} list-group-item-info{/if}">
 
             <a href="#"
+               id="viewVotazione-{$votazione.object_id}"
                data-toggle="modal"
                data-target="#risultatiVotazioneTemplate"
                data-modal_configuration="infoVotazione"
@@ -10,10 +11,11 @@
                 <b>{*$votazione.object.id|wash()*}{$votazione.object.name|wash()}</b>
                 <small>{if $votazione.object.data_map.punto.has_content}{$votazione.object.data_map.punto.content.name|wash()}{else}seduta{/if}</small>
             </a>
+
             {if $votazione.current_state.identifier|eq('pending')}
                 <a href="#" class="remove_votazione"
-                   data-votazione="{$votazione.object_id}"
-                   data-action_url="{concat('consiglio/cruscotto_seduta/',$post.object_id,'/removeVotazione')|ezurl(no)}">
+                   data-remove_votazione="{$votazione.object_id}"
+                   data-remove_action_url="{concat('consiglio/cruscotto_seduta/',$post.object_id,'/removeVotazione')|ezurl(no)}">
                     <i class="fa fa-trash"></i>
                 </a>
             {/if}

@@ -35,26 +35,51 @@ class Votazione extends OCEditorialStuffPost
         $this->dataMap = $this->getObject()->attribute( 'data_map' );
     }
 
+    /**
+     * @return OpenPAConsiglioVotazioneResultHandlerDefault
+     * @throws Exception
+     */
     public function getResultHandler()
     {
         $currentType = $this->stringAttribute( self::$typeIdentifier );
         if ( !isset( self::$_resultHandlers[$currentType] ) )
         {
             $factoryConfiguration = $this->getFactory()->getConfiguration();
+            $handlersAlias = $factoryConfiguration['VotazioneResultHandlersAlias'];
+            if ( isset( $handlersAlias[$currentType] ) )
+            {
+                $currentType = $handlersAlias[$currentType];
+            }
             $availableHandlers = $factoryConfiguration['VotazioneResultHandlers'];
 
-            $handlerClassName = isset( $availableHandlers[$currentType] ) ? $availableHandlers[$currentType] : 'OpenPAConsiglioVotazioneResultHandlerDefault';
-            if ( class_exists( $handlerClassName ) )
+            if ( $currentType == 'default' )
+            {
+                $handlerClassName = 'OpenPAConsiglioVotazioneResultHandlerDefault';
+            }
+            else
+            {
+                $handlerClassName = isset( $availableHandlers[$currentType] ) ? $availableHandlers[$currentType] : null;
+            }
+            if ( $handlerClassName && class_exists( $handlerClassName ) )
             {
                 $handlerInstance = new $handlerClassName();
                 if ( $handlerInstance instanceof OpenPAConsiglioVotazioneResultHandlerInterface )
                 {
                     self::$_resultHandlers[$currentType] = $handlerInstance;
                 }
+                else
+                {
+                    throw new Exception(
+                        "$handlerClassName non implementa OpenPAConsiglioVotazioneResultHandlerInterface"
+                    );
+                }
             }
-            throw new Exception(
-                "Non è stato trovato un gestore valido per le votazioni di tipo $currentType"
-            );
+            else
+            {
+                throw new Exception(
+                    "Non è stato trovato un gestore valido per le votazioni di tipo $currentType"
+                );
+            }
         }
         return self::$_resultHandlers[$currentType]->setCurrentVotazione( $this );
     }
@@ -62,42 +87,38 @@ class Votazione extends OCEditorialStuffPost
     public function attributes()
     {
         $attributes = parent::attributes();
-        return array_merge( $this->fnAttributes, $attributes );
+        $attributes[] = 'seduta_id';
+        $attributes[] = 'result';
+        $attributes[] = 'result_template';
+        $attributes[] = 'type_description';
+        $attributes[] = 'is_valid';
+        return $attributes;
     }
-
-    private $fnAttributes = array(
-        'presenti',
-        'votanti',
-        'favorevoli',
-        'contrari',
-        'astenuti'
-    );
 
     public function attribute( $property )
     {
-        if ( in_array( $property, $this->fnAttributes ) )
+        if ( $property == 'seduta_id' )
         {
-            /** @return string[] */
-            return $this->getUsers( $property );
+            return $this->getSeduta()->id();
+        }
+        elseif ( $property == 'is_valid' )
+        {
+            return $this->getResultHandler()->isValid();
+        }
+        elseif ( $property == 'result' )
+        {
+            return $this->getResultHandler();
+        }
+        elseif ( $property == 'result_template' )
+        {
+            return $this->getResultHandler()->getTemplateName();
+        }
+        elseif ( $property == 'type_description' )
+        {
+            return $this->getResultHandler()->getDescription();
         }
 
         return parent::attribute( $property );
-    }
-
-    protected function getUsers( $type )
-    {
-        if ( $type == 'presenti' )
-            return $this->getResultHandler()->getPresenti();
-        elseif ( $type == 'votanti' )
-            return $this->getResultHandler()->getVotanti();
-        elseif ( $type == 'favorevoli' )
-            return $this->getResultHandler()->getFavorevoli();
-        elseif ( $type == 'contrari' )
-            return $this->getResultHandler()->getContrari();
-        elseif ( $type == 'astenuti' )
-            return $this->getResultHandler()->getAstenuti();
-        else
-            return array();
     }
 
     public function onChangeState( eZContentObjectState $beforeState, eZContentObjectState $afterState )
@@ -167,6 +188,10 @@ class Votazione extends OCEditorialStuffPost
         $seduta = $this->getSeduta();
         if ( $seduta instanceof Seduta && $seduta->is( 'in_progress' ) )
         {
+            if ( !$this->getResultHandler()->isValid() )
+            {
+                throw new Exception( "La seduta non può essere aperta per mancanza del quorum strutturale" );
+            }
             $this->setState( 'stato_votazione.in_progress' );
             OpenPAConsiglioPushNotifier::instance()->emit(
                 'start_votazione',
@@ -207,7 +232,7 @@ class Votazione extends OCEditorialStuffPost
             // attendo 5 secondi per concludere le operazioni di voto
             sleep( 5 );
 
-            $this->getResultHandler()->register();
+            $this->getResultHandler()->store();
 
             // chiudo la votazione
             $this->setState( 'stato_votazione.closed' );
@@ -239,6 +264,7 @@ class Votazione extends OCEditorialStuffPost
 
     public function jsonSerialize()
     {
+        $data = $this->getResultHandler();
         return array(
             'id' => $this->id(),
             'short_text' => $this->stringAttribute( self::$shortTextIdentifier ),
@@ -247,11 +273,11 @@ class Votazione extends OCEditorialStuffPost
             'punto_id' => $this->stringAttribute( self::$puntoIdentifier, 'intval' ),
             'tipo' => $this->stringAttribute( self::$typeIdentifier ),
             'stato' => $this->currentState()->attribute( 'identifier' ),
-            'presenti' => $this->is( 'closed' ) ? $this->stringAttribute( self::$presentiIdentifier, 'intval' ) : null,
-            'votanti' => $this->is( 'closed' ) ? $this->stringAttribute( self::$votantiIdentifier, 'intval' ) : null,
-            'favorevoli' => $this->is( 'closed' ) ? $this->stringAttribute( self::$favorevoliIdentifier, 'intval' ) : null,
-            'contrari' => $this->is( 'closed' ) ? $this->stringAttribute( self::$contrariIdentifier, 'intval' ) : null,
-            'astenuti' => $this->is( 'closed' ) ? $this->stringAttribute( self::$astenutiIdentifier, 'intval' ) : null
+            'presenti' => $this->is( 'closed' ) ? $data->attribute( 'presenti_count' ) : null,
+            'votanti' => $this->is( 'closed' ) ? $data->attribute( 'votanti_count' ) : null,
+            'favorevoli' => $this->is( 'closed' ) ? $data->attribute( 'favorevoli_count' ) : null,
+            'contrari' => $this->is( 'closed' ) ? $data->attribute( 'contrari_count' ) : null,
+            'astenuti' => $this->is( 'closed' ) ?$data->attribute( 'astenuti_count' ) : null
         );
     }
 
@@ -313,9 +339,14 @@ class Votazione extends OCEditorialStuffPost
         }
     }
 
+    public static function getByID( $votazioneId )
+    {
+        return OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $votazioneId );
+    }
+
     public static function removeByID( $votazioneId )
     {
-        $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $votazioneId );
+        $votazione = self::getByID( $votazioneId );
         if ( $votazione instanceof Votazione && $votazione->isBefore( 'pending', true ) )
         {
             $object = $votazione->getObject();

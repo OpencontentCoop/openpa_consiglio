@@ -156,9 +156,9 @@ class OpenPAConsiglioVoto extends eZPersistentObject
     public static function countVotanti( Votazione $votazione, $valueCondition = null )
     {
         $conds = array( 'votazione_id' => $votazione->id() );
-        if ( $valueCondition )
+        if ( $valueCondition !== null )
         {
-            $conds['value'] = $valueCondition;
+            $conds['value'] = trim( $valueCondition );
         }
         $result = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
             array(),

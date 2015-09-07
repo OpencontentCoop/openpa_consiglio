@@ -174,5 +174,9 @@ States[closed]=Conclusa
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 VotazioneResultHandlers[]
-VotazioneResultHandlers[]=semplice
-VotazioneResultHandlers[]=assegnati
+VotazioneResultHandlers[ordinaria]=OpenPAConsiglioVotazioneResultHandlerOrdinaria
+VotazioneResultHandlers[intesa]=OpenPAConsiglioVotazioneResultHandlerIntesa
+VotazioneResultHandlers[ordinaria_alternativa]=OpenPAConsiglioVotazioneResultHandlerOrdinariaAlternativa
+VotazioneResultHandlers[intesa_alternativa]=OpenPAConsiglioVotazioneResultHandlerIntesaAlternativa
+VotazioneResultHandlersAlias[]
+#VotazioneResultHandlersAlias[ordinaria]=ordinaria_alternativa

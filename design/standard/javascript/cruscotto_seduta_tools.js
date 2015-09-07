@@ -149,11 +149,7 @@ jQuery.fn.sortElements = (function () {
 
 jQuery.fn.extend({
 
-    getVotazione: function(id){
-        return $(this).find("[data-votazione='" + id + "']");
-    },
-
-    startVotazione: function(id){
+    startVotazione: function(){
         var self = $(this);
         var content = self.html();
         self.html('<i class="fa fa-spinner fa-spin"></i> Attendere');
@@ -177,19 +173,22 @@ jQuery.fn.extend({
         });
     },
 
-    stopVotazione: function(id){
-        $(this).addClass('btn-danger').html('<i class="fa fa-spinner fa-spin"></i> Attendere');
+    stopVotazione: function(){
+        var self = $(this);
+        self.addClass('btn-danger').html('<i class="fa fa-spinner fa-spin"></i> Attendere');
         stopTimer();
-        var text = "\n" + $(this).data('add_to_verbale') + ' ' + currentDate() + "\n";
-        Verbale.showVerbale($(this).data('verbale'),text);
+        var text = "\n" + self.data('add_to_verbale') + ' ' + currentDate() + "\n";
+        Verbale.showVerbale(self.data('verbale'),text);
+        var idVotazione = self.data('votazione');
         $.ajax({
-            url: $(this).data('action_url'),
+            url: self.data('action_url'),
             method: 'POST',
-            data: {idVotazione:$(this).data('votazione')},
+            data: {idVotazione:idVotazione},
             success: function (data) {
                 Votazioni.reload();
                 Presenze.resetVotoPartecipanti();
                 clearErrors();
+                $('a#viewVotazione-'+idVotazione).trigger('click');
             },
             error: function (response, status, xhr) {
                 Votazioni.reload();
@@ -199,21 +198,25 @@ jQuery.fn.extend({
         });
     },
 
-    removeVotazione: function(id){
-        $.ajax({
-            url: $(this).data('action_url'),
-            method: 'POST',
-            data: {idVotazione:$(this).data('votazione')},
-            success: function (data) {
-                Votazioni.reload();
-                clearErrors();
-            },
-            error: function (response, status, xhr) {
-                Votazioni.reload();
-                handelResponseError(response, status, xhr);
-            },
-            dataType: 'json'
-        });
+    removeVotazione: function(){
+        var self = $(this);
+        if ( confirm("Confermi rimozione?") ) {
+            console.log(self);
+            $.ajax({
+                url: self.data('remove_action_url'),
+                method: 'POST',
+                data: {idVotazione: self.data('remove_votazione')},
+                success: function (data) {
+                    Votazioni.reload();
+                    clearErrors();
+                },
+                error: function (response, status, xhr) {
+                    Votazioni.reload();
+                    handelResponseError(response, status, xhr);
+                },
+                dataType: 'json'
+            });
+        }
     },
 
     getPartecipante: function(id){
@@ -221,8 +224,9 @@ jQuery.fn.extend({
     },
 
     setPartecipante: function(data){
+        var self = $(this);
         var offClass = 'blurred';
-        var stato = $(this).find('.stato-presenza');
+        var stato = self.find('.stato-presenza');
         var checkin = stato.find('.checkin');
         var beacons = stato.find('.beacons');
         var manual = stato.find('.manual');
@@ -241,21 +245,22 @@ jQuery.fn.extend({
         else
             manual.removeClass( statoOnClass ).addClass( statoOffClass  );
         if ( data.is_in )
-            $(this).removeClass( offClass );
+            self.removeClass( offClass );
         else
-            $(this).addClass( offClass );
-        $(this).data('last_update', data.created_timestamp );
+            self.addClass( offClass );
+        self.data('last_update', data.created_timestamp );
     },
 
     setVotoPartecipante: function(data){
-        var stato = $(this).find('.stato-votazione');
+        var self = $(this);
+        var stato = self.find('.stato-votazione');
         if (data.anomaly) {
             stato.addClass( 'voto-anomalo' );
             stato.find('a.mark_invalid').show().data('voto_id', data.id);
         }else{
             stato.addClass( 'ha-votato' );
         }
-        $(this).data('last_update', data.created_timestamp );
+        self.data('last_update', data.created_timestamp );
     },
     
     removeVotoPartecipante: function(data){      
@@ -280,7 +285,8 @@ jQuery.fn.extend({
     },
     
     startVotoPartecipanti: function(){
-        $('tr.partecipante', $(this)).each( function(){
+        var self = $(this);
+        $('tr.partecipante', self).each( function(){
             $(this).startVotoPartecipante()
         });
     },

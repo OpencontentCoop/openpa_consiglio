@@ -80,20 +80,22 @@ $(document).on('click', '#popolaTestoVotazione', function (e) {
 });
 
 $(document).on('click', '.start_votazione', function (e) {
-    var votazione = Votazioni.getVotazione( $(e.currentTarget).data('votazione') );
-    votazione.startVotazione();
+    $(e.currentTarget).startVotazione();
     e.preventDefault();
 });
 
 $(document).on('click', '.stop_votazione', function (e) {
-    var votazione = Votazioni.getVotazione( $(e.currentTarget).data('votazione') );
-    votazione.stopVotazione();
+    $(e.currentTarget).stopVotazione();
     e.preventDefault();
 });
 
 $(document).on('click', '.remove_votazione', function (e) {
-    var votazione = Votazioni.getVotazione( $(e.currentTarget).data('votazione') );
-    votazione.removeVotazione();
+    $(e.currentTarget).removeVotazione();
+    e.preventDefault();
+});
+
+$(document).on('click', '.launch_monitor_votazione', function (e) {
+    $.ajax({url: $(this).data('action_url'), method: 'GET'});
     e.preventDefault();
 });
 

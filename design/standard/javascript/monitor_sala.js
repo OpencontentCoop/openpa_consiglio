@@ -67,8 +67,16 @@ socket.on('stop_votazione', function (data) {
 });
 
 socket.on('real_stop_votazione', function (data) {
-    if (data.seduta_id == CurrentSedutaId) {        
+    if (data.seduta_id == CurrentSedutaId) {
         $('#text').show().find('.alert').removeClass('alert-danger').hide();
-        $('#detail').load(VotazioneDataBaseUrl + data.id + '/parts:risultato_votazione' + '?time=' + Date.now()).show();
+        $('#detail').load(VotazioneDataBaseUrl + data.id + '/parts:risultato_votazione_monitor' + '?time=' + Date.now()).show();
+    }
+});
+
+socket.on('show_votazione', function (data) {
+    console.log(data);
+    if (data.seduta_id == CurrentSedutaId) {
+        $('#presenze').hide();
+        $('#detail').load(VotazioneDataBaseUrl + data.id + '/parts:risultato_votazione_monitor' + '?time=' + Date.now()).show();
     }
 });

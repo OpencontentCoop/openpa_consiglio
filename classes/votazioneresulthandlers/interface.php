@@ -10,63 +10,29 @@ interface OpenPAConsiglioVotazioneResultHandlerInterface
     public function setCurrentVotazione( Votazione $votazione );
 
     /**
+     * @return string
+     */
+    public function getDescription();
+
+    /**
+     * @return bool
+     */
+    public function isValid();
+
+    /**
      * @return OpenPAConsiglioVotazioneResultHandlerInterface
      */
-    public function register();
+    public function store();
 
     /**
-     * @return array
+     * @return bool
      */
-    public function result();
+    public function getResult();
 
     /**
-     * @return eZUser[]
+     * @return string
      */
-    public function getPresenti();
-
-    /**
-     * @return int
-     */
-    public function getPresentiCount();
-
-    /**
-     * @return eZUser[]
-     */
-    public function getVotanti();
-
-    /**
-     * @return int
-     */
-    public function getVotantiCount();
-
-    /**
-     * @return eZUser[]
-     */
-    public function getFavorevoli();
-
-    /**
-     * @return int
-     */
-    public function getFavorevoliCount();
-
-    /**
-     * @return eZUser[]
-     */
-    public function getContrari();
-
-    /**
-     * @return int
-     */
-    public function getContrariCount();
+    public function getTemplateName();
 
 
-    /**
-     * @return eZUser[]
-     */
-    public function getAstenuti();
-
-    /**
-     * @return int
-     */
-    public function getAstenutiCount();
 }

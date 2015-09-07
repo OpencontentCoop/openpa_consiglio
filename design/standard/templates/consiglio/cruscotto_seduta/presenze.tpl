@@ -12,7 +12,7 @@
             <td class="foto"><span
                         style="background-image: url({content_view_gui content_object=$partecipante.object view="image_src" image_class='small'})"></span>
             </td>
-            <td class="nome">{$partecipante.object.name|wash()}</td>
+            <td class="nome">{if ezini('DebugSettings', 'DebugOutput')|eq('enabled')}{$partecipante.object_id|wash()} {/if}{$partecipante.object.name|wash()}</td>
             <td class="actions">
                 <div class="btn-group">
                     <a class="btn btn-success btn-xs"

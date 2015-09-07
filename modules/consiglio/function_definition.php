@@ -36,3 +36,13 @@ $FunctionList['notification_items'] = array(
         )
     )
 );
+$FunctionList['tipi_votazione'] = array(
+    'name' => 'tipi_votazione',
+    'operation_types' => array( 'read' ),
+    'call_method' => array(
+        'include_file' => 'extension/openpa_consiglio/classes/openpaconsigliofunctioncollection.php',
+        'class' => 'OpenPAConsiglioFunctionCollection',
+        'method' => 'fetchTipiVotazione' ),
+    'parameter_type' => 'standard',
+    'parameters' => array()
+);

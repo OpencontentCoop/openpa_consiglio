@@ -156,6 +156,22 @@ elseif ( $action )
                 Votazione::removeByID( $idVotazione );
             } break;
 
+            case 'launchMonitorVotazione':
+            {
+                $votazione = Votazione::getByID( $actionParameters );
+                if ( $votazione instanceof Votazione )
+                {
+                    OpenPAConsiglioPushNotifier::instance()->emit(
+                        'show_votazione',
+                        $votazione->jsonSerialize()
+                    );
+                    OpenPAConsiglioPushNotifier::instance()->emit(
+                        'null',
+                        array()
+                    );
+                }
+            } break;
+
             case 'saveVerbale':
             {
                 $seduta->saveVerbale( $http->postVariable( 'Verbale' ) );
