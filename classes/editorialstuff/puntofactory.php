@@ -148,13 +148,17 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
     public function notificationEventTypesConfiguration()
     {
         return array(
-            'create' => array(
-                'name' => 'Creazione di un nuovo punto non pubblico',
-                'handler_method' => 'handleCreateNotification'
-            ),
             'publish' => array(
                 'name' => 'Pubblicazione di un nuovo punto',
                 'handler_method' => 'handlePublishNotification'
+            ),
+            'update_referenti' => array(
+                'name' => 'Aggiornamento dei referenti di un punto',
+                'handler_method' => 'handleUpdateReferentiNotification'
+            ),
+            'update_materia' => array(
+                'name' => 'Aggiornamento della materia di un punto',
+                'handler_method' => 'handleUpdateMateriaNotification'
             ),
             'move' => array(
                 'name' => 'Spostamento di un punto',
