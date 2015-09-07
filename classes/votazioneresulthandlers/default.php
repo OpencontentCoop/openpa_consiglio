@@ -71,7 +71,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
 
     public function isValid()
     {
-        if ( $this->currentVotazione->isBefore( 'in_progress', true ) )
+        if ( $this->currentVotazione->is( 'pending' ) )
             return $this->getPresentiCount() > $this->getQuorumStrutturale();
         else
             return ( $this->getVotantiCount() + $this->getNonVotantiCount() ) > $this->getQuorumStrutturale();
