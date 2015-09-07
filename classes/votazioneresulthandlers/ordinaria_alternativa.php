@@ -26,9 +26,9 @@ class OpenPAConsiglioVotazioneResultHandlerOrdinariaAlternativa extends OpenPACo
     public function isValid()
     {
         if ( $this->currentVotazione->isBefore( 'in_progress', true ) )
-            return ( $this->getPresentiCount() - $this->getNonVotantiCount() ) > $this->getQuorumStrutturale();
+            return $this->getPresentiCount() > $this->getQuorumStrutturale();
         else
-            return $this->getVotantiCount() > $this->getQuorumStrutturale();
+            return ( $this->getPresentiCount() - $this->getNonVotantiCount() ) > $this->getQuorumStrutturale();
     }
 
     public function getTemplateName()
