@@ -107,6 +107,6 @@
 
 {ezscript_require( array( 'ezjsc::jquery' ) )}
 <script src="{'javascript/socket.io-1.3.5.js'|ezdesign(no)}"></script>
-<script src="{'javascript/cruscotto_seduta_tools.js'|ezdesign(no)}"></script>
-<script src="{'javascript/cruscotto_seduta.js'|ezdesign(no)}"></script>
+<script src="{'javascript/cruscotto_seduta_tools.js'|ezdesign(no)}?_={currentdate()}"></script>
+<script src="{'javascript/cruscotto_seduta.js'|ezdesign(no)}?_={currentdate()}"></script>
 {ezcss_require( array( 'cruscotto_seduta.css' ) )}
