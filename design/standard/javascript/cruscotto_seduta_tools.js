@@ -55,9 +55,13 @@ $(document).on('click', '.modal button.btn-primary', function (e) {
     if (typeof currentActionSettings.action_url == 'string') {
         var values = [];
         $.each(currentActionSettings.fields, function (fieldIndex, fieldName) {
+            var field = currentModal.find('*[name="' + fieldName + '"]');
+            var fieldValue = field.val();
+            if ( field.attr( 'type' ) == 'radio' )
+                fieldValue = currentModal.find('*[name="' + fieldName + '"]:checked').val();
             values.push({
                 name: fieldName,
-                value: currentModal.find('*[name="' + fieldName + '"]').val()
+                value: fieldValue
             });
         });
         if (jQuery.isFunction(currentActionSettings.filterPostData))
