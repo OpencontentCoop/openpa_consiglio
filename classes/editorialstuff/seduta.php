@@ -840,6 +840,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             }
             $this->addPresenza( 0, 'checkin', $userId ); //eseguo il checkout
             $this->addPresenza( 0, 'beacons', $userId ); //spengo i beacons
+            $this->addPresenza( 0, 'manual', $userId ); //spengo i beacons
         }
         eZLog::write( var_export( $presenti, 1 ), 'runtime.log' );
 
