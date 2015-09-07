@@ -22,12 +22,13 @@
         </td>
     </tr>
     <tr>
-        <th rowspan="2" style="vertical-align: middle">Assenti</th>
+        <th {if $post.current_state.identifier|eq('closed')}rowspan="2"{/if} style="vertical-align: middle">Assenti</th>
         <td style="vertical-align: middle" align="center">{$post_result.assenti_count}</td>
         <td class="assenti">
             <small>{foreach $post_result.assenti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}</small>
         </td>
     </tr>
+    {if $post.current_state.identifier|eq('closed')}
     <tr>
         <td style="vertical-align: middle" align="center">{$post_result.non_votanti_count}</td>
         <td style="vertical-align: middle" class="votanti">
@@ -35,6 +36,7 @@
             <small>{foreach $post_result.non_votanti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}</small>
         </td>
     </tr>
+    {/if}
 
 
 {if $post.current_state.identifier|eq('closed')}
