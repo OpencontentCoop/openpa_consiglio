@@ -98,6 +98,6 @@
 
 <div class="row">
     <div class="col col-md-8 col-md-offset-2">
-        <div id="detail" style="font-size:2em"></div>
+        <div id="detail"></div>
     </div>
 </div>
