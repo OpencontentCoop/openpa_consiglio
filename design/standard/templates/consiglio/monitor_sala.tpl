@@ -56,7 +56,7 @@
     {def $partecipanti = $seduta.partecipanti}
     {def $col = 2 $modulo = 6 $size = 'medium'}
     {if $partecipanti|count()|gt(18)}
-      {set $col = 2 $modulo = 6 $size = 'medium'}
+      {set $col = 1 $modulo = 12 $size = 'medium'}
     {/if}
 	  {foreach $seduta.partecipanti as $partecipante}
 		  <div class="col-xs-{$col} user_presenza user-{$partecipante.object_id}"
@@ -67,7 +67,7 @@
 				<p class="btn btn-default btn-xs type manual" style="display: none"><i class="fa fa-thumbs-up"></i></p>
 			  </div>
 			  <div class="name" {if $registro_presenze.hash_user_id[$partecipante.object_id]|not} style="opacity: .4"{/if}>
-				<div style="height:105px; background: url({if $partecipante.object|has_attribute( 'image' )}{$partecipante.object|attribute( 'image' ).content[medium].url|ezroot(no)}{else}{'images/profile_medium.jpg'|ezdesign(no)}{/if}) top center no-repeat; background-size: contain"></div>
+				<div style="height:105px; background: url({if $partecipante.object|has_attribute( 'image' )}{$partecipante.object|attribute( 'image' ).content[medium].url|ezroot(no)}{else}{'images/profile_medium.jpg'|ezdesign(no)}{/if}) top center no-repeat; background-size: cover"></div>
 <p class="text-center">
     <strong>{$partecipante.object.name|wash()}</strong>
 </p>

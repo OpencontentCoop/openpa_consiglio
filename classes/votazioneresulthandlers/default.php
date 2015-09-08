@@ -22,7 +22,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
 
     public function getDescription()
     {
-        return "Votazione a maggioranza semplice. Il quorum strutturale è rappresentato dalla metà più uno degli aventi diritto. Il quorum funzionale è rappresentato dalla metà più uno dei votanti. Coloro che non esprimono preferenza vengono conteggiati come astenuti";
+        return "Votazione a maggioranza semplice. Il quorum strutturale è rappresentato dalla metà più uno degli aventi diritto. Il quorum funzionale è rappresentato dalla meggiornaza dei votant";
     }
 
     public function getTemplateName()
@@ -55,8 +55,8 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
 
     protected function getQuorumFunzionale()
     {
-        $metaVotanti = ceil( ( $this->getVotantiCount() + $this->getNonVotantiCount() ) / 2 );
-        return $metaVotanti + 1;
+        $metaVotanti = ceil( ( $this->getPresentiCount() ) / 2 );
+        return $metaVotanti;
     }
 
     protected function getQuorumStrutturale()
@@ -71,10 +71,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
 
     public function isValid()
     {
-        if ( $this->currentVotazione->is( 'pending' ) )
-            return $this->getPresentiCount() > $this->getQuorumStrutturale();
-        else
-            return ( $this->getVotantiCount() + $this->getNonVotantiCount() ) > $this->getQuorumStrutturale();
+        return $this->getPresentiCount() > $this->getQuorumStrutturale();
     }
 
     /**

@@ -56,21 +56,26 @@
                         </td>
                     </tr>
                     <tr>
-                        <th rowspan="2" style="vertical-align: middle">Astenuti</th>
+                        <th {*rowspan="2"*} style="vertical-align: middle">Astenuti</th>
                         <td style="vertical-align: middle"  align="center">{$post_result.astenuti_count}</td>
                         <td style="vertical-align: middle" class="astenuti">
                             <small>{foreach $post_result.astenuti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}</small>
                         </td>
                     </tr>
-                    <tr>
+                   {* <tr>
                         <td style="vertical-align: middle" align="center">{$post_result.non_votanti_count}</td>
                         <td style="vertical-align: middle" class="votanti">
                             <b><small>Astenuti perché non hanno espresso una preferenza:</small></b>
                             <small>{foreach $post_result.non_votanti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}</small>
                         </td>
-                    </tr>
+                    </tr>*}
                 </table>
             </td>
         </tr>
+	<tr>
+	    <th style="vertical-align: middle">Non hanno espresso una preferenza</th>
+            <td style="vertical-align: middle" align="center">{$post_result.non_votanti_count}</td>
+	    <td style="vertical-align: middle" class="non-votanti"><small>{foreach $post_result.non_votanti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}</small></td>
+	</tr>
 {/if}
 </table>
