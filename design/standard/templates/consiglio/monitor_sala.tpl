@@ -7,7 +7,7 @@
     var VotazioneDataBaseUrl = "{'consiglio/data/votazione'|ezurl(no)}/";
     var ActionBaseUrl = "{concat('consiglio/cruscotto_seduta/',$seduta.object_id)|ezurl(no)}/";
 </script>
-<script src="{'javascript/monitor_sala.js'|ezdesign(no)}"></script>
+<script src="{'javascript/monitor_sala.js'|ezdesign(no)}?_={currentdate()}"></script>
 <style>
   {literal}#detail p.text{font-size: .6em}{/literal}
 </style>
