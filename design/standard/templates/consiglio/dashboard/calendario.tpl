@@ -3,7 +3,7 @@
 {def $calendarData = fetch( openpa, calendario_eventi, hash(
     'calendar', fetch( content, node, hash( node_id, 1136 ) ),
     'params', hash(
-        'interval', 'P1M',
+        'interval', 'P4W',
         'view', 'calendar'
     )
 ))}

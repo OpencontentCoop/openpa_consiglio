@@ -172,6 +172,18 @@ elseif ( $action )
                 }
             } break;
 
+            case 'launchMonitorPresenze':
+            {
+                OpenPAConsiglioPushNotifier::instance()->emit(
+                    'show_presenze',
+                    $seduta->jsonSerialize()
+                );
+                OpenPAConsiglioPushNotifier::instance()->emit(
+                    'null',
+                    array()
+                );
+            } break;
+
             case 'saveVerbale':
             {
                 $seduta->saveVerbale( $http->postVariable( 'Verbale' ) );

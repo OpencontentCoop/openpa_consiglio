@@ -12,7 +12,7 @@
 
 <table class="table">
     <tr>
-        <th colspan="3"  class="text-center" style="vertical-align: middle">Quorum strutturale: {$post_result.quorum_strutturale}</th>
+        <th colspan="3"  class="text-center" style="vertical-align: middle">Quorum costitutivo: {$post_result.quorum_strutturale}</th>
     </tr>
     <tr>
         <th style="vertical-align: middle">Presenti</th>
@@ -42,7 +42,7 @@
 {if $post.current_state.identifier|eq('closed')}
 
         <tr>
-            <th colspan="3" class="text-center" style="vertical-align: middle">Quorum funzionale: {$post_result.quorum_funzionale}</th>
+            <th colspan="3" class="text-center" style="vertical-align: middle">Quorum deliberativo: {$post_result.quorum_funzionale}</th>
         </tr>
         <tr>
             <th style="vertical-align: middle">Hanno espresso una preferenza</th>

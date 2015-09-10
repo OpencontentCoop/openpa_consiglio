@@ -1,3 +1,18 @@
+{def $alerts_container = openpaini( 'OpenPAConsiglio', 'DashboardAlertsContainerNode', false() )}
+{if $alerts_container}
+{def $alert_container_node = fetch( content, node, hash( node_id, $alerts_container ) )}
+{if $alert_container_node.children_count}
+<div class="alert alert-danger">
+  {foreach $alert_container_node.children as $child}
+	<div>
+	  <small>{$child.object.published|l10n(date)}</small><br />
+	  <h2>{$child.name}</h2>	  	  
+	</div>
+  {/foreach}
+</div>
+{/if}
+{/if}
+
 <div class="row dashboard">
     <div class="col-sm-12">
         <div class="panel panel-default">

@@ -645,7 +645,8 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                     array(
                         'filters' => array( 'meta_path_si:' . $organoNodeId[0] ),
                         'limit' => 100,
-                        'offset' => 0
+                        'offset' => 0,
+                        'sort' => array( 'attr_cognome_s' => 'asc' )
                     )
                 );
             }

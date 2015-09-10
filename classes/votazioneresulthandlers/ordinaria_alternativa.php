@@ -8,9 +8,8 @@ class OpenPAConsiglioVotazioneResultHandlerOrdinariaAlternativa extends OpenPACo
     }
 
     protected function getQuorumFunzionale()
-    {
-        $metaVotanti = ceil( $this->getVotantiCount() / 2 );
-        return $metaVotanti + 1;
+    {        
+        return self::forumlaQuorum( $this->getVotantiCount() );        
     }
 
     protected function getQuorumStrutturale()
@@ -18,7 +17,7 @@ class OpenPAConsiglioVotazioneResultHandlerOrdinariaAlternativa extends OpenPACo
         if ( !isset( $this->data['quorum_strutturale'] ) )
         {
             $aventiDiritto = count( $this->currentVotazione->getSeduta()->partecipanti() );
-            $this->data['quorum_strutturale'] = ceil( $aventiDiritto / 2 ) + 1;
+            $this->data['quorum_strutturale'] = self::forumlaQuorum( $aventiDiritto );
         }
         return $this->data['quorum_strutturale'];
     }

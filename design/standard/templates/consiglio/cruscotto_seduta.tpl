@@ -56,6 +56,7 @@
             <span class="label label-default">
                 <span class="totale-presenze">{$registro_presenze.in}</span>/{$count_partecipanti}
             </span>
+            <a class="btn btn-info btn-xs launch_monitor_presenze" data-action_url="{concat('consiglio/cruscotto_seduta/',$seduta.object_id,'/launchMonitorPresenze')|ezurl(no)}" href="#"><i class="fa fa-desktop"></i></a> 
         </div>
     </div>
 </div>
