@@ -18,41 +18,41 @@
         </tr>
     {/foreach}
 </table>
-{else}
-    <div id="logs-partecipanti">
-    {foreach $post.partecipanti as $partecipante}
-      <div id="logs-{$partecipante.object_id}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="logdLabel" aria-hidden="true">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-              <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                              aria-hidden="true">&times;</span></button>
-                  <h4 class="modal-title">Rilevazioni {$partecipante.object.name|wash()} ({$partecipante.object_id})</h4>
-              </div>              
-                <div class="modal-body">
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Id</th>
-                      <th>InOut</th>
-                      <th>IsIn</th>
-                      <th>Label</th>
-                      <th>Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>                      
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-      </div>
-    {/foreach}
-    </div>
 {/if}
+<div id="logs-partecipanti">
+{foreach $post.partecipanti as $partecipante}
+  <div id="logs-{$partecipante.object_id}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="logdLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-lg">
+		<div class="modal-content">
+		  <div class="modal-header">
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+						  aria-hidden="true">&times;</span></button>
+			  <h4 class="modal-title">Rilevazioni {$partecipante.object.name|wash()} ({$partecipante.object_id})</h4>
+		  </div>              
+			<div class="modal-body">
+			<table class="table table-striped">
+			  <thead>
+				<tr>
+				  <th>Id</th>
+				  <th>InOut</th>
+				  <th>IsIn</th>
+				  <th>Label</th>
+				  <th>Time</th>
+				</tr>
+			  </thead>
+			  <tbody>                      
+			  </tbody>
+			</table>
+		  </div>
+		</div>
+	  </div>
+  </div>
+{/foreach}
+</div>
 
+{if $post.current_state.identifier|eq( 'in_progress' )}
 <input id="start_stop" type="button" class="btn btn-xs" value="Live Data" style="dispaly:none"/>
-
+{/if}
 <div id="gantt_here" style='width:100%; height:1100px;'></div>
 <script type="text/javascript">
     

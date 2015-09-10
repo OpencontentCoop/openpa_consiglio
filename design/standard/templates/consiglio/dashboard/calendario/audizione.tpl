@@ -3,7 +3,7 @@
         <div class="calendar-date" style="min-width: 50px">
             <span class="month">{$post.data_ora|datetime( 'custom', '%M' )}</span>
             <span class="day">{$post.data_ora|datetime( 'custom', '%j' )}</span>
-            <strong>ore {attribute_view_gui attribute=$post.object.data_map.orario}</strong>
+            <strong>ore {$post.data_ora|datetime( 'custom', '%H:%i' )}</strong>
         </div>
     </div>
     <div class="col-sm-10 col-lg-11">

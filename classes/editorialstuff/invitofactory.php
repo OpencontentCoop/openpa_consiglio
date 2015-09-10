@@ -100,7 +100,7 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
                 /** @var eZContentObjectAttribute[] $firmatarioDataMap */
                 $firmatarioDataMap = $firmatario->dataMap();
 
-                $variables['firmatario'] = $firmatario->attribute( 'name' );
+                $variables['firmatario'] = str_replace( '(CCT)', '', $firmatario->attribute( 'name' ) );
                 if ( $firmatarioDataMap['firma']->hasContent()
                      && $firmatarioDataMap['firma']->attribute( 'data_type_string' ) == 'ezimage' )
                 {

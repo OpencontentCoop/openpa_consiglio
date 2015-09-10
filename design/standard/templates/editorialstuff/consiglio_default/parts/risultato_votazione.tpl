@@ -20,7 +20,7 @@
         </a>
     {/if}
     {if $post.current_state.identifier|eq('closed')}
-        <a class="btn btn-info btn-xs launch_monitor_votazione" data-action_url="{concat('consiglio/cruscotto_seduta/',$post.seduta_id,'/launchMonitorVotazione/', $post.object_id)|ezurl(no)}" href="#">Mostra risultati su monitor</a>
+        <a class="btn btn-info btn-xs launch_monitor_votazione" data-action_url="{concat('consiglio/cruscotto_seduta/',$post.seduta_id,'/launchMonitorVotazione/', $post.object_id)|ezurl(no)}" href="#"><i class="fa fa-desktop"></i> Mostra risultati su monitor sala</a>
     {/if}
 </p>
 

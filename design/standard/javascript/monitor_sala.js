@@ -38,7 +38,7 @@ socket.on('stop_punto', function (data) {
 
 socket.on('start_seduta', function (data) {
     if (data.id == CurrentSedutaId) {
-        $('#seduta h1 small').html( 'Seduta in corso' );
+        $('#seduta h2 small').html( 'Seduta in corso' );
     }
 });
 socket.on('stop_seduta', function (data) {
@@ -46,7 +46,7 @@ socket.on('stop_seduta', function (data) {
         $('#presenze').hide();
         $('#detail').hide();
         $('#text').show().find('.data').show();
-        $('#seduta h1 small').html( 'Seduta non in corso' );
+        $('#seduta h2 small').html( 'Seduta non in corso' );
         $('#text').show().find( 'h1').html('Arrivederci!');        
     }
 });
@@ -74,9 +74,16 @@ socket.on('real_stop_votazione', function (data) {
 });
 
 socket.on('show_votazione', function (data) {
-    console.log(data);
     if (data.seduta_id == CurrentSedutaId) {
         $('#presenze').hide();
         $('#detail').load(VotazioneDataBaseUrl + data.id + '/parts:risultato_votazione_monitor' + '?time=' + Date.now()).show();
+    }
+});
+
+socket.on('show_presenze', function (data) {
+    if (data.id == CurrentSedutaId) {
+        $('#presenze').show();
+        $('#text').hide();
+        $('#detail').hide();
     }
 });

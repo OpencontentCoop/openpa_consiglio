@@ -8,9 +8,9 @@
         <td>{$materia.object.name|wash()}</td>
         <td>
         {if $materie_like|contains($materia.object_id)}
-            <button type="submit" name="RemoveMateria" value="{$materia.object_id}" class="btn btn-danger"><i class="fa fa-times"></i></button>
+            <button type="submit" name="RemoveMateria" value="{$materia.object_id}" class="btn btn-danger"><i class="fa fa-times"></i> Rimuovi dai preferiti</button>
         {else}
-            <button type="submit" name="AddMateria" value="{$materia.object_id}" class="btn btn-success"><i class="fa fa-check"></i></button>
+            <button type="submit" name="AddMateria" value="{$materia.object_id}" class="btn btn-success"><i class="fa fa-check"></i> Aggiungi ai preferiti</button>
         {/if}
         </td>
     </tr>

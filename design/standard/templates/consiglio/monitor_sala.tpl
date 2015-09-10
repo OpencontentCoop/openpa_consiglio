@@ -34,7 +34,7 @@
 		<img class="center-block" height="100" src="{'images/monitor_sala/logo.png'|ezdesign(no)}" />
 	  </div>
 	  <div class="col col-md-9 text-center">
-		<h1 class="text-center">
+		<h2 class="text-center">
 		  <strong>{$seduta.object.name|wash()}</strong><br />
             <small>
                 {if $seduta.current_state.identifier|eq('in_progress')}
@@ -43,7 +43,7 @@
                     Seduta non in corso
                 {/if}
             </small>
-		</h1>
+		</h2>
 	  </div>        
     </div>
 </div>

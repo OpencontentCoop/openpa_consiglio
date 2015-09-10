@@ -22,7 +22,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
 
     public function getDescription()
     {
-        return "Votazione a maggioranza semplice. Il quorum strutturale è rappresentato dalla metà più uno degli aventi diritto. Il quorum funzionale è rappresentato dalla meggiornaza dei votant";
+        return "Votazione a maggioranza semplice. Il quorum strutturale è rappresentato dalla metà più uno degli aventi diritto. Il quorum funzionale è rappresentato dalla maggiornaza dei votanti";
     }
 
     public function getTemplateName()
@@ -52,11 +52,16 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
     {
         return $this->getFavorevoliCount() > $this->getQuorumFunzionale();
     }
+    
+    protected static function forumlaQuorum( $totale )
+    {
+        $meta = floor( $totale / 2 );
+        return $meta + 1;
+    }
 
     protected function getQuorumFunzionale()
     {
-        $metaVotanti = ceil( ( $this->getPresentiCount() ) / 2 );
-        return $metaVotanti;
+        return self::forumlaQuorum( $this->getPresentiCount() );        
     }
 
     protected function getQuorumStrutturale()
@@ -64,14 +69,14 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
         if ( !isset( $this->data['quorum_strutturale'] ) )
         {
             $aventiDiritto = count( $this->currentVotazione->getSeduta()->partecipanti() );
-            $this->data['quorum_strutturale'] = ceil( $aventiDiritto / 2 ) + 1;
+            $this->data['quorum_strutturale'] = self::forumlaQuorum( $aventiDiritto );
         }
         return $this->data['quorum_strutturale'];
     }
 
     public function isValid()
     {
-        return $this->getPresentiCount() > $this->getQuorumStrutturale();
+        return $this->getPresentiCount() >= $this->getQuorumStrutturale();
     }
 
     /**

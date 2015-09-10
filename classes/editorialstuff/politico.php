@@ -128,9 +128,30 @@ class Politico extends OCEditorialStuffPost
             eZURI::transformURI( $imageUrl, false, 'full' );
         }
 
+        $rappresentante = '';
+        if ( $this->dataMap['rappresentante']->hasContent()
+             && $this->dataMap['rappresentante']->attribute( 'data_type_string' ) == 'ezobjectrelationlist'
+        )
+        {
+            $relationIds = explode( '-', $this->dataMap['rappresentante']->toString() );
+            foreach( $relationIds as $relationId )
+            {
+                $relation = eZContentObject::fetch( $relationId );
+                if ( $relation instanceof eZContentObject )
+                {
+                    $rappresentante .= $relation->attribute( 'name' ) . ' ';
+                }
+            }
+        }
+        $rappresentante = trim( $rappresentante );
+        if ( empty( $rappresentante ) )
+        {
+            $rappresentante = $this->object->ClassIdentifier;
+        }
+
         return array(
             'id' => $this->id(),
-            'type' => $this->object->ClassIdentifier,
+            'type' => $rappresentante,
             'nome' => $this->dataMap['nome']->content(),
             'cognome' => $this->dataMap['cognome']->content(),
             'email' => array_unique( $email ),

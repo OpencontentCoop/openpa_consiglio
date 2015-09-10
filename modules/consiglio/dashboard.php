@@ -7,7 +7,7 @@ $http = eZHTTPTool::instance();
 $factoryIdentifier = is_string( $Params['FactoryIdentifier'] ) ? $Params['FactoryIdentifier'] : 'seduta';
 
 $currentUser = eZUser::currentUser();
-
+eZDebug::writeNotice( $currentUser->hasAccessTo( 'consiglio', 'admin' ) );
 
 if ( $currentUser->isAnonymous() )
 {
