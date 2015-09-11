@@ -163,4 +163,148 @@ class Politico extends OCEditorialStuffPost
             'immagine' => $imageUrl
         );
     }
+
+    public function lastData()
+    {
+        $data = array(
+            'seduta' => array(
+                'id' => null,
+                'stato' => null,
+                'data_svolgimento' => null,
+                'timestamp' => null,
+                'human_datetime' => null,
+                'presenza' => array(
+                    'id' => null,
+                    'in_out' => null,
+                    'timestamp' => null,
+                    'human_datetime' => null,
+                ),
+                'punto' => array(
+                    'id' => null,
+                    'stato' => null,
+                    'timestamp' => null,
+                    'human_datetime' => null,
+                ),
+                'votazione' => array(
+                    'id' => null,
+                    'stato' => null,
+                    'timestamp' => null,
+                    'human_datetime' => null,
+                    'short_text' => null,
+                    'text' => null,
+                    'punto_id' => null,
+                    'user_voted' => 'null'
+                ),
+            )
+        );
+        // ricavo la seduta dalla presenza
+        $lastPresenza = OpenPAConsiglioPresenza::fetchLastByUserID( $this->id() );
+        if ( $lastPresenza instanceof OpenPAConsiglioPresenza )
+        {
+            try
+            {
+                /** @var Seduta $seduta */
+                $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $lastPresenza->attribute( 'seduta_id' ) );
+                if ( $seduta instanceof Seduta )
+                {
+                    $data['seduta']['id'] = $seduta->id();
+                    $data['seduta']['stato'] = $seduta->currentState()->attribute( 'identifier' );
+                    $data['seduta']['data_svolgimento'] = $seduta->dataOra( Seduta::DATE_FORMAT );
+
+                    // ricavo timestamp di ultimo stato
+                    $lastSedutaHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $seduta->id(), 'updateobjectstate' );
+                    if ( $lastSedutaHistory instanceof OCEditorialStuffHistory )
+                    {
+                        $data['seduta']['timestamp'] = $lastSedutaHistory->attribute( 'created_time' );
+                        $data['seduta']['human_datetime'] = date( Seduta::DATE_FORMAT, $lastSedutaHistory->attribute( 'created_time' ) );
+                    }
+
+                    $data['seduta']['presenza']['id'] = intval( $lastPresenza->attribute( 'id' ) );
+                    $data['seduta']['presenza']['in_out'] = intval( $lastPresenza->attribute( 'in_out' ) );
+                    $data['seduta']['presenza']['timestamp'] = $lastPresenza->attribute( 'created_time' );
+                    $data['seduta']['presenza']['human_datetime'] = date( Seduta::DATE_FORMAT, $lastPresenza->attribute( 'created_time' ) );
+                    $data['seduta']['presenza']['type'] = $lastPresenza->attribute( 'type' );
+
+                    // ricavo punto attivo
+                    $punto = null;
+                    $puntoInProgress = $seduta->getPuntoInProgress();
+                    if ( $puntoInProgress instanceof Punto )
+                    {
+                        $punto = $puntoInProgress;
+                    }
+                    else
+                    {
+                        foreach ( $seduta->odg() as $puntoOdg )
+                        {
+                            if ( $puntoOdg->currentState()->attribute( 'identifier' ) == 'closed' )
+                            {
+                                $punto = $puntoOdg;
+                            }
+                        }
+                    }
+
+                    if ( $punto instanceof Punto )
+                    {
+                        $data['seduta']['punto']['id'] = $punto->id();
+                        $data['seduta']['punto']['stato'] = $punto->currentState()->attribute( 'identifier' );
+
+                        // ricavo timestamp di ultimo stato
+                        $lastPuntoHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $punto->id(), 'updateobjectstate' );
+                        if ( $lastPuntoHistory instanceof OCEditorialStuffHistory )
+                        {
+                            $data['seduta']['punto']['timestamp'] = $lastPuntoHistory->attribute( 'created_time' );
+                            $data['seduta']['punto']['human_datetime'] = date( Seduta::DATE_FORMAT, $lastPuntoHistory->attribute( 'created_time' ) );
+                        }
+                    }
+                    else
+                    {
+                        $data['seduta']['punto'] = null;
+                    }
+
+                    // ricavo ultima votazione
+                    $votazione = $seduta->getVotazioneInProgress();
+                    if ( !$votazione instanceof Votazione )
+                    {
+                        $votazioni = Votazione::getBySedutaID( $seduta->id() );
+                        if ( is_array( $votazioni ) && $votazioni[0] instanceof Votazione )
+                        {
+                            $votazione = $votazioni[0];
+                        }
+                    }
+                    if ( $votazione instanceof Votazione )
+                    {
+                        $jsonArrayVotazione = $votazione->jsonSerialize();
+                        $data['seduta']['votazione']['id'] = $jsonArrayVotazione['id'];
+                        $data['seduta']['votazione']['stato'] = $jsonArrayVotazione['stato'];
+                        $data['seduta']['votazione']['short_text'] = $jsonArrayVotazione['short_text'];
+                        $data['seduta']['votazione']['text'] = $jsonArrayVotazione['text'];
+                        $data['seduta']['votazione']['punto_id'] = $jsonArrayVotazione['punto_id'];
+                        // ricavo timestamp di ultimo stato
+                        $lastVotazioneHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $votazione->id(), 'updateobjectstate' );
+                        if ( $lastVotazioneHistory instanceof OCEditorialStuffHistory )
+                        {
+                            $data['seduta']['votazione']['timestamp'] = $lastVotazioneHistory->attribute( 'created_time' );
+                            $data['seduta']['votazione']['human_datetime'] = date( Seduta::DATE_FORMAT, $lastVotazioneHistory->attribute( 'created_time' ) );
+                        }
+                        $data['seduta']['votazione']['user_voted'] = !$votazione->userAlreadyVoted( $this->id() );
+                    }
+                    else
+                    {
+                        $data['seduta']['votazione'] = null;
+                    }
+
+                }
+            }
+            catch( Exception $e )
+            {
+                $data['seduta'] = null;
+            }
+        }
+        else
+        {
+            $data['seduta'] = null;
+        }
+
+        return $data;
+    }
 }

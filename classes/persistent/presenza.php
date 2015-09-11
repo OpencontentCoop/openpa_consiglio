@@ -117,6 +117,26 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         );
     }
 
+    static function fetchLastByUserID( $userId, $type = 'checkin' )
+    {
+        $conds = array(
+            'user_id' => (int)$userId,
+            'type' => $type,
+        );
+        $presenze = parent::fetchObjectList(
+            self::definition(),
+            null,
+            $conds,
+            array( 'created_time' => 'desc' ),
+            array( 'limit' => 1, 'offset' => 0 )
+        );
+        if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
+        {
+            return $presenze[0];
+        }
+        return false;
+    }
+
     /**
      * @param Seduta $seduta
      * @param null $startTime

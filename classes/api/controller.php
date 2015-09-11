@@ -370,4 +370,33 @@ class ConsiglioApiController extends ezpRestMvcController
         }
         return $result;
     }
+
+    public function doLoadUtenteStatoPerSeduta()
+    {
+        $result = new ezpRestMvcResult();
+        $object = eZContentObject::fetch( $this->Id );
+
+        if ( $object instanceof eZContentObject )
+        {
+
+            $instances = OCEditorialStuffHandler::instances();
+            if (array_key_exists($object->attribute( 'class_identifier' ), $instances))
+            {
+                $user = OCEditorialStuffHandler::instance( $object->attribute( 'class_identifier' ) )->fetchByObjectId( $this->Id );
+                if ( $user instanceof Politico )
+                {
+                    $result->variables = $user->lastData();
+                }
+                else
+                {
+                    throw new Exception( "Politico {$this->Id} non trovato" );
+                }
+            }
+            else
+            {
+                throw new Exception( "Politico {$this->Id} non trovato" );
+            }
+        }
+        return $result;
+    }
 }

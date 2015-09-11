@@ -123,6 +123,10 @@ class Votazione extends OCEditorialStuffPost
 
     public function onChangeState( eZContentObjectState $beforeState, eZContentObjectState $afterState )
     {
+        $now = time();
+        $this->getObject()->setAttribute( 'modified', $now );
+        $this->getObject()->store();
+        eZSearch::addObject( $this->getObject(), true );
     }
 
     public static function create( Seduta $seduta, Punto $punto = null, $shortText, $text, $type )
@@ -302,6 +306,11 @@ class Votazione extends OCEditorialStuffPost
         return $voto;
     }
 
+    public function userAlreadyVoted( $userId )
+    {
+        return OpenPAConsiglioVoto::userAlreadyVoted( $this, $userId );
+    }
+
     /**
      * @return Seduta
      */
@@ -342,6 +351,18 @@ class Votazione extends OCEditorialStuffPost
     public static function getByID( $votazioneId )
     {
         return OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $votazioneId );
+    }
+
+    public static function getBySedutaID( $sedutaId )
+    {
+        return OCEditorialStuffHandler::instance( 'votazione' )->fetchItems(
+            array(
+                'filter' => array( 'submeta_seduta___id_si:' . $sedutaId ),
+                'limit' => 100,
+                'offset' => 0,
+                'sort' => array( 'modified' => 'desc' )
+            )
+        );
     }
 
     public static function removeByID( $votazioneId )
