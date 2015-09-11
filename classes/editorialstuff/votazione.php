@@ -194,7 +194,7 @@ class Votazione extends OCEditorialStuffPost
         {
             if ( !$this->getResultHandler()->isValid() )
             {
-                throw new Exception( "La seduta non può essere aperta per mancanza del quorum strutturale" );
+                throw new Exception( "La votazione non può essere aperta per mancanza del quorum strutturale" );
             }
             $this->setState( 'stato_votazione.in_progress' );
             OpenPAConsiglioPushNotifier::instance()->emit(
