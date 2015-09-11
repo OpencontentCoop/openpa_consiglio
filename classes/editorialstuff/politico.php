@@ -172,24 +172,24 @@ class Politico extends OCEditorialStuffPost
                 'stato' => null,
                 'data_svolgimento' => null,
                 'timestamp' => null,
-                'human_datetime' => null,
+                '_timestamp_readable' => null,
                 'presenza' => array(
                     'id' => null,
                     'in_out' => null,
                     'timestamp' => null,
-                    'human_datetime' => null,
+                    '_timestamp_readable' => null,
                 ),
                 'punto' => array(
                     'id' => null,
                     'stato' => null,
                     'timestamp' => null,
-                    'human_datetime' => null,
+                    '_timestamp_readable' => null,
                 ),
                 'votazione' => array(
                     'id' => null,
                     'stato' => null,
                     'timestamp' => null,
-                    'human_datetime' => null,
+                    '_timestamp_readable' => null,
                     'short_text' => null,
                     'text' => null,
                     'punto_id' => null,
@@ -216,13 +216,13 @@ class Politico extends OCEditorialStuffPost
                     if ( $lastSedutaHistory instanceof OCEditorialStuffHistory )
                     {
                         $data['seduta']['timestamp'] = $lastSedutaHistory->attribute( 'created_time' );
-                        $data['seduta']['human_datetime'] = date( Seduta::DATE_FORMAT, $lastSedutaHistory->attribute( 'created_time' ) );
+                        $data['seduta']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastSedutaHistory->attribute( 'created_time' ) );
                     }
 
                     $data['seduta']['presenza']['id'] = intval( $lastPresenza->attribute( 'id' ) );
                     $data['seduta']['presenza']['in_out'] = intval( $lastPresenza->attribute( 'in_out' ) );
                     $data['seduta']['presenza']['timestamp'] = $lastPresenza->attribute( 'created_time' );
-                    $data['seduta']['presenza']['human_datetime'] = date( Seduta::DATE_FORMAT, $lastPresenza->attribute( 'created_time' ) );
+                    $data['seduta']['presenza']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastPresenza->attribute( 'created_time' ) );
                     $data['seduta']['presenza']['type'] = $lastPresenza->attribute( 'type' );
 
                     // ricavo punto attivo
@@ -253,7 +253,7 @@ class Politico extends OCEditorialStuffPost
                         if ( $lastPuntoHistory instanceof OCEditorialStuffHistory )
                         {
                             $data['seduta']['punto']['timestamp'] = $lastPuntoHistory->attribute( 'created_time' );
-                            $data['seduta']['punto']['human_datetime'] = date( Seduta::DATE_FORMAT, $lastPuntoHistory->attribute( 'created_time' ) );
+                            $data['seduta']['punto']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastPuntoHistory->attribute( 'created_time' ) );
                         }
                     }
                     else
@@ -284,7 +284,7 @@ class Politico extends OCEditorialStuffPost
                         if ( $lastVotazioneHistory instanceof OCEditorialStuffHistory )
                         {
                             $data['seduta']['votazione']['timestamp'] = $lastVotazioneHistory->attribute( 'created_time' );
-                            $data['seduta']['votazione']['human_datetime'] = date( Seduta::DATE_FORMAT, $lastVotazioneHistory->attribute( 'created_time' ) );
+                            $data['seduta']['votazione']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastVotazioneHistory->attribute( 'created_time' ) );
                         }
                         $data['seduta']['votazione']['user_voted'] = !$votazione->userAlreadyVoted( $this->id() );
                     }
