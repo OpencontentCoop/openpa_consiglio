@@ -361,11 +361,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
                 try
                 {
-                    $allegato = OCEditorialStuffHandler::instance(
-                        'allegati_seduta'
-                    )->fetchByObjectId(
-                        $object->attribute( 'id' )
-                    );
+                    $allegato = OCEditorialStuffHandler::instance( 'allegati_seduta' )
+                        ->getFactory()
+                        ->instancePost(
+                            array( 'object_id' => $object->attribute( 'id' ) )
+                        );
                     if ( $allegato instanceof OCEditorialStuffPostInterface )
                     {
                         $this->createNotificationEvent( 'change_allegati', $allegato );
@@ -458,19 +458,19 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                     )
                 );
 
-                try
-                {
-                    $allegato = OCEditorialStuffHandler::instance( 'allegati_seduta' )
-                        ->fetchByObjectId( $object->attribute( 'id' ) );
-                    if ( $allegato instanceof OCEditorialStuffPostInterface )
-                    {
-                        $this->createNotificationEvent( 'change_allegati', $allegato );
-                    }
-                }
-                catch ( Exception $e )
-                {
-
-                }
+//                try
+//                {
+//                    $allegato = OCEditorialStuffHandler::instance( 'allegati_seduta' )
+//                        ->fetchByObjectId( $object->attribute( 'id' ) );
+//                    if ( $allegato instanceof OCEditorialStuffPostInterface )
+//                    {
+//                        $this->createNotificationEvent( 'change_allegati', $allegato );
+//                    }
+//                }
+//                catch ( Exception $e )
+//                {
+//
+//                }
             }
 
         }
@@ -695,9 +695,52 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $this->handleDigestItemNotification( $event, 'punto/move' );
     }
 
-    public function handleChangeAllegatiNotification( $event )
+    public function handleChangeAllegatiNotification( $event, $refer )
     {
+        $subscribersRules = OCEditorialStuffNotificationRule::fetchList( 'punto/change_allegati', null, $this->id() );
+        foreach ( $subscribersRules as $subscribersRule )
+        {
+            $subscribersRuleString = in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? 'referente' : 'consigliere';
+            $user = eZUser::fetch( $subscribersRule->attribute( 'user_id' ) );
+            if ( $user instanceof eZUser && $refer instanceof OCEditorialStuffPostInterface )
+            {
+                $canTool = new OpenPAWhoCan( $refer->getObject(), 'read', $user );
+                if ( $canTool->run() )
+                {
+                    $this->createNotificationItem(
+                        $event,
+                        $subscribersRule,
+                        $subscribersRuleString,
+                        OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT,
+                        $refer
+                    );
+                }
+            }
 
+        }
+
+        $utentiAppassionati = $this->getUtentiInteressatiAllaMateria( true );
+        if ( !empty( $utentiAppassionati ) )
+        {
+            foreach ( $utentiAppassionati as $subscribersRule )
+            {
+                $user = eZUser::fetch( $subscribersRule->attribute( 'user_id' ) );
+                if ( $user instanceof eZUser && $refer instanceof OCEditorialStuffPostInterface )
+                {
+                    $canTool = new OpenPAWhoCan( $refer->getObject(), 'read', $user );
+                    if ( $canTool->run() )
+                    {
+                        $this->createNotificationItem(
+                            $event,
+                            $subscribersRule,
+                            'interessato',
+                            OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT,
+                            $refer
+                        );
+                    }
+                }
+            }
+        }
     }
 
     public function handleAddOsservazioneNotification( $event, $refer )

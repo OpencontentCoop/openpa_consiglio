@@ -201,7 +201,7 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
 
     public function canSend()
     {
-        return $this->attribute( 'expected_send_time' ) >= time();
+        return $this->attribute( 'expected_send_time' ) <= time();
     }
 
     public static function sendByType( $type = null )
