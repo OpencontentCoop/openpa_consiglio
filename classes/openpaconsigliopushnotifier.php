@@ -51,7 +51,8 @@ class OpenPAConsiglioPushNotifier
                 $values = array(
                     'id' => $data['id'],
                     'type' => $data['stato'],
-                    'date' => $now
+                    'date' => $now,
+                    'timestamp' => $data['timestamp']
                 );
             break;
 
@@ -62,7 +63,8 @@ class OpenPAConsiglioPushNotifier
                 $values = array(
                     'id' => $data['id'],
                     'type' => $data['stato'],
-                    'date' => $now
+                    'date' => $now,
+                    'timestamp' => $data['timestamp']
                 );
             break;
 
@@ -74,6 +76,7 @@ class OpenPAConsiglioPushNotifier
                     'type' => $data['stato'],
                     'date' => $now,
                     'id_point' => $data['punto_id'],
+                    'timestamp' => $data['timestamp']
                 );
                 break;
         }
