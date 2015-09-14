@@ -101,6 +101,22 @@ class OpenPAConsiglioVoto extends eZPersistentObject
         );
     }
 
+    public static function userAlreadyVoted( Votazione $votazione, $userId )
+    {
+        $row = array(
+            'user_id' => $userId,
+            'votazione_id' => $votazione->id()
+        );
+
+        $alreadyExists = eZPersistentObject::fetchObject(
+            self::definition(),
+            null,
+            $row
+        );
+
+        return !$alreadyExists instanceof OpenPAConsiglioVoto;
+    }
+
     public static function create( Seduta $seduta, Votazione $votazione, $value, $userId = null )
     {
         if ( !$seduta instanceof Seduta )
@@ -120,21 +136,9 @@ class OpenPAConsiglioVoto extends eZPersistentObject
             $userId = eZUser::currentUserID();
         }
 
-        $row = array(
-            'user_id' => $userId,
-            'seduta_id' => $seduta->id(),
-            'votazione_id' => $votazione->id()            
-        );
-
-        $alreadyExists = eZPersistentObject::fetchObject(
-            self::definition(),
-            null,
-            $row
-        );
-
-        if ( $alreadyExists instanceof OpenPAConsiglioVoto )
+        if ( self::userAlreadyVoted( $votazione, $userId ) )
         {
-            throw new Exception( "Esiste gia' un voto per user {$row['user_id']} nella votazione {$row['votazione_id']} della seduta {$row['seduta_id']}" );
+            throw new Exception( "Esiste gia' un voto per user {$userId} nella votazione {$seduta->id()} della seduta {$votazione->id() }" );
         }
 
         if ( trim( $value ) == '' )
