@@ -7,6 +7,18 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
         return 'mail';
     }
 
+    /**
+     * @param array $itemRow
+     *
+     * @return OpenPAConsiglioNotificationItem
+     */
+    public function addItem( array $itemRow )
+    {
+        $item = OpenPAConsiglioNotificationItem::create( $itemRow );
+        $item->send();
+        return $item;
+    }
+
     public function send( OpenPAConsiglioNotificationItem $item, $parameters = array() )
     {
         $user = $item->getUser();
