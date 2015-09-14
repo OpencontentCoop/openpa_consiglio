@@ -1119,9 +1119,9 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
      * @return bool
      */
     protected function canAddOsservazioni()
-    {
-        if ( $this->is( '_public' ) )
-        {
+    {        
+        if ( $this->is( 'published' ) )
+        {            
             if ( isset( $this->dataMap['consenti_osservazioni'] ) && isset( $this->dataMap['termine_osservazioni'] ) )
             {
                 $now = time();
