@@ -76,6 +76,8 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
             {
                 $mail->setSenderText( $parameters['from'] );
             }
+
+            $mail->setContentType( 'text/html' );
             if ( isset( $parameters['content_type'] ) )
             {
                 $mail->setContentType( $parameters['content_type'] );
