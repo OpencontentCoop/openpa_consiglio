@@ -1,6 +1,6 @@
-{set-block scope=root variable=subject}Nuovo punto all'ordine del giorno{/set-block}
+{set-block scope=root variable=subject}Osservazione al punto all'ordine del giorno{/set-block}
 
-Con la presente La informo che nell'area riservata del sito Cal.tn.it, in corrispondenza della '{$seduta.object.name|wash()}', è stato pubblicato il seguente punto in materia di '{$punto.materia|implode( ', ' )}':<br><br>
+Con la presente La informo che nell'area riservata del sito Cal.tn.it, in corrispondenza della '{$punto.seduta.object.name|wash()}', è pubblicato il seguente punto in materia di '{$punto.materia|implode( ', ' )}':<br><br>
 <strong>{attribute_view_gui attribute=$punto.object.data_map.oggetto}</strong><br><br>
 
 Il referenti del punto sono:
@@ -13,3 +13,5 @@ Il referenti del punto sono:
     Le segnalo che il termine ultimo per la presentazione delle osservazioni è attualmente fissato per il {attribute_view_gui attribute=$punto.object.data_map.termine_osservazioni}.
 {/if}
 <br><br>
+
+<strong>Le notifichiamo che è stata caricata un'osservazione pubblica da parte di {$refer.object.owner.name|wash()}</strong>
