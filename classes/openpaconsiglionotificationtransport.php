@@ -5,6 +5,7 @@ class OpenPAConsiglioNotificationTransport
 
     const DEFAULT_TRANSPORT = 'Mail';
     const DIGEST_TRANSPORT  = 'Digest';
+    const DIGEST_ITEM_TRANSPORT  = 'DigestItem';
     const WHATSAPP_TRASPORT = 'Whatsapp';
 
     /**
@@ -45,6 +46,36 @@ class OpenPAConsiglioNotificationTransport
         );
     }
 
+    /**
+     * @return null|string
+     */
+    public function identifier()
+    {
+        return null;
+    }
+
+    /**
+     * @param array $itemRow
+     *
+     * @return OpenPAConsiglioNotificationItem
+     */
+    public function addItem( array $itemRow )
+    {
+        return OpenPAConsiglioNotificationItem::create( $itemRow );
+    }
+
+    /**
+     * @param eZNotificationEvent $event
+     * @param string $subscribersRuleString
+     * @return string
+     */
+    public function notificationTemplateUri( $event, $subscribersRuleString )
+    {
+        $factoryIdentifier = $event->attribute( OCEditorialStuffEventType::FIELD_FACTORY_IDENTIFIER );
+        $eventType = $event->attribute( OCEditorialStuffEventType::FIELD_TYPE );
+        return "design:consiglio/notification/{$this->identifier()}/{$factoryIdentifier}/{$eventType}/{$subscribersRuleString}.tpl";
+
+    }
 
     /**
      * @param OpenPAConsiglioNotificationItem $item
