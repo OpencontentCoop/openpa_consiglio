@@ -2,10 +2,15 @@
 
 class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificationTransport
 {
+    public function identifier()
+    {
+        return 'mail';
+    }
+
     public function send( OpenPAConsiglioNotificationItem $item, $parameters = array() )
     {
         $user = $item->getUser();
-        if ( $user instanceof eZUser && $user->attribute( 'is_enabled' ) )
+        if ( $item->canSend() && ( $user instanceof eZUser && $user->attribute( 'is_enabled' ) ) )
         {
             $ini = eZINI::instance();
             $mail = new eZMail();
@@ -59,7 +64,6 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
             {
                 $mail->setSenderText( $parameters['from'] );
             }
-            $mail->setContentType( 'text/html' );
             if ( isset( $parameters['content_type'] ) )
             {
                 $mail->setContentType( $parameters['content_type'] );

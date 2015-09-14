@@ -149,36 +149,28 @@ class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
     {
         return array(
             'publish' => array(
-                'name' => 'Pubblicazione di un nuovo punto',
-                'handler_method' => 'handlePublishNotification'
+                'name' => 'Pubblicazione del punto',
+                'handler_method' => 'handlePublishNotification',
             ),
             'update_referenti' => array(
-                'name' => 'Aggiornamento dei referenti di un punto',
+                'name' => 'Aggiornamento dei referenti',
                 'handler_method' => 'handleUpdateReferentiNotification'
             ),
-            'update_materia' => array(
-                'name' => 'Aggiornamento della materia di un punto',
-                'handler_method' => 'handleUpdateMateriaNotification'
+            'update_termini' => array(
+                'name' => 'Aggiornamento dei termini di scadenza per le osservazioni',
+                'handler_method' => 'handleUpdateTerminiNotification'
             ),
             'move' => array(
-                'name' => 'Spostamento di un punto',
+                'name' => 'Spostamento del punto in un\'altra seduta',
                 'handler_method' => 'handleMoveNotification'
             ),
-            'add_file' => array(
-                'name' => 'Inserimento di un allegato ad un punto',
-                'handler_method' => 'handleAddFileNotification'
-            ),
-            'update_file' => array(
-                'name' => 'Aggiornamento di un allegato ad un punto',
-                'handler_method' => 'handleUpdateFileNotification'
-            ),
-            'remove_file' => array(
-                'name' => 'Rimozione di un allegato ad un punto',
-                'handler_method' => 'handleRemoveFileNotification'
+            'change_allegati' => array(
+                'name' => 'Modifica sugli allegati',
+                'handler_method' => 'handleChangeAllegatiNotification'
             ),
             'add_osservazione' => array(
-                'name' => 'Inserimento di un\'osservazione ad un punto',
-                'handler_method' => 'handleAddFileNotification'
+                'name' => 'Inserimento di un\'osservazione al punto',
+                'handler_method' => 'handleAddOsservazioneNotification'
             )
         );
     }

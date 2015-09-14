@@ -1,6 +1,9 @@
 <div class="panel-body" style="background: #fff">
 
-    {def $avvisi_da_inviare = fetch( 'consiglio', 'notification_items', hash( limit, 10, conditions, hash( 'object_id', $post.object_id, 'sent', 0 ), sort, hash( 'created_time', 'desc' ) ) )}
+    {def $avvisi_da_inviare = fetch( 'consiglio', 'notification_items', hash(
+        limit, 1000,
+        conditions, hash( 'object_id', $post.object_id, 'sent', 0, 'type', array( array( 'Mail', 'Digest' ) ) ),
+        sort, hash( 'created_time', 'desc' ) ) )}
 
     {if count( $avvisi_da_inviare )}
         <h2>Avvisi in attesa di invio</h2>
@@ -52,7 +55,7 @@
         </table>
     {/if}
 
-    {def $avvisi = fetch( 'consiglio', 'notification_items', hash( limit, 10, conditions, hash( 'object_id', $post.object_id, 'sent', 1 ), sort, hash( 'created_time', 'desc' ) ) )}
+    {def $avvisi = fetch( 'consiglio', 'notification_items', hash( limit, 1000, conditions, hash( 'object_id', $post.object_id, 'sent', 1 ), sort, hash( 'created_time', 'desc' ) ) )}
 
     {if count( $avvisi )}
         <h2>Avvisi inviati</h2>
@@ -111,12 +114,18 @@
     {def $utenti_per_notifiche = $post.notification_subscribers}
     <div class="row">
         <div class="col-xs-12">
-            <h2>Iscrizioni avvisi</h2>
+            <form action="{concat('editorialstuff/action/punto/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post" class="pull-right">
+                <input type="hidden" name="ActionIdentifier" value="RefreshSubscriptions" />
+                <button type="submit" name="RefreshSubscriptions" class="btn btn-link btn-xs"><i class="fa fa-refresh"></i></button>
+            </form>
+            <h2>
+                Iscrizioni avvisi
+            </h2>
             <table class="table table-striped">
                 <tbody>
                 {foreach $utenti_per_notifiche as $utenti_per_notifica}
                     <tr>
-                        <th>{$utenti_per_notifica.name|wash()}</th>
+                        <th>{$utenti_per_notifica.name|wash()} ({$utenti_per_notifica.user_id_list|count()})</th>
                         <td>
                             <ul class="list-inline">
                             {foreach $utenti_per_notifica.user_id_list as $user_id}<li>{fetch( content, object, hash( 'object_id', $user_id )).name|wash()}</li>{/foreach}

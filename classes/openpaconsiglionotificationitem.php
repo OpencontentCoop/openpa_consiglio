@@ -101,10 +101,18 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
 
     public static function create( $row )
     {
-        $notification = new OpenPAConsiglioNotificationItem( $row );
-        $notification->store();
+        if ( !empty( $row['subject'] ) )
+        {
+            $notification = new OpenPAConsiglioNotificationItem( $row );
+            $notification->store();
 
-        return $notification;
+            return $notification;
+        }
+        else
+        {
+            eZDebug::writeError( "Empty subject " . var_export( $row, 1 ), __METHOD__ );
+        }
+        return null;
     }
 
     public function send()
@@ -150,7 +158,7 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
      *
      * @return OpenPAConsiglioNotificationItem[]
      */
-    public static function fetchList( $offset = 0, $limit = 0, $conds = null, $sort = null )
+    public static function fetchList( $offset = null, $limit = null, $conds = null, $sort = null )
     {
         if ( !$limit )
         {
@@ -171,12 +179,12 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
 
     public static function fetchListByUserType( $userID, $type )
     {
-        return self::fetchList( 0, 0, array( 'user_id' => $userID, 'type' => $type ) );
+        return self::fetchList( null, null, array( 'user_id' => $userID, 'type' => $type ) );
     }
 
     public static function fetchListByUserID( $userID )
     {
-        return self::fetchList( 0, 0, array( 'user_id' => $userID ) );
+        return self::fetchList( null, null, array( 'user_id' => $userID ) );
     }
 
     public static function fetchItemsToSend( $type = null )
@@ -186,9 +194,14 @@ class OpenPAConsiglioNotificationItem extends eZPersistentObject
         {
             $conds ['type'] = $type;
         }
-        $conds ['sent'] = 0;
-        $conds ['expected_send_time'] = array( '<=', time() );
-        return self::fetchList( 0, 0, $conds );
+        $conds['sent'] = 0;
+        $conds['expected_send_time'] = array( '<=', time() );
+        return self::fetchList( null, null, $conds );
+    }
+
+    public function canSend()
+    {
+        return $this->attribute( 'expected_send_time' ) >= time();
     }
 
     public static function sendByType( $type = null )
