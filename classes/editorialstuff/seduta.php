@@ -605,7 +605,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             {
                 $competenza = $this->stringRelatedObjectAttribute( 'organo', 'name' );
 
-                return array(
+                $data = array(
                     'id' => $this->id(),
                     'competenza' => isset( $competenza[0] ) ? $competenza[0] : null,
                     'data_svolgimento' => $this->dataOra( self::DATE_FORMAT ),
@@ -613,6 +613,13 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                     'stato' => $this->currentState()->attribute( 'identifier' ),
                     'documenti' => $this->attribute( 'count_documenti' )
                 );
+                $lastChangeHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $this->id(), 'updateobjectstate' );
+                if ( $lastChangeHistory instanceof OCEditorialStuffHistory )
+                {
+                    $data['timestamp'] = $lastChangeHistory->attribute( 'created_time' );
+                    $data['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastChangeHistory->attribute( 'created_time' ) );
+                }
+                return $data;
             }
             catch ( Exception $e )
             {

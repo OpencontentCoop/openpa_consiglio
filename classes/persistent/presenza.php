@@ -307,8 +307,8 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
             if ( $identifier == 'created_time' )
             {
                 $dateTime = DateTime::createFromFormat( 'U', $this->attribute( $identifier ) );
-                $data[$identifier] = $dateTime->format( Seduta::DATE_FORMAT );
-                $data[$identifier . 'stamp'] = $this->attribute( $identifier );
+                $data['_timestamp_readable'] = $dateTime->format( Seduta::DATE_FORMAT );
+                $data['timestamp'] = $this->attribute( $identifier );
             }
             elseif( in_array( $identifier, array( 'id', 'user_id', 'seduta_id', "has_checkin", "has_manual", "has_beacons", "is_in") ) )
             {

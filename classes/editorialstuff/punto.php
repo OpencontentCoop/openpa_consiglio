@@ -1386,7 +1386,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         /** @var eZDateTime $orarioTrattazione */
         $orarioTrattazione = $this->dataMap['orario_trattazione']->content();
 
-        return array(
+        $data = array(
             'id' => $this->id(),
             'stato' => $this->currentState()->attribute( 'identifier' ),
             'seduta'  => (int)$this->attribute( 'seduta_id' ), //@todo
@@ -1406,6 +1406,13 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             'consenti_osservazioni' => intval( $this->dataMap['consenti_osservazioni']->toString() ),
             'termine_osservazioni' => $this->dataMap['termine_osservazioni']->hasContent() ? strftime( '%d/%m/%Y  alle ore %H:%M', $this->dataMap['termine_osservazioni']->toString() ) : null            
         );
+        $lastChangeHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $this->id(), 'updateobjectstate' );
+        if ( $lastChangeHistory instanceof OCEditorialStuffHistory )
+        {
+            $data['timestamp'] = $lastChangeHistory->attribute( 'created_time' );
+            $data['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastChangeHistory->attribute( 'created_time' ) );
+        }
+        return $data;
     }
 
     public function start()

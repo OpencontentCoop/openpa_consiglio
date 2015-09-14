@@ -268,8 +268,8 @@ class Votazione extends OCEditorialStuffPost
 
     public function jsonSerialize()
     {
-        $data = $this->getResultHandler();
-        return array(
+        $result = $this->getResultHandler();
+        $data = array(
             'id' => $this->id(),
             'short_text' => $this->stringAttribute( self::$shortTextIdentifier ),
             'text' => $this->stringAttribute( self::$textIdentifier ),
@@ -277,12 +277,19 @@ class Votazione extends OCEditorialStuffPost
             'punto_id' => $this->stringAttribute( self::$puntoIdentifier, 'intval' ),
             'tipo' => $this->stringAttribute( self::$typeIdentifier ),
             'stato' => $this->currentState()->attribute( 'identifier' ),
-            'presenti' => $this->is( 'closed' ) ? $data->attribute( 'presenti_count' ) : null,
-            'votanti' => $this->is( 'closed' ) ? $data->attribute( 'votanti_count' ) : null,
-            'favorevoli' => $this->is( 'closed' ) ? $data->attribute( 'favorevoli_count' ) : null,
-            'contrari' => $this->is( 'closed' ) ? $data->attribute( 'contrari_count' ) : null,
-            'astenuti' => $this->is( 'closed' ) ?$data->attribute( 'astenuti_count' ) : null
+            'presenti' => $this->is( 'closed' ) ? $result->attribute( 'presenti_count' ) : null,
+            'votanti' => $this->is( 'closed' ) ? $result->attribute( 'votanti_count' ) : null,
+            'favorevoli' => $this->is( 'closed' ) ? $result->attribute( 'favorevoli_count' ) : null,
+            'contrari' => $this->is( 'closed' ) ? $result->attribute( 'contrari_count' ) : null,
+            'astenuti' => $this->is( 'closed' ) ?$result->attribute( 'astenuti_count' ) : null
         );
+        $lastChangeHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $this->id(), 'updateobjectstate' );
+        if ( $lastChangeHistory instanceof OCEditorialStuffHistory )
+        {
+            $data['timestamp'] = $lastChangeHistory->attribute( 'created_time' );
+            $data['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastChangeHistory->attribute( 'created_time' ) );
+        }
+        return $data;
     }
 
     public function addVoto( $value, $userId = null )
