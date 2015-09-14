@@ -402,11 +402,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
                 try
                 {
-                    $osservazione = OCEditorialStuffHandler::instance(
-                        'osservazioni'
-                    )->fetchByObjectId(
-                        $object->attribute( 'id' )
-                    );
+                    $osservazione = OCEditorialStuffHandler::instance( 'osservazioni' )
+                        ->getFactory()
+                        ->instancePost(
+                            array( 'object_id' => $object->attribute( 'id' ) )
+                        );
                     if ( $osservazione instanceof OCEditorialStuffPostInterface )
                     {
                         $this->createNotificationEvent( 'add_osservazione', $osservazione );
@@ -700,9 +700,52 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
     }
 
-    public function handleAddOsservazioneNotification( $event )
+    public function handleAddOsservazioneNotification( $event, $refer )
     {
+        $subscribersRules = OCEditorialStuffNotificationRule::fetchList( 'punto/add_osservazione', null, $this->id() );
+        foreach ( $subscribersRules as $subscribersRule )
+        {
+            $subscribersRuleString = in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? 'referente' : 'consigliere';
+            $user = eZUser::fetch( $subscribersRule->attribute( 'user_id' ) );
+            if ( $user instanceof eZUser && $refer instanceof OCEditorialStuffPostInterface )
+            {
+                $canTool = new OpenPAWhoCan( $refer->getObject(), 'read', $user );
+                if ( $canTool->run() )
+                {
+                    $this->createNotificationItem(
+                        $event,
+                        $subscribersRule,
+                        $subscribersRuleString,
+                        OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT,
+                        $refer
+                    );
+                }
+            }
 
+        }
+
+        $utentiAppassionati = $this->getUtentiInteressatiAllaMateria( true );
+        if ( !empty( $utentiAppassionati ) )
+        {
+            foreach ( $utentiAppassionati as $subscribersRule )
+            {
+                $user = eZUser::fetch( $subscribersRule->attribute( 'user_id' ) );
+                if ( $user instanceof eZUser && $refer instanceof OCEditorialStuffPostInterface )
+                {
+                    $canTool = new OpenPAWhoCan( $refer->getObject(), 'read', $user );
+                    if ( $canTool->run() )
+                    {
+                        $this->createNotificationItem(
+                            $event,
+                            $subscribersRule,
+                            'interessato',
+                            OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT,
+                            $refer
+                        );
+                    }
+                }
+            }
+        }
     }
 
 //    public function handleAddFileNotification( $event )
@@ -803,7 +846,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
      *
      * @return OpenPAConsiglioNotificationItem
      */
-    protected function createNotificationItem( eZNotificationEvent $event, OCEditorialStuffNotificationRule $subscribersRule, $subscribersRuleString, $type )
+    protected function createNotificationItem( eZNotificationEvent $event, OCEditorialStuffNotificationRule $subscribersRule, $subscribersRuleString, $type, $refer = null )
     {
 
         if ( $type == OpenPAConsiglioNotificationTransport::DIGEST_TRANSPORT )
@@ -833,7 +876,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
         $variables = array(
             'punto' => $this,
-            'diff' => $diff
+            'diff' => $diff,
+            'refer' => $refer
         );
 
         $tpl = eZTemplate::factory();
