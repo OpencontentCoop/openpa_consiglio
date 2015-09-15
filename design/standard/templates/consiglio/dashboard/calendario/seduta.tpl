@@ -32,7 +32,7 @@
                             <td>
                                 {if $punto.object|has_attribute('termine_osservazioni')}
                                 <small>
-                                    <strong>Termine oservazioni:</strong><br />
+                                    <strong>Termine osservazioni:</strong><br />
                                     {attribute_view_gui attribute=$punto.object.data_map.termine_osservazioni}
                                 </small>
                                 {/if}

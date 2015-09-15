@@ -53,7 +53,7 @@
         è fissata per il giorno</p>
 
     <p id="data_luogo" style="text-align: center">
-        <strong>{$data_seduta|datetime( 'custom', '%l %j %F %Y alle ore %H:%i' )|downcase()}</strong>
+        <strong>{$data_seduta|datetime( 'custom', '%l %j %F %Y alle ore %H:%i' )|downcase()} {if $ora_conclusione}(termine seduta alle ore {$ora_conclusione.timestamp|l10n(shorttime)}){/if}</strong>
         <br />presso<br />
         {if $luogo}{$luogo}{else}Sala Consiglio - Via Torre Verde, 23 - TRENTO{/if}
     </p>

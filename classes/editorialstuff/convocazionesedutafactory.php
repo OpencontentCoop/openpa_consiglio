@@ -32,6 +32,8 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
         $luogo = isset( $sedutaDataMap['luogo'] ) ? $sedutaDataMap['luogo']->content() : '';
 
         $dataOra = isset( $dataMap['data_ora'] ) ? $dataMap['data_ora']->toString() : 0;
+        
+        $oraConclusione = isset( $sedutaDataMap['orario_conclusione'] ) && $sedutaDataMap['orario_conclusione']->hasContent() ? $sedutaDataMap['orario_conclusione']->content() : null;
 
         $protocollo = isset( $dataMap['protocollo'] ) ? $dataMap['protocollo']->toString() : 0;
 
@@ -41,6 +43,7 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
             'luogo' => $luogo,
             'organo' => $organo,
             'data_seduta' => $dataOra,
+            'ora_conclusione' => $oraConclusione,
             'odg' => $odg,
             'firmatario' => '',
             'firma' => '',
