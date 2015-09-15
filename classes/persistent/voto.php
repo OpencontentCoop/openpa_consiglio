@@ -114,7 +114,7 @@ class OpenPAConsiglioVoto extends eZPersistentObject
             $row
         );
 
-        return !$alreadyExists instanceof OpenPAConsiglioVoto;
+        return $alreadyExists instanceof OpenPAConsiglioVoto;
     }
 
     public static function create( Seduta $seduta, Votazione $votazione, $value, $userId = null )
@@ -130,6 +130,13 @@ class OpenPAConsiglioVoto extends eZPersistentObject
         }
 
         $createdTime = time();
+
+        $row = array(
+            'user_id' => $userId,
+            'seduta_id' => $seduta->id(),
+            'votazione_id' => $votazione->id()            
+        );
+
 
         if ( $userId === null )
         {
