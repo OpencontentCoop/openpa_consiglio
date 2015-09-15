@@ -3,7 +3,9 @@
         <form class="form-inline" role="form" method="get"
               action={concat('editorialstuff/dashboard/', $factory_identifier )|ezurl()}>
 
+            {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
             <a href="{concat('editorialstuff/add/',$factory_identifier)|ezurl(no)}" class="btn btn-primary">{$factory_configuration.CreationButtonText|wash()}</a>
+            {/if}
 
             <div class="form-group">
                 <input type="text" class="form-control" name="query" placeholder="Ricerca libera"

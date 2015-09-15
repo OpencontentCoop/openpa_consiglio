@@ -937,7 +937,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             {
                 $tpl = eZTemplate::factory();
                 $tpl->resetVariables();
-                $tpl->setVariable( 'line_height', '1.2' );
+                $tpl->setVariable( 'line_height', '1.3' );
                 $tpl->setVariable( 'seduta', $this );
                 $tpl->setVariable( 'politico', $politico );
                 $politicoDataMap = $politico->dataMap();
@@ -957,7 +957,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                         /** @var eZContentObjectAttribute[] $segretarioDataMap */
                         $segretarioDataMap = $segretario->dataMap();
 
-                        $tpl->setVariable( 'segretario', $segretario->attribute( 'name' ) );
+                        $tpl->setVariable( 'segretario', trim( $segretario->attribute( 'name' ) ) );
 
                         if ( $segretarioDataMap['firma']->hasContent()
                              && $segretarioDataMap['firma']->attribute(
@@ -983,7 +983,8 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 $languageCode = eZContentObject::defaultLanguage();
                 $fileName = $objectClass->urlAliasName( $this->getObject(), false, $languageCode );
                 $fileName = eZURLAliasML::convertToAlias( $fileName );
-                $fileName .= '.' . $actionParameters['presente'] . '.pdf';
+                $politicoName = eZURLAliasML::convertToAlias( $politico->attribute( 'name' ) );
+                $fileName .= '-' . $politicoName . '.pdf';
 
                 $parameters = array(
                     'exporter' => 'paradox',

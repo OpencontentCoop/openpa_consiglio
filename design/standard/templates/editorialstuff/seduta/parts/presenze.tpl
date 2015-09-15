@@ -9,7 +9,7 @@
         <tr>
             <td>{content_view_gui content_object=$partecipante.object view="politico_line"}</td>
             <td>
-                <form action="{concat('editorialstuff/action/seduta/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post" id="add-invitato" class="form-horizontal">
+                <form action="{concat('editorialstuff/action/seduta/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post" class="form-horizontal">
                         <input type="hidden" name="ActionIdentifier" value="GetAttestatoPresenza" />
                         <input type="hidden" name="ActionParameters[presente]" value="{$partecipante.object_id}" />
                         <button class="btn btn-success btn-md" type="submit" name="GetAttestatoPresenza"><i class=\"fa fa-download\"></i> Stampa attestato</button>

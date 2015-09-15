@@ -43,6 +43,8 @@
                 </li>
                 {else}
                   <li class="menu-item{if $current_module|eq('editorialstuff/dashboard/seduta')} current{/if}"><a href="{'editorialstuff/dashboard/seduta'|ezurl(no)}"><b>Archivio sedute</b></a></li>
+                  <li class="menu-item{if $current_module|eq('editorialstuff/dashboard/audizione')} current{/if}"><a href="{'editorialstuff/dashboard/audizione'|ezurl(no)}"><b>Archivio audizioni</b></a></li>
+                  <li class="menu-item{if $current_module|eq('editorialstuff/dashboard/parere')} current{/if}"><a href="{'editorialstuff/dashboard/parere'|ezurl(no)}"><b>Archivio pareri</b></a></li>
                 {/if}
             </ul>
         </div>
