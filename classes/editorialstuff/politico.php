@@ -1,6 +1,6 @@
 <?php
 
-class Politico extends OCEditorialStuffPost
+class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInputActionInterface
 {
 
     public function onChangeState(
@@ -9,6 +9,121 @@ class Politico extends OCEditorialStuffPost
     )
     {
 
+    }
+
+    public function attributes()
+    {
+        $attributes = parent::attributes();
+        $attributes[] = 'locations';
+        $attributes[] = 'is_in';
+        return $attributes;
+    }
+
+    public function attribute( $property )
+    {
+        if ( $property == 'locations' )
+        {
+            return $this->availableLocations();
+        }
+
+        if ( $property == 'is_in' )
+        {
+            return $this->currentLocations( );
+        }
+
+        return parent::attribute( $property );
+    }
+
+    protected function availableLocations()
+    {
+        $data = array();
+        $configuration = $this->getFactory()->getConfiguration();
+        foreach( $configuration['Locations'] as $identifier => $nodeId )
+        {
+            $data[$identifier] = eZContentObjectTreeNode::fetch( $nodeId );
+        }
+        return $data;
+    }
+
+    protected function currentLocations()
+    {
+        $configuration = $this->getFactory()->getConfiguration();
+        $locations = $configuration['Locations'];
+
+        $data = array();
+        foreach( $locations as $identifier => $nodeId )
+        {
+            $data[$identifier] = false;
+            /** @var eZContentObjectTreeNode[] $assignedNodes */
+            $assignedNodes = $this->getObject()->assignedNodes();
+            foreach( $assignedNodes as $node )
+            {
+                if ( $node->attribute( 'parent' )->attribute( 'node_id' ) == $nodeId )
+                {
+                    $data[$identifier] = true;
+                    break;
+                }
+            }
+        }
+        return $data;
+    }
+
+    protected function addLocation( $slug )
+    {
+        $configuration = $this->getFactory()->getConfiguration();
+        $nodeId = $configuration['Locations'][$slug];
+        if ( $nodeId )
+        {
+            $object = $this->getObject();
+            if ( $object instanceof eZContentObject )
+            {
+                eZContentOperationCollection::addAssignment(
+                    $object->attribute( 'main_node_id' ),
+                    $object->attribute( 'id' ),
+                    array( $nodeId )
+                );
+            }
+        }
+    }
+
+    protected function removeLocation( $slug )
+    {
+        $configuration = $this->getFactory()->getConfiguration();
+        $nodeId = $configuration['Locations'][$slug];
+        $object = $this->getObject();
+        if ( $object instanceof eZContentObject )
+        {
+            /** @var eZContentObjectTreeNode[] $nodes */
+            $nodes = $object->attribute( 'assigned_nodes' );
+            $removeNodeIdList = array();
+            if ( count( $nodes ) > 1 )
+            {
+                foreach ( $nodes as $node )
+                {
+                    if ( $node->attribute( 'parent_node_id' ) == $nodeId )
+                    {
+                        $removeNodeIdList[] = $node->attribute( 'node_id' );
+                    }
+                }
+            }
+            if ( !empty( $removeNodeIdList ) )
+            {
+                eZContentOperationCollection::removeNodes( $removeNodeIdList );
+            }
+        }
+    }
+
+    public function executeAction( $actionIdentifier, $actionParameters, eZModule $module = null )
+    {
+        if ( $actionIdentifier == 'AddLocation' && isset( $actionParameters['location'] ) )
+        {
+            $this->addLocation( $actionParameters['location'] );
+        }
+
+        if ( $actionIdentifier == 'RemoveLocation' && isset( $actionParameters['location'] ) )
+        {
+            $this->removeLocation( $actionParameters['location'] );
+        }
     }
 
     /**
