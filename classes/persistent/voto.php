@@ -131,13 +131,6 @@ class OpenPAConsiglioVoto extends eZPersistentObject
 
         $createdTime = time();
 
-        $row = array(
-            'user_id' => $userId,
-            'seduta_id' => $seduta->id(),
-            'votazione_id' => $votazione->id()            
-        );
-
-
         if ( $userId === null )
         {
             $userId = eZUser::currentUserID();
