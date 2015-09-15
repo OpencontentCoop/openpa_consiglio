@@ -41,6 +41,8 @@
                         </ul>
                     </div>
                 </li>
+                {else}
+                  <li class="menu-item{if $current_module|eq('editorialstuff/dashboard/seduta')} current{/if}"><a href="{'editorialstuff/dashboard/seduta'|ezurl(no)}"><b>Archivio sedute</b></a></li>
                 {/if}
             </ul>
         </div>
