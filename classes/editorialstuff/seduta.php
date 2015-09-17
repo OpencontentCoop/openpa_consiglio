@@ -638,7 +638,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     /**
      * @param bool $asObject
      *
-     * @return OCEditorialStuffPostInterface[]|integer[]
+     * @return OCEditorialStuffPostInterface[]|int[]
      */
     public function partecipanti( $asObject = true )
     {
@@ -838,26 +838,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     public function stop()
     {
-        $registroPresenze = $this->registroPresenze();
-        $presenti = array();
-        foreach ( $registroPresenze['hash_user_id'] as $userId => $bool )
+        foreach ( $this->partecipanti( false ) as $userId )
         {
-            if ( $bool )
-            {
-                $presenti[] = $userId; // salvo i presenti
-            }
             $this->addPresenza( 0, 'checkin', $userId ); //eseguo il checkout
             $this->addPresenza( 0, 'beacons', $userId ); //spengo i beacons
             $this->addPresenza( 0, 'manual', $userId ); //spengo i beacons
-        }
-        eZLog::write( var_export( $presenti, 1 ), 'runtime.log' );
-
-        if ( isset( $this->dataMap['presenti'] ) )
-        {
-
-            $this->dataMap['presenti']->fromString( implode( '-', $presenti ) );
-            $this->dataMap['presenti']->store();
-
         }
 
         if ( isset( $this->dataMap['orario_conclusione_effettivo'] ) )
@@ -877,6 +862,30 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             'stop_seduta',
             $fakeSerialize
         );
+
+        $this->storePresenti();
+    }
+
+    public function storePresenti()
+    {
+        $presenti = array();
+        $helper = new OpenPAConsiglioPresenzaHelper( $this );
+        $helper->run();
+        $dataPercent = $helper->getPercent();
+        foreach( $dataPercent as $userId => $value )
+        {
+            if ( $value > 0 )
+            {
+                $presenti[] = $userId;
+            }
+        }
+        if ( isset( $this->dataMap['presenti'] ) )
+        {
+            $this->dataMap['presenti']->fromString( implode( '-', $presenti ) );
+            $this->dataMap['presenti']->store();
+            eZSearch::addObject( $this->getObject() );
+            eZContentCacheManager::clearObjectViewCacheIfNeeded( $this->id() );
+        }
     }
 
     /**

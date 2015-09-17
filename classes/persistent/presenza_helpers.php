@@ -11,6 +11,13 @@ class OpenPAConsiglioPresenzaHelper
 
     protected $startTime;
 
+    protected $userId;
+
+    /**
+     * @var OpenPAConsiglioPresenzaTimelineCollection[]
+     */
+    protected $data;
+
     /**
      * @param Seduta $seduta
      * @param int $startTime
@@ -20,7 +27,8 @@ class OpenPAConsiglioPresenzaHelper
     {
         $this->seduta = $seduta;
         $this->startTime = $startTime;
-        $presenze = OpenPAConsiglioPresenza::fetchBySeduta( $this->seduta, $this->startTime, null, null, $userId );
+        $this->userId = $userId;
+        $presenze = OpenPAConsiglioPresenza::fetchBySeduta( $this->seduta, $this->startTime, null, null, $this->userId );
         $this->presenze = $presenze;
     }
 
@@ -35,6 +43,7 @@ class OpenPAConsiglioPresenzaHelper
         $allUserData = array();
         foreach( $this->seduta->partecipanti( false ) as $userId )
         {
+            /** @var int $userId */
             $allUserData[$userId] = OpenPAConsiglioPresenzaTimelineCollection::instance( $userId );
         }
         
@@ -62,13 +71,35 @@ class OpenPAConsiglioPresenzaHelper
                 }
             }
         }        
-        $returnValues = array();        
+        $this->data = array();
         foreach( $data as $item )
         {
             //$item->appendToArray( $returnValues );
-            $returnValues[] = $item->get( $this->seduta, $this->startTime );
+            $this->data[] = $item->get( $this->seduta, $this->startTime );
         }
-        return $returnValues;
+        return $this->data;
+    }
+
+    public function getPercent()
+    {
+        $data = array();
+        $total = $this->seduta->dataOraFine() - $this->seduta->dataOra();
+        foreach( $this->data as $item )
+        {
+            $currentValue = 0;
+            foreach( $item->values as $value )
+            {
+                $currentValue += intval( $value->diff );
+            }
+            $percent = 100 * $currentValue / $total;
+            if ( $percent > 100 ) $percent = 100;
+            $data[$item->userId] = $percent;
+        }
+        if ( $this->userId )
+        {
+            return $data[$this->userId];
+        }
+        return $data;
     }
 
 }
@@ -181,7 +212,7 @@ class OpenPAConsiglioPresenzaTimelineCollection
         {
             $fromTimeStamp = $value->fromTimeStamp;
             $toTimeStamp = $value->toTimeStamp;
-            if ( $toTimeStamp > self::$endTimeStamp )
+            if ( $toTimeStamp > self::$endTimeStamp && !$seduta->is( 'closed' ) )
             {
                 self::$endTimeStamp = $toTimeStamp + 60;
             }
@@ -270,6 +301,7 @@ class OpenPAConsiglioPresenzaTimelineValue
     public $to;
     public $fromTimeStamp;    
     public $toTimeStamp;
+    public $diff;
     //public $label;
 
     // @todo indagare perchè __set non funziona
@@ -280,6 +312,11 @@ class OpenPAConsiglioPresenzaTimelineValue
         {
             $this->{$name} = date("Y-m-d H:i:s", $value );
             $this->{$name . 'TimeStamp'} = $value;
+            $this->set( 'diff', null );
+        }
+        elseif ( $name == 'diff' )
+        {
+            $this->diff = $this->toTimeStamp - $this->fromTimeStamp;
         }
         else
         {
