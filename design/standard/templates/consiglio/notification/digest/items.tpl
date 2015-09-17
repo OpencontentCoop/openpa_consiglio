@@ -2,7 +2,7 @@
 Le notifichiamo i seguenti cambiamenti:
 <ul>
 {foreach $items as $item}
-    <li><strong>{$item.subject}:</strong> {$item.body}</li>
+    <li><strong>{$item.subject|wash()}:</strong> {$item.body|wash()}</li>
 {/foreach}
 </ul>
 </div>
