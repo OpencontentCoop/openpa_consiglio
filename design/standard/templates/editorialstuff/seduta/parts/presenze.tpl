@@ -12,8 +12,10 @@
     </tr>
     {foreach $post.partecipanti as $partecipante}
         <tr>
-            <td>{content_view_gui content_object=$partecipante.object view="politico_line"}</td>
-            <td>{$post.percentuale_presenza[$partecipante.object_id]}</td>
+            <td style="white-space: nowrap">{content_view_gui content_object=$partecipante.object view="politico_line"}</td>
+            <td>              
+              {$post.percentuale_presenza[$partecipante.object_id]}%
+            </td>
             <td>
                 <form action="{concat('editorialstuff/action/seduta/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post" class="form-horizontal">
                         <input type="hidden" name="ActionIdentifier" value="GetAttestatoPresenza" />

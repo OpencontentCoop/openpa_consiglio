@@ -93,7 +93,7 @@ class OpenPAConsiglioPresenzaHelper
             }
             $percent = 100 * $currentValue / $total;
             if ( $percent > 100 ) $percent = 100;
-            $data[$item->userId] = $percent;
+            $data[$item->userId] = number_format( $percent, 2 );
         }
         if ( $this->userId )
         {
