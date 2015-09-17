@@ -1,10 +1,20 @@
 <?php
 
-$factory = OCEditorialStuffHandler::instance( 'votazione' )->getFactory();
-$votazione = new Votazione( array( 'object_id' => 2194 ), $factory );
-$votazione->stop();
+$seduta = OCEditorialStuffHandler::instance( 'seduta' )->getFactory()->instancePost( array( 'object_id' => $_GET['s'] ) );
+$helper = new OpenPAConsiglioPresenzaHelper( $seduta );
+$data = $helper->run();
+$values = $helper->getPercent();
 echo '<pre>';
-print_r( $votazione->jsonSerialize() );
+print_r($values);
+print_r($data);
+eZDisplayDebug();
+eZExecution::cleanExit();
+
+//$factory = OCEditorialStuffHandler::instance( 'votazione' )->getFactory();
+//$votazione = new Votazione( array( 'object_id' => 2194 ), $factory );
+//$votazione->stop();
+//echo '<pre>';
+//print_r( $votazione->jsonSerialize() );
 
 //$dateTime = new DateTime();
 //        $now = $dateTime->format( 'Y-m-d H:i:s' );
