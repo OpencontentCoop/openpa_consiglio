@@ -401,7 +401,7 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
                             $data['seduta']['votazione']['timestamp'] = $lastVotazioneHistory->attribute( 'created_time' );
                             $data['seduta']['votazione']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastVotazioneHistory->attribute( 'created_time' ) );
                         }
-                        $data['seduta']['votazione']['user_voted'] = !$votazione->userAlreadyVoted( $this->id() );
+                        $data['seduta']['votazione']['user_voted'] = $votazione->userAlreadyVoted( $this->id() );
                     }
                     else
                     {

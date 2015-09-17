@@ -19,6 +19,7 @@ $subject = $tpl->variable( 'subject' );
 $tpl->setVariable( 'content', $body );
 $content = $tpl->fetch( 'design:consiglio/notification/mail_pagelayout.tpl' );
 echo $content;
+eZDisplayDebug();
 eZExecution::cleanExit();
 
 
@@ -127,6 +128,6 @@ OpenPAConsiglioNotificationItem::sendByType(
 //
 //// Downloads the PDF
 //$pdf->send( );
-
+eZDisplayDebug();
 eZExecution::cleanExit();
 
