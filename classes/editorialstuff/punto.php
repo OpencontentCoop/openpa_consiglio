@@ -368,7 +368,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                         );
                     if ( $allegato instanceof OCEditorialStuffPostInterface )
                     {
-                        $this->createNotificationEvent( 'change_allegati', $allegato );
+                        $this->internalCreateNotificationEvent( 'change_allegati', $allegato );
                     }
                 }
                 catch ( Exception $e )
@@ -409,7 +409,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                         );
                     if ( $osservazione instanceof OCEditorialStuffPostInterface )
                     {
-                        $this->createNotificationEvent( 'add_osservazione', $osservazione );
+                        $this->internalCreateNotificationEvent( 'add_osservazione', $osservazione );
                     }
                 }
                 catch ( Exception $e )
@@ -464,7 +464,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 //                        ->fetchByObjectId( $object->attribute( 'id' ) );
 //                    if ( $allegato instanceof OCEditorialStuffPostInterface )
 //                    {
-//                        $this->createNotificationEvent( 'change_allegati', $allegato );
+//                        $this->internalCreateNotificationEvent( 'change_allegati', $allegato );
 //                    }
 //                }
 //                catch ( Exception $e )
@@ -535,10 +535,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     {
         if ( $afterState->attribute( 'identifier' ) == 'published' )
         {
-            if ( $this->getSeduta()->is( 'pending' ) )
-            {
-                $this->createNotificationEvent( 'publish' );
-            }
+            $this->internalCreateNotificationEvent( 'publish' );
         }
     }
 
@@ -644,14 +641,39 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 if ( isset( $diff['referente_tecnico'] ) || isset( $diff['referente_politico'] ) )
                 {
                     $this->addUsersToNotifications();
-                    $this->createNotificationEvent( 'update_referenti' );
+                    $this->internalCreateNotificationEvent( 'update_referenti' );
                 }
                 if ( isset( $diff['termine_osservazioni'] ) )
                 {
-                    $this->createNotificationEvent( 'update_termini' );
+                    $this->internalCreateNotificationEvent( 'update_termini' );
                 }
             }
         }
+    }
+
+    protected function internalCreateNotificationEvent( $type, OCEditorialStuffPostInterface $refer = null )
+    {
+        $createNotificationEvent = false;
+        switch( $type )
+        {
+            case 'move':
+            case 'update_referenti':
+            case 'update_termini':
+            case 'publish':
+                $createNotificationEvent = $this->getSeduta()->is( 'pending' );
+                break;
+
+            case 'change_allegati':
+                $createNotificationEvent = !$this->getSeduta()->is( 'draft' );
+                break;
+
+            case 'add_osservazione':
+                $createNotificationEvent = !$this->getSeduta()->is( 'draft' ) && !$this->getSeduta()->is( 'closed' );
+                break;
+        }
+
+        if ( $createNotificationEvent )
+            $this->createNotificationEvent( $type, $refer );
     }
 
     public function handleDigestItemNotification( $event, $notificationType )
@@ -1000,11 +1022,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         eZDebug::writeNotice( "Muovo punto", __METHOD__ );
         $move = eZContentObjectTreeNodeOperations::move( $this->getObject()->attribute( 'main_node_id' ), $seduta->getObject()->attribute( 'main_node_id' ) );
 
-        if ( $seduta->is( 'pending' ) )
-        {
-            eZDebug::writeNotice( "Creo evento", __METHOD__ );
-            $this->createNotificationEvent( 'move' );
-        }
+        eZDebug::writeNotice( "Creo evento", __METHOD__ );
+        $this->internalCreateNotificationEvent( 'move' );
 
         eZDebug::writeNotice( "Aggiorno seduta {$currentSeduta->id()}", __METHOD__ );
         $currentSeduta->reorderOdg();
