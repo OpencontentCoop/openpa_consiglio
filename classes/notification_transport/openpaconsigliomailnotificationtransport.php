@@ -15,7 +15,10 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
     public function addItem( array $itemRow )
     {
         $item = OpenPAConsiglioNotificationItem::create( $itemRow );
-        $item->send();
+        if ( $item instanceof OpenPAConsiglioNotificationItem )
+        {
+            $item->send();
+        }
         return $item;
     }
 

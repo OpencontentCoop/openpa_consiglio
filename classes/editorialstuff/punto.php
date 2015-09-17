@@ -48,6 +48,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $attributes[] = 'verbale';
         $attributes[] = 'materia';
         $attributes[] = 'data_doc';
+        $attributes[] = 'referente_politico';
+        $attributes[] = 'referente_tecnico';
 
         return $attributes;
     }
@@ -130,6 +132,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             /** @return string[] */
             return $this->getDataDoc();
+        }
+
+        if ( $property == 'referente_politico' || $property == 'referente_tecnico' )
+        {
+            return implode( ', ', $this->stringRelatedObjectAttribute( $property, 'name' ) );
         }
 
         return parent::attribute( $property );
@@ -654,26 +661,33 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     public function createNotificationEvent( $type, OCEditorialStuffPostInterface $refer = null )
     {
         $createNotificationEvent = false;
-        switch( $type )
+        if ( $this->is( 'published' ) )
         {
-            case 'move':
-            case 'update_referenti':
-            case 'update_termini':
-            case 'publish':
-                $createNotificationEvent = $this->getSeduta()->is( 'pending' );
-                break;
+            switch ( $type )
+            {
+                case 'move':
+                case 'update_referenti':
+                case 'update_termini':
+                case 'publish':
+                    $createNotificationEvent = $this->getSeduta()->is( 'pending' );
+                    break;
 
-            case 'change_allegati':
-                $createNotificationEvent = !$this->getSeduta()->is( 'draft' );
-                break;
+                case 'change_allegati':
+                    $createNotificationEvent = !$this->getSeduta()->is( 'draft' );
+                    break;
 
-            case 'add_osservazione':
-                $createNotificationEvent = !$this->getSeduta()->is( 'draft' ) && !$this->getSeduta()->is( 'closed' );
-                break;
+                case 'add_osservazione':
+                    $createNotificationEvent = !$this->getSeduta()->is( 'draft' )
+                                               && !$this->getSeduta()->is( 'closed' );
+                    break;
+            }
         }
 
         if ( $createNotificationEvent )
-            parent::createNotificationEvent( $type, $refer );
+        {
+            return parent::createNotificationEvent( $type, $refer );
+        }
+        return false;
     }
 
     public function handleDigestItemNotification( $event, $notificationType )
@@ -940,6 +954,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $diff = $this->diff( $notifiedVersion );
 
         $variables = array(
+            'user' => eZUser::fetch( $subscribersRule->attribute( 'user_id' ) ),
             'punto' => $this,
             'diff' => $diff,
             'refer' => $refer

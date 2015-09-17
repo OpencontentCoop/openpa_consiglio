@@ -99,16 +99,16 @@ class OpenPAConsiglioDigestNotificationTransport extends OpenPAConsiglioNotifica
         );
     }
 
-    protected static function composeBody( OpenPAConsiglioNotificationItem $digest )
+    public static function composeBody( OpenPAConsiglioNotificationItem $digest )
     {
         $items = self::fetchDigestItems( $digest );
         $tpl = eZTemplate::factory();
         $tpl->resetVariables();
         $tpl->setVariable( 'items', $items );
         $itemsData = $tpl->fetch( "design:consiglio/notification/digest/items.tpl" );
-        $body = str_replace( '<!--ITEMS DATA-->', $itemsData, $digestItem->attribute( 'body' ) );
-        $digestItem->setAttribute( 'body', $body );
-        $digestItem->store();
+        $body = str_replace( '<!--ITEMS DATA-->', $itemsData, $digest->attribute( 'body' ) );
+        $digest->setAttribute( 'body', $body );
+        $digest->store();
     }
 
 }

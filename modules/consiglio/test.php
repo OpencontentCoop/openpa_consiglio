@@ -1,10 +1,32 @@
 <?php
 
-$factory = OCEditorialStuffHandler::instance( 'votazione' )->getFactory();
-$votazione = new Votazione( array( 'object_id' => 2194 ), $factory );
-$votazione->stop();
-echo '<pre>';
-print_r( $votazione->jsonSerialize() );
+
+$variables = array(
+    'user' => eZUser::fetch( 2623 ),
+    'punto' => OCEditorialStuffHandler::instance( 'punto' )->getFactory()->instancePost( array( 'object_id' => 2815 ) ),
+    'diff' => array(),
+    'refer' => null
+);
+
+$tpl = eZTemplate::factory();
+$tpl->resetVariables();
+foreach( $variables as $name => $value )
+{
+    $tpl->setVariable( $name, $value );
+}
+$body = $tpl->fetch( "design:consiglio/notification/digest/punto/interessato.tpl" );
+$subject = $tpl->variable( 'subject' );
+$tpl->setVariable( 'content', $body );
+$content = $tpl->fetch( 'design:consiglio/notification/mail_pagelayout.tpl' );
+echo $content;
+eZExecution::cleanExit();
+
+
+//$factory = OCEditorialStuffHandler::instance( 'votazione' )->getFactory();
+//$votazione = new Votazione( array( 'object_id' => 2194 ), $factory );
+//$votazione->stop();
+//echo '<pre>';
+//print_r( $votazione->jsonSerialize() );
 
 //$dateTime = new DateTime();
 //        $now = $dateTime->format( 'Y-m-d H:i:s' );
