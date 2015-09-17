@@ -368,7 +368,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                         );
                     if ( $allegato instanceof OCEditorialStuffPostInterface )
                     {
-                        $this->internalCreateNotificationEvent( 'change_allegati', $allegato );
+                        $this->createNotificationEvent( 'change_allegati', $allegato );
                     }
                 }
                 catch ( Exception $e )
@@ -409,7 +409,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                         );
                     if ( $osservazione instanceof OCEditorialStuffPostInterface )
                     {
-                        $this->internalCreateNotificationEvent( 'add_osservazione', $osservazione );
+                        $this->createNotificationEvent( 'add_osservazione', $osservazione );
                     }
                 }
                 catch ( Exception $e )
@@ -464,7 +464,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 //                        ->fetchByObjectId( $object->attribute( 'id' ) );
 //                    if ( $allegato instanceof OCEditorialStuffPostInterface )
 //                    {
-//                        $this->internalCreateNotificationEvent( 'change_allegati', $allegato );
+//                        $this->createNotificationEvent( 'change_allegati', $allegato );
 //                    }
 //                }
 //                catch ( Exception $e )
@@ -535,7 +535,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     {
         if ( $afterState->attribute( 'identifier' ) == 'published' )
         {
-            $this->internalCreateNotificationEvent( 'publish' );
+            $this->createNotificationEvent( 'publish' );
         }
     }
 
@@ -641,17 +641,17 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 if ( isset( $diff['referente_tecnico'] ) || isset( $diff['referente_politico'] ) )
                 {
                     $this->addUsersToNotifications();
-                    $this->internalCreateNotificationEvent( 'update_referenti' );
+                    $this->createNotificationEvent( 'update_referenti' );
                 }
                 if ( isset( $diff['termine_osservazioni'] ) )
                 {
-                    $this->internalCreateNotificationEvent( 'update_termini' );
+                    $this->createNotificationEvent( 'update_termini' );
                 }
             }
         }
     }
 
-    protected function internalCreateNotificationEvent( $type, OCEditorialStuffPostInterface $refer = null )
+    public function createNotificationEvent( $type, OCEditorialStuffPostInterface $refer = null )
     {
         $createNotificationEvent = false;
         switch( $type )
@@ -673,7 +673,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         }
 
         if ( $createNotificationEvent )
-            $this->createNotificationEvent( $type, $refer );
+            parent::createNotificationEvent( $type, $refer );
     }
 
     public function handleDigestItemNotification( $event, $notificationType )
