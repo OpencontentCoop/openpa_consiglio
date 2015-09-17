@@ -5,6 +5,8 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     const DATE_FORMAT = 'Y-m-d H:i:s';
 
     protected $partecipanti;
+    
+    protected $percentualePresenza;
 
     public function __construct(
         array $data = array(),
@@ -103,16 +105,25 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         }
 
         if ( $property == 'percentuale_presenza' )
-        {
-            $helper = new OpenPAConsiglioPresenzaHelper( $this );
-            $helper->run();
-            $values = $helper->getPercent();
-            return $values;
+        {            
+            return $this->getPercentualePresenza();
         }
 
         return parent::attribute( $property );
     }
 
+    protected function getPercentualePresenza()
+    {
+        if ( $this->percentualePresenza == null )
+        {
+            $helper = new OpenPAConsiglioPresenzaHelper( $this );
+            $helper->run();
+            $values = $helper->getPercent();
+            $this->percentualePresenza = $values;            
+        }
+        return $this->percentualePresenza;
+    }
+    
     /**
      * @see SedutaFactory::fields()
      */
