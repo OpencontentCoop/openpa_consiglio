@@ -30,6 +30,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $attributes[] = 'verbale';
         $attributes[] = 'protocollo';
         $attributes[] = 'current_punto';
+        $attributes[] = 'percentuale_presenza';
 
         return $attributes;
     }
@@ -99,6 +100,14 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         if ( $property == 'current_punto' )
         {
             return $this->getPuntoInProgress();
+        }
+
+        if ( $property == 'percentuale_presenza' )
+        {
+            $helper = new OpenPAConsiglioPresenzaHelper( $this );
+            $helper->run();
+            $values = $helper->getPercent();
+            return $values;
         }
 
         return parent::attribute( $property );
