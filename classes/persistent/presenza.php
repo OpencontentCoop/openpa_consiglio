@@ -137,6 +137,27 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         return false;
     }
 
+    static function fetchLastByUserIDAndSedutaID( $userId, $sedutaId, $type = 'checkin' )
+    {
+        $conds = array(
+            'user_id' => intval( $userId ),
+            'seduta_id' => intval( $sedutaId ),
+            'type' => $type,
+        );
+        $presenze = parent::fetchObjectList(
+            self::definition(),
+            null,
+            $conds,
+            array( 'created_time' => 'desc' ),
+            array( 'limit' => 1, 'offset' => 0 )
+        );
+        if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
+        {
+            return $presenze[0];
+        }
+        return false;
+    }
+
     /**
      * @param Seduta $seduta
      * @param null $startTime
@@ -306,8 +327,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         {
             if ( $identifier == 'created_time' )
             {
-                $dateTime = DateTime::createFromFormat( 'U', $this->attribute( $identifier ) );
-                $data['_timestamp_readable'] = $dateTime->format( Seduta::DATE_FORMAT );
+                $data['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $this->attribute( $identifier ) );
                 $data['timestamp'] = $this->attribute( $identifier );
             }
             elseif( in_array( $identifier, array( 'id', 'user_id', 'seduta_id', "has_checkin", "has_manual", "has_beacons", "is_in") ) )

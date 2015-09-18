@@ -34,13 +34,20 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
         return parent::attribute( $property );
     }
 
-    protected function availableLocations()
+    protected function availableLocations( $asObject = true )
     {
         $data = array();
         $configuration = $this->getFactory()->getConfiguration();
-        foreach( $configuration['Locations'] as $identifier => $nodeId )
+        if ( $asObject )
         {
-            $data[$identifier] = eZContentObjectTreeNode::fetch( $nodeId );
+            foreach ( $configuration['Locations'] as $identifier => $nodeId )
+            {
+                $data[$identifier] = eZContentObjectTreeNode::fetch( $nodeId );
+            }
+        }
+        else
+        {
+            $data = $configuration['Locations'];
         }
         return $data;
     }
@@ -279,6 +286,45 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
         );
     }
 
+    /**
+     * Individua la seduta in_progress o closed di oggi a cui il politico dovrebbe partecipare
+     */
+    protected function lastSedutaInProgressOrClosed()
+    {
+        $organoNodeIds = array();
+        $currentLocations = $this->currentLocations();
+        foreach( $this->availableLocations( false ) as $identifier => $nodeId )
+        {
+            if ( $currentLocations[$identifier] )
+            {
+                $organoNodeIds[] = $nodeId;
+            }
+        }
+        if ( !empty( $organoNodeIds ) )
+        {
+            $organoFilters = count( $organoNodeIds ) > 1 ? array( 'or' ) : array();
+            foreach( $organoNodeIds as $nodeId )
+            {
+                $organoFilters['submeta_organo___main_node_id_si'] = $nodeId;
+            }
+
+            $sedute = OCEditorialStuffHandler::instance( 'seduta' )->fetchItems(
+                array(
+                    'filters' => $organoFilters,
+                    'state' => array( 'in_progress', 'closed' ),
+                    'sort' => array( 'attr_data_dt' => 'desc' ),
+                    'limit' => 1,
+                    'offset' => 0
+                )
+            );
+            if ( isset( $sedute[0] ) )
+            {
+                return $sedute[0];
+            }
+        }
+        return null;
+    }
+
     public function lastData()
     {
         $data = array(
@@ -312,14 +358,11 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
                 ),
             )
         );
-        // ricavo la seduta dalla presenza
-        $lastPresenza = OpenPAConsiglioPresenza::fetchLastByUserID( $this->id() );
-        if ( $lastPresenza instanceof OpenPAConsiglioPresenza )
+        $seduta = $this->lastSedutaInProgressOrClosed();
+        if ( $seduta instanceof Seduta )
         {
             try
             {
-                /** @var Seduta $seduta */
-                $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $lastPresenza->attribute( 'seduta_id' ) );
                 if ( $seduta instanceof Seduta )
                 {
                     $data['seduta']['id'] = $seduta->id();
@@ -334,11 +377,19 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
                         $data['seduta']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastSedutaHistory->attribute( 'created_time' ) );
                     }
 
-                    $data['seduta']['presenza']['id'] = intval( $lastPresenza->attribute( 'id' ) );
-                    $data['seduta']['presenza']['in_out'] = intval( $lastPresenza->attribute( 'in_out' ) );
-                    $data['seduta']['presenza']['timestamp'] = $lastPresenza->attribute( 'created_time' );
-                    $data['seduta']['presenza']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastPresenza->attribute( 'created_time' ) );
-                    $data['seduta']['presenza']['type'] = $lastPresenza->attribute( 'type' );
+                    $lastPresenza = OpenPAConsiglioPresenza::fetchLastByUserIDAndSedutaID( $this->id(), $seduta->id() );
+                    if ( $lastPresenza instanceof OpenPAConsiglioPresenza )
+                    {
+                        $data['seduta']['presenza']['id'] = intval( $lastPresenza->attribute( 'id' ) );
+                        $data['seduta']['presenza']['in_out'] = intval( $lastPresenza->attribute( 'in_out' ) );
+                        $data['seduta']['presenza']['timestamp'] = $lastPresenza->attribute( 'created_time' );
+                        $data['seduta']['presenza']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastPresenza->attribute( 'created_time' ) );
+                        $data['seduta']['presenza']['type'] = $lastPresenza->attribute( 'type' );
+                    }
+                    else
+                    {
+                        $data['seduta']['presenza'] = null;
+                    }
 
                     // ricavo punto attivo
                     $punto = null;
