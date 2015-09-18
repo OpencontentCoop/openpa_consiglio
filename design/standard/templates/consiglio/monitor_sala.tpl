@@ -82,7 +82,7 @@
 <div id="text" {if $currentPunto|not()}style="display: none"{/if}>
     <div class="row data">
         <div class="col col-md-12">
-            <h1 class="text-center">
+            <h1 class="text-center text-content">
               {$currentPunto}
             </h1>
         </div>
@@ -91,7 +91,7 @@
     <div class="row alert alert-warning" style="display: none">
         <div id="timer" style="display: none;"><strong><span class="minutes">00</span>:<span class="seconds">00</span></strong></div>
         <div class="col col-md-12">
-            <h1 class="text-center"></h1>
+            <h1 class="text-center text-alert"></h1>
         </div>
     </div>
 </div>

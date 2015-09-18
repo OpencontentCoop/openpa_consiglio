@@ -24,7 +24,7 @@ socket.on('start_punto', function (data) {
         $('#presenze').hide();
         $('#detail').hide();
         $('#text').show().find('.data').show();
-        $('#text').show().find( 'h1').html('<strong>Punto ' + data.numero + '</strong><br />' + data.oggetto);
+        $('#text').show().find( 'h1.text-content').html('<strong>Punto ' + data.numero + '</strong><br />' + data.oggetto);
     }
 });
 
@@ -47,7 +47,7 @@ socket.on('stop_seduta', function (data) {
         $('#detail').hide();
         $('#text').show().find('.data').show();
         $('#seduta h2 small').html( 'Seduta non in corso' );
-        $('#text').show().find( 'h1').html('Arrivederci!');        
+        $('#text').show().find( 'h1.text-content').html('Arrivederci!');
     }
 });
 
