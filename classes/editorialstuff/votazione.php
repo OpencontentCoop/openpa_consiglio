@@ -225,23 +225,24 @@ class Votazione extends OCEditorialStuffPost
             $this->dataMap[self::$endDateIdentifier]->fromString( $now );
             $this->dataMap[self::$endDateIdentifier]->store();
 
-            // notifico tutti che la votazione è chiusa
-            $fakeSerialized = $this->jsonSerialize();
-            $fakeSerialized['stato'] = 'closed';
-            OpenPAConsiglioPushNotifier::instance()->emit(
-                'stop_votazione',
-                $fakeSerialized
-            );
-
-            // attendo 5 secondi per concludere le operazioni di voto
-            sleep( 5 );
+            //// notifico tutti che la votazione è chiusa
+            //$fakeSerialized = $this->jsonSerialize();
+            //$fakeSerialized['stato'] = 'closed';
+            //OpenPAConsiglioPushNotifier::instance()->emit(
+            //    'stop_votazione',
+            //    $fakeSerialized
+            //);
+            //
+            //// attendo 5 secondi per concludere le operazioni di voto
+            //sleep( 5 );
 
             $this->getResultHandler()->store();
 
             // chiudo la votazione
             $this->setState( 'stato_votazione.closed' );
             OpenPAConsiglioPushNotifier::instance()->emit(
-                'real_stop_votazione',
+                //'real_stop_votazione',
+                'stop_votazione',
                 $this->jsonSerialize()
             );
 
