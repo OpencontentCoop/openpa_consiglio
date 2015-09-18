@@ -25,6 +25,7 @@ socket.on('start_punto', function (data) {
         $('#detail').hide();
         $('#text').show().find('.data').show();
         $('#text').show().find( 'h1.text-content').html('<strong>Punto ' + data.numero + '</strong><br />' + data.oggetto);
+        $('#text').show().find('.alert').hide();
     }
 });
 
