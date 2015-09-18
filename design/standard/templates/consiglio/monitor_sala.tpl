@@ -8,9 +8,9 @@
     var ActionBaseUrl = "{concat('consiglio/cruscotto_seduta/',$seduta.object_id)|ezurl(no)}/";
 </script>
 <script src="{'javascript/monitor_sala.js'|ezdesign(no)}?_={currentdate()}"></script>
-<style>
-  {literal}#detail p.text{font-size: .6em}{/literal}
-</style>
+<script src="{'javascript/cruscotto_seduta_tools.js'|ezdesign(no)}?_={currentdate()}"></script>
+
+<style>{literal}#detail p.text{font-size: .6em}  #timer{font-size: 2em;text-align: center;}{/literal}</style>
 
 
 {def $currentPunto = false()}
@@ -89,6 +89,7 @@
     </div>
 
     <div class="row alert alert-warning" style="display: none">
+        <div id="timer" style="display: none;"><strong><span class="minutes">00</span>:<span class="seconds">00</span></strong></div>
         <div class="col col-md-12">
             <h1 class="text-center"></h1>
         </div>

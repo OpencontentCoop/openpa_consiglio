@@ -53,6 +53,7 @@ socket.on('stop_seduta', function (data) {
 
 socket.on('start_votazione', function (data) {
     if (data.seduta_id == CurrentSedutaId) {
+        startTimer();
         $('#presenze').hide();
         $('#detail').hide();
         $('#text').show().find('.data').hide();
@@ -62,7 +63,9 @@ socket.on('start_votazione', function (data) {
 
 socket.on('stop_votazione', function (data) {
     if (data.seduta_id == CurrentSedutaId) {
-        $('#text').show().find('.alert').addClass('alert-danger').show().find( 'h1').html('<strong>Chiusa votazione:</strong><br /> ' + data.short_text);
+        stopTimer();
+        $('#text').show().find('.alert').addClass('alert-danger').show().find( 'h1').html('<strong>Votazione conclusa</strong>');
+        $('#detail').load(VotazioneDataBaseUrl + data.id + '/parts:risultato_votazione_monitor' + '?time=' + Date.now()).show();
     }
 });
 

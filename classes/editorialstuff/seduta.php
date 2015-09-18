@@ -168,7 +168,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 $verbali[$columns[0]] = $columns[1];
             }
 
-            return $verbali[$postId];
+            return isset( $verbali[$postId] ) ? $verbali[$postId] : null;
         }
 
         return null;
