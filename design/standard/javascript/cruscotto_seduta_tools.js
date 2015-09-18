@@ -252,7 +252,7 @@ jQuery.fn.extend({
             self.removeClass( offClass );
         else
             self.addClass( offClass );
-        self.data('last_update', data.created_timestamp );
+        self.data('last_update', data.timestamp );
     },
 
     setVotoPartecipante: function(data){
