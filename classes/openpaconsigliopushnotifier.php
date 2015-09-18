@@ -80,18 +80,17 @@ class OpenPAConsiglioPushNotifier
                 );
                 break;
         }
-        
-        eZLog::write( var_export( $url, 1 ), 'runtime.log' );        
+
         if ( $url )
         {
-            eZLog::write( var_export( $values, 1 ), 'runtime.log' );
+            eZLog::write( var_export( $values, 1 ), 'openpa_consiglio_push_send_to_backend.log', eZSys::varDirectory() . '/log'  );
             $ch = curl_init();
             curl_setopt( $ch, CURLOPT_URL, $url );
             curl_setopt( $ch, CURLOPT_POST, 1 );
             curl_setopt( $ch, CURLOPT_POSTFIELDS, $values );
             curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
             $result = curl_exec( $ch );        
-            eZLog::write( var_export( $result, 1 ), 'runtime.log' );
+            eZLog::write( var_export( $result, 1 ), 'openpa_consiglio_push_send_to_backend.log', eZSys::varDirectory() . '/log'  );
             curl_close( $ch );
         }
     }
@@ -102,6 +101,8 @@ class OpenPAConsiglioPushNotifier
         {
             $this->file->storeContents( json_encode( $this->data ), 'push_notifications', false, true );
             $this->IsModified = false;
+            if ( $this->data['identifier'] !== 'null' )
+                eZLog::write( $this->data['identifier'] . ' ' . var_export( $this->data['data'], 1 ), 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log' );
         }
     }
 
