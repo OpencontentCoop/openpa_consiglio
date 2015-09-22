@@ -52,6 +52,14 @@ $ViewList['monitor_sala'] = array(
     'unordered_params' => array()
 );
 
+$ViewList['settings'] = array(
+    'functions' => array( 'admin' ),
+    'script' => 'settings.php',
+    'params' => array(),
+    'unordered_params' => array(),
+    'ui_context' => 'administration',
+    'default_navigation_part' => 'ezsetupnavigationpart'
+);
 
 
 

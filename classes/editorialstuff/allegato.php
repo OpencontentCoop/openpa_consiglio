@@ -127,14 +127,23 @@ class Allegato extends OCEditorialStuffPost
         $binaryFile = $this->binaryFile() ;
         if ( $binaryFile instanceof eZBinaryFile )
         {
-            $router = new ezpRestRouter( new ezcMvcRequest() );
-            $url = $router->generateUrl( 'consiglioApiSedutaDownloadAllegato', array( 'Id' => $this->id() ) );
-            eZURI::transformURI( $url, false, 'full' );
+            if ( OpenPAConsiglioDefaultFactory::localFileServerIsEnabled() )
+            {
+                $url = OpenPAConsiglioDefaultFactory::localFileServerDownloadUrl( $binaryFile );
+            }
+            else
+            {
+                $router = new ezpRestRouter( new ezcMvcRequest() );
+                $url = $router->generateUrl(
+                    'consiglioApiSedutaDownloadAllegato',
+                    array( 'Id' => $this->id() )
+                );
+                eZURI::transformURI( $url, false, 'full' );
+            }
             return $url;
         }
         return null;
     }
-
 
     /**
      *
