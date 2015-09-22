@@ -51,6 +51,14 @@ try
         eZFile::create( $binaryFile->attribute( 'filename' ), $dirPath, $fileHandler->fetchContents() );
     }
 
+    function formatBytes($size, $precision = 2)
+    {
+        $base = log($size, 1024);
+        $suffixes = array('', 'k', 'M', 'G', 'T');
+
+        return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
+    }
+
     $sedute = OCEditorialStuffHandler::instance( 'seduta' )->fetchItems( array( 'limit' => 100 ) );
     foreach( $sedute as $seduta )
     {
@@ -59,7 +67,7 @@ try
         {
             /** @var Allegato $allegato */
             copyBinary( $allegato->binaryFile() );
-            $cli->notice( " |- [Allegato] " . $allegato->getObject()->attribute( 'name' ) );
+            $cli->notice( " |- [Allegato] " . $allegato->getObject()->attribute( 'name' ) . " " . formatBytes( $allegato->binaryFile()->fileSize() ) );
         }
 
         foreach( $seduta->attribute( 'odg' ) as $punto )
@@ -72,24 +80,16 @@ try
                 {
                     /** @var Allegato $allegato */
                     copyBinary( $allegato->binaryFile() );
-                    $cli->notice( "    |- [Allegato] " . $allegato->getObject()->attribute( 'name' ) );
+                    $cli->notice( "    |- [Allegato] " . $allegato->getObject()->attribute( 'name' ) . " " . formatBytes( $allegato->binaryFile()->fileSize() ) );
                 }
                 foreach ( $punto->attribute( 'osservazioni' ) as $osservazione )
                 {
                     /** @var Osservazione $osservazione */
                     copyBinary( $osservazione->binaryFile() );
-                    $cli->notice( "    |- [Osservazione] " . $osservazione->getObject()->attribute( 'name' ) );
+                    $cli->notice( "    |- [Osservazione] " . $osservazione->getObject()->attribute( 'name' ) . " " . formatBytes( $osservazione->binaryFile()->fileSize() ) );
                 }
             }
         }
-    }
-
-    function formatBytes($size, $precision = 2)
-    {
-        $base = log($size, 1024);
-        $suffixes = array('', 'k', 'M', 'G', 'T');
-
-        return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
     }
 
     $cli->notice( formatBytes( $totalSize ) );
