@@ -23,7 +23,7 @@ eZUser::setCurrentlyLoggedInUser( $user , $user->attribute( 'contentobject_id' )
 try
 {
     $identifier = OpenPABase::getCurrentSiteaccessIdentifier();
-    $dirPath = "../{$identifier}_da _sincronizzare";
+    $dirPath = "../{$identifier}_da_sincronizzare";
 
     if ( !empty( $options['dir'] ) )
     {
@@ -91,7 +91,7 @@ try
 
         return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
     }
-    
+
     $cli->notice( formatBytes( $totalSize ) );
     $script->shutdown();
 }
