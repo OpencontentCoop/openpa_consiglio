@@ -59,15 +59,18 @@
 
 <script>
     {literal}
+
     $(document).ready(function(){
         $('.async-load').each(function(){
             var container = $(this);
             container.load( container.data('load_url') );
         });
+    });
     {/literal}
 
     {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
     {literal}
+    $(document).ready(function(){
         var editableOptions = {
             success: function(response, newValue) {
                 reload('#odg');
