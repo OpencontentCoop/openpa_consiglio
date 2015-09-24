@@ -56,7 +56,7 @@
 
 {ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-tabdrop.js', 'jquery.editorialstuff_default.js', 'ezjsc::jqueryUI', 'bootstrap-editable.min.js', 'dhtmlxgantt.js' ) )}
 {ezcss_require(array('bootstrap3-editable/css/bootstrap-editable.css', 'dhtmlxgantt.css'))}
-{if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
+
 <script>
     {literal}
     $(document).ready(function(){
@@ -64,6 +64,10 @@
             var container = $(this);
             container.load( container.data('load_url') );
         });
+    {/literal}
+
+    {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
+    {literal}
         var editableOptions = {
             success: function(response, newValue) {
                 reload('#odg');
@@ -102,6 +106,5 @@
         });
     });
     {/literal}
+    {/if}
 </script>
-
-{/if}
