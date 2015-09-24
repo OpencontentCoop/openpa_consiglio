@@ -37,18 +37,22 @@
                         {$punto.object.data_map.n_punto.data_int|wash()}
                     </td>
                     <td>
-                        {if $is_editor}<a href="#" class="editable" data-type="text" data-name="orario_trattazione"
-                           data-pk="{$punto.object.data_map.orario_trattazione.id}"
-                           data-url="{concat('/edit/attribute/',$punto.object.id,'/orario_trattazione/1')|ezurl(no)}"
-                           data-title="Imposta orario">{/if}
+                        {if $is_editor}<a href="#" class="editable"
+                                          data-type="text"
+                                          data-name="orario_trattazione"
+                                          data-pk="{$punto.object.data_map.orario_trattazione.id}"
+                                          data-url="{concat('/edit/attribute/',$punto.object.id,'/orario_trattazione/1')|ezurl(no)}"
+                                          data-title="Imposta orario">{/if}
                             {attribute_view_gui attribute=$punto.object.data_map.orario_trattazione}
                         {if $is_editor}</a>{/if}
                     </td>
                     <td>
-                        {if $is_editor}<a href="#" class="editable" data-type="text" data-name="oggetto"
-                           data-pk="{$punto.object.data_map.oggetto.id}"
-                           data-url="{concat('/edit/attribute/',$punto.object.id,'/oggetto/1')|ezurl(no)}"
-                           data-title="Imposta oggetto">{/if}
+                        {if $is_editor}<a href="#" class="editable"
+                                          data-name="oggetto"
+                                          data-pk="{$punto.object.data_map.oggetto.id}"
+                                          data-url="{concat('/edit/attribute/',$punto.object.id,'/oggetto/1')|ezurl(no)}"
+                                          data-type="textarea"
+                                          data-title="Imposta oggetto" style="white-space: normal">{/if}
                             {attribute_view_gui attribute=$punto.object.data_map.oggetto}
                         {if $is_editor}</a>{/if}
                         {if $punto.object.data_map.alert.has_content}
