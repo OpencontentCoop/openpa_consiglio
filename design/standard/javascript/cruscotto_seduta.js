@@ -3,17 +3,23 @@ var Odg = $('#odg_list');
 var Votazioni = $('#votazioni');
 var Presenze = $('#presenze');
 
-var timeoutId;
-$(document).on('input propertychange change insertText', 'textarea', function (e) {
-    var name = $(e.currentTarget).attr('name');
-    if (e.type == 'insertText') {
-        Verbale.saveVerbale(name);
-    } else {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(function () {
-            Verbale.saveVerbale(name);
-        }, 3000);
-    }
+//var timeoutId;
+//$(document).on('input propertychange change insertText', 'textarea', function (e) {
+//    var name = $(e.currentTarget).attr('name');
+//    if (e.type == 'insertText') {
+//        Verbale.saveVerbale(name);
+//    } else {
+//        clearTimeout(timeoutId);
+//        timeoutId = setTimeout(function () {
+//            Verbale.saveVerbale(name);
+//        }, 3000);
+//    }
+//});
+
+$(document).on('click', 'a.save-verbale', function (e) {
+    e.preventDefault();
+    var name = $(e.currentTarget).prev().attr('name');
+    Verbale.saveVerbale(name);
 });
 
 $(document).on('click', 'a.show-verbale', function (e) {

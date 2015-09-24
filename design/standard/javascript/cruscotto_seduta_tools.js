@@ -205,7 +205,6 @@ jQuery.fn.extend({
     removeVotazione: function(){
         var self = $(this);
         if ( confirm("Confermi rimozione?") ) {
-            console.log(self);
             $.ajax({
                 url: self.data('remove_action_url'),
                 method: 'POST',

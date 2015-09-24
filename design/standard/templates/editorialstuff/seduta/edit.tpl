@@ -22,7 +22,13 @@
             <div class="tab-content">
                 {foreach $post.tabs as $index=> $tab}
                 <div role="tabpanel" class="tab-pane{if $index|eq(0)} active{/if}" id="{$tab.identifier}">
-                    {include uri=$tab.template_uri post=$post}
+                    {if is_set( $tab.async_template_uri )}
+                        <div class="async-load" data-load_url="{concat('consiglio/data/seduta/',$post.object_id, '/', $tab.async_template_uri)|ezurl(no)}">
+                            <p class="text-center"><i class="fa fa-gear fa-spin fa-2x"></i></p>
+                        </div>
+                    {else}
+                        {include uri=$tab.template_uri post=$post}
+                    {/if}
                 </div>
                 {/foreach}
             </div>
@@ -48,11 +54,16 @@
     </div>
 </div>
 
-{ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-tabdrop.js', 'jquery.editorialstuff_default.js', 'ezjsc::jqueryUI', 'bootstrap-editable.min.js' ) )}
-{ezcss_require(array('bootstrap3-editable/css/bootstrap-editable.css'))}
+{ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-tabdrop.js', 'jquery.editorialstuff_default.js', 'ezjsc::jqueryUI', 'bootstrap-editable.min.js', 'dhtmlxgantt.js' ) )}
+{ezcss_require(array('bootstrap3-editable/css/bootstrap-editable.css', 'dhtmlxgantt.css'))}
 {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
-{literal}<script>
+<script>
+    {literal}
     $(document).ready(function(){
+        $('.async-load').each(function(){
+            var container = $(this);
+            container.load( container.data('load_url') );
+        });
         var editableOptions = {
             success: function(response, newValue) {
                 reload('#odg');
@@ -73,7 +84,24 @@
         }
         $('.editable').editable(editableOptions);
         reload('#odg');
-    })
+
+        $(document).on( 'submit', '#edit-verbale', function(e){
+            var self = $(this);
+            var values = self.serializeArray();
+            values.push({name:'SaveVerbale', value:''});
+            $.ajax({
+                url: self.attr('action'),
+                method: 'POST',
+                data: values,
+                success: function (data) {
+                    var container = self.parents('.async-load');
+                    container.load( container.data('load_url') );
+                }
+            });
+            e.preventDefault();
+        });
+    });
+    {/literal}
 </script>
-{/literal}
+
 {/if}

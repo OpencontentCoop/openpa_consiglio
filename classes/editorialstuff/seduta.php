@@ -170,7 +170,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
             return isset( $verbali[$postId] ) ? $verbali[$postId] : null;
         }
-
+        eZDebug::writeError( "Attribute verbale not found", __METHOD__ );
         return null;
     }
 
@@ -234,13 +234,25 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $tabs[] = array(
             'identifier' => 'votazioni',
             'name' => 'Votazioni e esito',
-            'template_uri' => "design:{$templatePath}/parts/votazioni.tpl"
+            'template_uri' => "design:{$templatePath}/parts/votazioni.tpl",
+            'async_template_uri' => 'parts:votazioni'
         );
+
+        if ( $isAdmin )
+        {
+            $tabs[] = array(
+                'identifier' => 'verbale',
+                'name' => 'Verbale',
+                'template_uri' => "design:{$templatePath}/parts/verbale.tpl",
+                'async_template_uri' => 'parts:verbale'
+            );
+        }
 
         $tabs[] = array(
             'identifier' => 'history',
             'name' => 'Cronologia',
-            'template_uri' => "design:{$templatePath}/parts/history.tpl"
+            'template_uri' => "design:{$templatePath}/parts/history.tpl",
+            'async_template_uri' => 'parts:history'
         );
 
         return $tabs;
@@ -1035,6 +1047,10 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 eZExecution::cleanExit();
 
             }
+        }
+        elseif ( $actionIdentifier == 'SaveVerbale' )
+        {
+            $this->saveVerbale( $actionParameters['Verbale'] );
         }
     }
 }
