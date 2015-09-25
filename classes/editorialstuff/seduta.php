@@ -5,8 +5,10 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     const DATE_FORMAT = 'Y-m-d H:i:s';
 
     protected $partecipanti;
-    
+
     protected $percentualePresenza;
+
+    protected $odg = array();
 
     public function __construct(
         array $data = array(),
@@ -105,7 +107,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         }
 
         if ( $property == 'percentuale_presenza' )
-        {            
+        {
             return $this->getPercentualePresenza();
         }
 
@@ -119,11 +121,12 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             $helper = new OpenPAConsiglioPresenzaHelper( $this );
             $helper->run();
             $values = $helper->getPercent();
-            $this->percentualePresenza = $values;            
+            $this->percentualePresenza = $values;
         }
+
         return $this->percentualePresenza;
     }
-    
+
     /**
      * @see SedutaFactory::fields()
      */
@@ -171,6 +174,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             return isset( $verbali[$postId] ) ? $verbali[$postId] : null;
         }
         eZDebug::writeError( "Attribute verbale not found", __METHOD__ );
+
         return null;
     }
 
@@ -414,59 +418,53 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
      */
     public function odg()
     {
-        $factory = OCEditorialStuffHandler::instance(
-            'punto',
-            array( 'seduta' => $this->id() )
-        )->getFactory();
-        $attributeID = eZContentObjectTreeNode::classAttributeIDByIdentifier(
-            'punto/seduta_di_riferimento'
-        );
-        $params = array(
-            'AllRelations' => eZContentFunctionCollection::contentobjectRelationTypeMask(
-                array( 'attribute' )
-            ),
-            'AsObject' => true
-        );
-        $reverseObjects = $this->getObject()->reverseRelatedObjectList(
-            false,
-            $attributeID,
-            false,
-            $params
-        );
-        $items = array();
-        foreach ( $reverseObjects as $object )
+        if ( empty( $this->odg ) )
         {
-            $dataMap = $object->attribute( 'data_map' );
-            $orario = $dataMap['orario_trattazione']->content();
-            if ( $orario instanceof eZTime )
-            {
-                $timestamp = $orario->attribute( 'time_of_day' );
-            }
-            $items[$timestamp][] = new Punto(
-                array( 'object_id' => $object->attribute( 'id' ) ),
-                $factory
+            $factory = OCEditorialStuffHandler::instance(
+                'punto',
+                array( 'seduta' => $this->id() )
+            )->getFactory();
+            $attributeID = eZContentObjectTreeNode::classAttributeIDByIdentifier(
+                'punto/seduta_di_riferimento'
             );
-        }
-        //$sedutaId = $this->object->attribute( 'id' );
-        //$items = OCEditorialStuffHandler::instance( 'punto', array( 'seduta' => $sedutaId ) )
-        //    ->fetchItems(
-        //        array(
-        //            'limit' => 100,
-        //            'offset' => 0,
-        //            'filters' => 'submeta_seduta_di_riferimento___id_si:' . $this->id(),
-        //            'sort' => array( 'extra_orario_i' => 'asc' )
-        //        )
-        //    );
+            $params = array(
+                'AllRelations' => eZContentFunctionCollection::contentobjectRelationTypeMask(
+                    array( 'attribute' )
+                ),
+                'AsObject' => true
+            );
+            /** @var eZContentObject[] $reverseObjects */
+            $reverseObjects = $this->getObject()->reverseRelatedObjectList(
+                false,
+                $attributeID,
+                false,
+                $params
+            );
+            $items = array();
+            foreach ( $reverseObjects as $object )
+            {
+                $dataMap = $object->attribute( 'data_map' );
+                $orario = $dataMap['orario_trattazione']->content();
+                if ( $orario instanceof eZTime )
+                {
+                    $timestamp = $orario->attribute( 'time_of_day' );
+                    $items[$timestamp][] = new Punto(
+                        array( 'object_id' => $object->attribute( 'id' ) ),
+                        $factory
+                    );
+                }
+            }
 
-        //eZDebug::writeNotice( var_export( OCEditorialStuffHandler::getLastFetchData(), 1 ), __METHOD__ );
-        ksort( $items );
-        $odg = array();
-        foreach ( $items as $i )
-        {
-            $odg = array_merge( $odg, $i );
+            //eZDebug::writeNotice( var_export( OCEditorialStuffHandler::getLastFetchData(), 1 ), __METHOD__ );
+            ksort( $items );
+            $this->odg = array();
+            foreach ( $items as $i )
+            {
+                $this->odg = array_merge( $this->odg, $i );
+            }
         }
 
-        return $odg;
+        return $this->odg;
     }
 
     /**
@@ -645,12 +643,19 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                     'stato' => $this->currentState()->attribute( 'identifier' ),
                     'documenti' => $this->attribute( 'count_documenti' )
                 );
-                $lastChangeHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $this->id(), 'updateobjectstate' );
+                $lastChangeHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType(
+                    $this->id(),
+                    'updateobjectstate'
+                );
                 if ( $lastChangeHistory instanceof OCEditorialStuffHistory )
                 {
                     $data['timestamp'] = $lastChangeHistory->attribute( 'created_time' );
-                    $data['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastChangeHistory->attribute( 'created_time' ) );
+                    $data['_timestamp_readable'] = date(
+                        Seduta::DATE_FORMAT,
+                        $lastChangeHistory->attribute( 'created_time' )
+                    );
                 }
+
                 return $data;
             }
             catch ( Exception $e )
@@ -847,12 +852,34 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     {
         if ( $this->currentState()->attribute( 'identifier' ) == 'in_progress' )
         {
-            foreach ( $this->votazioni() as $votazione )
+            foreach (
+                $this->votazioni(
+                    array( 'state' => 'in_progress', 'limit' => 1 )
+                ) as $votazione
+            )
             {
                 if ( $votazione->currentState()->attribute( 'identifier' ) == 'in_progress' )
                 {
                     return $votazione;
                 }
+            }
+        }
+
+        return null;
+    }
+
+    public function getVotazioneLastClosed()
+    {
+        foreach (
+            $this->votazioni( array( 'state' => 'closed',
+                                     'limit' => 1,
+                                     'sort' => array( 'modified' => 'desc' ) )
+            ) as $votazione
+        )
+        {
+            if ( $votazione->currentState()->attribute( 'identifier' ) == 'closed' )
+            {
+                return $votazione;
             }
         }
 
@@ -904,7 +931,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $helper = new OpenPAConsiglioPresenzaHelper( $this );
         $helper->run();
         $dataPercent = $helper->getPercent();
-        foreach( $dataPercent as $userId => $value )
+        foreach ( $dataPercent as $userId => $value )
         {
             if ( $value > 0 )
             {
@@ -923,24 +950,20 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     /**
      * @return Votazione[]
      */
-    public function votazioni()
+    public function votazioni( $parameters = array() )
     {
-        $data = array();
-        /** @var eZContentObject[] $votazioni */
-        $votazioni = $this->getObject()->reverseRelatedObjectList(
-            false,
-            Votazione::sedutaClassAttributeId()
+        return OCEditorialStuffHandler::instance( 'votazione' )->fetchItems(
+            array_merge(
+                array(
+                    'filters' => array( 'submeta_seduta___id_si:' . $this->id() ),
+                    'sort' => array( 'published' => 'desc' ),
+                    'limit' => 100,
+                    'offset' => 0
+                ),
+                $parameters
+            ),
+            array()
         );
-        foreach ( $votazioni as $votazione )
-        {
-            $data[$votazione->attribute( 'published' )] = new Votazione(
-                array( 'object_id' => $votazione->attribute( 'id' ) ),
-                OCEditorialStuffHandler::instance( 'votazione' )->getFactory()
-            );
-        }
-        krsort( $data );
-
-        return $data;
     }
 
     public function onCreate()

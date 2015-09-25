@@ -429,14 +429,10 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
 
                     // ricavo ultima votazione
                     $votazione = $seduta->getVotazioneInProgress();
+
                     if ( !$votazione instanceof Votazione )
-                    {
-                        $votazioni = Votazione::getBySedutaID( $seduta->id() );
-                        if ( is_array( $votazioni ) && $votazioni[0] instanceof Votazione )
-                        {
-                            $votazione = $votazioni[0];
-                        }
-                    }
+                        $votazione = $seduta->getVotazioneLastClosed();
+
                     if ( $votazione instanceof Votazione )
                     {
                         $jsonArrayVotazione = $votazione->jsonSerialize();
@@ -445,13 +441,8 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
                         $data['seduta']['votazione']['short_text'] = $jsonArrayVotazione['short_text'];
                         $data['seduta']['votazione']['text'] = $jsonArrayVotazione['text'];
                         $data['seduta']['votazione']['punto_id'] = $jsonArrayVotazione['punto_id'];
-                        // ricavo timestamp di ultimo stato
-                        $lastVotazioneHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $votazione->id(), 'updateobjectstate' );
-                        if ( $lastVotazioneHistory instanceof OCEditorialStuffHistory )
-                        {
-                            $data['seduta']['votazione']['timestamp'] = $lastVotazioneHistory->attribute( 'created_time' );
-                            $data['seduta']['votazione']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastVotazioneHistory->attribute( 'created_time' ) );
-                        }
+                        $data['seduta']['votazione']['timestamp'] = $jsonArrayVotazione['timestamp'];
+                        $data['seduta']['votazione']['_timestamp_readable'] = $jsonArrayVotazione['_timestamp_readable'];
                         $data['seduta']['votazione']['user_voted'] = $votazione->userAlreadyVoted( $this->id() );
                     }
                     else
@@ -473,4 +464,5 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
 
         return $data;
     }
+
 }
