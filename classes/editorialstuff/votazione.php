@@ -282,7 +282,9 @@ class Votazione extends OCEditorialStuffPost
             'votanti' => $this->is( 'closed' ) ? $result->attribute( 'votanti_count' ) : null,
             'favorevoli' => $this->is( 'closed' ) ? $result->attribute( 'favorevoli_count' ) : null,
             'contrari' => $this->is( 'closed' ) ? $result->attribute( 'contrari_count' ) : null,
-            'astenuti' => $this->is( 'closed' ) ?$result->attribute( 'astenuti_count' ) : null
+            'astenuti' => $this->is( 'closed' ) ?$result->attribute( 'astenuti_count' ) : null,
+            'timestamp' => 0,
+            '_timestamp_readable' => 0,
         );
         $lastChangeHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $this->id(), 'updateobjectstate' );
         if ( $lastChangeHistory instanceof OCEditorialStuffHistory )
@@ -361,18 +363,6 @@ class Votazione extends OCEditorialStuffPost
         return OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $votazioneId );
     }
 
-    public static function getBySedutaID( $sedutaId )
-    {
-        return OCEditorialStuffHandler::instance( 'votazione' )->fetchItems(
-            array(
-                'filter' => array( 'submeta_seduta___id_si:' . $sedutaId ),
-                'limit' => 100,
-                'offset' => 0,
-                'sort' => array( 'modified' => 'desc' )
-            )
-        );
-    }
-
     public static function removeByID( $votazioneId )
     {
         $votazione = self::getByID( $votazioneId );
@@ -383,4 +373,8 @@ class Votazione extends OCEditorialStuffPost
         }
     }
 
+    public function onCreate()
+    {
+        //empty cache
+    }
 }
