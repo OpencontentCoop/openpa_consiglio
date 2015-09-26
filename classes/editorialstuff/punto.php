@@ -540,6 +540,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         eZContentObjectState $afterState
     )
     {
+        $this->setObjectLastModified();
+
         if ( $afterState->attribute( 'identifier' ) == 'published' )
         {
             $this->createNotificationEvent( 'publish' );

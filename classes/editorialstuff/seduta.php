@@ -206,6 +206,8 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         }
 
         $this->createUpdateConvocazione();
+
+        //empty odg cache
     }
 
     public function tabs()
@@ -848,41 +850,37 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         return null;
     }
 
-    public function getVotazioneInProgress()
+    public function getPuntoLastClosed()
     {
-        if ( $this->currentState()->attribute( 'identifier' ) == 'in_progress' )
+        $last = array();
+        foreach ( $this->odg() as $punto )
         {
-            foreach (
-                $this->votazioni(
-                    array( 'state' => 'in_progress', 'limit' => 1 )
-                ) as $votazione
-            )
+            if ( $punto->currentState()->attribute( 'identifier' ) == 'closed' )
             {
-                if ( $votazione->currentState()->attribute( 'identifier' ) == 'in_progress' )
-                {
-                    return $votazione;
-                }
+                $last[$punto->getObject()->attribute('modified')] = $punto;
             }
         }
+        ksort( $last );
+        $last = array_pop( $last );
+        return $last;
+    }
 
+    public function getVotazioneInProgress()
+    {
+        $inProgress = $this->votazioni( array( 'state' => 'in_progress',
+                                         'limit' => 1 ) );
+        if ( isset( $inProgress[0] ) )
+            return $inProgress[0];
         return null;
     }
 
     public function getVotazioneLastClosed()
     {
-        foreach (
-            $this->votazioni( array( 'state' => 'closed',
-                                     'limit' => 1,
-                                     'sort' => array( 'modified' => 'desc' ) )
-            ) as $votazione
-        )
-        {
-            if ( $votazione->currentState()->attribute( 'identifier' ) == 'closed' )
-            {
-                return $votazione;
-            }
-        }
-
+        $last = $this->votazioni( array( 'state' => 'closed',
+                                 'limit' => 1,
+                                 'sort' => array( 'meta_modified_dt' => 'desc' ) ) );
+        if ( isset( $last[0] ) )
+            return $last[0];
         return null;
     }
 
