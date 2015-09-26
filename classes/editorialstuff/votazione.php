@@ -123,10 +123,8 @@ class Votazione extends OCEditorialStuffPost
 
     public function onChangeState( eZContentObjectState $beforeState, eZContentObjectState $afterState )
     {
-        $now = time();
-        $this->getObject()->setAttribute( 'modified', $now );
-        $this->getObject()->store();
-        eZSearch::addObject( $this->getObject(), true );
+        $this->setObjectLastModified();
+        //@todo empty cache
     }
 
     public static function create( Seduta $seduta, Punto $punto = null, $shortText, $text, $type )
@@ -245,7 +243,6 @@ class Votazione extends OCEditorialStuffPost
                 'stop_votazione',
                 $this->jsonSerialize()
             );
-
         }
         else
         {
@@ -253,7 +250,7 @@ class Votazione extends OCEditorialStuffPost
         }
     }
 
-    protected function stringAttribute( $identifier, $callback = null )
+    public function stringAttribute( $identifier, $callback = null )
     {
         if ( isset( $this->dataMap[$identifier] ) )
         {
@@ -283,15 +280,15 @@ class Votazione extends OCEditorialStuffPost
             'favorevoli' => $this->is( 'closed' ) ? $result->attribute( 'favorevoli_count' ) : null,
             'contrari' => $this->is( 'closed' ) ? $result->attribute( 'contrari_count' ) : null,
             'astenuti' => $this->is( 'closed' ) ?$result->attribute( 'astenuti_count' ) : null,
-            'timestamp' => 0,
-            '_timestamp_readable' => 0,
+            'timestamp' => $this->getObject()->attribute( 'modified' ),
+            '_timestamp_readable' => date( Seduta::DATE_FORMAT, $this->getObject()->attribute( 'modified' ) )
         );
-        $lastChangeHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $this->id(), 'updateobjectstate' );
-        if ( $lastChangeHistory instanceof OCEditorialStuffHistory )
-        {
-            $data['timestamp'] = $lastChangeHistory->attribute( 'created_time' );
-            $data['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastChangeHistory->attribute( 'created_time' ) );
-        }
+//        $lastChangeHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $this->id(), 'updateobjectstate' );
+//        if ( $lastChangeHistory instanceof OCEditorialStuffHistory )
+//        {
+//            $data['timestamp'] = $lastChangeHistory->attribute( 'created_time' );
+//            $data['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastChangeHistory->attribute( 'created_time' ) );
+//        }
         return $data;
     }
 
@@ -375,6 +372,6 @@ class Votazione extends OCEditorialStuffPost
 
     public function onCreate()
     {
-        //empty cache
+        //@todo empty cache
     }
 }

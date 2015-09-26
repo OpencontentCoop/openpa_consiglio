@@ -325,6 +325,8 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         eZContentObjectState $afterState
     )
     {
+        $this->setObjectLastModified();
+
         if ( $beforeState->attribute( 'identifier' ) == 'pending'
              && $afterState->attribute( 'identifier' ) == 'published'
         )
@@ -643,20 +645,10 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                     'data_svolgimento' => $this->dataOra( self::DATE_FORMAT ),
                     'protocollo' => $this->protocollo(),
                     'stato' => $this->currentState()->attribute( 'identifier' ),
-                    'documenti' => $this->attribute( 'count_documenti' )
+                    'documenti' => $this->attribute( 'count_documenti' ),
+                    'timestamp' => $this->getObject()->attribute( 'modified' ),
+                    '_timestamp_readable' => date( Seduta::DATE_FORMAT, $this->getObject()->attribute( 'modified' ) )
                 );
-                $lastChangeHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType(
-                    $this->id(),
-                    'updateobjectstate'
-                );
-                if ( $lastChangeHistory instanceof OCEditorialStuffHistory )
-                {
-                    $data['timestamp'] = $lastChangeHistory->attribute( 'created_time' );
-                    $data['_timestamp_readable'] = date(
-                        Seduta::DATE_FORMAT,
-                        $lastChangeHistory->attribute( 'created_time' )
-                    );
-                }
 
                 return $data;
             }
@@ -874,9 +866,9 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         return null;
     }
 
-    public function getVotazioneLastClosed()
+    public function getVotazioneLastModified()
     {
-        $last = $this->votazioni( array( 'state' => 'closed',
+        $last = $this->votazioni( array( 'state' => array( 'closed', 'in_progress' ),
                                  'limit' => 1,
                                  'sort' => array( 'meta_modified_dt' => 'desc' ) ) );
         if ( isset( $last[0] ) )
