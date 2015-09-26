@@ -1572,14 +1572,16 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             'invitati' => $this->attribute( 'count_invitati' ),
             'osservazioni' => $this->attribute( 'count_osservazioni' ),
             'consenti_osservazioni' => intval( $this->dataMap['consenti_osservazioni']->toString() ),
-            'termine_osservazioni' => $this->dataMap['termine_osservazioni']->hasContent() ? strftime( '%d/%m/%Y  alle ore %H:%M', $this->dataMap['termine_osservazioni']->toString() ) : null            
+            'termine_osservazioni' => $this->dataMap['termine_osservazioni']->hasContent() ? strftime( '%d/%m/%Y  alle ore %H:%M', $this->dataMap['termine_osservazioni']->toString() ) : null,
+            'timestamp' => $this->getObject()->attribute( 'modified' ),
+            '_timestamp_readable' => date( Seduta::DATE_FORMAT, $this->getObject()->attribute( 'modified' ) )
         );
-        $lastChangeHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $this->id(), 'updateobjectstate' );
-        if ( $lastChangeHistory instanceof OCEditorialStuffHistory )
-        {
-            $data['timestamp'] = $lastChangeHistory->attribute( 'created_time' );
-            $data['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastChangeHistory->attribute( 'created_time' ) );
-        }
+//        $lastChangeHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $this->id(), 'updateobjectstate' );
+//        if ( $lastChangeHistory instanceof OCEditorialStuffHistory )
+//        {
+//            $data['timestamp'] = $lastChangeHistory->attribute( 'created_time' );
+//            $data['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastChangeHistory->attribute( 'created_time' ) );
+//        }
         return $data;
     }
 

@@ -368,14 +368,8 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
                     $data['seduta']['id'] = $seduta->id();
                     $data['seduta']['stato'] = $seduta->currentState()->attribute( 'identifier' );
                     $data['seduta']['data_svolgimento'] = $seduta->dataOra( Seduta::DATE_FORMAT );
-
-                    // ricavo timestamp di ultimo stato
-                    $lastSedutaHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $seduta->id(), 'updateobjectstate' );
-                    if ( $lastSedutaHistory instanceof OCEditorialStuffHistory )
-                    {
-                        $data['seduta']['timestamp'] = $lastSedutaHistory->attribute( 'created_time' );
-                        $data['seduta']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastSedutaHistory->attribute( 'created_time' ) );
-                    }
+                    $data['seduta']['timestamp'] = $seduta->getObject()->attribute( 'modified' );
+                    $data['seduta']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $seduta->getObject()->attribute( 'modified' ) );
 
                     $lastPresenza = OpenPAConsiglioPresenza::fetchLastByUserIDAndSedutaID( $this->id(), $seduta->id() );
                     if ( $lastPresenza instanceof OpenPAConsiglioPresenza )
@@ -400,14 +394,8 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
                         $data['seduta']['punto']['id'] = $punto->id();
                         $data['seduta']['punto']['name'] = $punto->getObject()->attribute( 'name' );
                         $data['seduta']['punto']['stato'] = $punto->currentState()->attribute( 'identifier' );
-
-                        // ricavo timestamp di ultimo stato
-                        $lastPuntoHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $punto->id(), 'updateobjectstate' );
-                        if ( $lastPuntoHistory instanceof OCEditorialStuffHistory )
-                        {
-                            $data['seduta']['punto']['timestamp'] = $lastPuntoHistory->attribute( 'created_time' );
-                            $data['seduta']['punto']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastPuntoHistory->attribute( 'created_time' ) );
-                        }
+                        $data['seduta']['punto']['timestamp'] = $punto->getObject()->attribute( 'modified' );
+                        $data['seduta']['punto']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $punto->getObject()->attribute( 'modified' ) );
                     }
                     else
                     {
@@ -415,19 +403,16 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
                     }
 
                     // ricavo ultima votazione
-                    $votazione = $seduta->getVotazioneInProgress();
-                    if ( !$votazione instanceof Votazione )
-                        $votazione = $seduta->getVotazioneLastClosed();
+                    $votazione = $seduta->getVotazioneLastModified();
                     if ( $votazione instanceof Votazione )
                     {
-                        $jsonArrayVotazione = $votazione->jsonSerialize();
-                        $data['seduta']['votazione']['id'] = $jsonArrayVotazione['id'];
-                        $data['seduta']['votazione']['stato'] = $jsonArrayVotazione['stato'];
-                        $data['seduta']['votazione']['short_text'] = $jsonArrayVotazione['short_text'];
-                        $data['seduta']['votazione']['text'] = $jsonArrayVotazione['text'];
-                        $data['seduta']['votazione']['punto_id'] = $jsonArrayVotazione['punto_id'];
-                        $data['seduta']['votazione']['timestamp'] = $jsonArrayVotazione['timestamp'];
-                        $data['seduta']['votazione']['_timestamp_readable'] = $jsonArrayVotazione['_timestamp_readable'];
+                        $data['seduta']['votazione']['id'] = $votazione->id();
+                        $data['seduta']['votazione']['stato'] = $votazione->currentState()->attribute( 'identifier' );
+                        $data['seduta']['votazione']['short_text'] = $votazione->stringAttribute( Votazione::$shortTextIdentifier );
+                        $data['seduta']['votazione']['text'] = $votazione->stringAttribute( Votazione::$textIdentifier );
+                        $data['seduta']['votazione']['punto_id'] = $votazione->stringAttribute( Votazione::$puntoIdentifier, 'intval' );
+                        $data['seduta']['votazione']['timestamp'] = $votazione->getObject()->attribute( 'modified' );
+                        $data['seduta']['votazione']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $votazione->getObject()->attribute( 'modified' ) );
                         $data['seduta']['votazione']['user_voted'] = $votazione->userAlreadyVoted( $this->id() );
                     }
                     else
