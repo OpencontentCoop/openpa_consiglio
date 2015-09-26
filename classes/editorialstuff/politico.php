@@ -392,26 +392,13 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
                     }
 
                     // ricavo punto attivo
-                    $punto = null;
-                    $puntoInProgress = $seduta->getPuntoInProgress();
-                    if ( $puntoInProgress instanceof Punto )
-                    {
-                        $punto = $puntoInProgress;
-                    }
-                    else
-                    {
-                        foreach ( $seduta->odg() as $puntoOdg )
-                        {
-                            if ( $puntoOdg->currentState()->attribute( 'identifier' ) == 'closed' )
-                            {
-                                $punto = $puntoOdg;
-                            }
-                        }
-                    }
-
+                    $punto = $seduta->getPuntoInProgress();
+                    if ( !$punto instanceof Punto )
+                        $punto = $seduta->getPuntoLastClosed();
                     if ( $punto instanceof Punto )
                     {
                         $data['seduta']['punto']['id'] = $punto->id();
+                        $data['seduta']['punto']['name'] = $punto->getObject()->attribute( 'name' );
                         $data['seduta']['punto']['stato'] = $punto->currentState()->attribute( 'identifier' );
 
                         // ricavo timestamp di ultimo stato
@@ -429,10 +416,8 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
 
                     // ricavo ultima votazione
                     $votazione = $seduta->getVotazioneInProgress();
-
                     if ( !$votazione instanceof Votazione )
                         $votazione = $seduta->getVotazioneLastClosed();
-
                     if ( $votazione instanceof Votazione )
                     {
                         $jsonArrayVotazione = $votazione->jsonSerialize();
