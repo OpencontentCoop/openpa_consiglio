@@ -42,6 +42,7 @@
                             <select class="form-control" name="FileProperties[state_identifier]" id="DocState">
                                 <option value="visibilita_allegato_seduta.consiglieri">Consiglieri</option>
                                 <option value="visibilita_allegato_seduta.referenti">Referenti</option>
+                                <option value="visibilita_allegato_seduta.pubblico">Pubblico</option>
                             </select>
                         </div>
                     </div>
