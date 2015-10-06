@@ -6,6 +6,8 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     protected $partecipanti;
 
+    protected $consiglieri;
+
     protected $percentualePresenza;
 
     protected $odg = array();
@@ -29,6 +31,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $attributes[] = 'documenti';
         $attributes[] = 'presenze';
         $attributes[] = 'partecipanti';
+        $attributes[] = 'consiglieri';
         $attributes[] = 'registro_presenze';
         $attributes[] = 'votazioni';
         $attributes[] = 'verbale';
@@ -79,6 +82,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         if ( $property == 'partecipanti' )
         {
             return $this->partecipanti();
+        }
+
+        if ( $property == 'consiglieri' )
+        {
+            return $this->consiglieri();
         }
 
         if ( $property == 'registro_presenze' )
@@ -702,6 +710,38 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         }
 
         return $this->partecipanti;
+    }
+
+    /**
+     * @param bool $asObject
+     *
+     * @return OCEditorialStuffPostInterface[]|int[]
+     */
+    public function consiglieri( $asObject = true )
+    {
+        if ( $this->consiglieri === null )
+        {
+            $this->consiglieri = OCEditorialStuffHandler::instance( 'politico' )->fetchItems(
+                array(
+                    'limit' => 100,
+                    'offset' => 0,
+                    'sort' => array( 'attr_cognome_s' => 'asc' )
+                )
+            );
+        }
+
+        if ( !$asObject )
+        {
+            $ids = array();
+            foreach ( $this->consiglieri as $consigliere )
+            {
+                $ids[] = $consigliere->id();
+            }
+
+            return $ids;
+        }
+
+        return $this->consiglieri;
     }
 
     public function registroPresenze()
