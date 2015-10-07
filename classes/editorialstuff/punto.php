@@ -1040,7 +1040,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $move = eZContentObjectTreeNodeOperations::move( $this->getObject()->attribute( 'main_node_id' ), $seduta->getObject()->attribute( 'main_node_id' ) );
 
         eZDebug::writeNotice( "Creo evento", __METHOD__ );
-        $this->internalCreateNotificationEvent( 'move' );
+        $this->createNotificationEvent( 'move' );
 
         eZDebug::writeNotice( "Aggiorno seduta {$currentSeduta->id()}", __METHOD__ );
         $currentSeduta->reorderOdg();
