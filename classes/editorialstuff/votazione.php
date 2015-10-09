@@ -296,7 +296,7 @@ class Votazione extends OCEditorialStuffPost
     {
         if ( $this->currentState()->attribute( 'identifier' ) != 'in_progress' )
         {
-            throw new ConsiglioApiException( "La votazione non e' in corso", ConsiglioApiException::VOTAZIONE_NOT_OPEN, array( 'stato' => $this->currentState()->attribute( 'identifier' ) ) );
+            throw new ConsiglioApiException( "La votazione non e' in corso", ConsiglioApiException::VOTAZIONE_NOT_OPEN, null, array( 'stato' => $this->currentState()->attribute( 'identifier' ) ) );
         }
         if ( $userId === null )
         {
@@ -351,7 +351,7 @@ class Votazione extends OCEditorialStuffPost
 
         if ( !$this->is( 'in_progress' ) )
         {
-            throw new ConsiglioApiException( "La votazione non e' aperta", ConsiglioApiException::VOTAZIONE_NOT_OPEN, array( 'stato' => $this->currentState()->attribute( 'identifier' ) ) );
+            throw new ConsiglioApiException( "La votazione non e' aperta", ConsiglioApiException::VOTAZIONE_NOT_OPEN, null, array( 'stato' => $this->currentState()->attribute( 'identifier' ) ) );
         }
     }
 
