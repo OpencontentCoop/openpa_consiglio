@@ -822,7 +822,12 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         //check valid in progress Seduta
         if ( !$this->is( 'in_progress' ) )
         {
-            throw new Exception( 'Seduta non in corso' );
+            if ( $this->is( 'sent' ) )
+                throw new Exception( 'Seduta non ancora in corso' );
+            elseif ( $this->is( 'closed' ) )
+                throw new Exception( 'Seduta conclusa' );
+            else                
+                throw new Exception( 'Seduta non in corso' );
         }
     }
 
