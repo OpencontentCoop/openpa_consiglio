@@ -88,7 +88,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
     {
         if ( !$seduta instanceof Seduta )
         {
-            throw new Exception( "Non posso registrare una presenza senza una Seduta valida" );
+            throw new ConsiglioApiException( "Non posso registrare una presenza senza una Seduta valida", ConsiglioApiException::PRESENZA_NOT_VALID_SEDUTA );
         }
 
         $createdTime = time();

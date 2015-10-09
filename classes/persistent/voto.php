@@ -101,7 +101,7 @@ class OpenPAConsiglioVoto extends eZPersistentObject
         );
     }
 
-    public static function userAlreadyVoted( Votazione $votazione, $userId )
+    public static function userAlreadyVoted( Votazione $votazione, $userId, $returnBool = true )
     {
         $row = array(
             'user_id' => $userId,
@@ -114,19 +114,22 @@ class OpenPAConsiglioVoto extends eZPersistentObject
             $row
         );
 
-        return $alreadyExists instanceof OpenPAConsiglioVoto;
+        if ( $returnBool )
+            return $alreadyExists instanceof OpenPAConsiglioVoto;
+        else
+            return $alreadyExists;
     }
 
     public static function create( Seduta $seduta, Votazione $votazione, $value, $userId = null )
     {
         if ( !$seduta instanceof Seduta )
         {
-            throw new Exception( "Non posso votare senza una Seduta valida" );
+            throw new ConsiglioApiException( "Non posso votare senza una Seduta valida", ConsiglioApiException::NOT_FOUND );
         }
 
         if ( !$votazione instanceof Votazione )
         {
-            throw new Exception( "Non posso votare senza una Votazione valida" );
+            throw new ConsiglioApiException( "Non posso votare senza una Votazione valida", ConsiglioApiException::NOT_FOUND );
         }
 
         $createdTime = time();
@@ -141,15 +144,24 @@ class OpenPAConsiglioVoto extends eZPersistentObject
             'seduta_id' => $seduta->id(),
             'votazione_id' => $votazione->id()            
         );
-        
-        if ( self::userAlreadyVoted( $votazione, $userId ) )
+
+        $alreadyExists = self::userAlreadyVoted( $votazione, $userId, false );
+        if ( $alreadyExists instanceof OpenPAConsiglioVoto )
         {
-            throw new Exception( "Esiste gia' un voto per user {$userId} nella votazione {$seduta->id()} della seduta {$votazione->id() }" );
+            throw new ConsiglioApiException(
+                "Esiste gia' un voto per user {$userId} nella votazione {$seduta->id()} della seduta {$votazione->id() }",
+                ConsiglioApiException::VOTO_NOT_ALLOWED,
+                null,
+                array(
+                    'user_voted' => true,
+                    'vote_value' => $alreadyExists->attribute( 'value' )
+                )
+            );
         }
 
         if ( trim( $value ) == '' )
         {
-            throw new Exception( "Valore del voto ($value) non valido" );
+            throw new ConsiglioApiException( "Valore del voto ($value) non valido", ConsiglioApiException::VOTO_NOT_VALID );
         }
         $presenza = OpenPAConsiglioPresenza::getUserInOutInSeduta( $seduta, $userId );
         $anomaly =  $presenza->attribute( 'is_in' ) == false;

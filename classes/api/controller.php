@@ -3,400 +3,544 @@
 class ConsiglioApiController extends ezpRestMvcController
 {
 
+    protected function getErrorResult( Exception $exception )
+    {
+        if ( $exception instanceof ConsiglioApiException )
+        {
+            $result = new ezcMvcResult;
+            $result->variables['message'] = $exception->getMessage();
+            $result->status = new ConsiglioApiHttpErrorResponse( ezpHttpResponseCodes::SERVER_ERROR, $exception->getMessage(), $exception->getCode(), $exception->getErrorDetails() );
+            return $result;
+        }
+
+        $result = new ezcMvcResult;
+        $result->variables['message'] = $exception->getMessage();
+        $result->status = new ConsiglioApiHttpErrorResponse( ezpHttpResponseCodes::SERVER_ERROR, $exception->getMessage(), $exception->getCode() );
+        return $result;
+    }
+
     public function doAuth()
     {
-        $result = new ezpRestMvcResult();
-        $login = isset( $this->request->get['login'] ) ? $this->request->get['login'] : null;        
-        $password = isset( $this->request->get['password'] ) ? $this->request->get['password'] : null;        
-        $user = eZUser::loginUser( $login, $password );
-        if ( !$user instanceof eZUser )
+        try
         {
-            throw new Exception( "Authentication failed" );
-        }        
-        $result->variables = array(
-            'result' => 'success',
-            'user_id' => $user->id()
-        );
-        return $result;
+            $result = new ezpRestMvcResult();
+            $login = isset( $this->request->get['login'] ) ? $this->request->get['login'] : null;
+            $password = isset( $this->request->get['password'] ) ? $this->request->get['password'] : null;
+            $user = eZUser::loginUser( $login, $password );
+            if ( !$user instanceof eZUser )
+            {
+                throw new ConsiglioApiException( "Authentication failed", ConsiglioApiException::AUTHENTICATION );
+            }
+            $result->variables = array(
+                'result' => 'success',
+                'user_id' => $user->id()
+            );
+            return $result;
+        }
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
     
     public function doLoadSedutaList()
     {
-        $parameters = array(
-            'limit' => 20,
-            'offset' => ( isset( $this->request->get['offset'] ) and is_numeric( $this->request->get['offset'] ) ) ? $this->request->get['offset'] : 0,
-            'query'  => ( isset( $this->request->get['query'] ) and is_string( $this->request->get['query'] ) ) ? $this->request->get['query'] : false,
-            'state' => ( isset( $this->request->get['state'] ) and is_numeric( $this->request->get['state'] ) ) ? $this->request->get['state'] : false,
-            'interval'  => ( isset( $this->request->get['interval'] ) and is_string( $this->request->get['interval'] ) ) ? $this->request->get['interval'] : false,
-            'tag'  => ( isset( $this->request->get['tag'] ) and is_string( $this->request->get['tag'] ) ) ? $this->request->get['tag'] : false
-        );
-        $sedute = OCEditorialStuffHandler::instance( 'seduta' )->fetchItems( $parameters );
-        $result = new ezpRestMvcResult();
-        /** @var Seduta $seduta */
-        foreach( $sedute as $seduta )
+        try
         {
-            if ($seduta->isVisibleByApp())
+            $parameters = array(
+                'limit' => 20,
+                'offset' => ( isset( $this->request->get['offset'] ) and is_numeric( $this->request->get['offset'] ) ) ? $this->request->get['offset'] : 0,
+                'query'  => ( isset( $this->request->get['query'] ) and is_string( $this->request->get['query'] ) ) ? $this->request->get['query'] : false,
+                'state' => ( isset( $this->request->get['state'] ) and is_numeric( $this->request->get['state'] ) ) ? $this->request->get['state'] : false,
+                'interval'  => ( isset( $this->request->get['interval'] ) and is_string( $this->request->get['interval'] ) ) ? $this->request->get['interval'] : false,
+                'tag'  => ( isset( $this->request->get['tag'] ) and is_string( $this->request->get['tag'] ) ) ? $this->request->get['tag'] : false
+            );
+            $sedute = OCEditorialStuffHandler::instance( 'seduta' )->fetchItems( $parameters );
+            $result = new ezpRestMvcResult();
+            /** @var Seduta $seduta */
+            foreach( $sedute as $seduta )
             {
-                $seduta = $seduta->jsonSerialize();
-                if ( $seduta )
+                if ($seduta->isVisibleByApp())
                 {
-                    $result->variables[] = $seduta;
+                    $seduta = $seduta->jsonSerialize();
+                    if ( $seduta )
+                    {
+                        $result->variables[] = $seduta;
+                    }
                 }
             }
+            return $result;
         }
-        return $result;
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     public function doLoadSeduta()
     {
-        $result = new ezpRestMvcResult();
-        $result->variables = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id )->jsonSerialize();
-        return $result;
-    }
+        try
+        {
+            $result = new ezpRestMvcResult();
+            $result->variables = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id )->jsonSerialize();
 
-//    public function doLoadSedutaInfo()
-//    {
-//        $result = new ezpRestMvcResult();
-//        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
-//
-//        $result->variables['referenti'] = $seduta->attribute( 'referenti' );
-//        foreach( $seduta->attribute( 'referenti' ) as $referente )
-//        {
-//            $result->variables['referenti'][] = $referente;
-//        }
-//        return $result;
-//    }
+            return $result;
+        }
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
+    }
 
     public function doLoadSedutaDocumenti()
     {
-        $result = new ezpRestMvcResult();
-        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
-
-        foreach( $seduta->attribute( 'documenti' ) as $documento )
+        try
         {
-            /** @var Allegato $documento */
-            $result->variables[] = $documento->jsonSerialize();
+            $result = new ezpRestMvcResult();
+            $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
+
+            foreach( $seduta->attribute( 'documenti' ) as $documento )
+            {
+                /** @var Allegato $documento */
+                $result->variables[] = $documento->jsonSerialize();
+            }
+            return $result;
         }
-        return $result;
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     public function doLoadSedutaOdg()
     {
-        $result = new ezpRestMvcResult();
-        /** @var Punto[] $odg */
-        $odg = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id )->attribute( 'odg' );
-        /** @var Punto $punto */
-        foreach( $odg as $punto )
+        try
         {
-            if ( $punto->isVisibleByApp() )
+            $result = new ezpRestMvcResult();
+            /** @var Punto[] $odg */
+            $odg = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id )->attribute( 'odg' );
+            /** @var Punto $punto */
+            foreach( $odg as $punto )
             {
-                $validPunto = $punto->jsonSerialize();
-                if ( $validPunto )
+                if ( $punto->isVisibleByApp() )
                 {
-                    $result->variables[] = $validPunto;
+                    $validPunto = $punto->jsonSerialize();
+                    if ( $validPunto )
+                    {
+                        $result->variables[] = $validPunto;
+                    }
                 }
             }
+            return $result;
         }
-        return $result;
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     public function doLoadSedutaPresenze()
     {
-        $result = new ezpRestMvcResult();
+        try
+        {
+            $result = new ezpRestMvcResult();
 
-        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
-        if ( $seduta instanceof Seduta )
-        {
-            /** @var OpenPAConsiglioPresenza[] $presenze */
-            $startTime = ( isset( $this->request->get['start_time'] ) and is_numeric( $this->request->get['start_time'] ) ) ? $this->request->get['start_time'] : null;
-            $inOut = isset( $this->request->get['in_out'] ) ? $this->request->get['in_out'] : null;
-            $type = ( isset( $this->request->get['type'] ) and is_string( $this->request->get['type'] ) ) ? $this->request->get['type'] : null;
-            $userId = ( isset( $this->request->get['user_id'] ) and is_numeric( $this->request->get['user_id'] ) ) ? $this->request->get['user_id'] : null;
-            $presenze = $seduta->presenze( $startTime, $inOut, $type, $userId );
-            foreach ( $presenze as $presenza )
+            $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
+            if ( $seduta instanceof Seduta )
             {
-                $validPresenza = $presenza->jsonSerialize();
-                if ( $validPresenza )
-                {
-                    $result->variables[] = $validPresenza;
-                }
-            }
-        }
-        return $result;
-    }
-
-    public function doLoadSedutaPresenzeUtente()
-    {
-        $result = new ezpRestMvcResult();
-        if ( !is_numeric( $this->UserId ) )
-        {
-            throw new Exception( "UserId not found" );
-        }
-        $data = array();
-        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
-        if ( $seduta instanceof Seduta )
-        {
-            /** @var OpenPAConsiglioPresenza[] $presenze */
-            foreach( array( 'checkin', 'beacons', 'manual' ) as $type )
-            {
-                $data[$type] = null;
-                $presenze = OpenPAConsiglioPresenza::fetchObjectList(
-                    OpenPAConsiglioPresenza::definition(),
-                    null,
-                    array(
-                        'seduta_id' => $seduta->id(),
-                        'user_id' => $this->UserId,
-                        'type' => $type
-                    ),
-                    array( 'created_time' => 'desc' ),
-                    array( 'limit' => 1, 'offset' => 0 )
-                );
+                /** @var OpenPAConsiglioPresenza[] $presenze */
+                $startTime = ( isset( $this->request->get['start_time'] ) and is_numeric( $this->request->get['start_time'] ) ) ? $this->request->get['start_time'] : null;
+                $inOut = isset( $this->request->get['in_out'] ) ? $this->request->get['in_out'] : null;
+                $type = ( isset( $this->request->get['type'] ) and is_string( $this->request->get['type'] ) ) ? $this->request->get['type'] : null;
+                $userId = ( isset( $this->request->get['user_id'] ) and is_numeric( $this->request->get['user_id'] ) ) ? $this->request->get['user_id'] : null;
+                $presenze = $seduta->presenze( $startTime, $inOut, $type, $userId );
                 foreach ( $presenze as $presenza )
                 {
                     $validPresenza = $presenza->jsonSerialize();
                     if ( $validPresenza )
                     {
-                        $data[$type] = $validPresenza;
+                        $result->variables[] = $validPresenza;
                     }
                 }
             }
+            return $result;
         }
-        $result->variables = $data;
-        return $result;
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
+    }
+
+    public function doLoadSedutaPresenzeUtente()
+    {
+        try
+        {
+            $result = new ezpRestMvcResult();
+            if ( !is_numeric( $this->UserId ) )
+            {
+                throw new ConsiglioApiException( "UserId not found", ConsiglioApiException::NOT_FOUND );
+            }
+            $data = array();
+            $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
+            if ( $seduta instanceof Seduta )
+            {
+                /** @var OpenPAConsiglioPresenza[] $presenze */
+                foreach( array( 'checkin', 'beacons', 'manual' ) as $type )
+                {
+                    $data[$type] = null;
+                    $presenze = OpenPAConsiglioPresenza::fetchObjectList(
+                        OpenPAConsiglioPresenza::definition(),
+                        null,
+                        array(
+                            'seduta_id' => $seduta->id(),
+                            'user_id' => $this->UserId,
+                            'type' => $type
+                        ),
+                        array( 'created_time' => 'desc' ),
+                        array( 'limit' => 1, 'offset' => 0 )
+                    );
+                    foreach ( $presenze as $presenza )
+                    {
+                        $validPresenza = $presenza->jsonSerialize();
+                        if ( $validPresenza )
+                        {
+                            $data[$type] = $validPresenza;
+                        }
+                    }
+                }
+            }
+            $result->variables = $data;
+            return $result;
+        }
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     public function doLoadSedutaVotazioni()
     {
-        $result = new ezpRestMvcResult();
-
-        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
-        if ( $seduta instanceof Seduta )
+        try
         {
-            $votazioni = $seduta->votazioni();
-            foreach ( $votazioni as $votazione )
+            $result = new ezpRestMvcResult();
+
+            $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
+            if ( $seduta instanceof Seduta )
             {
-                $validVotazione = $votazione->jsonSerialize();
-                if ( $validVotazione )
+                $votazioni = $seduta->votazioni();
+                foreach ( $votazioni as $votazione )
                 {
-                    $result->variables[] = $validVotazione;
+                    $validVotazione = $votazione->jsonSerialize();
+                    if ( $validVotazione )
+                    {
+                        $result->variables[] = $validVotazione;
+                    }
                 }
             }
+            return $result;
         }
-        return $result;
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     public function doAddPresenzaSeduta()
     {
-        $result = new ezpRestMvcResult();
-        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
-        if ( !$seduta instanceof Seduta )
+        try
         {
-            throw new Exception( "Post {$this->Id} is not a valid Seduta" );
+            $result = new ezpRestMvcResult();
+            $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $this->Id );
+            if ( !$seduta instanceof Seduta )
+            {
+                throw new ConsiglioApiException( "Post {$this->Id} is not a valid Seduta", ConsiglioApiException::NOT_VALID );
+            }
+            $inOut = isset( $this->request->post['in_out'] ) ? $this->request->post['in_out'] : null;
+            $type = isset( $this->request->post['type'] ) ? $this->request->post['type'] : null;
+            $userId = isset( $this->request->post['user_id'] ) ? $this->request->post['user_id'] : eZUser::currentUserID();
+            $presenza = $seduta->addPresenza( $inOut, $type, $userId );
+            //$result->variables['result'] = 'success';
+            $result->variables['presenza'] = $presenza->jsonSerialize();
+            return $result;
         }
-        $inOut = isset( $this->request->post['in_out'] ) ? $this->request->post['in_out'] : null;
-        $type = isset( $this->request->post['type'] ) ? $this->request->post['type'] : null;
-        $userId = isset( $this->request->post['user_id'] ) ? $this->request->post['user_id'] : eZUser::currentUserID();
-        $presenza = $seduta->addPresenza( $inOut, $type, $userId );
-        //$result->variables['result'] = 'success';
-        $result->variables['presenza'] = $presenza->jsonSerialize();
-        return $result;
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     public function doLoadVotazione()
     {
-        $result = new ezpRestMvcResult();
-        $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $this->Id );
-        if ( $votazione instanceof Votazione )
-            $result->variables = $votazione->jsonSerialize();
-        return $result;
+        try
+        {
+            $result = new ezpRestMvcResult();
+            $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $this->Id );
+            if ( $votazione instanceof Votazione )
+                $result->variables = $votazione->jsonSerialize();
+            return $result;
+        }
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
     
     public function doLoadVotazioneUserStatus()
     {
-        $result = new ezpRestMvcResult();
-        $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $this->Id );
-        if ( $votazione instanceof Votazione )
+        try
         {
-            $values = array(                
-                'user_id' => intval( $this->UserId ),
-                'votazione_id' => $votazione->id()
-            );
-            
-            if ( $votazione->is( 'in_progress' ) )
+            $result = new ezpRestMvcResult();
+            $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $this->Id );
+            if ( $votazione instanceof Votazione )
             {
-                //@todo
-                $data = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
-                    null,
-                    array(
-                        'votazione_id' => $votazione->id(),
-                        'user_id' => intval( $this->UserId ),
-                    ),
-                    false,
-                    null
+                $values = array(
+                    'user_id' => intval( $this->UserId ),
+                    'votazione_id' => $votazione->id()
                 );
-                $values['result'] = count( $data ) > 0 ? 'done' : 'waiting';
+
+                if ( $votazione->is( 'in_progress' ) )
+                {
+                    //@todo
+                    $data = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
+                        null,
+                        array(
+                            'votazione_id' => $votazione->id(),
+                            'user_id' => intval( $this->UserId ),
+                        ),
+                        false,
+                        null
+                    );
+                    $values['result'] = count( $data ) > 0 ? 'done' : 'waiting';
+                }
+                else
+                {
+                    $values['result'] = $votazione->currentState()->attribute( 'identifier' );
+                }
+                $result->variables = $values;
             }
             else
             {
-                $values['result'] = $votazione->currentState()->attribute( 'identifier' );
+                throw new ConsiglioApiException( "{$this->Id} is not a valid Votazione", ConsiglioApiException::NOT_VALID );
             }
-            $result->variables = $values;
+            return $result;
         }
-        else
+        catch( Exception $e )
         {
-            throw new Exception( "{$this->Id} is not a valid Votazione" );
+            return $this->getErrorResult( $e );
         }
-        return $result;
     }
 
     public function doAddVotoVotazione()
     {
-        $result = new ezpRestMvcResult();
-        $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $this->Id );
-        if ( !$votazione instanceof Votazione )
+        try
         {
-            throw new Exception( "Post {$this->Id} is not a valid Votazione" );
+            $result = new ezpRestMvcResult();
+            $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $this->Id );
+            if ( !$votazione instanceof Votazione )
+            {
+                throw new ConsiglioApiException( "Post {$this->Id} is not a valid Votazione", ConsiglioApiException::NOT_VALID );
+            }
+            $value = isset( $this->request->post['value'] ) ? $this->request->post['value'] : null;
+            $userId = isset( $this->request->post['user_id'] ) ? $this->request->post['user_id'] : eZUser::currentUserID();
+            $voto = $votazione->addVoto( $value, $userId );
+            $result->variables['result'] = 'success';
+            $result->variables['voto_id'] = $voto->attribute( 'id' );
+            return $result;
         }
-        $value = isset( $this->request->post['value'] ) ? $this->request->post['value'] : null;
-        $userId = isset( $this->request->post['user_id'] ) ? $this->request->post['user_id'] : eZUser::currentUserID();
-        $voto = $votazione->addVoto( $value, $userId );
-        $result->variables['result'] = 'success';
-        $result->variables['voto_id'] = $voto->attribute( 'id' );
-        return $result;
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     public function doLoadPresenza()
     {
-        $result = new ezpRestMvcResult();
-        $presenza = OpenPAConsiglioPresenza::fetch( $this->Id );
-        if ( $presenza instanceof OpenPAConsiglioPresenza )
-            $result->variables = $presenza->jsonSerialize();
-        return $result;
+        try
+        {
+            $result = new ezpRestMvcResult();
+            $presenza = OpenPAConsiglioPresenza::fetch( $this->Id );
+            if ( $presenza instanceof OpenPAConsiglioPresenza )
+                $result->variables = $presenza->jsonSerialize();
+            return $result;
+        }
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     public function doLoadPunto()
     {
-        $result = new ezpRestMvcResult();
-        $result->variables = OCEditorialStuffHandler::instance( 'punto' )->fetchByObjectId( $this->Id )->jsonSerialize();
-        return $result;
+        try
+        {
+            $result = new ezpRestMvcResult();
+            $result->variables = OCEditorialStuffHandler::instance( 'punto' )->fetchByObjectId( $this->Id )->jsonSerialize();
+            return $result;
+        }
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     public function doLoadPuntoDocumenti()
     {
-        $result = new ezpRestMvcResult();
-        $punto = OCEditorialStuffHandler::instance( 'punto' )->fetchByObjectId( $this->Id );
-
-        foreach( $punto->attribute( 'documenti' ) as $documento )
+        try
         {
-            /** @var Allegato $documento */
-            $result->variables[] = $documento->jsonSerialize();
+            $result = new ezpRestMvcResult();
+            $punto = OCEditorialStuffHandler::instance( 'punto' )->fetchByObjectId( $this->Id );
+
+            foreach( $punto->attribute( 'documenti' ) as $documento )
+            {
+                /** @var Allegato $documento */
+                $result->variables[] = $documento->jsonSerialize();
+            }
+            return $result;
         }
-        return $result;
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     // @todo
     public function doLoadPuntoOsservazioni()
     {
-        $result = new ezpRestMvcResult();
-        $punto = OCEditorialStuffHandler::instance( 'punto' )->fetchByObjectId( $this->Id );
-        foreach( $punto->attribute( 'osservazioni' ) as $osservazione )
+        try
         {
-            /** @var Osservazione $osservazione */
-            $result->variables[] = $osservazione->jsonSerialize();
+            $result = new ezpRestMvcResult();
+            $punto = OCEditorialStuffHandler::instance( 'punto' )->fetchByObjectId( $this->Id );
+            foreach( $punto->attribute( 'osservazioni' ) as $osservazione )
+            {
+                /** @var Osservazione $osservazione */
+                $result->variables[] = $osservazione->jsonSerialize();
+            }
+            return $result;
         }
-        return $result;
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     public function doLoadPuntoVotazioni()
     {
-        $result = new ezpRestMvcResult();
-
-        $punto = OCEditorialStuffHandler::instance( 'punto' )->fetchByObjectId( $this->Id );
-        if ( $punto instanceof Punto )
+        try
         {
-            $votazioni = $punto->votazioni();
-            foreach ( $votazioni as $votazione )
+            $result = new ezpRestMvcResult();
+
+            $punto = OCEditorialStuffHandler::instance( 'punto' )->fetchByObjectId( $this->Id );
+            if ( $punto instanceof Punto )
             {
-                $validVotazione = $votazione->jsonSerialize();
-                if ( $validVotazione )
+                $votazioni = $punto->votazioni();
+                foreach ( $votazioni as $votazione )
                 {
-                    $result->variables[] = $validVotazione;
+                    $validVotazione = $votazione->jsonSerialize();
+                    if ( $validVotazione )
+                    {
+                        $result->variables[] = $validVotazione;
+                    }
                 }
             }
+            return $result;
         }
-        return $result;
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     public function doLoadAllegato()
     {
-        $result = new ezpRestMvcResult();
-        $allegato = OCEditorialStuffHandler::instance( 'allegati_seduta' )->fetchByObjectId( $this->Id );
-        if ( $allegato instanceof Allegato )
-            $result->variables = $allegato->jsonSerialize();
-        return $result;
+        try
+        {
+            $result = new ezpRestMvcResult();
+            $allegato = OCEditorialStuffHandler::instance( 'allegati_seduta' )->fetchByObjectId( $this->Id );
+            if ( $allegato instanceof Allegato )
+                $result->variables = $allegato->jsonSerialize();
+            return $result;
+        }
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     public function doDownloadAllegato()
     {
-        $allegato = OCEditorialStuffHandler::instance( 'allegati_seduta' )->fetchByObjectId( $this->Id );
-        $result = false;
-        if ( $allegato instanceof Allegato )
+        try
         {
-            $fileHandler = eZBinaryFileHandler::instance();
-            $attributeFile = $allegato->attributeFile() ;
-            ob_start();
-            $result = $fileHandler->handleDownload( $allegato->getObject(), $attributeFile, eZBinaryFileHandler::TYPE_FILE );
+            $allegato = OCEditorialStuffHandler::instance( 'allegati_seduta' )->fetchByObjectId( $this->Id );
+            $result = false;
+            if ( $allegato instanceof Allegato )
+            {
+                $fileHandler = eZBinaryFileHandler::instance();
+                $attributeFile = $allegato->attributeFile() ;
+                ob_start();
+                $result = $fileHandler->handleDownload( $allegato->getObject(), $attributeFile, eZBinaryFileHandler::TYPE_FILE );
+            }
+            if ( $result == eZBinaryFileHandler::RESULT_UNAVAILABLE )
+            {
+                throw new ConsiglioApiException( "The specified file could not be found.", ConsiglioApiException::NOT_FOUND );
+            }
         }
-        if ( $result == eZBinaryFileHandler::RESULT_UNAVAILABLE )
+        catch( Exception $e )
         {
-            throw new Exception( "The specified file could not be found." );
+            return $this->getErrorResult( $e );
         }
     }
 
     public function doLoadUtente()
     {
-        $result = new ezpRestMvcResult();
-        $object = eZContentObject::fetch( $this->Id );
-
-        if ( $object instanceof eZContentObject )
+        try
         {
+            $result = new ezpRestMvcResult();
+            $object = eZContentObject::fetch( $this->Id );
 
-            $instances = OCEditorialStuffHandler::instances();
-            if (array_key_exists($object->attribute( 'class_identifier' ), $instances))
+            if ( $object instanceof eZContentObject )
             {
-                $user = OCEditorialStuffHandler::instance( $object->attribute( 'class_identifier' ) )->fetchByObjectId( $this->Id );
-                $result->variables = $user->jsonSerialize();
+
+                $instances = OCEditorialStuffHandler::instances();
+                if (array_key_exists($object->attribute( 'class_identifier' ), $instances))
+                {
+                    $user = OCEditorialStuffHandler::instance( $object->attribute( 'class_identifier' ) )->fetchByObjectId( $this->Id );
+                    $result->variables = $user->jsonSerialize();
+                }
             }
+            return $result;
         }
-        return $result;
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 
     public function doLoadUtenteStatoPerSeduta()
     {
-        $result = new ezpRestMvcResult();
-        $object = eZContentObject::fetch( $this->Id );
-
-        if ( $object instanceof eZContentObject )
+        try
         {
+            $result = new ezpRestMvcResult();
+            $object = eZContentObject::fetch( $this->Id );
 
-            $instances = OCEditorialStuffHandler::instances();
-            if (array_key_exists($object->attribute( 'class_identifier' ), $instances))
+            if ( $object instanceof eZContentObject )
             {
-                $user = OCEditorialStuffHandler::instance( $object->attribute( 'class_identifier' ) )->fetchByObjectId( $this->Id );
-                if ( $user instanceof Politico )
+
+                $instances = OCEditorialStuffHandler::instances();
+                if (array_key_exists($object->attribute( 'class_identifier' ), $instances))
                 {
-                    $result->variables = $user->lastData();
-                }
-                else
-                {
-                    throw new Exception( "Politico {$this->Id} non trovato" );
+                    $user = OCEditorialStuffHandler::instance( $object->attribute( 'class_identifier' ) )->fetchByObjectId( $this->Id );
+                    if ( $user instanceof Politico )
+                    {
+                        $result->variables = $user->lastData();
+                        return $result;
+                    }
                 }
             }
-            else
-            {
-                throw new Exception( "Politico {$this->Id} non trovato" );
-            }
+            throw new ConsiglioApiException( "Politico {$this->Id} non trovato", ConsiglioApiException::NOT_FOUND );
         }
-        return $result;
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
     }
 }

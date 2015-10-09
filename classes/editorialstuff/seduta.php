@@ -786,12 +786,12 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     {
         if ( $inOut === null )
         {
-            throw new Exception( "Parametro in_out non trovato" );
+            throw new ConsiglioApiException( "Parametro in_out non trovato", ConsiglioApiException::PRESENZA_NOT_VALID_INOUT_PARAMETER );
         }
 
         if ( $type === null )
         {
-            throw new Exception( "Parametro type non trovato" );
+            throw new ConsiglioApiException( "Parametro type non trovato", ConsiglioApiException::PRESENZA_NOT_VALID_TYPE_PARAMETER );
         }
 
         if ( $userId === null )
@@ -834,7 +834,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     {
         if ( !in_array( $userId, $this->partecipanti( false ) ) )
         {
-            throw new Exception( 'Politico non abilitato a presiedere in questa seduta' );
+            throw new ConsiglioApiException( 'Politico non abilitato a presiedere in questa seduta', ConsiglioApiException::POLITICO_NOT_ALLOWED );
         }
 
         //check $userId: se non è un politico viene sollevata eccezione
@@ -844,7 +844,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         }
         catch ( Exception $e )
         {
-            throw new Exception( 'Politico non trovato' );
+            throw new ConsiglioApiException( 'Politico non trovato', ConsiglioApiException::POLITICO_NOT_FOUND );
         }
 
         //check data ora seduta
@@ -863,11 +863,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         if ( !$this->is( 'in_progress' ) )
         {
             if ( $this->is( 'sent' ) )
-                throw new Exception( 'Seduta non ancora in corso' );
+                throw new ConsiglioApiException( 'Seduta non ancora in corso', ConsiglioApiException::SEDUTA_NOT_IN_PROGRESS );
             elseif ( $this->is( 'closed' ) )
-                throw new Exception( 'Seduta conclusa' );
+                throw new ConsiglioApiException( 'Seduta conclusa', ConsiglioApiException::SEDUTA_CLOSED );
             else                
-                throw new Exception( 'Seduta non in corso' );
+                throw new ConsiglioApiException( 'Seduta non in corso', ConsiglioApiException::SEDUTA_NOT_SCHEDULED );
         }
     }
 

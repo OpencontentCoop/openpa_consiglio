@@ -127,7 +127,7 @@ elseif ( $action )
                 $votazioneInProgress = $seduta->getVotazioneInProgress();
                 if ( $votazioneInProgress !== null )
                 {
-                    throw new Exception( "Una votazione è già aperta" );
+                    throw new ConsiglioApiException( "Una votazione è già aperta", ConsiglioApiException::VOTAZIONE_ALREADY_OPEN );
                 }
                 $idVotazione = $http->postVariable( 'idVotazione' );
                 /** @var Votazione $votazione */
@@ -140,12 +140,12 @@ elseif ( $action )
                 $votazioneInProgress = $seduta->getVotazioneInProgress();
                 if ( $votazioneInProgress === null )
                 {
-                    throw new Exception( "Non esistono votazioni aperte" );
+                    throw new ConsiglioApiException( "Non esistono votazioni aperte", ConsiglioApiException::VOTAZIONE_OPEN_NOT_FOUND );
                 }
                 $idVotazione = $http->postVariable( 'idVotazione' );
                 if ( $idVotazione != $votazioneInProgress->id() )
                 {
-                    throw new Exception( "Si sta cercando di chiudere una votazione diversa da quella attualmente aperta" );
+                    throw new ConsiglioApiException( "Si sta cercando di chiudere una votazione diversa da quella attualmente aperta", ConsiglioApiException::VOTAZIONE_TRY_CLOSE_NOT_OPEN );
                 }
                 $votazioneInProgress->stop();
             } break;
@@ -190,7 +190,7 @@ elseif ( $action )
             } break;
 
             default:
-                throw new Exception( "Richiesta non valida" );
+                throw new ConsiglioApiException( "Richiesta non valida", ConsiglioApiException::NOT_VALID );
         }
     }
     catch( Exception $e )

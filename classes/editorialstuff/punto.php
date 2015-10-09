@@ -1608,11 +1608,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 }
                 else
                 {
-                    throw new Exception( 'Il punto ' . $puntoInProgress->getObject()->attribute( 'name' ) . ' è in corso' );
+                    throw new ConsiglioApiException( 'Il punto ' . $puntoInProgress->getObject()->attribute( 'name' ) . ' è in corso', ConsiglioApiException::PUNTO_ALREADY_OPEN );
                 }
             }
         }
-        throw new Exception( 'Seduta in corso non trovata' );
+        throw new ConsiglioApiException( 'Seduta in corso non trovata', ConsiglioApiException::NOT_FOUND );
     }
 
     public function stop()

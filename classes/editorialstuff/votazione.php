@@ -131,12 +131,12 @@ class Votazione extends OCEditorialStuffPost
     {
         if ( !$seduta instanceof Seduta )
         {
-            throw new Exception( "Seduta non trovata" );
+            throw new ConsiglioApiException( "Seduta non trovata", ConsiglioApiException::NOT_FOUND );
         }
 
         if ( trim( $shortText ) == '' || trim( $text ) == '' || trim( $type ) == '' )
         {
-            throw new Exception( "Dati insufficienti" );
+            throw new ConsiglioApiException( "Dati insufficienti", ConsiglioApiException::NOT_VALID );
         }
 
         $votazione = eZContentFunctions::createAndPublishObject( array(
@@ -192,7 +192,7 @@ class Votazione extends OCEditorialStuffPost
         {
             if ( !$this->getResultHandler()->isValid() )
             {
-                throw new Exception( "La votazione non può essere aperta per mancanza del quorum strutturale" );
+                throw new ConsiglioApiException( "La votazione non può essere aperta per mancanza del quorum strutturale", ConsiglioApiException::VOTAZIONE_NOT_ALLOWED );
             }
             $this->setState( 'stato_votazione.in_progress' );
             OpenPAConsiglioPushNotifier::instance()->emit(
@@ -210,7 +210,7 @@ class Votazione extends OCEditorialStuffPost
         }
         else
         {
-            throw new Exception( "La seduta non è in corso" );
+            throw new ConsiglioApiException( "La seduta non è in corso", ConsiglioApiException::SEDUTA_NOT_IN_PROGRESS );
         }
     }
 
@@ -246,7 +246,7 @@ class Votazione extends OCEditorialStuffPost
         }
         else
         {
-            throw new Exception( "La votazione selezionata non è stata ancora aperta" );
+            throw new ConsiglioApiException( "La votazione selezionata non è stata ancora aperta", ConsiglioApiException::VOTAZIONE_NOT_OPEN );
         }
     }
 
@@ -296,7 +296,7 @@ class Votazione extends OCEditorialStuffPost
     {
         if ( $this->currentState()->attribute( 'identifier' ) != 'in_progress' )
         {
-            throw new Exception( "La votazione non e' in corso" );
+            throw new ConsiglioApiException( "La votazione non e' in corso", ConsiglioApiException::VOTAZIONE_NOT_OPEN );
         }
         if ( $userId === null )
         {
@@ -331,12 +331,12 @@ class Votazione extends OCEditorialStuffPost
     {
         if ( !$seduta instanceof Seduta )
         {
-            throw new Exception( 'Seduta non trovata' );
+            throw new ConsiglioApiException( 'Seduta non trovata', ConsiglioApiException::NOT_FOUND );
         }
         
         if ( !in_array( $userId, $seduta->partecipanti( false ) ) )
         {
-            throw new Exception( 'Politico non abilitato a votare in questa seduta' );
+            throw new ConsiglioApiException( 'Politico non abilitato a votare in questa seduta', ConsiglioApiException::POLITICO_NOT_ALLOWED );
         }
         
         //check $userId: se non è un politico viene sollevata eccezione
@@ -346,12 +346,12 @@ class Votazione extends OCEditorialStuffPost
         }
         catch( Exception $e )
         {
-            throw new Exception( 'Politico non trovato' );
+            throw new ConsiglioApiException( 'Politico non trovato', ConsiglioApiException::POLITICO_NOT_FOUND );
         }
 
         if ( !$this->is( 'in_progress' ) )
         {
-            throw new Exception( "La votazione non e' aperta" );
+            throw new ConsiglioApiException( "La votazione non e' aperta", ConsiglioApiException::VOTAZIONE_NOT_OPEN );
         }
     }
 
