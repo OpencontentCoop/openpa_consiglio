@@ -26,7 +26,15 @@ class ConsiglioApiController extends ezpRestMvcController
             $result = new ezpRestMvcResult();
             $login = isset( $this->request->get['login'] ) ? $this->request->get['login'] : null;
             $password = isset( $this->request->get['password'] ) ? $this->request->get['password'] : null;
-            $user = eZUser::loginUser( $login, $password );
+            $user = null;
+            if ( eZINI::instance( 'rest.ini' )->variable( 'Authentication', 'AuthenticationStyle' ) == 'ConsiglioFakeBasicAuthStyle' )
+            {
+                $user = ConsiglioFakeAuthenticationFilter::loginUser( $login, $password );
+            }
+            else
+            {
+                $user = eZUser::loginUser( $login, $password );
+            }
             if ( !$user instanceof eZUser )
             {
                 throw new ConsiglioApiException( "Authentication failed", ConsiglioApiException::AUTHENTICATION );
