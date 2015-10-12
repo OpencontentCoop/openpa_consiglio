@@ -298,10 +298,10 @@ class Votazione extends OCEditorialStuffPost
         {
             $userId = eZUser::currentUserID();
         }
-        $alreadyExists = OpenPAConsiglioVoto::userAlreadyVoted( $this, $userId, false );
         if ( $this->currentState()->attribute( 'identifier' ) != 'in_progress' )
         {
-            $data = array();
+            $data = array( 'user_voted' => false, 'vote_value' => false );
+            $alreadyExists = OpenPAConsiglioVoto::userAlreadyVoted( $this, $userId, false );
             if ( $alreadyExists instanceof OpenPAConsiglioVoto )
             {
                 $data = array(
@@ -367,7 +367,22 @@ class Votazione extends OCEditorialStuffPost
 
         if ( !$this->is( 'in_progress' ) )
         {
-            throw new ConsiglioApiException( "La votazione non e' aperta", ConsiglioApiException::VOTAZIONE_NOT_OPEN, null, array( 'stato' => $this->currentState()->attribute( 'identifier' ) ) );
+            $data = array( 'user_voted' => false, 'vote_value' => false );
+            $alreadyExists = OpenPAConsiglioVoto::userAlreadyVoted( $this, $userId, false );
+            if ( $alreadyExists instanceof OpenPAConsiglioVoto )
+            {
+                $data = array(
+                    'user_voted' => true,
+                    'vote_value' => $alreadyExists->attribute( 'value' )
+                );
+            }
+            $data['stato'] = $this->currentState()->attribute( 'identifier' ) ;
+            throw new ConsiglioApiException(
+                "La votazione non e' aperta",
+                ConsiglioApiException::VOTAZIONE_NOT_OPEN,
+                null,
+                array( 'stato' => $this->currentState()->attribute( 'identifier' ) )
+            );
         }
     }
 
