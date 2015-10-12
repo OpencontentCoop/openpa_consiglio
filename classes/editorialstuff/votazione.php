@@ -361,7 +361,7 @@ class Votazione extends OCEditorialStuffPost
                 "La votazione non e' in corso",
                 ConsiglioApiException::VOTAZIONE_NOT_OPEN,
                 null,
-                array( 'stato' => $this->currentState()->attribute( 'identifier' ) )
+                $data
             );
         }
     }
