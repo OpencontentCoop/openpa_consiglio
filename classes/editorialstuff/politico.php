@@ -305,18 +305,18 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
             $organoFilters = count( $organoNodeIds ) > 1 ? array( 'or' ) : array();
             foreach( $organoNodeIds as $nodeId )
             {
-                $organoFilters['submeta_organo___main_node_id_si'] = $nodeId;
+                $organoFilters[] = 'submeta_organo___main_node_id_si:' . $nodeId;
             }
 
             $sedute = OCEditorialStuffHandler::instance( 'seduta' )->fetchItems(
                 array(
                     'filters' => $organoFilters,
                     'state' => array( 'in_progress', 'closed' ),
-                    'sort' => array( 'modified' => 'desc' ),
+                    'sort' => array( 'attr_data_dt' => 'desc' ),
                     'limit' => 1,
                     'offset' => 0
                 )
-            );
+            );            
             if ( isset( $sedute[0] ) )
             {
                 return $sedute[0];
