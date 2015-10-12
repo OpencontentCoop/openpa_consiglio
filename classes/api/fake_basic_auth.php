@@ -57,6 +57,10 @@ class ConsiglioFakeAuthenticationFilter extends ezcAuthenticationFilter
         {
             $user = eZUser::fetchByName( $login );
         }
+        else
+        {
+            $user = eZUser::loginUser( $login, $password );
+        }
         return $user;
     }
 

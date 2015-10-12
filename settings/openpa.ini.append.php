@@ -11,5 +11,5 @@ Handlers[percentuale_presenze_seduta]=DataHandlerPercentualePresenzeSeduta
 #SocketUrl=cal
 SocketPort=8090
 BackendEndPoint=http://consiglio.u-hopper.com
-#DashboardAlertsContainerNode=
+DashboardAlertsContainerNode=2615
 */ ?>
