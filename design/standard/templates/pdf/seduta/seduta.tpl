@@ -92,10 +92,10 @@
                     <p style="margin:0">La documentazione di supporto alla discussione è pubblicata all'indirizzo cal.tn.it{if $v.data_doc} dal giorno {$v.data_doc|datetime( 'custom', '%j %F %Y' )}{/if}.</p>
                     {/if}
                     {if is_array($v.referente_politico)}
-                      <p style="margin:0">Il referente politico dell'argomento {if gt($v.referente_politico|count(), 1)}sono{else}è{/if} {$v.referente_politico|implode( ', ')}.</p>
+                      <p style="margin:0">Il referente politico dell'argomento {if gt($v.referente_politico|count(), 1)}sono{else}è{/if} {$v.referente_politico|implode( ', ')|trim()}.</p>
                     {/if}
                     {if is_array($v.referente_tecnico)}
-                        <p style="margin:0">Il referente tecnico dell'argomento {if gt($v.referente_tecnico|count(), 1)}sono{else}è{/if} {$v.referente_tecnico|implode( ', ')}.</p>                            
+                        <p style="margin:0">Il referente tecnico dell'argomento {if gt($v.referente_tecnico|count(), 1)}sono{else}è{/if} {$v.referente_tecnico|implode( ', ')|trim()}.</p>                            
                     {/if}
                     <p style="margin:0">I Consiglieri interessati potranno rivolgersi ai referenti citati per ogni informazione ritenuta opportuna.</p>
                     {if $v.consenti_osservazioni}

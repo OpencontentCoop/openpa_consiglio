@@ -21,6 +21,7 @@
             </thead>
             <tbody>
             {foreach $post.documenti as $allegato}
+			{if $allegato.object.can_read|not}{skip}{/if}
                 <tr data-allegato_id="{$allegato.object.id}">
                     {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
                         <td><i class="fa fa-reorder sort-handle"></i> </td>
