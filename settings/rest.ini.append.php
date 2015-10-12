@@ -8,8 +8,8 @@ ApplicationCache=disabled
 
 [Authentication]
 RequireAuthentication=enabled
-#AuthenticationStyle=ezpRestBasicAuthStyle
-AuthenticationStyle=ConsiglioFakeBasicAuthStyle
+#AuthenticationStyle=ConsiglioFakeBasicAuthStyle
+AuthenticationStyle=ezpRestBasicAuthStyle
 DefaultUserID=
 
 [RouteSettings]
