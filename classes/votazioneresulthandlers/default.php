@@ -231,7 +231,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
      */
     protected function getNonVotantiCount()
     {
-        return $this->getPresentiCount() - $this->getVotantiCount();
+        return count( $this->getNonVotanti() );
     }
 
     /**

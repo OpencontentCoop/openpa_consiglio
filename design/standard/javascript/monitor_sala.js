@@ -65,7 +65,8 @@ socket.on('start_votazione', function (data) {
 socket.on('stop_votazione', function (data) {
     if (data.seduta_id == CurrentSedutaId) {
         stopTimer();
-        $('#text').show().find('.alert').addClass('alert-danger').show().find( 'h1').html('<strong>Votazione conclusa</strong>');
+        //$('#text').show().find('.alert').addClass('alert-danger').show().find( 'h1').html('<strong>Votazione conclusa</strong>');
+        $('#text').show().find('.alert').removeClass('alert-danger').hide();
         $('#detail').load(VotazioneDataBaseUrl + data.id + '/parts:risultato_votazione_monitor' + '?time=' + Date.now()).show();
     }
 });
