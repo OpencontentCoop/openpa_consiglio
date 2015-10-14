@@ -498,6 +498,30 @@ class ConsiglioApiController extends ezpRestMvcController
         }
     }
 
+    public function doDownloadOsservazione()
+    {
+        try
+        {
+            $osservazione = OCEditorialStuffHandler::instance( 'osservazioni' )->fetchByObjectId( $this->Id );
+            $result = false;
+            if ( $osservazione instanceof Osservazione )
+            {
+                $fileHandler = eZBinaryFileHandler::instance();
+                $attributeFile = $osservazione->attributeFile() ;
+                ob_start();
+                $result = $fileHandler->handleDownload( $osservazione->getObject(), $attributeFile, eZBinaryFileHandler::TYPE_FILE );
+            }
+            if ( $result == eZBinaryFileHandler::RESULT_UNAVAILABLE )
+            {
+                throw new ConsiglioApiException( "The specified file could not be found.", ConsiglioApiException::NOT_FOUND );
+            }
+        }
+        catch( Exception $e )
+        {
+            return $this->getErrorResult( $e );
+        }
+    }
+
     public function doLoadUtente()
     {
         try

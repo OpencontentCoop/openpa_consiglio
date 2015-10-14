@@ -68,6 +68,23 @@ class Osservazione extends OCEditorialStuffPost
         return null;
     }
 
+    /**
+     * @return eZBinaryFile
+     */
+    public function attributeFile()
+    {
+        $factory = $this->getFactory();
+        if ( $factory instanceof OCEditorialStuffPostFileFactoryInterface )
+        {
+            $fileIdentifier = $factory->fileAttributeIdentifier();
+            if ( isset( $this->dataMap[$fileIdentifier] ) )
+            {
+                return $this->dataMap[$fileIdentifier];
+            }
+        }
+        return null;
+    }
+
     public function apiDownloadFileUrl()
     {
         $binaryFile = $this->binaryFile() ;
@@ -81,7 +98,7 @@ class Osservazione extends OCEditorialStuffPost
             {
                 $router = new ezpRestRouter( new ezcMvcRequest() );
                 $url = $router->generateUrl(
-                    'consiglioApiSedutaDownloadAllegato',
+                    'consiglioApiSedutaDownloadOsservazione',
                     array( 'Id' => $this->id() )
                 );
                 eZURI::transformURI( $url, false, 'full' );
