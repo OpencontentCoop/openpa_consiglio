@@ -683,18 +683,35 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     {
         if ( $this->partecipanti === null )
         {
-            $this->partecipanti = array();
-            $organoNodeId = $this->stringRelatedObjectAttribute( 'organo', 'main_node_id' );
-            if ( is_array( $organoNodeId ) && is_numeric( $organoNodeId[0] ) )
+            if ( isset( $this->dataMap['partecipanti'] )
+                 && $this->dataMap['partecipanti']->hasContent()
+            )
             {
-                $this->partecipanti = OCEditorialStuffHandler::instance( 'politico' )->fetchItems(
-                    array(
-                        'filters' => array( 'meta_path_si:' . $organoNodeId[0] ),
-                        'limit' => 100,
-                        'offset' => 0,
-                        'sort' => array( 'attr_cognome_s' => 'asc' )
-                    )
-                );
+                $ids = explode( '-', $this->dataMap['partecipanti']->toString() );
+                foreach ( $ids as $id )
+                {
+                    $this->partecipanti[] = OCEditorialStuffHandler::instance(
+                        'politico'
+                    )->getFactory()->instancePost( array( 'object_id' => $id ) );
+                }
+            }
+            else
+            {
+                $this->partecipanti = array();
+                $organoNodeId = $this->stringRelatedObjectAttribute( 'organo', 'main_node_id' );
+                if ( is_array( $organoNodeId ) && is_numeric( $organoNodeId[0] ) )
+                {
+                    $this->partecipanti = OCEditorialStuffHandler::instance(
+                        'politico'
+                    )->fetchItems(
+                        array(
+                            'filters' => array( 'meta_path_si:' . $organoNodeId[0] ),
+                            'limit' => 100,
+                            'offset' => 0,
+                            'sort' => array( 'attr_cognome_s' => 'asc' )
+                        )
+                    );
+                }
             }
         }
 
@@ -710,6 +727,33 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         }
 
         return $this->partecipanti;
+    }
+
+    public function setPartecipanti()
+    {
+        $partecipanti = array();
+        $organoNodeId = $this->stringRelatedObjectAttribute( 'organo', 'main_node_id' );
+        if ( is_array( $organoNodeId ) && is_numeric( $organoNodeId[0] ) )
+        {
+            $partecipanti = OCEditorialStuffHandler::instance( 'politico' )->fetchItems(
+                array(
+                    'filters' => array( 'meta_path_si:' . $organoNodeId[0] ),
+                    'limit' => 100,
+                    'offset' => 0,
+                    'sort' => array( 'attr_cognome_s' => 'asc' )
+                )
+            );
+        }
+        $ids = array();
+        foreach ( $partecipanti as $partecipante )
+        {
+            $ids[] = $partecipante->id();
+        }
+        if ( isset( $this->dataMap['partecipanti'] ) )
+        {
+            $this->dataMap['partecipanti']->fromString( implode( '-', $ids ) );
+            $this->dataMap['partecipanti']->store();
+        }
     }
 
     /**
