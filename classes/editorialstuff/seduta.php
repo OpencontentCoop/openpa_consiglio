@@ -1047,6 +1047,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     public function onCreate()
     {
+        $this->setPartecipanti();
         $this->createUpdateConvocazione();
         $object = $this->getObject();
         $object->setAttribute( 'published', $this->dataOra() );
