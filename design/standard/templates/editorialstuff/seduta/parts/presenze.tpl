@@ -4,7 +4,8 @@
 
 {if $post.current_state.identifier|eq( 'closed' )}
 <h3>Attestati di presenza</h3>
-<table class="table">
+<input type="button" class="btn btn-xs pull-right btn-info" onclick="tableToExcel('attestati-presenza', 'Attestati di presenza')" value="Esporta in formato Excel">
+<table class="table" id="attestati-presenza">
     <tr>
         <th>Politico</th>
         <th>Percentuale di presenza</th>

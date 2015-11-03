@@ -2,7 +2,8 @@
     <div class="row">
         <div class="col-xs-12">
             {foreach $post.votazioni as $votazione}
-            <table class="table table-bordered">
+            <input type="button" class="btn btn-xs pull-right btn-info" onclick="tableToExcel('votazione-{$votazione.object.id}', '{$votazione.object.name|wash()}')" value="Esporta in formato Excel">
+            <table class="table table-bordered" id="votazione-{$votazione.object.id}">
                 <thead>
                     <tr class="info">
                         <th style="white-space: nowrap">Creata il</th>
