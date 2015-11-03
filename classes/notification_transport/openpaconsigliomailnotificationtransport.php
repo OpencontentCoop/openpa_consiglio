@@ -86,7 +86,7 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
                 $mail->setContentType( $parameters['content_type'] );
             }
 
-            $mailResult = eZMailTransport::send( $mail );
+            $mailResult = OpenPAConsiglioMailTransport::send( $mail );
 
             return $mailResult;
         }
