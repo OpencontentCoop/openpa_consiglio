@@ -28,6 +28,7 @@ class DataHandlerTimeLinePresenzeSeduta implements OpenPADataHandlerInterface
         );
         $this->seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $sedutaId );
         $this->startTime = eZHTTPTool::instance()->getVariable( 'startTime', null );
+        $this->userId = eZHTTPTool::instance()->getVariable( 'userId', null );
         if ( $module instanceof eZModule )
         {
             $module->setTitle( "Timeline Presenze seduta" );
@@ -72,7 +73,7 @@ class DataHandlerTimeLinePresenzeSeduta implements OpenPADataHandlerInterface
         //        );
 
         $data = array();
-        $helper = new OpenPAConsiglioPresenzaHelper( $this->seduta, $this->startTime );
+        $helper = new OpenPAConsiglioPresenzaHelper( $this->seduta, $this->startTime, $this->userId );
         $values = $helper->run();
 
         if ( eZHTTPTool::instance()->hasGetVariable( 'debug' ) )
@@ -92,7 +93,7 @@ class DataHandlerTimeLinePresenzeSeduta implements OpenPADataHandlerInterface
                 'duration' => $value->duration,
                 'text' => $value->name,
                 'values' => array(),
-                'detections' => array() //$value->detections->values
+                'detections' => $this->userId == null ? array() : $value->detections->values
             );
             foreach ( $value->intervals as $interval )
             {

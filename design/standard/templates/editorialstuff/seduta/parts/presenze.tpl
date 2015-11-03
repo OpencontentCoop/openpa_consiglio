@@ -59,7 +59,7 @@
 </div>
 
 {if $post.current_state.identifier|eq( 'in_progress' )}
-<input id="start_stop" type="button" class="btn btn-xs" value="Live Data" style="dispaly:none"/>
+<input id="start_stop" type="button" class="btn btn-xs" value="Aggiorna" style="dispaly:none"/>
 {/if}
 <div id="gantt_here" style='width:100%; height:1100px;'></div>
 <script type="text/javascript">
@@ -107,16 +107,22 @@
                     var width = task.values[index][1];
                     returnData += "<div class='gantt_task_line' style='border:none;position:relative;float:left;width:"+(30*width)+"px;"+background+"'><span style='visibility:hidden'>0</span></div>";
                 {rdelim}
-                for (index = 0; index < task.detections.length; ++index) {ldelim}                  
-                  $('*[data-logid="'+task.detections[index].id+'"]').remove();
-                  var logRow = $('<tr data-logid="'+task.detections[index].id+'"><td>'+task.detections[index].id+'</td><td>'+task.detections[index].in_out+'</td><td>'+task.detections[index].is_in+'</td><td>'+task.detections[index].label+'</td><td>'+task.detections[index].time+'</td>');
-                  $('#logs-'+task.id+' tbody').append(logRow);
-                {rdelim}
               {rdelim}
               return returnData;
           {rdelim};
           gantt.attachEvent("onTaskRowClick", function(id,row){ldelim}
-            $('#logs-'+id).modal();
+              $.get("{concat('/openpa/data/timeline_presenze_seduta?seduta=',$post.object_id)|ezurl(no)}&userId="+id, function(data){ldelim}
+                  $.each(data.data, function(i,v){ldelim}
+                      if(v.id == id){ldelim}
+                          for (index = 0; index < v.detections.length; ++index) {ldelim}
+                              $('*[data-logid="'+v.detections[index].id+'"]').remove();
+                              var logRow = $('<tr data-logid="'+v.detections[index].id+'"><td>'+v.detections[index].id+'</td><td>'+v.detections[index].in_out+'</td><td>'+v.detections[index].is_in+'</td><td>'+v.detections[index].label+'</td><td>'+v.detections[index].time+'</td>');
+                              $('#logs-'+id+' tbody').append(logRow);
+                          {rdelim}
+                      {rdelim}
+                      $('#logs-'+id).modal();
+                  {rdelim});
+              {rdelim});
           {rdelim});
           var twentyMinutesLater = new Date();
           twentyMinutesLater.setMinutes(twentyMinutesLater.getMinutes() + 20);
@@ -127,27 +133,16 @@
         gantt.load({concat('/openpa/data/timeline_presenze_seduta?seduta=',$post.object_id)|ezurl()});
     {rdelim}    
     
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {ldelim}loadGantt(){rdelim});
-    {if $post.current_state.identifier|eq( 'in_progress' )}        
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {ldelim}
+        if(e.currentTarget.hash == '#presenze') loadGantt();
+    {rdelim});
+    {if $post.current_state.identifier|eq( 'in_progress' )}
         $(function() {ldelim}
-          var timer = null, 
-              interval = 5000;
-      
-          $("#start_stop").show().click(function() {ldelim}                        
-            if (timer == null) {ldelim}
-              loadGantt();
-              $("#start_stop").addClass('btn-success');
-              timer = setInterval(function () {ldelim}
-                  loadGantt();
-              {rdelim}, interval);
-            {rdelim}else{ldelim}
-              $("#start_stop").removeClass('btn-success');
-              clearInterval(timer);
-              timer = null
-            {rdelim}  
-          {rdelim});
-        });
-    {/if}    
+            $("#start_stop").bind( 'click', function() {ldelim}
+                loadGantt();
+            {rdelim});
+        {rdelim});
+    {/if}
 </script>
 <style>{literal}
     .complex_gantt_bar{
