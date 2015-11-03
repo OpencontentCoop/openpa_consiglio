@@ -38,6 +38,7 @@
                             <li><a href="{'editorialstuff/dashboard/politico'|ezurl(no)}">Politici</a></li>
                             <li><a href="{'editorialstuff/dashboard/tecnico'|ezurl(no)}">Tecnici</a></li>
                             <li><a href="{'editorialstuff/dashboard/invitato'|ezurl(no)}">Invitati</a></li>
+                            <li><a href="{'consiglio/gettoni'|ezurl(no)}">Gettoni di presenza</a></li>
                         </ul>
                     </div>
                 </li>

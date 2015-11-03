@@ -61,6 +61,13 @@ $ViewList['settings'] = array(
     'default_navigation_part' => 'ezsetupnavigationpart'
 );
 
+$ViewList['gettoni'] = array(
+    'functions' => array( 'use' ),
+    'script' => 'gettoni.php',
+    'params' => array( 'UserId' ),
+    'unordered_params' => array()
+);
+
 
 
 $FunctionList = array();
