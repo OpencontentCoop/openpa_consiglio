@@ -3,6 +3,9 @@
         <table class="table">
             <thead>
             <tr>
+                {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
+                    <th></th>
+                {/if}
                 <th width="1"></th>
                 <th>Titolo</th>
                 <th>Tipo</th>
@@ -14,7 +17,10 @@
             </thead>
             <tbody>
             {foreach $post.documenti as $allegato}
-                <tr>
+                <tr data-allegato_id="{$allegato.object.id}">
+                    {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
+                        <td><i class="fa fa-reorder sort-handle"></i> </td>
+                    {/if}
                     <td class="text-center">
                         <a href="{concat( 'editorialstuff/edit/allegati_seduta/', $allegato.object.id )|ezurl('no')}" title="Dettaglio" class="btn btn-info btn-xs">Dettaglio</a>
                     </td>

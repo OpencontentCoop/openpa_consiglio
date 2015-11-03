@@ -138,6 +138,49 @@ class Audizione extends OCEditorialStuffPostNotifiable implements OCEditorialStu
         return $tabs;
     }
 
+    public function executeAction( $actionIdentifier, $actionParameters, eZModule $module = null )
+    {
+        if ( $actionIdentifier == 'SortAllegati'
+             && isset( $actionParameters['identifier'] )
+             && isset( $actionParameters['sort_ids'] ) )
+        {
+            $this->sortAllegati( $actionParameters['identifier'], $actionParameters['sort_ids'] );
+        }
+    }
+
+    /**
+     * @todo rifare con meno foreach...
+     * @param string $identifier
+     * @param array $sortIds
+     */
+    protected function sortAllegati( $identifier, $sortIds )
+    {
+        if ( isset( $this->dataMap[$identifier] ) )
+        {
+            $idArray = explode( '-', $this->dataMap[$identifier]->toString() );
+            foreach( $idArray as $id )
+            {
+                if ( !in_array( $id, $sortIds ) )
+                {
+                    $sortIds[] = $id;
+                }
+            }
+            if ( count( $idArray ) != count( $sortIds ) )
+            {
+                foreach( $sortIds as $index => $id )
+                {
+                    if ( !in_array( $id, $idArray ) )
+                    {
+                        unset( $sortIds[$index] );
+                    }
+                }
+            }
+
+            $this->dataMap[$identifier]->fromString( implode( '-', $sortIds ) );
+            $this->dataMap[$identifier]->store();
+        }
+    }
+
     /**
      * @param eZContentObject $object
      * @param string $attributeIdentifier

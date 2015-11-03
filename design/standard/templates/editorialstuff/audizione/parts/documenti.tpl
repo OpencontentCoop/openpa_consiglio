@@ -1,4 +1,4 @@
-<div class="panel-body" style="background: #fff"  id="allegati_add">
+<div class="panel-body" style="background: #fff"  id="allegati_add" data-action_url="{concat('editorialstuff/action/audizione/', $post.object_id)|ezurl(no)}">
     <div class="row">
         <div class="col-xs-12 allegati_docs">
             {include uri=concat('design:', $template_directory, '/parts/allegati_seduta/data.tpl') post=$post}
@@ -61,12 +61,56 @@
             </div>
         </div>
     </div>
-    {ezscript_require( array( 'ezjsc::jquery', 'ezjsc::jqueryio', 'ezjsc::jqueryUI', 'jquery.fileupload.js' ) )}
+    {ezscript_require( array( 'ezjsc::jquery', 'ezjsc::jqueryio', 'ezjsc::jqueryUI', 'jquery.fileupload.js') )}
     {ezcss_require( 'jquery.fileupload.css' )}
 {literal}
+
+    <style scoped="scoped">
+        .ui-sortable tr .sort-handle{cursor:pointer;}
+        .ui-sortable tr.ui-sortable-helper {background:rgba(244,251,17,0.45);}
+        .ui-sortable tr.ui-state-highlight {background:rgba(244,251,17,0.1);
+    </style>
+
     <script>
         $(function () {
             var allegati = $('#allegati_add');
+
+            var fixHelperModified = function (e, tr) {
+                var $originals = tr.children();
+                var $helper = tr.clone();
+                $helper.children().each(function (index) {
+                    $(this).width($originals.eq(index).width())
+                });
+                return $helper;
+            };
+
+            var allegatiSortableOptions = {
+                items: "tr:not(.ui-state-disabled)",
+                placeholder: "ui-state-highlight",
+                handle: ".sort-handle",
+                helper: fixHelperModified,
+                stop: function (event, ui) {
+                    var ids = [];
+                    $.each(allegati.find(".allegati_docs tbody tr" ), function(){
+                        ids.push( $(this).data('allegato_id') );
+                    });
+                    $.ajax({
+                        url: allegati.data( 'action_url' ),
+                        method: 'POST',
+                        data: {
+                            ActionIdentifier: 'SortAllegati',
+                            SortAllegati: true,
+                            ActionParameters: {
+                                identifier: 'documenti',
+                                sort_ids: ids
+                            },
+                            AjaxMode: true
+                        }
+                    });
+                }
+            };
+
+            allegati.find(".allegati_docs tbody").sortable(allegatiSortableOptions).disableSelection();
             allegati.find('.upload').fileupload({
                 dropZone: allegati,
                 formData: function (form) {
@@ -85,7 +129,10 @@
                         });
                         errorContainer.prependTo(allegati.find('.allegati_docs'));
                     } else if (typeof data.result.content != 'undefined') {
-                        allegati.find('.allegati_docs').html(data.result.content);
+                        allegati.find('.allegati_docs')
+                                .html(data.result.content)
+                                .find("tbody")
+                                .sortable(allegatiSortableOptions).disableSelection();
                     }
                     allegati.find('.upload-form').show();
                     allegati.find('.upload-loading').hide();
