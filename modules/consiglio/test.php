@@ -1,12 +1,18 @@
 <?php
 
-$seduta = OCEditorialStuffHandler::instance( 'seduta' )->getFactory()->instancePost( array( 'object_id' => $_GET['s'] ) );
-$helper = new OpenPAConsiglioPresenzaHelper( $seduta );
-$data = $helper->run();
-$values = $helper->getPercent();
+$votazione = OCEditorialStuffHandler::instance( 'votazione' )->getFactory()->instancePost( array( 'object_id' => $_GET['s'] ) );
+
 echo '<pre>';
-print_r($values);
-print_r($data);
+print_r($votazione->getResultHandler()->attribute( 'presenti' ));
+
+
+//$seduta = OCEditorialStuffHandler::instance( 'seduta' )->getFactory()->instancePost( array( 'object_id' => $_GET['s'] ) );
+//$helper = new OpenPAConsiglioPresenzaHelper( $seduta );
+//$data = $helper->run();
+//$values = $helper->getPercent();
+//echo '<pre>';
+//print_r($values);
+//print_r($data);
 eZDisplayDebug();
 eZExecution::cleanExit();
 

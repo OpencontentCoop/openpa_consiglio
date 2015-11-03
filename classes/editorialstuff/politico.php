@@ -312,7 +312,7 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
                 array(
                     'filters' => $organoFilters,
                     'state' => array( 'in_progress', 'closed' ),
-                    'sort' => array( 'attr_data_dt' => 'desc' ),
+                    'sort' => array( 'meta_published_dt' => 'desc' ),
                     'limit' => 1,
                     'offset' => 0
                 )

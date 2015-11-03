@@ -1088,7 +1088,9 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 $politicoDataMap = $politico->dataMap();
                 $tpl->setVariable( 'sesso', $politicoDataMap['sesso']->toString() );
                 $competenza = $this->stringRelatedObjectAttribute( 'organo', 'name' );
-
+                if ( is_array( $competenza ) )
+                    $competenza = $competenza[0];
+                
                 $tpl->setVariable( 'organo', $competenza );
 
                 if ( $this->dataMap['segretario_verbalizzante']->hasContent() )
