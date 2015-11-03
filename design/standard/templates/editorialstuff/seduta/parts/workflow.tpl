@@ -13,15 +13,15 @@
     </span>
   {else}
     {if $post.object.allowed_assign_state_id_list|contains($state.id)}
-    {if or($state.identifier|eq('in_progress'),$state.identifier|eq('closed'))}
-        <a title="Clicca per aprire il cruscotto e impostare lo stato a {$state.current_translation.name|wash}" data-toggle="tooltip" data-placement="top" class="btn btn-warning btn-block  btn-lg has-tooltip" href="{concat('consiglio/cruscotto_seduta/', $post.object_id)|ezurl(no)}" style="overflow: hidden; text-overflow: ellipsis;">
-            <i class="fa fa-dashboard"></i> {$state.current_translation.name|wash}
-        </a>
-    {else}
-        <a title="Clicca per impostare lo stato a {$state.current_translation.name|wash}" data-toggle="tooltip" data-placement="top" class="btn btn-info btn-block  btn-lg has-tooltip" href="{concat('editorialstuff/state_assign/', $factory_identifier, '/', $key, "/", $post.object.id )|ezurl(no)}" style="overflow: hidden; text-overflow: ellipsis;">
-      {$state.current_translation.name|wash}
-    </a>
-    {/if}
+      {if and( or($state.identifier|eq('in_progress'),$state.identifier|eq('closed')), $post.current_state.identifier|ne('in_progress'), $post.current_state.identifier|ne('closed'))}
+          <a title="Clicca per aprire il cruscotto e impostare lo stato a {$state.current_translation.name|wash}" data-toggle="tooltip" data-placement="top" class="btn btn-info btn-block  btn-lg has-tooltip" href="{concat('consiglio/cruscotto_seduta/', $post.object_id)|ezurl(no)}" style="overflow: hidden; text-overflow: ellipsis;">
+              <i class="fa fa-dashboard"></i> {$state.current_translation.name|wash}
+          </a>
+      {else}
+          <a title="Clicca per impostare lo stato a {$state.current_translation.name|wash}" data-toggle="tooltip" data-placement="top" class="btn btn-info btn-block  btn-lg has-tooltip" href="{concat('editorialstuff/state_assign/', $factory_identifier, '/', $key, "/", $post.object.id )|ezurl(no)}" style="overflow: hidden; text-overflow: ellipsis;">
+        {$state.current_translation.name|wash}
+      </a>
+      {/if}
     {else}
     <span class="btn btn-default btn-block btn-lg" style="overflow: hidden; text-overflow: ellipsis;">
       {$state.current_translation.name|wash}
