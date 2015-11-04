@@ -93,15 +93,22 @@ class OpenPAConsiglioPresenzaHelper
             }
             $percent = 100 * $currentValue / $total;
             if ( $percent > 100 ) $percent = 100;
+            if ( $percent < 0 ) $percent = 0;
             $data[$item->userId] = number_format( $percent, 2 );
         }
+
         if ( $this->userId )
         {
-            return $data[$this->userId];
+            return isset( $data[$this->userId] ) ? $data[$this->userId] : null;
         }
+
         return $data;
     }
 
+    public function getValues()
+    {
+        return $this->data;
+    }
 }
 
 
@@ -322,5 +329,90 @@ class OpenPAConsiglioPresenzaTimelineValue
         {
             $this->{$name} = $value;
         }
+    }
+}
+
+class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
+{
+
+    /**
+     * @var OpenPAConsiglioPresenzaHelper[]
+     */
+    protected static $data = array();
+
+    protected static $values = array();
+
+    /**
+     * @var Politico
+     */
+    protected $politico;
+
+    protected $functionName;
+
+    public function __construct( Politico $politico, $functionName = null )
+    {
+        $this->politico = $politico;
+        $this->functionName = $functionName;
+    }
+
+    public function offsetExists( $offset )
+    {
+        if ( !isset( self::$data[$offset] ) )
+        {
+            $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $offset );
+            if ( $seduta instanceof Seduta )
+            {
+                self::$data[$seduta->id()] = new OpenPAConsiglioPresenzaHelper( $seduta );
+                self::$values[$seduta->id()] = self::$data[$seduta->id()]->run();
+            }
+        }
+        return isset( self::$data[$offset] );
+    }
+
+    public function offsetGet( $offset )
+    {
+        if ( self::$data[$offset] instanceof OpenPAConsiglioPresenzaHelper )
+        {
+            if ( $this->functionName == 'percent' )
+            {
+                $percent = self::$data[$offset]->getPercent();
+                if ( isset( $percent[$this->politico->id()] ) )
+                    return $percent[$this->politico->id()];
+            }
+            else
+            {
+                foreach( self::$values[$offset] as $item )
+                {
+                    if ( $item->userId == $this->politico->id() )
+                    {
+                        return $item;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public function offsetSet( $offset, $value )
+    {
+    }
+
+    public function offsetUnset( $offset )
+    {
+    }
+
+    public function attributes()
+    {
+
+    }
+
+    public function attribute( $name )
+    {
+        return $this->offsetGet( $name );
+    }
+
+    public function hasAttribute( $name )
+    {
+        return $this->offsetExists( $name );
     }
 }

@@ -2,7 +2,6 @@
 
 class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInputActionInterface
 {
-
     public function onChangeState(
         eZContentObjectState $beforeState,
         eZContentObjectState $afterState
@@ -16,6 +15,7 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
         $attributes = parent::attributes();
         $attributes[] = 'locations';
         $attributes[] = 'is_in';
+        $attributes[] = 'percentuale_presenza';
         return $attributes;
     }
 
@@ -29,6 +29,11 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
         if ( $property == 'is_in' )
         {
             return $this->currentLocations( );
+        }
+
+        if ( $property == 'percentuale_presenza' )
+        {
+            return $this->getPercentualePresenza();
         }
 
         return parent::attribute( $property );
@@ -433,6 +438,16 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
         }
 
         return $data;
+    }
+
+    public function getTimelinePresenza( Seduta $seduta )
+    {
+        return new OpenPAConsiglioPresenzaArrayAccess( $this );
+    }
+
+    public function getPercentualePresenza()
+    {
+        return new OpenPAConsiglioPresenzaArrayAccess( $this, 'percent' );
     }
 
 }
