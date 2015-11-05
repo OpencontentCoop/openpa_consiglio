@@ -129,6 +129,11 @@ class OpenPAConsiglioGettoniHelper
         return $data;
     }
 
+    public static function isSedutaLiquidata( Seduta $seduta )
+    {
+        return false;
+    }
+
     public static function executeAction( $actionName, $actionParameter, eZUser $currentSelectedUser, Politico $politico, OpenPAConsiglioGettoniInterval $interval )
     {
         switch ( $actionName )
@@ -170,9 +175,18 @@ class OpenPAConsiglioGettoniHelper
 
     protected static function removeSpesa( eZUser $currentSelectedUser, $spesaId  )
     {
+        $object = eZContentObject::fetch( $spesaId );
+        if ( $object instanceof eZContentObject && $object->attribute( 'class_identifier' ) == 'rendiconto_spese' )
+        {
+            eZContentOperationCollection::deleteObject( array( $object->attribute( 'main_node_id' ) ), false );
+            header('Content-Type: application/json');
+            header( 'HTTP/1.1 200 OK' );
+            echo json_encode( array( 'result' => 'success', 'removed' => $spesaId ));
+            eZExecution::cleanExit();
+        }
         header('Content-Type: application/json');
-        header( 'HTTP/1.1 200 OK' );
-        echo json_encode( array( 'result' => 'success' ));
+        header( 'HTTP/1.1 500 OK' );
+        echo json_encode( array( 'result' => 'error', 'not_removed' => $spesaId ));
         eZExecution::cleanExit();
     }
 
@@ -187,6 +201,7 @@ class OpenPAConsiglioGettoniHelper
         $options['image_versions'] = array();
         $options['max_file_size'] = $http->variable( "upload_max_file_size", null );
         $filePath = null;
+        $objectId = 0;
         if ( $http->hasPostVariable( 'image' ) )
         {
             $im = imagecreatefrompng( $_POST['image'] );
@@ -215,12 +230,16 @@ class OpenPAConsiglioGettoniHelper
                 )->attribute( 'main_node_id' ),
                 'attributes' => array(
                     'description' => $http->postVariable( 'Description' ),
-                    'amount' => $http->postVariable( 'Amount' ),
+                    'amount' => str_replace( ',', '.', $http->postVariable( 'Amount' ) ),
                     'file' => $filePath,
                     'relations' => $http->postVariable( 'seduta' )
                 )
             );
-            eZContentFunctions::createAndPublishObject( $params );
+            $object = eZContentFunctions::createAndPublishObject( $params );
+            if ( $object instanceof eZContentObject )
+            {
+                $objectId = $object->attribute( 'id' );
+            }
             $file = eZClusterFileHandler::instance( $filePath );
             if ( $file->exists() )
             {
@@ -229,7 +248,7 @@ class OpenPAConsiglioGettoniHelper
         }
         header( 'Content-Type: application/json' );
         header( 'HTTP/1.1 200 OK' );
-        echo json_encode( array( 'result' => 'success' ) );
+        echo json_encode( array( 'result' => 'success', 'object' => $objectId ) );
         eZExecution::cleanExit();
     }
 

@@ -39,6 +39,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $attributes[] = 'current_punto';
         $attributes[] = 'percentuale_presenza';
         $attributes[] = 'competenza';
+        $attributes[] = 'liquidata';
 
         return $attributes;
     }
@@ -124,6 +125,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         {
             $competenza = $this->stringRelatedObjectAttribute( 'organo', 'name' );
             return isset( $competenza[0] ) ? $competenza[0] : null;
+        }
+
+        if ( $property == 'liquidata' )
+        {
+            return OpenPAConsiglioGettoniHelper::isSedutaLiquidata( $this );
         }
 
         return parent::attribute( $property );
