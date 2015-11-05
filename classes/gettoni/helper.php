@@ -33,6 +33,11 @@ class OpenPAConsiglioGettoniHelper
         }
     }
 
+    protected static function rendicontiContainerNodeId()
+    {
+        return eZContentObject::fetchByRemoteID( 'openpa_consiglio_rendiconto_spese' )->attribute( 'main_node_id' );
+    }
+
     public function setPolitico( Politico $politico )
     {
         $this->politico = $politico;
@@ -131,7 +136,7 @@ class OpenPAConsiglioGettoniHelper
 
     public static function isSedutaLiquidata( Seduta $seduta )
     {
-        return false;
+        return 0;
     }
 
     public static function executeAction( $actionName, $actionParameter, eZUser $currentSelectedUser, Politico $politico, OpenPAConsiglioGettoniInterval $interval )
@@ -139,6 +144,7 @@ class OpenPAConsiglioGettoniHelper
         switch ( $actionName )
         {
             case 'add_km':
+                self::addKm( $currentSelectedUser, $actionParameter );
                 break;
 
             case 'add_spesa':
@@ -161,6 +167,36 @@ class OpenPAConsiglioGettoniHelper
                 self::addTrattenute( $currentSelectedUser );
                 break;
         }
+    }
+
+    protected static function addKm( eZUser $currentSelectedUser, $sedutaId )
+    {
+        $http = eZHTTPTool::instance();
+        $remoteId = $sedutaId . '_' . $currentSelectedUser->id();
+        $params = array(
+            'remote_id' => $remoteId,
+            'creator_id' => $currentSelectedUser->id(),
+            'class_identifier' => 'rendiconto_spese',
+            'parent_node_id' => self::rendicontiContainerNodeId(),
+            'attributes' => array(
+                'description' => 'Rimborso chilometrico',
+                'amount' => str_replace( ',', '.', $http->postVariable( 'value' ) )
+            )
+        );
+        $object = eZContentObject::fetchByRemoteID( $remoteId );
+        if ( $object instanceof eZContentObject )
+        {
+            eZContentFunctions::updateAndPublishObject( $object, $params );
+        }
+        else
+        {
+            $object = eZContentFunctions::createAndPublishObject( $params );
+        }
+        header('Content-Type: application/json');
+        header( 'HTTP/1.1 200 OK' );
+        echo json_encode( array( 'result' => 'success', 'object' => $object->attribute( 'id' ) ));
+        eZExecution::cleanExit();
+
     }
 
     protected static function loadSpese( eZUser $currentSelectedUser, $sedutaId, $politicoId )
@@ -225,9 +261,7 @@ class OpenPAConsiglioGettoniHelper
             $params = array(
                 'creator_id' => $currentSelectedUser->id(),
                 'class_identifier' => 'rendiconto_spese',
-                'parent_node_id' => eZContentObject::fetchByRemoteID(
-                    'openpa_consiglio_rendiconto_spese'
-                )->attribute( 'main_node_id' ),
+                'parent_node_id' => self::rendicontiContainerNodeId(),
                 'attributes' => array(
                     'description' => $http->postVariable( 'Description' ),
                     'amount' => str_replace( ',', '.', $http->postVariable( 'Amount' ) ),

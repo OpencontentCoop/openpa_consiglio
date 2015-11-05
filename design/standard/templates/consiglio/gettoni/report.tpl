@@ -16,8 +16,10 @@
                 <td style="vertical-align: middle">{$seduta.data_ora|l10n('date')} <small>{$seduta.data_ora|l10n('shorttime')}</small></td>
                 <td style="vertical-align: middle">{attribute_view_gui attribute=$seduta.object.data_map.organo}</td>
                 <td style="vertical-align: middle">{attribute_view_gui attribute=$seduta.object.data_map.luogo}</td>
-                <td style="vertical-align: middle; text-align: center">{$politico.importo_gettone[$seduta.object.id]}
-                    €
+                <td style="vertical-align: middle; text-align: center">
+                    <a href="{concat('consiglio/presenze/',$seduta.object.id, '/',$politico.object.id)|ezurl(no)}">
+                        {$politico.importo_gettone[$seduta.object.id]}€
+                    </a>
                 </td>
                 <td style="vertical-align: middle; text-align: center">
                     {if $can_modify}
@@ -28,7 +30,9 @@
                        data-url="{concat('/consiglio/gettoni/',$interval,'/',$politico.object.id, '/add_km/', $seduta.object.id)|ezurl(no)}"
                        data-title="Aggiungi km">
                     {/if}
-                        0
+                        {def $km = fetch( content, object, hash( 'remote_id', concat( $seduta.object.id, '_', $politico.object.id ) ) )}
+                        {if $km}{$km.data_map.amount.data_float}{else}0{/if}
+                        {undef $km}
                     {if $can_modify}
                     </a>
                     {/if}

@@ -68,6 +68,13 @@ $ViewList['gettoni'] = array(
     'unordered_params' => array()
 );
 
+$ViewList['presenze'] = array(
+    'functions' => array( 'use' ),
+    'script' => 'presenze.php',
+    'params' => array( 'SedutaId', 'UserId', 'Action', 'ActionParameter' ),
+    'unordered_params' => array()
+);
+
 
 
 $FunctionList = array();

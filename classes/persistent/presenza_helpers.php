@@ -323,9 +323,14 @@ class OpenPAConsiglioPresenzaTimelineDetectionCollection
         $value->is_in = $presenza->attribute( 'is_in' );
         $this->values[] = $value;
     }
+
+    public function toArray()
+    {
+        return $this->values;
+    }
 }
 
-class OpenPAConsiglioPresenzaTimelineDetectionValue
+class OpenPAConsiglioPresenzaTimelineDetectionValue implements ArrayAccess
 {
     public $time;
     public $timestamp;
@@ -333,6 +338,32 @@ class OpenPAConsiglioPresenzaTimelineDetectionValue
     public $id;
     public $in_out;
     public $is_in;
+
+    public function offsetExists( $offset )
+    {
+        return isset( $this->{$offset} );
+    }
+
+    public function offsetGet( $offset )
+    {
+        return $this->{$offset};
+    }
+
+    public function offsetSet( $offset, $value ){}
+
+    public function offsetUnset( $offset ){}
+
+    public function attributes(){}
+
+    public function attribute( $name )
+    {
+        return $this->offsetGet( $name );
+    }
+
+    public function hasAttribute( $name )
+    {
+        return $this->offsetExists( $name );
+    }
 }
 
 class OpenPAConsiglioPresenzaTimelineValue
@@ -455,18 +486,11 @@ class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
         return number_format( (intval( $percent ) * 120 / 100 ), 2 );
     }
 
-    public function offsetSet( $offset, $value )
-    {
-    }
+    public function offsetSet( $offset, $value ){}
 
-    public function offsetUnset( $offset )
-    {
-    }
+    public function offsetUnset( $offset ){}
 
-    public function attributes()
-    {
-
-    }
+    public function attributes(){}
 
     public function attribute( $name )
     {

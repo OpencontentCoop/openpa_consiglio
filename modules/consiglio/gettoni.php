@@ -54,7 +54,7 @@ else
         $tpl->setVariable( 'iban', eZPreferences::value( 'consiglio_gettoni_iban', $currentSelectedUser ) );
         $tpl->setVariable( 'trattenute', eZPreferences::value( 'consiglio_gettoni_trattenute', $currentSelectedUser ) );
 
-        $Result['content'] = $tpl->fetch( 'design:consiglio/gettoni/report.tpl' );
+            $Result['content'] = $tpl->fetch( 'design:consiglio/gettoni/report.tpl' );
     }
 }
 
