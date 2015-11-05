@@ -50,7 +50,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
 
     public function getResult()
     {
-        return $this->getFavorevoliCount() > $this->getQuorumFunzionale();
+        return $this->getFavorevoliCount() >= $this->getQuorumFunzionale();
     }
     
     protected static function forumlaQuorum( $totale )
@@ -86,6 +86,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
      */
     public function setCurrentVotazione( Votazione $votazione )
     {
+        $this->data = array();
         $this->currentVotazione = $votazione;
         $this->currentVotazioneDataMap = $this->currentVotazione->getObject()->attribute( 'data_map' );
         $this->startTimestamp = $this->currentVotazioneDataMap[Votazione::$startDateIdentifier]->toString();
@@ -109,7 +110,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
             'contrari_count' => 'getContrariCount',
             'astenuti' => 'getAstenuti',
             'astenuti_count' => 'getAstenutiCount',
-        );
+        );        
         return $this;
     }
 
