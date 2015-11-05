@@ -4,9 +4,11 @@
             {foreach $post.votazioni as $votazione}
             <input type="button" class="btn btn-xs pull-right btn-info" onclick="tableToExcel('votazione-{$votazione.object.id}', '{$votazione.object.name|wash()}')" value="Esporta in formato Excel">
             <table class="table table-bordered" id="votazione-{$votazione.object.id}">
-                <thead>
+                {def $post_result = $votazione.result}
+                {if $votazione.current_state.identifier|eq('closed')}
+                  <thead>
                     <tr class="info">
-                        <th style="white-space: nowrap">Creata il</th>
+                        <th style="white-space: nowrap">Chiusa il</th>
                         <th style="white-space: nowrap">Tipo</th>
                         <th style="white-space: nowrap">Testo</th>
                         <th style="white-space: nowrap">Esito</th>
@@ -15,15 +17,13 @@
                         <th style="white-space: nowrap">Votanti</th>
                         <th style="white-space: nowrap">Non votanti</th>
                     </tr>
-                </thead>
-                <tbody>
-                    {def $post_result = $votazione.result}
-                    {if $votazione.current_state.identifier|eq('closed')}
+                  </thead>
+                  <tbody>                    
                     <tr>
                         {*<td class="text-center;" style="vertical-align: middle">
                             <a href="{concat( 'editorialstuff/edit/votazione/', $votazione.object.id )|ezurl('no')}" title="Dettaglio" class="btn btn-info btn-xs">Dettaglio</a>
                         </td>*}
-                        <td>{$votazione.object.published|l10n('shortdatetime')}</td>
+                        <td>{$votazione.object.modified|l10n('shortdatetime')}</td>
                         <td>{attribute_view_gui attribute=$votazione.object.data_map.type}</td>
                         <td>{attribute_view_gui attribute=$votazione.object.data_map.short_text}</td>
                         <td>
@@ -88,7 +88,21 @@
                             </table>
                         </td>
                     </tr>
-                    {else}
+                  </tbody>    
+                {else}
+                  <thead>
+                    <tr class="info">
+                        <th style="white-space: nowrap">Creata il</th>
+                        <th style="white-space: nowrap">Tipo</th>
+                        <th style="white-space: nowrap">Testo</th>
+                        <th style="white-space: nowrap">Esito</th>
+                        <th style="white-space: nowrap">Presenti</th>
+                        <th style="white-space: nowrap">Assenti</th>
+                        <th style="white-space: nowrap">Votanti</th>
+                        <th style="white-space: nowrap">Non votanti</th>
+                    </tr>
+                  </thead>
+                  <tbody> 
                     <tr>
                         <td>{$votazione.object.published|l10n('shortdatetime')}</td>
                         <td>{attribute_view_gui attribute=$votazione.object.data_map.type}</td>
@@ -98,9 +112,9 @@
                         <td></td>
                         <td></td>
                     </tr>
-                    {/if}
-                    {undef $post_result}
                 </tbody>
+              {/if}
+              {undef $post_result}                
             </table>
             {delimiter}<br />{/delimiter}
             {/foreach}
