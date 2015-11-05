@@ -38,6 +38,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $attributes[] = 'protocollo';
         $attributes[] = 'current_punto';
         $attributes[] = 'percentuale_presenza';
+        $attributes[] = 'competenza';
 
         return $attributes;
     }
@@ -117,6 +118,12 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         if ( $property == 'percentuale_presenza' )
         {
             return $this->getPercentualePresenza();
+        }
+
+        if ( $property == 'competenza' )
+        {
+            $competenza = $this->stringRelatedObjectAttribute( 'organo', 'name' );
+            return isset( $competenza[0] ) ? $competenza[0] : null;
         }
 
         return parent::attribute( $property );

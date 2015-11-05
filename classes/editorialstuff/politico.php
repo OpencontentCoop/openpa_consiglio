@@ -16,6 +16,7 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
         $attributes[] = 'locations';
         $attributes[] = 'is_in';
         $attributes[] = 'percentuale_presenza';
+        $attributes[] = 'importo_gettone';
         return $attributes;
     }
 
@@ -34,6 +35,11 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
         if ( $property == 'percentuale_presenza' )
         {
             return $this->getPercentualePresenza();
+        }
+
+        if ( $property == 'importo_gettone' )
+        {
+            return $this->getImportoGettone();
         }
 
         return parent::attribute( $property );
@@ -448,6 +454,11 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
     public function getPercentualePresenza()
     {
         return new OpenPAConsiglioPresenzaArrayAccess( $this, 'percent' );
+    }
+
+    public function getImportoGettone()
+    {
+        return new OpenPAConsiglioPresenzaArrayAccess( $this, 'importo' );
     }
 
 }

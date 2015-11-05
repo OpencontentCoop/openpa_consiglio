@@ -4,6 +4,7 @@ class OpenPAConsiglioGettoniInterval
 {
     public $start;
     public $isValid = false;
+    public $intervalName;
     public $intervalString;
     public $startYear;
     public $endYear;
@@ -46,23 +47,28 @@ class OpenPAConsiglioGettoniInterval
                 case 1:
                     $this->startDateTime->setDate( $year, 1, 1 );
                     $this->endDateTime->setDate( $year, 4, 30 );
+                    $this->intervalName = "I quadrimestre $year";
                     break;
                 case 2:
                     $this->startDateTime->setDate( $year, 5, 1 );
                     $this->endDateTime->setDate( $year, 8, 31 );
+                    $this->intervalName = "II quadrimestre $year";
                     break;
                 case 3:
                     $this->startDateTime->setDate( $year, 9, 1 );
                     $this->endDateTime->setDate( $year, 12, 31 );
+                    $this->intervalName = "III quadrimestre $year";
                     break;
                 default:
-                    $this->isValid = false;
+                    $this->startDateTime->setDate( $year, 1, 1 );
+                    $this->endDateTime->setDate( $year, 12, 31 );
+                    $this->intervalName = "Anno $year";
             }
         }
     }
 
     function __toString()
     {
-        return $this->intervalString;
+        return $this->intervalName;
     }
 }

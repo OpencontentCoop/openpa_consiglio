@@ -64,7 +64,7 @@ $ViewList['settings'] = array(
 $ViewList['gettoni'] = array(
     'functions' => array( 'use' ),
     'script' => 'gettoni.php',
-    'params' => array( 'Interval', 'UserId' ),
+    'params' => array( 'Interval', 'UserId', 'Action', 'ActionParameter' ),
     'unordered_params' => array()
 );
 
