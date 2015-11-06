@@ -16,23 +16,27 @@ try
     /** @var Politico $politico */
     $politico = OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId( $userId );
 
-    $helper = new OpenPAConsiglioPresenzaHelper( $seduta, null, $politico->id() );
-    $values = $helper->run();
-    $percent = $helper->getPercent();
     $detections = array();
-    foreach( $values as $value )
-    {
-        if ( $value->userId == $politico->id() )
-        {
-            echo '<pre>';print_r($value);die();
-            $detections = $value->detections->toArray();
-            break;
-        }
-    }
+    $events = array();
+    $totalTime = 0;
+    $totalPercent = 0;
+
+
+    $helper = new OpenPAConsiglioPresenzaHelper( $seduta, null, $politico->id() );
+    $data = $helper->getEventsAndIntervals();
+
+//    echo '<pre>';
+//    print_r($detections);
+//    print_r($current->intervals );
+//    print_r($events);
+//    die();
+
     $tpl->setVariable( 'seduta', $seduta );
     $tpl->setVariable( 'politico', $politico );
-    $tpl->setVariable( 'detections', $detections );
-    $tpl->setVariable( 'percent', $percent );
+    $tpl->setVariable( 'time_total', $data['time'] );
+    $tpl->setVariable( 'events', $data['events'] );
+    $tpl->setVariable( 'detections', $data['detections'] );
+    $tpl->setVariable( 'percent', $data['percent'] );
     $Result['content'] = $tpl->fetch( 'design:consiglio/presenze.tpl' );
 }
 catch ( Exception $e )

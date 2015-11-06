@@ -25,6 +25,7 @@ class OpenPAConsiglioPresenzaHelper
      */
     public function __construct( Seduta $seduta, $startTime = null, $userId = null )
     {
+        $this->data = array();
         $this->seduta = $seduta;
         $this->startTime = $startTime;
         $this->userId = $userId;
@@ -50,7 +51,7 @@ class OpenPAConsiglioPresenzaHelper
         foreach ( $this->seduta->partecipanti( false ) as $userId )
         {
             /** @var int $userId */
-            $allUserData[$userId] = OpenPAConsiglioPresenzaTimelineCollection::instance( $userId );
+            $allUserData[$userId] = OpenPAConsiglioPresenzaTimelineCollection::instance( $userId, $this->seduta->id() );
         }
 
         if ( empty( $this->presenze ) )
@@ -64,7 +65,7 @@ class OpenPAConsiglioPresenzaHelper
                 $userId = $presenza->attribute( 'user_id' );
                 if ( !isset( $data[$userId] ) )
                 {
-                    $data[$userId] = OpenPAConsiglioPresenzaTimelineCollection::instance( $userId );
+                    $data[$userId] = OpenPAConsiglioPresenzaTimelineCollection::instance( $userId, $this->seduta->id() );
                 }
                 $data[$userId]->add( $presenza );
             }
@@ -113,7 +114,7 @@ class OpenPAConsiglioPresenzaHelper
             }
         }
 
-        if ( $this->userId )
+        if ( $this->userId !== null )
         {
             return isset( $data[$this->userId] ) ? $data[$this->userId] : 0;
         }
@@ -124,6 +125,119 @@ class OpenPAConsiglioPresenzaHelper
     public function getValues()
     {
         return $this->data;
+    }
+
+    public function getEventsAndIntervals()
+    {
+        $detections = array();
+        $events = array();
+        $totalTime = null;
+        $totalPercent = null;
+
+        if ( $this->userId !== null )
+        {
+            $politico = OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId(
+                $this->userId
+            );
+            $values = $this->run();
+            $totalPercent = $this->getPercent();
+
+            $current = false;
+            foreach ( $values as $value )
+            {
+                if ( $value->userId == $politico->id() )
+                {
+                    $current = $value;
+                    break;
+                }
+            }
+            if ( $current instanceof OpenPAConsiglioPresenzaTimelineCollection )
+            {
+                $events[] = array(
+                    'type' => 'event',
+                    'timestamp' => $this->seduta->dataOra(),
+                    'name' => "Inizio seduta"
+                );
+                $detections = $current->detections->toArray();
+                $totalTime = $this->seduta->dataOraFine() - $this->seduta->dataOra();
+                $isIn = false;
+
+                $intervals = array();
+                $startInterval = $this->seduta->dataOra();
+                foreach ( $detections as $detection )
+                {
+                    if ( $detection->timestamp > $startInterval )
+                    {
+                        $intervals[] = array(
+                            $startInterval,
+                            $detection->timestamp
+                        );
+                        $startInterval = $detection->timestamp;
+                    }
+                }
+
+                if ( $this->seduta->dataOraFine() > $startInterval )
+                {
+                    $intervals[] = array(
+                        $startInterval,
+                        $this->seduta->dataOraFine()
+                    );
+                }
+
+                foreach ( $intervals as $interval )
+                {
+                    list( $startInterval, $endInterval ) = $interval;
+                    $duration = $endInterval - $startInterval;
+                    $percent = $duration * 100 / $totalTime;
+                    $percent = $percent > 100 ? 100 : $percent;
+                    $percent = $percent < 0 ? 0 : $percent;
+                    $events[] = array(
+                        'type' => 'interval',
+                        'duration' => $duration,
+                        'is_in' => $isIn,
+                        'percent' => number_format( $percent, 2 )
+                    );
+
+                    $tempDetections = array();
+                    foreach ( $detections as $detection )
+                    {
+                        if ( $detection->timestamp > $startInterval && $detection->timestamp <= $endInterval )
+                        {
+                            if ( !isset( $tempDetections[$detection->timestamp] ) )
+                            {
+                                $tempDetections[$detection->timestamp] = array();
+                            }
+                            $tempDetections[$detection->timestamp][] = $detection;
+                            $isIn = $detection->is_in;
+                        }
+                    }
+
+                    foreach ( $tempDetections as $key => $values )
+                    {
+                        $event = array(
+                            'type' => 'event',
+                            'timestamp' => $key,
+                            'name' => array(),
+                            'items' => $values
+                        );
+                        $events[] = $event;
+                    }
+                }
+
+                $events[] = array(
+                    'type' => 'event',
+                    'timestamp' => $this->seduta->dataOraFine(),
+                    'name' => "Fine seduta"
+                );
+            }
+        }
+
+        return array(
+            'detections' => $detections,
+            'events' => $events,
+            'time' => $totalTime,
+            'percent' => $totalPercent
+        );
     }
 }
 
@@ -168,20 +282,20 @@ class OpenPAConsiglioPresenzaTimelineCollection
      */
     public $detections;
 
-    public static function instance( $userId )
+    public static function instance( $userId, $sedutaId )
     {
-        if ( !isset( self::$instances[$userId] ) )
+        if ( !isset( self::$instances[$sedutaId][$userId] ) )
         {
-            self::$instances[$userId] = new OpenPAConsiglioPresenzaTimelineCollection( $userId );
+            self::$instances[$sedutaId][$userId] = new OpenPAConsiglioPresenzaTimelineCollection( $userId, $sedutaId );
         }
 
-        return self::$instances[$userId];
+        return self::$instances[$sedutaId][$userId];
     }
 
-    protected function __construct( $userId )
+    protected function __construct( $userId, $sedutaId )
     {
         $this->userId = $userId;
-        $this->detections = OpenPAConsiglioPresenzaTimelineDetectionCollection::instance( $userId );
+        $this->detections = OpenPAConsiglioPresenzaTimelineDetectionCollection::instance( $userId, $sedutaId );
 
         $userName = false;
         $object = eZContentObject::fetch( $userId );
@@ -294,16 +408,22 @@ class OpenPAConsiglioPresenzaTimelineDetectionCollection
      */
     public $values = array();
 
-    public static function instance( $userId )
+    /**
+     * @param $userId
+     * @param $sedutaId
+     *
+     * @return OpenPAConsiglioPresenzaTimelineDetectionCollection
+     */
+    public static function instance( $userId, $sedutaId )
     {
-        if ( !isset( self::$instances[$userId] ) )
+        if ( !isset( self::$instances[$sedutaId][$userId] ) )
         {
-            self::$instances[$userId] = new OpenPAConsiglioPresenzaTimelineDetectionCollection(
+            self::$instances[$sedutaId][$userId] = new OpenPAConsiglioPresenzaTimelineDetectionCollection(
                 $userId
             );
         }
 
-        return self::$instances[$userId];
+        return self::$instances[$sedutaId][$userId];
     }
 
     protected function __construct( $userId )
@@ -324,6 +444,9 @@ class OpenPAConsiglioPresenzaTimelineDetectionCollection
         $this->values[] = $value;
     }
 
+    /**
+     * @return OpenPAConsiglioPresenzaTimelineDetectionValue[]
+     */
     public function toArray()
     {
         return $this->values;
@@ -396,70 +519,100 @@ class OpenPAConsiglioPresenzaTimelineValue
     }
 }
 
-class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
+class OpenPAConsiglioPresenzaData
 {
-
     /**
      * @var OpenPAConsiglioPresenzaHelper[]
      */
-    protected static $data = array();
+    private static $data = array();
 
-    protected static $values = array();
+    public static function setData( $id )
+    {
+        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $id );
+        if ( $seduta instanceof Seduta )
+        {
+            $helper = new OpenPAConsiglioPresenzaHelper( $seduta );
+            $values = $helper->run();
+            $percent = $helper->getPercent();
 
-    protected static $percent = array();
+            self::$data[$id] = array(
+                'values' => $values,
+                'percent' => $percent
+            );
+        }
+        else
+        {
+            self::$data[$id] = array(
+                'values' => array(),
+                'percent' => array()
+            );
+        }
+    }
+
+    public static function getData( $id )
+    {
+        if ( isset( self::$data[$id] ) )
+        {
+            return self::$data[$id];
+        }
+        return null;
+    }
+
+}
+
+class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
+{
+    public static $baseGettone = 120;
 
     /**
      * @var Politico
      */
     protected $politico;
 
+    protected $politicoId;
+
     protected $functionName;
 
     public function __construct( Politico $politico, $functionName = null )
     {
         $this->politico = $politico;
+        $this->politicoId = $politico->id();
         $this->functionName = $functionName;
     }
 
-    public function offsetExists( $offset )
+    public function offsetExists( $sedutaId )
     {
-        if ( !isset( self::$data[$offset] ) )
+        if ( !OpenPAConsiglioPresenzaData::getData( $sedutaId ) )
         {
-            $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $offset );
-            if ( $seduta instanceof Seduta )
-            {
-                self::$data[$seduta->id()] = new OpenPAConsiglioPresenzaHelper( $seduta );
-                self::$values[$seduta->id()] = self::$data[$seduta->id()]->run();
-                self::$percent[$seduta->id()] = self::$data[$seduta->id()]->getPercent();
-            }
+            OpenPAConsiglioPresenzaData::setData( $sedutaId );
         }
-
-        return isset( self::$data[$offset] );
+        return OpenPAConsiglioPresenzaData::getData( $sedutaId ) !== null;
     }
 
-    public function offsetGet( $offset )
+    public function offsetGet( $sedutaId )
     {
-        if ( self::$data[$offset] instanceof OpenPAConsiglioPresenzaHelper )
+        $data = OpenPAConsiglioPresenzaData::getData( $sedutaId );
+        if ( $data )
         {
             if ( $this->functionName == 'percent' )
             {
-                $percent = self::$percent[$offset];
-                if ( isset( $percent[$this->politico->id()] ) )
+                $percent = $data['percent'];
+                if ( isset( $percent[$this->politicoId] ) )
                 {
-                    return $percent[$this->politico->id()];
+                    return $percent[$this->politicoId];
                 }
                 return 0;
             }
             elseif ( $this->functionName == 'importo' )
             {
-                $percent = self::$percent[$offset];
-                if ( isset( $percent[$this->politico->id()] ) )
+                $percent = $data['percent'];
+                if ( isset( $percent[$this->politicoId] ) )
                 {
-                    if ( $percent[$this->politico->id()] > 75 )
+                    if ( $percent[$this->politicoId] > 75 )
                     {
                         return $this->calcolaImportoGettone( 100 );
                     }
-                    elseif ( $percent[$this->politico->id()] < 75 && $percent[$this->politico->id()] > 25 )
+                    elseif ( $percent[$this->politicoId] < 75 && $percent[$this->politicoId] > 25 )
                     {
                         return $this->calcolaImportoGettone( 50 );
                     }
@@ -468,9 +621,9 @@ class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
             }
             else
             {
-                foreach ( self::$values[$offset] as $item )
+                foreach ( $data['values'] as $item )
                 {
-                    if ( $item->userId == $this->politico->id() )
+                    if ( $item->userId == $this->politicoId )
                     {
                         return $item;
                     }
@@ -483,7 +636,7 @@ class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
 
     protected function calcolaImportoGettone( $percent )
     {
-        return number_format( (intval( $percent ) * 120 / 100 ), 2 );
+        return number_format( (intval( $percent ) * self::$baseGettone/ 100 ), 2 );
     }
 
     public function offsetSet( $offset, $value ){}

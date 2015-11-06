@@ -3,7 +3,9 @@
         <th style="vertical-align: middle">Consiglieri</th>
         {foreach $sedute as $seduta}
             <th style="vertical-align: middle; text-align: center">
-                {$seduta.competenza} - {$seduta.data_ora|datetime('custom', '%j %M <small>%H:%i</small>')}
+                <a href="{$seduta.editorial_url|ezurl(no)}">
+                    {$seduta.competenza}<br />{$seduta.data_ora|datetime('custom', '%j %M <small>%H:%i</small>')}
+                </a>
             </th>
         {/foreach}
         <th style="vertical-align: middle; text-align: center">Totale</th>
@@ -24,7 +26,7 @@
                     <div class="progress" style="margin-bottom: 0">
                         <div class="progress-bar progress-bar-{if $progress|gt(75)}success{elseif $progress|gt(25)}warning{else}danger{/if}"
                              style="min-width: 4em;width:{$progress}%;">
-                            {$progress}%
+                            <a style="color:#fff" href="{concat('consiglio/presenze/',$seduta.object.id, '/',$politico.object.id)|ezurl(no)}">{$progress}%</a>
                         </div>
                     </div>
                     {set $somma = $somma|append( $importo )}
