@@ -115,7 +115,22 @@
 
         var cameraContainer = $('#cameraContainer');
         var modal = $('#addSpesaTemplate');
+        var camera = modal.find("#camera");
+        var isCameraSupported = (
+            navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.oGetUserMedia ||
+            navigator.msieGetUserMedia ||
+            false
+        );
+        var cameraIsLoaded = false;
+
         modal.on('show.bs.modal', function (event) {
+
+            if ( isCameraSupported ) camera.show();
+            else cameraContainer.hide();
+
             var sedutaId = $(event.relatedTarget).data('seduta');
             modal.find('form').append('<input type="hidden" id="seduta" name="seduta" value="'+sedutaId+'"/>');
             modal.find('.upload').fileupload({
@@ -124,7 +139,7 @@
                     return form.serializeArray();
                 },
                 dataType: 'json',
-                submit: function (e, data) {
+                send: function (e, data) {
                     var postData = $(data.form).serializeArray();
                     var ok = true;
                     $.each( postData, function(i,v){
@@ -133,9 +148,10 @@
                     if ( !ok ){
                         alert( "Completa tutti i campi" );
                         return false;
+                    }else{
+                        modal.find('.upload-form').hide();
+                        modal.find('.upload-loading').show();
                     }
-                    modal.find('.upload-form').hide();
-                    modal.find('.upload-loading').show();
                 },
                 error: function (e, data) {
                     alert(data);
@@ -151,20 +167,36 @@
             });
         });
 
-        var camera = modal.find("#camera");
-
-        modal.on('shown.bs.modal', function (event) {
-            try {
-                var photobooth = camera.photobooth();
-                photobooth.on("image", function (event, dataUrl) {
-                    modal.find("#gallery").show().html('<img src="' + dataUrl + '" >');
-                    modal.find("#submit").show();
-                    event.preventDefault();
-                });
-            }catch(e){
-                cameraContainer.hide();
+        modal.on('hide.bs.modal', function (event) {
+            var photobooth = camera.data( "photobooth" );
+            if ( typeof photobooth == 'object' && cameraIsLoaded) {
+                photobooth.destroy();
             }
-            if( !camera.data( "photobooth" ).isSupported ) cameraContainer.hide();
+            camera.hide();
+            modal.find("#gallery").empty().hide();
+            modal.find("#submit").hide();
+            modal.find('form')[0].reset();
+            modal.find('form input#seduta').remove();
+            cameraIsLoaded = false;
+            $("#load-camera").show();
+        });
+
+
+        $(document).on('click', "#load-camera", function(){
+            if ( !cameraIsLoaded ) {
+                try {
+                    var photobooth = camera.photobooth();
+                    cameraIsLoaded = true;
+                    $("#load-camera").hide();
+                    photobooth.on("image", function (event, dataUrl) {
+                        modal.find("#gallery").show().html('<img src="' + dataUrl + '" >');
+                        modal.find("#submit").show();
+                        event.preventDefault();
+                    });
+                } catch (e) {
+                    cameraContainer.hide();
+                }
+            }
         });
 
         $(document).on('click', "#submit", function(){
@@ -182,17 +214,10 @@
                     modal.modal('hide');
                     reloadListaSpese();
                 });
-
             }
         });
 
-        modal.on('hide.bs.modal', function (event) {
-            camera.data( "photobooth" ).destroy();
-            modal.find("#gallery").empty().hide();
-            modal.find("#submit").hide();
-            modal.find('form')[0].reset();
-            modal.find('form input#seduta').remove();
-        });
+
     });
 {/literal}</script>
 
@@ -222,21 +247,30 @@
                     </div>
 
                     <div class="clearfix text-center">
-                        <span class="btn btn-success fileinput-button">
-                            <i class="glyphicon glyphicon-plus"></i>
-                            <span>Scegli file dal tuo computer</span>
-                            <input class="upload" type="file" name="File[]"
-                                   data-url="{concat('consiglio/gettoni/',$interval,'/',$politico.object.id, '/add_spesa' )|ezurl(no)}"/>
-                        </span>
+                        <p>
+                            <span class="btn btn-success fileinput-button">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                <span>Scegli file dal tuo computer</span>
+                                <input class="upload" type="file" name="File[]"
+                                       data-url="{concat('consiglio/gettoni/',$interval,'/',$politico.object.id, '/add_spesa' )|ezurl(no)}"/>
+                            </span>
+                        </p>
                     </div>
 
                     <div id="cameraContainer" class="clearfix text-center" data-url="{concat('consiglio/gettoni/',$interval,'/',$politico.object.id, '/add_spesa' )|ezurl(no)}">
-                        <p>oppure scatta una foto del documento</p>
-                        <div id="camera" style="display: block;height:240px;width:320px" class="center-block"></div>
+                        <p>oppure</p>
+                        <p>
+                            <a id="load-camera" href="#" class="btn btn-success">
+                                <i class="fa fa-camera"></i> Scatta una foto del documento
+                            </a>
+                        </p>
+                        <div id="camera" style="display: none;height:240px;width:320px" class="center-block"></div>
                         <div id="gallery" style="height:240px;width:320px;display: none" class="center-block"></div>
-                        <a id="submit" href="#" class="btn btn-success" style="display: none">
-                            <i class="fa fa-save"></i> Salva
-                        </a>
+                        <p>
+                            <a id="submit" href="#" class="btn btn-success" style="display: none">
+                                <i class="fa fa-save"></i> Salva
+                            </a>
+                        </p>
                     </div>
 
 

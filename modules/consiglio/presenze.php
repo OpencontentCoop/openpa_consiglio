@@ -24,6 +24,7 @@ try
     {
         if ( $value->userId == $politico->id() )
         {
+            echo '<pre>';print_r($value);die();
             $detections = $value->detections->toArray();
             break;
         }
