@@ -140,7 +140,6 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         if ( $this->percentualePresenza == null )
         {
             $helper = new OpenPAConsiglioPresenzaHelper( $this );
-            $helper->run();
             $values = $helper->getPercent();
             $this->percentualePresenza = $values;
         }
@@ -384,6 +383,11 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         }
 
         return $dateTime;
+    }
+
+    public function dataOraEffettivaInizio( $returnFormat = 'U' )
+    {
+        return $this->dataOra( $returnFormat );
     }
 
     /**
@@ -1021,7 +1025,6 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     {
         $presenti = array();
         $helper = new OpenPAConsiglioPresenzaHelper( $this );
-        $helper->run();
         $dataPercent = $helper->getPercent();
         foreach ( $dataPercent as $userId => $value )
         {

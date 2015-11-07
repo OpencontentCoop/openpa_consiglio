@@ -1,8 +1,8 @@
 {def $color_in = '#3c763d'}
 {def $color_out = '#f0ad4e'}
 
-<h1>{$seduta.object.name|wash()}</h1>
-<h2>{$politico.object.name|wash()} <span class="label label-danger">{$percent}%</span></h2>
+<h1><a href="{$seduta.editorial_url|ezurl(no)}">{$seduta.object.name|wash()}</a></h1>
+<h2><a href="{$politico.editorial_url|ezurl(no)}">{$politico.object.name|wash()}</a> <span class="label label-success">{$in_percent}%</span> <span class="label label-warning">{$out_percent}%</span></h2>
 
 <div class="row">
     <div class="col-md-6 col-md-offset-4">
@@ -25,27 +25,27 @@
                     <div style="margin: 10px 0">
                         <p>
                             {foreach $event.items as $item}
-                                {if $item.label|eq('checkin')}
+                                {if $item.type|eq('checkin')}
                                     <span class="fa-stack fa-lg"
-                                          style="margin-right:10px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
+                                          style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
                                         <i class="fa fa-check-circle fa-stack-2x"></i>
                                     </span>
                                     {*<strong>Intervento dell'utente</strong>*}
-                                    <small>{$event.timestamp|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
-                                {elseif $item.label|eq('beacons')}
+                                    <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
+                                {elseif $item.type|eq('beacons')}
                                     <span class="fa-stack fa-lg"
-                                          style="margin-right:10px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
+                                          style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
                                         <i class="fa fa-wifi fa-stack-2x"></i>
                                     </span>
                                     {*<strong>Rilevazione automatica</strong>*}
-                                    <small>{$event.timestamp|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
-                                {elseif $item.label|eq('manual')}
+                                    <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
+                                {elseif $item.type|eq('manual')}
                                     <span class="fa-stack fa-lg"
-                                          style="margin-right:10px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
+                                          style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
                                         <i class="fa fa-thumbs-up fa-stack-2x"></i>
                                     </span>
                                     {*<strong>Intervento del segretario</strong>*}
-                                    <small>{$event.timestamp|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
+                                    <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
                                 {/if}
                             {/foreach}
                         </p>
@@ -65,6 +65,8 @@
     </div>
 </div>
 
+{*{$calc|array_sum)}*}
+
 <h3>Dettaglio rilevazioni</h3>
 <table class="table table-striped">
     <tr>
@@ -76,8 +78,8 @@
     {foreach $detections as $detection}
         <tr>
             <td>{$detection.id}</td>
-            <td>{$detection.timestamp|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</td>
-            <td>{$detection.label}</td>
+            <td>{$detection.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</td>
+            <td>{$detection.type}</td>
             <td>{$detection.in_out}</td>
         </tr>
     {/foreach}

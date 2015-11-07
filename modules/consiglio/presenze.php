@@ -23,7 +23,7 @@ try
 
 
     $helper = new OpenPAConsiglioPresenzaHelper( $seduta, null, $politico->id() );
-    $data = $helper->getEventsAndIntervals();
+    $data = $helper->getData();
 
 //    echo '<pre>';
 //    print_r($detections);
@@ -36,7 +36,8 @@ try
     $tpl->setVariable( 'time_total', $data['time'] );
     $tpl->setVariable( 'events', $data['events'] );
     $tpl->setVariable( 'detections', $data['detections'] );
-    $tpl->setVariable( 'percent', $data['percent'] );
+    $tpl->setVariable( 'in_percent', $data['in_percent'] );
+    $tpl->setVariable( 'out_percent', $data['out_percent'] );
     $Result['content'] = $tpl->fetch( 'design:consiglio/presenze.tpl' );
 }
 catch ( Exception $e )

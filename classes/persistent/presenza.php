@@ -13,13 +13,13 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
      */
     protected $seduta;
 
-    protected $CreatedTime;
+    public $CreatedTime;
 
-    protected $UserID;
+    public $UserID;
 
-    protected $SedutaID;
+    public $SedutaID;
 
-    protected $Type;
+    public $Type;
 
     function OpenPAConsiglioPresenza( $row = array() )
     {
@@ -319,7 +319,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         }
         return false;
     }
-    
+
     public function jsonSerialize()
     {
         $data = array();
