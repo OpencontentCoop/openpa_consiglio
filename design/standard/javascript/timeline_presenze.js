@@ -161,7 +161,7 @@
         // Method for updating the plugins options.
         TimelinePresenze.prototype.add = function(presenza) {
             var now = Math.round(+new Date()/1000) + 3600;
-            if( presenza.CreatedTime > this.end ){
+            if( presenza.CreatedTime > (this.end+60) ){
                 this.end = now;
                 this.total = this.end - this.start;
                 this.build();
