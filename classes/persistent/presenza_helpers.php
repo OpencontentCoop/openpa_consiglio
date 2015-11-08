@@ -97,9 +97,6 @@ class OpenPAConsiglioPresenzaHelper
 
     protected function getEventsAndIntervals( $userId )
     {
-        if ( !$this->seduta->is( 'closed' ) )
-            return $this->emptyValue();
-
         /** @var OpenPAConsiglioPresenza[] $userDetections */
         $userDetections = array();
         $events = array();
@@ -108,7 +105,12 @@ class OpenPAConsiglioPresenzaHelper
         $outPercent = array();
 
         $timeStampInizioSeduta = $this->seduta->dataOraEffettivaInizio();
-        $timeStampFineSeduta = $this->seduta->dataOraFine();
+
+        if ( $this->seduta->is( 'in_progress' ) )
+            $timeStampFineSeduta = time();
+        else
+            $timeStampFineSeduta = $this->seduta->dataOraFine();
+
         $totalTime = $timeStampFineSeduta - $timeStampInizioSeduta;
         $isIn = false;
 
@@ -190,11 +192,19 @@ class OpenPAConsiglioPresenzaHelper
             }
         }
 
+        $endText = "Fine seduta";
+
+        if ( $this->seduta->is( 'in_progress' ) ){
+           $endText = "Adesso (fine seduta prevista alle ore " . $this->seduta->dataOraFine( 'H:i') . ")";
+        }
+
         $events[] = array(
             'type' => 'event',
             'timestamp' => $timeStampFineSeduta,
-            'name' => "Fine seduta"
+            'name' => $endText
         );
+
+
 
         $inPercentSum = array_sum( $inPercent );
         $outPercentSum = array_sum( $outPercent );

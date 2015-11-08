@@ -47,7 +47,16 @@ class DataHandlerTimeLinePresenzeSeduta implements OpenPADataHandlerInterface
             null,
             $this->userId
         );
-        return array( 'data' => $presenze );
+        $timeStampInizioSeduta = $this->seduta->dataOraEffettivaInizio();
+        $timeStampFineSeduta =  $this->seduta->dataOraFine();
+        $totalTime = $timeStampFineSeduta - $timeStampInizioSeduta;
+        return array( 'data' => array(
+            'start' => intval( $timeStampInizioSeduta ),
+            'end' => intval( $timeStampFineSeduta ),
+            'status' => $this->seduta->currentState()->attribute( 'identifier' ),
+            'total' => intval( $totalTime ),
+            'presenze' => $presenze
+        ) );
 
     }
 

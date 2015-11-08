@@ -1,4 +1,4 @@
-{def $color_in = '#3c763d'}
+{def $color_in = '#5cb85c'}
 {def $color_out = '#f0ad4e'}
 
 <h1><a href="{$seduta.editorial_url|ezurl(no)}">{$seduta.object.name|wash()}</a></h1>
@@ -30,21 +30,19 @@
                                           style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
                                         <i class="fa fa-check-circle fa-stack-2x"></i>
                                     </span>
-                                    {*<strong>Intervento dell'utente</strong>*}
                                     <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
                                 {elseif $item.type|eq('beacons')}
                                     <span class="fa-stack fa-lg"
                                           style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
                                         <i class="fa fa-wifi fa-stack-2x"></i>
                                     </span>
-                                    {*<strong>Rilevazione automatica</strong>*}
+
                                     <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
                                 {elseif $item.type|eq('manual')}
                                     <span class="fa-stack fa-lg"
                                           style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
                                         <i class="fa fa-thumbs-up fa-stack-2x"></i>
                                     </span>
-                                    {*<strong>Intervento del segretario</strong>*}
                                     <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
                                 {/if}
                             {/foreach}
@@ -72,15 +70,23 @@
     <tr>
         <th>ID</th>
         <th>Data ora</th>
-        <th>Metodo</th>
         <th>Rilevazione</th>
+        <th>Metodo</th>
     </tr>
     {foreach $detections as $detection}
-        <tr>
+        <tr class="{if $detection.in_out}success{else}warning{/if}">
             <td>{$detection.id}</td>
             <td>{$detection.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</td>
-            <td>{$detection.type}</td>
-            <td>{$detection.in_out}</td>
+            <td>{if $detection.in_out}Presente{else}Assente{/if}</td>
+            <td>
+                {if $detection.type|eq('checkin')}
+                    <i class="fa fa-check-circle"></i> {if $detection.in_out}Checkin{else}Checkout{/if} dell'utente
+                {elseif $detection.type|eq('beacons')}
+                    <i class="fa fa-wifi"></i> Rilevazione automatica (beacons)
+                {elseif $detection.type|eq('manual')}
+                    <i class="fa fa-thumbs-up"></i> Intervento del segretario
+                {/if}
+            </td>
         </tr>
     {/foreach}
 </table>

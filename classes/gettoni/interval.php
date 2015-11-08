@@ -10,6 +10,8 @@ class OpenPAConsiglioGettoniInterval
     public $endYear;
     public $startDateTime;
     public $endDateTime;
+    public $type;
+    public $selected;
 
     public function __construct( $string )
     {
@@ -38,33 +40,70 @@ class OpenPAConsiglioGettoniInterval
         if ( !empty( $this->intervalString ) )
         {
             list( $year, $period ) = explode( '-', $this->intervalString );
-            if ( $year >= $this->startYear && $year <= $this->endYear )
+            if ( $year == 'select' )
             {
+                $this->type = 'select';
+                $this->selected = explode( ',', $period );
                 $this->isValid = true;
             }
-            switch( $period )
+            else
             {
-                case 1:
-                    $this->startDateTime->setDate( $year, 1, 1 );
-                    $this->endDateTime->setDate( $year, 4, 30 );
-                    $this->intervalName = "I quadrimestre $year";
-                    break;
-                case 2:
-                    $this->startDateTime->setDate( $year, 5, 1 );
-                    $this->endDateTime->setDate( $year, 8, 31 );
-                    $this->intervalName = "II quadrimestre $year";
-                    break;
-                case 3:
-                    $this->startDateTime->setDate( $year, 9, 1 );
-                    $this->endDateTime->setDate( $year, 12, 31 );
-                    $this->intervalName = "III quadrimestre $year";
-                    break;
-                default:
-                    $this->startDateTime->setDate( $year, 1, 1 );
-                    $this->endDateTime->setDate( $year, 12, 31 );
-                    $this->intervalName = "Anno $year";
+                $this->type = 'date';
+                if ( $year >= $this->startYear && $year <= $this->endYear )
+                {
+                    $this->isValid = true;
+                }
+                switch ( $period )
+                {
+                    case 1:
+                        $this->startDateTime->setDate( $year, 1, 1 );
+                        $this->endDateTime->setDate( $year, 4, 30 );
+                        $this->intervalName = "I quadrimestre $year";
+                        break;
+                    case 2:
+                        $this->startDateTime->setDate( $year, 5, 1 );
+                        $this->endDateTime->setDate( $year, 8, 31 );
+                        $this->intervalName = "II quadrimestre $year";
+                        break;
+                    case 3:
+                        $this->startDateTime->setDate( $year, 9, 1 );
+                        $this->endDateTime->setDate( $year, 12, 31 );
+                        $this->intervalName = "III quadrimestre $year";
+                        break;
+                    default:
+                        $this->startDateTime->setDate( $year, 1, 1 );
+                        $this->endDateTime->setDate( $year, 12, 31 );
+                        $this->intervalName = "Anno $year";
+                }
             }
         }
+    }
+
+    function fetchFilter()
+    {
+        if ( $this->type == 'date' )
+        {
+            $startDate = ezfSolrDocumentFieldBase::preProcessValue(
+                $this->startDateTime->getTimestamp(),
+                'date'
+            );
+            $endDate = ezfSolrDocumentFieldBase::preProcessValue(
+                $this->endDateTime->getTimestamp(),
+                'date'
+            );
+
+            return array( 'meta_published_dt:[' . $startDate . ' TO ' . $endDate . ']' );
+        }
+        elseif( $this->type == 'select' )
+        {
+            $filters = count( $this->selected ) > 1 ? array( 'or' ) : array();
+            foreach( $this->selected as $id )
+            {
+                $filters[] = 'meta_id_si:' . $id;
+            }
+            return array( $filters );
+        }
+        return array( 'meta_id_si:0' );
     }
 
     function __toString()

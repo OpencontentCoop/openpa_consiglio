@@ -73,15 +73,7 @@ class OpenPAConsiglioGettoniHelper
         {
             $this->sedute = array();
 
-            $startDate = ezfSolrDocumentFieldBase::preProcessValue(
-                $interval->startDateTime->getTimestamp(),
-                'date'
-            );
-            $endDate = ezfSolrDocumentFieldBase::preProcessValue(
-                $interval->endDateTime->getTimestamp(),
-                'date'
-            );
-            $filters = array( 'meta_published_dt:[' . $startDate . ' TO ' . $endDate . ']' );
+            $filters = $interval->fetchFilter();
 
             if ( $this->politico instanceof Politico )
             {

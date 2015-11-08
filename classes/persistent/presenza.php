@@ -21,12 +21,18 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
 
     public $Type;
 
+    public $InOut;
+
     function OpenPAConsiglioPresenza( $row = array() )
     {
         $this->PersistentDataDirty = false;
         if ( !empty( $row ) )
         {
             $this->fill( $row );
+            $this->CreatedTime = intval( $this->CreatedTime );
+            $this->UserID = intval( $this->UserID );
+            $this->SedutaID = intval( $this->SedutaID );
+            $this->InOut = intval( $this->InOut );
         }
     }
 

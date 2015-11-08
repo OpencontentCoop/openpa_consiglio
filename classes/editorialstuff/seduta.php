@@ -387,7 +387,24 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     public function dataOraEffettivaInizio( $returnFormat = 'U' )
     {
-        return $this->dataOra( $returnFormat );
+        if ( isset( $this->dataMap['orario_inizio_effettivo'] ) && $this->dataMap['orario_inizio_effettivo']->hasContent() )
+        {
+            /** @var eZDate $data */
+            $data = $this->dataMap['orario_inizio_effettivo']->content();
+
+            $dateTime = new DateTime();
+            $dateTime->setTimestamp( $data->attribute( 'timestamp' ) );
+            if ( $returnFormat )
+            {
+                return $dateTime->format( $returnFormat );
+            }
+
+            return $dateTime;
+        }
+        else
+        {
+            return $this->dataOra( $returnFormat );
+        }
     }
 
     /**
@@ -989,6 +1006,12 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             'start_seduta',
             $this->jsonSerialize()
         );
+        if ( isset( $this->dataMap['orario_inizio_effettivo'] ) )
+        {
+            $now = time();
+            $this->dataMap['orario_inizio_effettivo']->fromString( $now );
+            $this->dataMap['orario_inizio_effettivo']->store();
+        }
     }
 
     public function stop()
