@@ -20,12 +20,16 @@
                     {if $is_assessore}(assessore){/if}
                 </a>
             </td>
-            {def $somma = array() $progress = false()}
+            {def $somma = array() $progress = false() $presenze = array()}
             {foreach $sedute as $seduta}
-                {set $progress = $politico.percentuale_presenza[$seduta.object.id]}
+			
+                {set $presenze = count($politico.rilevazioni_presenze[$seduta.object.id])}
+				{set $progress = $politico.percentuale_presenza[$seduta.object.id]}
                 <td style="vertical-align: middle; text-align: center"{if and( $seduta.competenza|eq('Giunta'), $is_assessore|not() )}class="active"{/if}>
-                    {if and( $seduta.competenza|eq('Giunta'), $is_assessore|not() )}{skip}{/if}
-                    {if and( $progress, $progress|gt(0) )}
+					
+					{if and( $seduta.competenza|eq('Giunta'), $is_assessore|not() )}{skip}{/if}
+					
+                    {if $presenze|gt(0)}
                         {def $importo = $politico.importo_gettone[$seduta.object.id]}
                         <div class="progress" style="margin-bottom: 0">
                             <div class="progress-bar progress-bar-{if $progress|gt(75)}success{elseif $progress|gt(25)}warning{else}danger{/if}"
@@ -37,7 +41,7 @@
                         </div>
                         {set $somma = $somma|append( $importo )}
                         {undef $importo}
-                    {elseif count($politico.rilevazioni_presenze[$seduta.object.id])|eq(0)}
+                    {else}
 					  <a href="#{$politico.object.id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$seduta.object.id, '/',$politico.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenze">
 						?
 					  </a>
@@ -47,7 +51,7 @@
             <td style="vertical-align: middle; text-align: center">
                 {$somma|array_sum()}€
             </td>
-            {undef $somma $progress}
+            {undef $somma $progress $presenze}
         </tr>
         {undef $is_assessore}
     {/foreach}

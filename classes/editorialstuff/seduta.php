@@ -414,7 +414,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
      */
     public function dataOraFine( $returnFormat = 'U' )
     {
-        if ( $this->is( 'closed' ) && isset( $this->dataMap['orario_conclusione_effettivo'] ) )
+        if ( $this->is( 'closed' ) && isset( $this->dataMap['orario_conclusione_effettivo'] ) && $this->dataMap['orario_conclusione_effettivo']->hasContent() )
         {
             /** @var eZDate $data */
             $data = $this->dataMap['orario_conclusione_effettivo']->content();

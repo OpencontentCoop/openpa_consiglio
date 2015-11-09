@@ -146,7 +146,7 @@ class OpenPAConsiglioPresenzaHelper
                 $startInterval,
                 $timeStampFineSeduta
             );
-        }
+        }        
 
         foreach ( $intervals as $interval )
         {
@@ -178,7 +178,8 @@ class OpenPAConsiglioPresenzaHelper
             $tempDetections = array();
             foreach ( $userDetections as $detection )
             {
-                if ( $detection->attribute( 'created_time' ) > $startInterval && $detection->attribute( 'created_time' ) <= $endInterval )
+                if ( ( $detection->attribute( 'created_time' ) > $startInterval && $detection->attribute( 'created_time' ) <= $endInterval )
+                     || ( $detection->attribute( 'created_time' ) > $timeStampFineSeduta && $endInterval == $timeStampFineSeduta ) )
                 {
                     if ( !isset( $tempDetections[$detection->attribute( 'created_time' )] ) )
                         $tempDetections[$detection->attribute( 'created_time' )] = array();
