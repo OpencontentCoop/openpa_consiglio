@@ -1,8 +1,8 @@
 {def $color_in = '#5cb85c'}
 {def $color_out = '#f0ad4e'}
 
-<h1><a href="{$seduta.editorial_url|ezurl(no)}">{$seduta.object.name|wash()}</a></h1>
-<h2><a href="{$politico.editorial_url|ezurl(no)}">{$politico.object.name|wash()}</a> <span class="label label-success">{$in_percent}%</span> <span class="label label-warning">{$out_percent}%</span></h2>
+<h1><a href="{$seduta.editorial_url|explode( '/layout/set/modal' )|implode('')|ezurl(no)}">{$seduta.object.name|wash()}</a></h1>
+<h2><a href="{$politico.editorial_url|explode( '/layout/set/modal' )|implode('')|ezurl(no)}">{$politico.object.name|wash()}</a> <span class="label label-success">{$in_percent}%</span> <span class="label label-warning">{$out_percent}%</span></h2>
 
 <div class="row">
     <div class="col-md-6 col-md-offset-4">
