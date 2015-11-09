@@ -37,7 +37,7 @@ class OpenPAConsiglioGettoniInterval
         $this->startDateTime = new DateTime();
         $this->endDateTime = new DateTime();
 
-        if ( !empty( $this->intervalString ) )
+        if ( !empty( $this->intervalString ) && strpos( $this->intervalString, '-' ) > 0 )
         {
             list( $year, $period ) = explode( '-', $this->intervalString );
             if ( $year == 'select' )
