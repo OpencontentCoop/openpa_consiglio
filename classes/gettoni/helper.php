@@ -235,7 +235,7 @@ class OpenPAConsiglioGettoniHelper
             if ( $kmObj instanceof eZContentObject )
             {
                 /** @var eZContentObjectAttribute[] $kmDataMap */
-                $kmDataMap = $seduta->attribute( 'data_map' );
+                $kmDataMap = $kmObj->attribute( 'data_map' );
                 $km = $kmDataMap['amount']->toString();
             }
             $totaloneKm[] = $km;
