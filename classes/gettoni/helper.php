@@ -177,7 +177,7 @@ class OpenPAConsiglioGettoniHelper
     protected static function addKm( eZUser $currentSelectedUser, $sedutaId )
     {
         $http = eZHTTPTool::instance();
-        $remoteId = $sedutaId . '_' . $currentSelectedUser->id();
+        $remoteId = 'rendiconto_km_' . $sedutaId . '_' . $currentSelectedUser->id();
         $params = array(
             'remote_id' => $remoteId,
             'creator_id' => $currentSelectedUser->id(),
@@ -230,7 +230,8 @@ class OpenPAConsiglioGettoniHelper
         foreach( $sedute as $seduta )
         {
             $km = 0;
-            $kmObj = eZContentObject::fetchByRemoteID( $seduta->id() . '_' . $politico->id() );
+            $remoteId = 'rendiconto_km_' . $seduta->id() . '_' . $currentSelectedUser->id();
+            $kmObj = eZContentObject::fetchByRemoteID( $remoteId );
             if ( $kmObj instanceof eZContentObject )
             {
                 /** @var eZContentObjectAttribute[] $kmDataMap */

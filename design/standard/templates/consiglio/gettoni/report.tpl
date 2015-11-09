@@ -38,7 +38,7 @@
                        data-url="{concat('/consiglio/gettoni/',$interval,'/',$politico.object.id, '/add_km/', $seduta.object.id)|ezurl(no)}"
                        data-title="Aggiungi km">
                         {/if}
-                        {def $km = fetch( content, object, hash( 'remote_id', concat( $seduta.object.id, '_', $politico.object.id ) ) )}
+                        {def $km = fetch( content, object, hash( 'remote_id', concat( 'rendiconto_km_', $seduta.object.id, '_', $politico.object.id ) ) )}
                         {if $km}{$km.data_map.amount.data_float}{else}0{/if}
                         {undef $km}
                         {if $can_modify}
