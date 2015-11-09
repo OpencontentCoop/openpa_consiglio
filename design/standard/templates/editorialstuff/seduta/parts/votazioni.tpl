@@ -2,12 +2,14 @@
     <div class="row">
         <div class="col-xs-12">
 
+            {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
             <form action="{concat('editorialstuff/action/seduta/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post">
                 <input type="hidden" name="ActionIdentifier" value="ExportVotazioni"/>
                 <p class="clearfix">
                     <button class="btn btn-info btn-xs pull-right" type="submit" name="ExportVotazioni"><i class="fa fa-download"></i> Esporta tutto in formato Excel</button>
                 </p>
             </form>
+            {/if}
 
             {foreach $post.votazioni as $votazione}
 
