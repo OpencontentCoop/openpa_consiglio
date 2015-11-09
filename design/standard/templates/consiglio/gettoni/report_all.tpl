@@ -56,7 +56,7 @@
         {undef $is_assessore}
     {/foreach}
 </table>
-{ezscript_require( array( 'table2excel.js', 'jquery-responsiveTables.js' ) )}
+{ezscript_require( array( 'jquery.base64.js','tableExport.js', 'jquery-responsiveTables.js' ) )}
 
 <script type="text/javascript">
 {literal}
@@ -68,6 +68,11 @@
             $(this).find('.modal-content').load(url);
         }).on('hide.bs.modal', function (event) {
             $(this).find('.modal-content').html('<em>Caricamento...</em>');
+        });
+
+        $(document).on('click', '.tableToExcel', function(e){
+            var table = $(e.currentTarget).next();
+            table.tableExport({type:'xls',escape:'false'});
         });
     });
 {/literal}

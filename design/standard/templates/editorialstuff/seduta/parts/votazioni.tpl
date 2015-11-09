@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-xs-12">
             {foreach $post.votazioni as $votazione}
-            <input type="button" class="btn btn-xs pull-right btn-info" onclick="tableToExcel('votazione-{$votazione.object.id}', '{$votazione.object.name|wash()}')" value="Esporta in formato Excel">
+            <input type="button" class="btn btn-xs pull-right btn-info tableToExcel" value="Esporta in formato Excel">
             <table class="table table-bordered" id="votazione-{$votazione.object.id}">
                 {def $post_result = $votazione.result}
                 {if $votazione.current_state.identifier|eq('closed')}
