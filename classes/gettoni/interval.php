@@ -55,31 +55,35 @@ class OpenPAConsiglioGettoniInterval
                 }
                 switch ( $period )
                 {
+
                     case 'I':
                         $this->startDateTime->setDate( $year, 1, 1 );
                         $this->endDateTime->setDate( $year, 4, 30 );
                         $this->intervalName = "I quadrimestre $year";
                         break;
+
                     case 'II':
                         $this->startDateTime->setDate( $year, 5, 1 );
                         $this->endDateTime->setDate( $year, 8, 31 );
                         $this->intervalName = "II quadrimestre $year";
                         break;
+
                     case 'III':
                         $this->startDateTime->setDate( $year, 9, 1 );
                         $this->endDateTime->setDate( $year, 12, 31 );
                         $this->intervalName = "III quadrimestre $year";
                         break;
-//                    case '0':
-//                        $this->startDateTime->setDate( $year, 1, 1 );
-//                        $this->endDateTime->setDate( $year, 12, 31 );
-//                        $this->intervalName = "Anno $year";
-//                        break;
+
+                    case '0':
+                        $this->startDateTime->setDate( $year, 1, 1 );
+                        $this->endDateTime->setDate( $year, 12, 31 );
+                        $this->intervalName = "Anno $year";
+                        break;
 
                     default:
                         $this->startDateTime->setDate( $year, $period, 1 );
                         $this->endDateTime->setDate( $year, $period+1, 1 );
-                        $this->intervalName = "Anno $year";
+                        $this->intervalName = $this->startDateTime->format( 'n/Y' );
                 }
             }
         }
