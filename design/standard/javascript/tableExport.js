@@ -249,8 +249,7 @@ THE SOFTWARE.*/
 					
 					if(defaults.consoleLog == 'true'){
 						console.log(excel);
-					}
-					
+					}					
 					var excelFile = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:"+defaults.type+"' xmlns='http://www.w3.org/TR/REC-html40'>";
 					excelFile += "<head>";
 					excelFile += "<!--[if gte mso 9]>";
@@ -259,7 +258,7 @@ THE SOFTWARE.*/
 					excelFile += "<x:ExcelWorksheets>";
 					excelFile += "<x:ExcelWorksheet>";
 					excelFile += "<x:Name>";
-					excelFile += "{worksheet}";
+					excelFile += "Worksheet";
 					excelFile += "</x:Name>";
 					excelFile += "<x:WorksheetOptions>";
 					excelFile += "<x:DisplayGridlines/>";
@@ -269,6 +268,7 @@ THE SOFTWARE.*/
 					excelFile += "</x:ExcelWorkbook>";
 					excelFile += "</xml>";
 					excelFile += "<![endif]-->";
+                    excelFile += "<meta http-equiv='content-type' content='text/plain; charset=UTF-8'/>";
 					excelFile += "</head>";
 					excelFile += "<body>";
 					excelFile += excel;
@@ -276,7 +276,7 @@ THE SOFTWARE.*/
 					excelFile += "</html>";
 
 					var base64data = "base64," + $.base64.encode(excelFile);
-					window.open('data:application/vnd.ms-'+defaults.type+';filename=exportData.doc;' + base64data);
+					window.open('data:application/vnd.ms-'+defaults.type+';filename=exportData.xls;' + base64data);
 					
 				}else if(defaults.type == 'png'){
 					html2canvas($(el), {
@@ -338,10 +338,12 @@ THE SOFTWARE.*/
 				
 				function parseString(data){
 				
-					if(defaults.htmlContent == 'true'){
+					data.find('.no-export').remove();
+                    
+                    if(defaults.htmlContent == 'true'){
 						content_data = data.html().trim();
-					}else{
-						content_data = data.text().trim();
+					}else{						
+                        content_data = data.text().trim();
 					}
 					
 					if(defaults.escape == 'true'){

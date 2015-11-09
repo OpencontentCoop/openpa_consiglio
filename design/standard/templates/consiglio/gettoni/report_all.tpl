@@ -1,6 +1,7 @@
-<input type="button" class="btn btn-xs btn-info" onclick="tableToExcel('export-{$interval}', 'Presenze')" value="Esporta in formato Excel">
+<input type="button" class="btn btn-xs btn-info tableToExcel" value="Esporta in formato Excel">
 <table id="export-{$interval}" class="table table-bordered responsive-table" data-min="10" data-max="30">
-    <tr>
+    <thead>
+	<tr>	  
         <th style="vertical-align: middle">Consiglieri</th>
         {foreach $sedute as $seduta}
             <th style="vertical-align: middle; text-align: center">
@@ -11,6 +12,8 @@
         {/foreach}
         <th style="vertical-align: middle; text-align: center">Totale</th>
     </tr>
+	</thead>
+	<tbody>
     {foreach $politici as $politico}
         {def $is_assessore = $politico.is_in['giunta']}
         <tr>
@@ -35,7 +38,7 @@
                             <div class="progress-bar progress-bar-{if $progress|gt(75)}success{elseif $progress|gt(25)}warning{else}danger{/if}"
                                  style="min-width: 4em;width:{$progress}%;">                                
 								 <a style="color:#fff" href="#{$politico.object.id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$seduta.object.id, '/',$politico.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenze">
-								  {$importo}€
+								  {$importo}<span class="no-export">€</span>
 								</a>
                             </div>
                         </div>
@@ -43,18 +46,19 @@
                         {undef $importo}
                     {else}
 					  <a href="#{$politico.object.id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$seduta.object.id, '/',$politico.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenze">
-						?
+						<span class="no-export">?</span>
 					  </a>
 					{/if}
                 </td>                
             {/foreach}
             <td style="vertical-align: middle; text-align: center">
-                {$somma|array_sum()}€
+                {$somma|array_sum()}<span class="no-export">€</span>
             </td>
             {undef $somma $progress $presenze}
         </tr>
         {undef $is_assessore}
     {/foreach}
+	</tbody>
 </table>
 {ezscript_require( array( 'jquery.base64.js','tableExport.js', 'jquery-responsiveTables.js' ) )}
 
@@ -72,7 +76,7 @@
 
         $(document).on('click', '.tableToExcel', function(e){
             var table = $(e.currentTarget).next();
-            table.tableExport({type:'xls',escape:'false'});
+            table.tableExport({type:'excel',escape:'false'});
         });
     });
 {/literal}

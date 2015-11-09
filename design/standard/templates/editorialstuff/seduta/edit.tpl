@@ -109,8 +109,8 @@
         });
 
         $(document).on('click', '.tableToExcel', function(e){
-            var table = $(e.currentTarget).next();
-            table.tableExport({type:'xls',escape:'false'});
+            var table = $(e.currentTarget).next();			
+            table.tableExport({type:'excel',escape:'false'});
         });
     });
     {/literal}
