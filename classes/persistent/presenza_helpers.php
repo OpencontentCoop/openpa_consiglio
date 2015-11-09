@@ -103,6 +103,7 @@ class OpenPAConsiglioPresenzaHelper
         $totalTime = null;
         $inPercent = array();
         $outPercent = array();
+        $totalTimeCount = array();
 
         $timeStampInizioSeduta = $this->seduta->dataOraEffettivaInizio();
 
@@ -150,14 +151,21 @@ class OpenPAConsiglioPresenzaHelper
         foreach ( $intervals as $interval )
         {
             list( $startInterval, $endInterval ) = $interval;
+
+            if ( $this->seduta->is( 'closed' ) && $endInterval > $timeStampFineSeduta )
+            {
+                $endInterval = $timeStampFineSeduta;
+            }
+
             $duration = $endInterval - $startInterval;
+            $totalTimeCount[] = $duration;
             $percent = $this->calculatePercent( $duration, $totalTime );
 
             $newInterval = array(
                 'type' => 'interval',
                 'duration' => $duration,
                 'is_in' => $isIn,
-                'percent' => $percent
+                'percent' => number_format( $percent, 2 )
             );
 
             if ( $newInterval['is_in'] )
@@ -213,6 +221,7 @@ class OpenPAConsiglioPresenzaHelper
             'detections' => $userDetections,
             'events' => $events,
             'time' => $totalTime,
+            'control' => array_sum( $totalTimeCount ),
             'in_percent' => number_format( $inPercentSum, 2 ),
             'out_percent' => number_format( $outPercentSum, 2 )
         );
@@ -221,7 +230,7 @@ class OpenPAConsiglioPresenzaHelper
     protected function calculatePercent( $duration, $totalTime )
     {
         $percent = $duration * 100 / $totalTime;
-        return number_format( $percent, 2 );
+        return $percent;
     }
 }
 

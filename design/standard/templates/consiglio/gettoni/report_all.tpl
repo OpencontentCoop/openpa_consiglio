@@ -1,4 +1,5 @@
-<table class="table table-bordered">
+<input type="button" class="btn btn-xs btn-info" onclick="tableToExcel('export-{$interval}', 'Presenze')" value="Esporta in formato Excel">
+<table id="export-{$interval}" class="table table-bordered responsive-table" data-min="10" data-max="30">
     <tr>
         <th style="vertical-align: middle">Consiglieri</th>
         {foreach $sedute as $seduta}
@@ -21,22 +22,22 @@
             </td>
             {def $somma = array()}
             {foreach $sedute as $seduta}
-                <td style="vertical-align: middle; text-align: center">
+                {def $progress = $politico.percentuale_presenza[$seduta.object.id]}
+                <td style="vertical-align: middle; text-align: center"{if and( $seduta.competenza|eq('Giunta'), $is_assessore|not() )}class="active"{/if}>
                     {if and( $seduta.competenza|eq('Giunta'), $is_assessore|not() )}{skip}{/if}
-                    {def $progress = $politico.percentuale_presenza[$seduta.object.id]}
-                    {if $progress}
+                    {if and( $progress, $progress|gt(0) )}
                         {def $importo = $politico.importo_gettone[$seduta.object.id]}
                         <div class="progress" style="margin-bottom: 0">
                             <div class="progress-bar progress-bar-{if $progress|gt(75)}success{elseif $progress|gt(25)}warning{else}danger{/if}"
                                  style="min-width: 4em;width:{$progress}%;">
-                                <a style="color:#fff" href="{concat('consiglio/presenze/',$seduta.object.id, '/',$politico.object.id)|ezurl(no)}">{$progress}%</a>
+                                <a style="color:#fff" href="{concat('consiglio/presenze/',$seduta.object.id, '/',$politico.object.id)|ezurl(no)}">{$importo}€</a>
                             </div>
                         </div>
                         {set $somma = $somma|append( $importo )}
                         {undef $importo}
                     {/if}
-                    {undef $progress}
                 </td>
+                {undef $progress}
             {/foreach}
             <td style="vertical-align: middle; text-align: center">
                 {$somma|array_sum()}€
@@ -46,3 +47,12 @@
         {undef $is_assessore}
     {/foreach}
 </table>
+{ezscript_require( array( 'table2excel.js', 'jquery-responsiveTables.js' ) )}
+
+<script type="text/javascript">
+{literal}
+    $(document).ready(function() {
+        $('table.responsive-table').responsiveTables();
+    });
+{/literal}
+</script>
