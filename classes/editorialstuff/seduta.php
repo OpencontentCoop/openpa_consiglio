@@ -1023,14 +1023,14 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             $this->addPresenza( 0, 'manual', $userId ); //spengo i beacons
         }
 
+        $this->setState( 'seduta.closed' );
+
         if ( isset( $this->dataMap['orario_conclusione_effettivo'] ) )
         {
             $now = time();
             $this->dataMap['orario_conclusione_effettivo']->fromString( $now );
             $this->dataMap['orario_conclusione_effettivo']->store();
         }
-
-        $this->setState( 'seduta.closed' );
 
         // Imposto lo stato manualmente a closed per un ritardo sulla transazione del db provocata dallo store del datamap
         $fakeSerialize = $this->jsonSerialize();
