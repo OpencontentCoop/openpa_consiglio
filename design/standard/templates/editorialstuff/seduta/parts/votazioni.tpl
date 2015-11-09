@@ -1,8 +1,16 @@
 <div class="panel-body" style="background: #fff">
     <div class="row">
         <div class="col-xs-12">
+
+            <form action="{concat('editorialstuff/action/seduta/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post">
+                <input type="hidden" name="ActionIdentifier" value="ExportVotazioni"/>
+                <p class="clearfix">
+                    <button class="btn btn-info btn-xs pull-right" type="submit" name="ExportVotazioni"><i class="fa fa-download"></i> Esporta tutto in formato Excel</button>
+                </p>
+            </form>
+
             {foreach $post.votazioni as $votazione}
-            <input type="button" class="btn btn-xs pull-right btn-info tableToExcel" value="Esporta in formato Excel">
+
             <table class="table table-bordered" id="votazione-{$votazione.object.id}">
                 {def $post_result = $votazione.result}
                 {if $votazione.current_state.identifier|eq('closed')}

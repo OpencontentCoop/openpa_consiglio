@@ -1,5 +1,10 @@
 <?php
 
+use Fusonic\SpreadsheetExport\Spreadsheet;
+use Fusonic\SpreadsheetExport\ColumnTypes\TextColumn;
+use Fusonic\SpreadsheetExport\Writers\OdsWriter;
+
+
 class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileContainerInterface, OCEditorialStuffPostInputActionInterface
 {
     const DATE_FORMAT = 'Y-m-d H:i:s';
@@ -1106,7 +1111,12 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     public function executeAction( $actionIdentifier, $actionParameters, eZModule $module = null )
     {
-        if ( $actionIdentifier == 'GetConvocazione' )
+        if ( $actionIdentifier == 'ExportVotazioni' )
+        {
+            $this->exportVotazioni();
+            eZExecution::cleanExit();
+        }
+        elseif ( $actionIdentifier == 'GetConvocazione' )
         {
             $convocazione = ConvocazioneSeduta::get( $this->getObject() );
             $downloadUrl = 'editorialstuff/download/convocazione_seduta/' . $convocazione->attribute(
@@ -1197,5 +1207,141 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         {
             $this->saveVerbale( $actionParameters['Verbale'] );
         }
+    }
+
+    protected function exportVotazioni()
+    {
+        $export = new Spreadsheet();
+        $export->addColumn( new TextColumn( "Data" ) );
+        $export->addColumn( new TextColumn( "Tipo" ) );
+        $export->addColumn( new TextColumn( "Testo" ) );
+        $export->addColumn( new TextColumn( "Esito" ) );
+        $export->addColumn( new TextColumn( "Numero presenti" ) );
+        $export->addColumn( new TextColumn( "Numero assenti" ) );
+        $export->addColumn( new TextColumn( "Numero votanti" ) );
+        $export->addColumn( new TextColumn( "Numero non votanti" ) );
+        $export->addColumn( new TextColumn( "Numero favorevoli" ) );
+        $export->addColumn( new TextColumn( "Numero contrari" ) );
+        $export->addColumn( new TextColumn( "Numero astenuti" ) );
+
+        foreach( $this->partecipanti() as $partecipante )
+        {
+            $export->addColumn( new TextColumn( $partecipante->attribute( 'name' ) ) );
+        }
+
+        foreach( $this->votazioni() as $votazione )
+        {
+            $state = $votazione->currentState()->attribute( 'identifier' );
+            /** @var eZContentObjectAttribute[] $dataMap */
+            $dataMap = $votazione->getObject()->attribute( 'data_map' );
+            $result = $votazione->attribute( 'result' );
+
+            $data = date( "Y/m/d H:i", $votazione->getObject()->attribute( 'published' ) );
+            $esito = 'NON EFFETTUATA';
+            $presenti = 0;
+            $assenti = 0;
+            $votanti = 0;
+            $nonVotanti = array();
+            $favorevoli = array();
+            $contrari = array();
+            $astenuti = array();
+
+            if ( $state == 'closed' )
+            {
+                $data = date( "Y/m/d H:i", $votazione->getObject()->attribute( 'modified' ) );
+
+                if ( !$votazione->attribute( 'is_valid' ) )
+                    $esito = 'QUORUM NON RAGGIUNTO';
+                elseif ( $result->attribute( 'approvata' ) )
+                    $esito = 'APPROVATA';
+                elseif ( !$result->attribute( 'approvata' ) )
+                    $esito = 'RESPINTA';
+
+                $presenti = $result->attribute( 'presenti_count' );
+                $assenti = $result->attribute( 'assenti_count' );
+                $votanti = $result->attribute( 'votanti_count' );
+                $nonVotanti = $result->attribute( 'non_votanti' );
+                $favorevoli = $result->attribute( 'favorevoli' );
+                $contrari = $result->attribute( 'contrari' );
+                $astenuti = $result->attribute( 'astenuti' );
+            }
+
+
+            $row = array(
+                $data,
+                $dataMap['type']->toString(),
+                $dataMap['short_text']->toString(),
+                $esito,
+                $presenti,
+                $assenti,
+                $votanti,
+                count( $nonVotanti ),
+                count( $favorevoli ),
+                count( $contrari ),
+                count( $astenuti )
+            );
+
+            foreach( $this->partecipanti() as $partecipante )
+            {
+                if ( $state == 'closed' )
+                {
+                    $user = false;
+                    /** @var eZUser $votante */
+
+                    foreach ( $nonVotanti as $votante )
+                    {
+                        if ( $votante->id() == $partecipante->id() )
+                        {
+                            $user = 'NON VOTANTE';
+                        }
+                    }
+                    if ( !$user )
+                    {
+                        foreach ( $favorevoli as $votante )
+                        {
+                            if ( $votante->id() == $partecipante->id() )
+                            {
+                                $user = 'FAVOREVOLE';
+                            }
+                        }
+                    }
+                    if ( !$user )
+                    {
+                        foreach ( $contrari as $votante )
+                        {
+                            if ( $votante->id() == $partecipante->id() )
+                            {
+                                $user = 'CONTRARIO';
+                            }
+                        }
+                    }
+                    if ( !$user )
+                    {
+                        foreach ( $astenuti as $votante )
+                        {
+                            if ( $votante->id() == $partecipante->id() )
+                            {
+                                $user = 'ASTENUTO';
+                            }
+                        }
+                    }
+                    if ( !$user )
+                    {
+                        $user = 'ASSENTE';
+                    }
+                }
+                else
+                {
+                    $user = '';
+                }
+                $row[] = $user;
+            }
+
+            $export->addRow( $row );
+        }
+
+        $writer = new OdsWriter();
+        $writer->includeColumnHeaders = true;
+        $export->download($writer, "Votazioni");
     }
 }

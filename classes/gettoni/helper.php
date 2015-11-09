@@ -1,12 +1,7 @@
 <?php
 
 use Fusonic\SpreadsheetExport\Spreadsheet;
-use Fusonic\SpreadsheetExport\ColumnTypes\CurrencyColumn;
-use Fusonic\SpreadsheetExport\ColumnTypes\DateColumn;
-use Fusonic\SpreadsheetExport\ColumnTypes\NumericColumn;
 use Fusonic\SpreadsheetExport\ColumnTypes\TextColumn;
-use Fusonic\SpreadsheetExport\Writers\CsvWriter;
-use Fusonic\SpreadsheetExport\Writers\TsvWriter;
 use Fusonic\SpreadsheetExport\Writers\OdsWriter;
 
 class OpenPAConsiglioGettoniHelper
@@ -276,7 +271,7 @@ class OpenPAConsiglioGettoniHelper
 
         $writer = new OdsWriter();
         //$writer->includeColumnHeaders = true;
-        $export->download($writer, "Sample");
+        $export->download($writer, "Nota spese");
     }
 
     protected static function loadSpese( eZUser $currentSelectedUser, $sedutaId, $politicoId, $interval )

@@ -54,7 +54,7 @@
     </div>
 </div>
 
-{ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-tabdrop.js', 'jquery.editorialstuff_default.js', 'ezjsc::jqueryUI', 'bootstrap-editable.min.js', 'dhtmlxgantt.js', 'jquery.base64.js','tableExport.js' ) )}
+{ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-tabdrop.js', 'jquery.editorialstuff_default.js', 'ezjsc::jqueryUI', 'bootstrap-editable.min.js', 'dhtmlxgantt.js' ) )}
 {ezcss_require(array('bootstrap3-editable/css/bootstrap-editable.css', 'dhtmlxgantt.css'))}
 
 <script>
@@ -106,11 +106,6 @@
                 }
             });
             e.preventDefault();
-        });
-
-        $(document).on('click', '.tableToExcel', function(e){
-            var table = $(e.currentTarget).next();			
-            table.tableExport({type:'excel',escape:'false'});
         });
     });
     {/literal}
