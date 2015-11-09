@@ -23,7 +23,7 @@
                     </div>
                 {else}
                     <div style="margin: 10px 0">
-                        <p>
+                        <p style="white-space: nowrap">
                             {foreach $event.items as $item}
                                 {if $item.type|eq('checkin')}
                                     <span class="fa-stack fa-lg"
