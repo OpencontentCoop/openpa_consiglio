@@ -43,7 +43,18 @@ class OpenPAConsiglioGettoniInterval
             if ( $year == 'select' )
             {
                 $this->type = 'select';
-                $this->selected = explode( ',', $period );
+                $selected = explode( ',', $period );
+                
+                $objects = eZContentObject::fetchIDArray( $selected );
+                $this->selected = array();
+                $names = array();
+                foreach( $objects as $object )
+                {
+                    $this->selected[] = $object->attribute( 'id' );
+                    $names[] = $object->attribute( 'name' );
+                }                
+                $this->intervalName = implode( ', ', $names );
+                
                 $this->isValid = true;
             }
             else
