@@ -148,7 +148,7 @@ class OpenPAConsiglioGettoniHelper
                 break;
 
             case 'load_spese':
-                self::loadSpese( $currentSelectedUser, $actionParameter, $politico->id() );
+                self::loadSpese( $currentSelectedUser, $actionParameter, $politico->id(), $interval );
                 break;
 
             case 'add_iban':
@@ -191,11 +191,14 @@ class OpenPAConsiglioGettoniHelper
 
     }
 
-    protected static function loadSpese( eZUser $currentSelectedUser, $sedutaId, $politicoId )
+    protected static function loadSpese( eZUser $currentSelectedUser, $sedutaId, $politicoId, $interval )
     {
         $tpl = eZTemplate::factory();
-        $tpl->setVariable( 'seduta', intval( $sedutaId ) );
-        $tpl->setVariable( 'politico', intval( $politicoId ) );
+        $tpl->setVariable( 'interval', $interval->intervalString );        
+        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( intval( $sedutaId ) );
+        $tpl->setVariable( 'seduta', $seduta );        
+        $politico = OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId( intval( $politicoId ) );
+        $tpl->setVariable( 'politico', $politico );
         header( 'HTTP/1.1 200 OK' );
         echo $tpl->fetch( "design:consiglio/gettoni/spese.tpl" );
         eZExecution::cleanExit();

@@ -1,26 +1,31 @@
 <form>
-    <h1>Nota spese {$politico.object.name|wash()} {if $politico.is_in['giunta']}(assessore){/if} <small>{$interval_name}</small></h1>
-
+    <input type="button" class="btn btn-xs btn-info tableToExcel" value="Esporta in formato Excel">
     <table class="table">
-        <tr>
-            <th>Data convocazione</th>
-            <th>Motivo</th>
-            <th>Sede</th>
-            <th style="vertical-align: middle; text-align: center">Gettone</th>
-            <th style="vertical-align: middle; text-align: center">Km</th>
-            <th style="vertical-align: middle; text-align: center">Spese e pezze giustificative</th>
-        </tr>
+        <thead>
+          <tr>
+            <th colspan="6"><h1>Nota spese {$politico.object.name|wash()} {if $politico.is_in['giunta']}(assessore){/if} <small>{$interval_name}</small></h1></th>
+          </tr>
+          <tr>
+              <th>Data convocazione</th>
+              <th>Motivo</th>
+              <th>Sede</th>
+              {*<th style="vertical-align: middle; text-align: center">Gettone</th>*}
+              <th style="vertical-align: middle; text-align: center">Chilometri</th>
+              <th style="vertical-align: middle; text-align: center">Spese</th>
+          </tr>
+        </thead>
+        <tbody>
         {foreach $sedute as $seduta}
             {def $can_modify = $seduta.liquidata|not()}
             <tr>
-                <td style="vertical-align: middle">{$seduta.data_ora|l10n('date')} <small>{$seduta.data_ora|l10n('shorttime')}</small></td>
+                <td style="vertical-align: middle">{$seduta.data_ora|l10n('date')|wash()} <small>{$seduta.data_ora|l10n('shorttime')}</small></td>
                 <td style="vertical-align: middle">{attribute_view_gui attribute=$seduta.object.data_map.organo}</td>
                 <td style="vertical-align: middle">{attribute_view_gui attribute=$seduta.object.data_map.luogo}</td>
-                <td style="vertical-align: middle; text-align: center">
+                {*<td style="vertical-align: middle; text-align: center">
                     <a href="{concat('consiglio/presenze/',$seduta.object.id, '/',$politico.object.id)|ezurl(no)}">
-                        {$politico.importo_gettone[$seduta.object.id]}€
+                        {$politico.importo_gettone[$seduta.object.id]}<span class="no-export">€</span>
                     </a>
-                </td>
+                </td>*}
                 <td style="vertical-align: middle; text-align: center">
                     {if $can_modify}
                     <a href="#" class="editable"
@@ -38,31 +43,30 @@
                     {/if}
                 </td>
                 <td style="vertical-align: middle; text-align: center">
-                    <div class="lista-spese"
-                         data-load_url="{concat('consiglio/gettoni/',$interval,'/',$politico.object.id, '/load_spese/', $seduta.object.id )|ezurl(no)}">
-                        {include uri="design:consiglio/gettoni/spese.tpl" seduta=$seduta.object.id politico=$politico.object.id}
+                    <div class="lista-spese" data-load_url="{concat('consiglio/gettoni/',$interval,'/',$politico.object.id, '/load_spese/', $seduta.object.id )|ezurl(no)}">
+                        {include uri="design:consiglio/gettoni/spese.tpl" seduta=$seduta politico=$politico}
                     </div>
                     {if $can_modify}
-                    <a href="#" class="btn btn-success btn-xs"
+                    <a href="#" class="btn btn-success btn-xs no-export"
                        data-toggle="modal"
                        data-target="#addSpesaTemplate"
                        data-seduta="{$seduta.object.id}"
                        data-name="spesa">
-                    <i class="fa fa-plus"></i> Aggiungi spesa
+                      <i class="fa fa-plus"></i> Aggiungi spesa
                     </a>
                     {/if}
                 </td>
             </tr>
             {undef $can_modify}
         {/foreach}
-    </table>
-
-    <h2>Informazioni</h2>
-
-    <table class="table">
-        <tr>
-            <th><label for="iban">Coordinate Bancarie (codice IBAN)</label></th>
-            <td>
+        
+          <tr>
+            <th colspan="6"><h2>Informazioni</h2></th>
+          </tr>
+        
+          <tr>
+            <td colspan="3"><label for="iban">Coordinate Bancarie (codice IBAN)</label></th>
+            <td colspan="3">
                 <a href="#" class="editable"
                    data-type="text"
                    data-name="iban"
@@ -72,24 +76,25 @@
                     {$iban}
                 </a>
             </td>
-        </tr>
-        <tr>
-            <th><label for="trattenute">Applicare trattenuta (valore in %)</label></th>
-            <td>
-                <a href="#" class="editable"
-                   data-type="text"
-                   data-name="trattenute"
-                   data-pk="{$politico.object.id}"
-                   data-url="{concat('/consiglio/gettoni/',$interval,'/',$politico.object.id, '/add_trattenute')|ezurl(no)}"
-                   data-title="Modifica percentuale trattenute">
-                    {$trattenute}
-                </a>
-            </td>
-        </tr>
+          </tr>
+          <tr>
+              <td colspan="3"><label for="trattenute">Applicare trattenuta (valore in %)</label></th>
+              <td colspan="3">
+                  <a href="#" class="editable"
+                     data-type="text"
+                     data-name="trattenute"
+                     data-pk="{$politico.object.id}"
+                     data-url="{concat('/consiglio/gettoni/',$interval,'/',$politico.object.id, '/add_trattenute')|ezurl(no)}"
+                     data-title="Modifica percentuale trattenute">
+                      {$trattenute}
+                  </a>
+              </td>
+          </tr>
+        </tbody>
     </table>
 </form>
 
-{ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-editable.min.js', 'jquery.fileupload.js', 'photobooth_min.js' ) )}
+{ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-editable.min.js', 'jquery.fileupload.js', 'photobooth_min.js', 'jquery.base64.js','tableExport.js' ) )}
 {ezcss_require(array('bootstrap3-editable/css/bootstrap-editable.css', 'jquery.fileupload.css'))}
 <style>{literal}.photobooth ul, .photobooth ul li{margin: 0; padding: 0; list-style: none}{/literal}</style>
 <script>{literal}
@@ -216,7 +221,11 @@
                 });
             }
         });
-
+        
+        $(document).on('click', '.tableToExcel', function(e){
+            var table = $(e.currentTarget).next();            
+            table.tableExport({type:'excel',escape:'false'});
+        });
 
     });
 {/literal}</script>

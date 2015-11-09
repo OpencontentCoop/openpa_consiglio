@@ -268,7 +268,7 @@ THE SOFTWARE.*/
 					excelFile += "</x:ExcelWorkbook>";
 					excelFile += "</xml>";
 					excelFile += "<![endif]-->";
-                    excelFile += "<meta http-equiv='content-type' content='text/plain; charset=UTF-8'/>";
+          excelFile += "<meta http-equiv='content-type' content='text/plain; charset=UTF-8'/>";
 					excelFile += "</head>";
 					excelFile += "<body>";
 					excelFile += excel;
@@ -276,7 +276,7 @@ THE SOFTWARE.*/
 					excelFile += "</html>";
 
 					var base64data = "base64," + $.base64.encode(excelFile);
-					window.open('data:application/vnd.ms-'+defaults.type+';filename=exportData.xls;' + base64data);
+					window.open('data:application/vnd.ms-'+defaults.type+';filename=exportData;' + base64data);
 					
 				}else if(defaults.type == 'png'){
 					html2canvas($(el), {
@@ -336,14 +336,16 @@ THE SOFTWARE.*/
 				}
 				
 				
-				function parseString(data){
+				function parseString(originalData){
 				
-					data.find('.no-export').remove();
+          data = originalData.clone(true);
+					
+          data.find('.no-export').remove();
                     
-                    if(defaults.htmlContent == 'true'){
+          if(defaults.htmlContent == 'true'){
 						content_data = data.html().trim();
 					}else{						
-                        content_data = data.text().trim();
+            content_data = data.text().trim();
 					}
 					
 					if(defaults.escape == 'true'){
