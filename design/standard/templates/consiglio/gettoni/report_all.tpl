@@ -29,8 +29,10 @@
                         {def $importo = $politico.importo_gettone[$seduta.object.id]}
                         <div class="progress" style="margin-bottom: 0">
                             <div class="progress-bar progress-bar-{if $progress|gt(75)}success{elseif $progress|gt(25)}warning{else}danger{/if}"
-                                 style="min-width: 4em;width:{$progress}%;">
-                                <a style="color:#fff" href="{concat('consiglio/presenze/',$seduta.object.id, '/',$politico.object.id)|ezurl(no)}">{$importo}€</a>
+                                 style="min-width: 4em;width:{$progress}%;">                                
+								 <a style="color:#fff" href="#{$politico.object.id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$seduta.object.id, '/',$politico.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenze">
+								  {$importo}€
+								</a>
                             </div>
                         </div>
                         {set $somma = $somma|append( $importo )}
@@ -52,7 +54,20 @@
 <script type="text/javascript">
 {literal}
     $(document).ready(function() {
-        $('table.responsive-table').responsiveTables();
+        var table = $('table.responsive-table');
+		if (table.find('th').length > 8) table.responsiveTables();
+		$('#detailPresenze').on('show.bs.modal', function (event) {
+            var url = $(event.relatedTarget).data('url');
+            $(this).find('.modal-content').load(url);
+        }).on('hide.bs.modal', function (event) {
+            $(this).find('.modal-content').html('<em>Caricamento...</em>');
+        });
     });
 {/literal}
 </script>
+
+<div id="detailPresenze" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content"><em>Caricamento...</em></div>
+    </div>
+</div>

@@ -48,6 +48,7 @@ class OpenPAConsiglioGettoniInterval
             }
             else
             {
+                $locale = eZLocale::instance();
                 $this->type = 'date';
                 if ( $year >= $this->startYear && $year <= $this->endYear )
                 {
@@ -80,10 +81,10 @@ class OpenPAConsiglioGettoniInterval
                         $this->intervalName = "Anno $year";
                         break;
 
-                    default:
+                    default:                        
                         $this->startDateTime->setDate( $year, $period, 1 );
                         $this->endDateTime->setDate( $year, $period+1, 1 );
-                        $this->intervalName = $this->startDateTime->format( 'n/Y' );
+                        $this->intervalName = $locale->longMonthName( $this->startDateTime->format( 'm' ) ) . " $year";
                 }
             }
         }
