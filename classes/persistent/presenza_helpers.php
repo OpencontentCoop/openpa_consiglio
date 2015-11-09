@@ -310,6 +310,10 @@ class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
                 $percent = $data['in_percent'];
                 return $this->calcolaImportoGettone( $data['in_percent'] );
             }
+            elseif ( $this->functionName == 'presenze' )
+            {
+                return $data['detections'];
+            }
         }
 
         return null;

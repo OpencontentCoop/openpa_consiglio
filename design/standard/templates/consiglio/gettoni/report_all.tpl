@@ -20,9 +20,9 @@
                     {if $is_assessore}(assessore){/if}
                 </a>
             </td>
-            {def $somma = array()}
+            {def $somma = array() $progress = false()}
             {foreach $sedute as $seduta}
-                {def $progress = $politico.percentuale_presenza[$seduta.object.id]}
+                {set $progress = $politico.percentuale_presenza[$seduta.object.id]}
                 <td style="vertical-align: middle; text-align: center"{if and( $seduta.competenza|eq('Giunta'), $is_assessore|not() )}class="active"{/if}>
                     {if and( $seduta.competenza|eq('Giunta'), $is_assessore|not() )}{skip}{/if}
                     {if and( $progress, $progress|gt(0) )}
@@ -37,14 +37,17 @@
                         </div>
                         {set $somma = $somma|append( $importo )}
                         {undef $importo}
-                    {/if}
-                </td>
-                {undef $progress}
+                    {elseif count($politico.rilevazioni_presenze[$seduta.object.id])|eq(0)}
+					  <a href="#{$politico.object.id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$seduta.object.id, '/',$politico.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenze">
+						?
+					  </a>
+					{/if}
+                </td>                
             {/foreach}
             <td style="vertical-align: middle; text-align: center">
                 {$somma|array_sum()}€
             </td>
-            {undef $somma}
+            {undef $somma $progress}
         </tr>
         {undef $is_assessore}
     {/foreach}

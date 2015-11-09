@@ -84,7 +84,7 @@ class OpenPAConsiglioGettoniInterval
                     default:                        
                         $this->startDateTime->setDate( $year, $period, 1 );
                         $this->endDateTime->setDate( $year, $period+1, 1 );
-                        $this->intervalName = $locale->longMonthName( $this->startDateTime->format( 'm' ) ) . " $year";
+                        $this->intervalName = $locale->longMonthName( $this->startDateTime->format( 'n' ) ) . " $year";
                 }
             }
         }
