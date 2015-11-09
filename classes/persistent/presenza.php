@@ -253,7 +253,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
 
     /**
      * L'ultimo intervento del segretario in senso positivo (marca come presente) fa in modo che il sistema ignori i beacons negativi
-     * Per disattivare questo stato è necessario un intervento un intervento negativo del segretaario
+     * Per disattivare questo stato è necessario un intervento negativo del segretario
      */
     public function isIn()
     {

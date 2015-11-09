@@ -39,15 +39,21 @@
         if ( presenza == undefined ) {
             presenza = {
                 Type: null,
+                InOut: 0,
                 IsIn: 0
             };
         }
         var properties = {}, text;
         if (presenza.IsIn == 1) {
-            properties.color = '#5cb85c';
+            properties.color = '#5cb85c';            
+        } else {
+            properties.color = '#f0ad4e';            
+        }
+        if (presenza.InOut == 1) {
+            properties.detection_color = '#5cb85c';
             text = 'presente';
         } else {
-            properties.color = '#f0ad4e';
+            properties.detection_color = '#f0ad4e';
             text = 'assente';
         }
         properties.title = presenza.Type + ": " + text + " (" + timeConverter(presenza.CreatedTime) + ")";
@@ -136,6 +142,12 @@
             };
 
             var setTimeHolders = function(now){
+                var newEnd = Math.round(+new Date()/1000) + 600;
+                if( now > that.end ){
+                    that.end = newEnd;
+                    that.total = that.end - that.start;
+                    that.build();
+                }
                 $.each(userTimelines, function(){
                     var presenza = $(this.items).get(-1);
                     var interval = $('#timeholder-'+this.id);
@@ -160,9 +172,9 @@
 
         // Method for updating the plugins options.
         TimelinePresenze.prototype.add = function(presenza) {
-            var now = Math.round(+new Date()/1000) + 3600;
+            var newEnd = Math.round(+new Date()/1000) + 3600;
             if( presenza.CreatedTime > (this.end+60) ){
-                this.end = now;
+                this.end = newEnd;
                 this.total = this.end - this.start;
                 this.build();
             }else {
@@ -177,7 +189,7 @@
                         var zIndex = 10000 - presenzeLoaded.length;
                         var interval = $(singleIntervalTemplate).css('width', percent).css('background', lastProperties.color).css('z-index', zIndex);
                         userTimeline.timeline.append(interval);
-                        var event = $(singleEventTemplate).css('left', percent).attr('title', properties.title).css('color', properties.color);
+                        var event = $(singleEventTemplate).css('left', percent).attr('title', properties.title).css('color', properties.detection_color);
                         if (userTimeline.items.length % 2 == 1) {
                             event.css('top', '-11px').addClass('fa-caret-down');
                             presenza.position = 'top';
