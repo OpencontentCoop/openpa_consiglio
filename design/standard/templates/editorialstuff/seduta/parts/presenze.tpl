@@ -51,6 +51,7 @@
                 timeline.add({
                     CreatedTime: data.timestamp,
                     ID: data.id,
+                    IsIn: data.is_in,
                     InOut: data.in_out,
                     SedutaID: data.seduta_id,
                     Type: data.type,

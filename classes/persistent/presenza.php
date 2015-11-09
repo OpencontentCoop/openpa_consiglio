@@ -33,6 +33,7 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
             $this->UserID = intval( $this->UserID );
             $this->SedutaID = intval( $this->SedutaID );
             $this->InOut = intval( $this->InOut );
+            $this->IsIn = intval( $this->isIn() );
         }
     }
 
@@ -250,9 +251,20 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         $this->UserID = $id;
     }
 
-    //@todo gestire priorità manuale | checkin | beacons
+    /**
+     * L'ultimo intervento del segretario in senso positivo (marca come presente) fa in modo che il sistema ignori i beacons negativi
+     * Per disattivare questo stato è necessario un intervento un intervento negativo del segretaario
+     */
     public function isIn()
     {
+        if ( $this->attribute( 'type' ) == 'beacons' && intval( $this->attribute( 'in_out' ) ) == 0 )
+        {
+            $hasManual = $this->hasManual();
+            if ( $hasManual )
+            {
+                return $hasManual;
+            }
+        }
         return $this->attribute( 'in_out' );
     }
 

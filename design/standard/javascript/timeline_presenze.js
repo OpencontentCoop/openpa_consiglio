@@ -39,11 +39,11 @@
         if ( presenza == undefined ) {
             presenza = {
                 Type: null,
-                InOut: 0
+                IsIn: 0
             };
         }
         var properties = {}, text;
-        if (presenza.InOut == 1) {
+        if (presenza.IsIn == 1) {
             properties.color = '#5cb85c';
             text = 'presente';
         } else {
