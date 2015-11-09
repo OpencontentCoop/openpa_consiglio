@@ -1226,7 +1226,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
         foreach( $this->partecipanti() as $partecipante )
         {
-            $export->addColumn( new TextColumn( $partecipante->attribute( 'name' ) ) );
+            $export->addColumn( new TextColumn( $partecipante->getObject()->attribute( 'name' ) ) );
         }
 
         foreach( $this->votazioni() as $votazione )
