@@ -1,5 +1,14 @@
 <?php
 
+use Fusonic\SpreadsheetExport\Spreadsheet;
+use Fusonic\SpreadsheetExport\ColumnTypes\CurrencyColumn;
+use Fusonic\SpreadsheetExport\ColumnTypes\DateColumn;
+use Fusonic\SpreadsheetExport\ColumnTypes\NumericColumn;
+use Fusonic\SpreadsheetExport\ColumnTypes\TextColumn;
+use Fusonic\SpreadsheetExport\Writers\CsvWriter;
+use Fusonic\SpreadsheetExport\Writers\TsvWriter;
+use Fusonic\SpreadsheetExport\Writers\OdsWriter;
+
 class OpenPAConsiglioGettoniHelper
 {
     /**
@@ -151,6 +160,10 @@ class OpenPAConsiglioGettoniHelper
                 self::loadSpese( $currentSelectedUser, $actionParameter, $politico->id(), $interval );
                 break;
 
+            case 'export_report':
+                self::exportReport( $currentSelectedUser, $politico->id(), $interval );
+                break;
+
             case 'add_iban':
                 self::addIban( $currentSelectedUser );
                 break;
@@ -191,6 +204,80 @@ class OpenPAConsiglioGettoniHelper
 
     }
 
+    protected static function exportReport( eZUser $currentSelectedUser, $politicoId, OpenPAConsiglioGettoniInterval $interval )
+    {
+        /** @var Politico $politico */
+        $politico = OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId( intval( $politicoId ) );
+
+        $helper = new OpenPAConsiglioGettoniHelper();
+        $helper->setPolitico( $politico );
+
+        // Instantiate new spreadsheet
+        $export = new Spreadsheet();
+
+        $export->addColumn(new TextColumn("Convocazione"));
+        $export->addColumn(new TextColumn("Sede"));
+        $export->addColumn(new TextColumn("Chilometri"));
+        $export->addColumn(new TextColumn("Spese"));
+
+        $export->addRow( array( $interval->intervalName, 'Nota spese ' . $politico->getObject()->attribute( 'name' ), '', '' ) );
+        $export->addRow( array( 'Convocazione', 'Sede', 'Chilometri', 'Spese' ) );
+
+        $sedute = $helper->getSedute( $interval );
+        $rows = array();
+        $totaloneKm = array();
+        $totaloneSpese = array();
+        foreach( $sedute as $seduta )
+        {
+            $km = 0;
+            $kmObj = eZContentObject::fetchByRemoteID( $seduta->id() . '_' . $politico->id() );
+            if ( $kmObj instanceof eZContentObject )
+            {
+                /** @var eZContentObjectAttribute[] $kmDataMap */
+                $kmDataMap = $seduta->attribute( 'data_map' );
+                $km = $kmDataMap['amount']->toString();
+            }
+            $totaloneKm[] = $km;
+
+            $totaleSpese = array();
+            $spese = eZFunctionHandler::execute( 'ezfind', 'search', array(
+                'class_id' => array('rendiconto_spese'),
+                'filter' => array( 'meta_owner_id_si:'.$politico->id(), 'submeta_relations___id_si:'.$seduta->id() )
+            ));
+            if ( $spese['SearchCount'] > 0 )
+            {
+                /** @var eZFindResultNode $spesa */
+                foreach( $spese['SearchResult'] as $spesa )
+                {
+                    $spesaDataMap = $spesa->attribute( 'data_map' );
+                    /** @var eZContentObjectAttribute[] $spesaDataMap */
+                    $spesaDataMap = $spesa->attribute( 'data_map' );
+                    $totaleSpese[] = $spesaDataMap['amount']->toString();
+                    $totaloneSpese[] = $spesaDataMap['amount']->toString();
+                }
+            }
+
+            /** @var eZContentObjectAttribute[] $dataMap */
+            $dataMap = $seduta->getObject()->attribute( 'data_map' );
+            $row = array(
+                $seduta->getObject()->attribute( 'name' ),
+                $dataMap['luogo']->toString(),
+                $km,
+                array_sum( $totaleSpese )
+            );
+            $export->addRow( $row );
+        }
+
+        $export->addRow( array( 'Totale', '', array_sum( $totaloneKm ), array_sum( $totaloneSpese ) ) );
+        $export->addRow( array( '', '', '', '' ) );
+        $export->addRow( array( 'IBAN', '', eZPreferences::value( 'consiglio_gettoni_iban', $currentSelectedUser ) , '' ) );
+        $export->addRow( array( 'TRATTENUTE', '', eZPreferences::value( 'consiglio_gettoni_trattenute', $currentSelectedUser ) , '' ) );
+
+        $writer = new OdsWriter();
+        //$writer->includeColumnHeaders = true;
+        $export->download($writer, "Sample");
+    }
+
     protected static function loadSpese( eZUser $currentSelectedUser, $sedutaId, $politicoId, $interval )
     {
         $tpl = eZTemplate::factory();
@@ -227,6 +314,7 @@ class OpenPAConsiglioGettoniHelper
 
         $siteaccess = eZSiteAccess::current();
         $options['upload_dir'] = eZSys::cacheDirectory() . '/fileupload/';
+        eZDir::mkdir( $options['upload_dir'], false, true );
         $options['download_via_php'] = true;
         $options['param_name'] = "File";
         $options['image_versions'] = array();
