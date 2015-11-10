@@ -65,13 +65,24 @@ foreach( $presenti as $presente )
         }
         else
         {
-            $values = array( '0', '1', '2' );
-            $value = $values[mt_rand( 0, count( $values ) - 1 )];
+            $values = array();
+            if ( empty( $options['fav'] ) ) $values[] = "1";
+            if ( empty( $options['con'] ) ) $values[] = "0";
+            if ( empty( $options['ast'] ) ) $values[] = "2";
+            $key = array_rand( $values );
+            $value = $values[$key];
         }
         $cli->warning(
             'Voto ' . $value . ' per ' . $presente->attribute( 'contentobject' )->attribute( 'name' )
         );
-        $votazione->addVoto( $value, $presente->id() );
+        try
+        {
+            $votazione->addVoto( $value, $presente->id() );
+        }
+        catch( Exception $e )
+        {
+            $cli->error( $e->getMessage() );
+        }
     }
 }
 
