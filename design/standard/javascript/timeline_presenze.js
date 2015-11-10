@@ -27,7 +27,7 @@
         var min = a.getMinutes();
         var sec = a.getSeconds();
         //date + '/' + month + '/' + year + ' ' +
-        return hour + ':' + min + ':' + sec ;
+        return ('0'+hour).slice(-2) + ':' + ('0'+min).slice(-2) + ':' + ('0'+sec).slice(-2) ;
     };
 
     var singleEventTemplate = '<i class="fa has-tooltip" style="position: absolute;margin-left:-5px;font-size: 1.2em" data-placement="left" data-toggle="tooltip"></i>';
