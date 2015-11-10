@@ -74,7 +74,7 @@
     {/literal}
 </script>
 <style>
-    .tooltip,.modal {ldelim}z-index:11000{rdelim}
+    .tooltip,.modal, #navigation {ldelim}z-index:11000{rdelim}
     .modal-backdrop{ldelim}z-index:10001{rdelim}
 </style>
 

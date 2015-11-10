@@ -257,18 +257,38 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
      */
     public function isIn()
     {
-        if ( $this->attribute( 'type' ) == 'beacons' && intval( $this->attribute( 'in_out' ) ) == 0 )
+        if ( $this->attribute( 'type' ) == 'beacons' )
         {
-            $hasManual = $this->hasManual();
-            if ( $hasManual )
+            $hasCheckout = false;
+            $hasCheckin = $this->hasCheckin( true );
+            if ( $hasCheckin instanceof OpenPAConsiglioPresenza && intval( $hasCheckin->attribute( 'in_out' ) ) == 0 )
             {
-                return $hasManual;
+                $hasCheckout = true; // ha già eseguito il checkout
             }
+            if ( $hasCheckout )
+            {
+                return false;
+            }
+            else
+            {
+                $hasManual = $this->hasManual( true );
+                if ( $hasManual instanceof OpenPAConsiglioPresenza )
+                {
+                    if ( intval( $hasManual->attribute( 'in_out' ) ) == 0 && intval( $this->attribute( 'in_out' ) ) == 1 )
+                    {
+                        return false; // beacons postivo ma e manual negativo
+                    }
+                    elseif ( intval( $hasManual->attribute( 'in_out' ) ) == 1 && intval( $this->attribute( 'in_out' ) ) == 0 )
+                    {
+                        return true; // beacons negativo ma e manual positivo
+                    }
+                }
+            }            
         }
         return $this->attribute( 'in_out' );
     }
 
-    public function hasCheckin()
+    public function hasCheckin( $asObject = false )
     {
         /** @var OpenPAConsiglioPresenza[] $presenze */
         $presenze = parent::fetchObjectList(
@@ -285,12 +305,15 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         );
         if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
         {
-            return $presenze[0]->attribute( 'in_out' );
+            if ( $asObject )
+                return $presenze[0];
+            else
+                return $presenze[0]->attribute( 'in_out' );
         }
         return false;
     }
 
-    public function hasManual()
+    public function hasManual( $asObject = false )
     {
         $sedutaId = $this->attribute( 'seduta_id' );
         if ( !empty( $sedutaId ) )
@@ -310,13 +333,16 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
             );
             if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
             {
-                return $presenze[0]->attribute( 'in_out' );
+                if ( $asObject )
+                    return $presenze[0];
+                else
+                    return $presenze[0]->attribute( 'in_out' );
             }
         }
         return false;
     }
 
-    public function hasBeacons()
+    public function hasBeacons( $asObject = false )
     {
         /** @var OpenPAConsiglioPresenza[] $presenze */
         $presenze = parent::fetchObjectList(
@@ -333,7 +359,10 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
         );
         if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
         {
-            return $presenze[0]->attribute( 'in_out' );
+            if ( $asObject )
+                return $presenze[0];
+            else
+                return $presenze[0]->attribute( 'in_out' );
         }
         return false;
     }
