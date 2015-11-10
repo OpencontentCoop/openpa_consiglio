@@ -44,7 +44,7 @@
         }).on('hide.bs.modal', function (event) {
             $(this).find('.modal-content').html('<em>Caricamento...</em>');
         });
-{/literal}{if $post.current_state.identifier|eq( 'in_progress' )}{literal}
+{/literal}{if or( $post.current_state.identifier|eq( 'sent' ), $post.current_state.identifier|eq( 'in_progress' ) )}{literal}
         var socket = io(SocketUrl+':'+SocketPort);
         socket.on('presenze', function (data) {
             if (data.seduta_id == CurrentSedutaId) {
