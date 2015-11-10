@@ -184,6 +184,25 @@ elseif ( $action )
                 );
             } break;
 
+            case 'launchMonitorPunto':
+            {
+                $puntoId = $actionParameters;
+                foreach ( $seduta->odg() as $punto )
+                {
+                    if ( $punto->id() == $puntoId )
+                    {
+                        OpenPAConsiglioPushNotifier::instance()->emit(
+                            'show_punto',
+                            $punto->jsonSerialize()
+                        );
+                        OpenPAConsiglioPushNotifier::instance()->emit(
+                            'null',
+                            array()
+                        );
+                    }
+                }
+            } break;
+
             case 'saveVerbale':
             {
                 $seduta->saveVerbale( $http->postVariable( 'Verbale' ) );

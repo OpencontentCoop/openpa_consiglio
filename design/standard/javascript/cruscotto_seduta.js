@@ -110,6 +110,11 @@ $(document).on('click', '.launch_monitor_presenze', function (e) {
     e.preventDefault();
 });
 
+$(document).on('click', '.launch_monitor_punto', function (e) {
+    $.ajax({url: $(this).data('action_url'), method: 'GET'});
+    e.preventDefault();
+});
+
 $(document).ready(function () {
     $("#loading").addClass( 'text-danger' ).show();
     Presenze.sortPartecipanti();

@@ -29,6 +29,16 @@ socket.on('start_punto', function (data) {
     }
 });
 
+socket.on('show_punto', function (data) {
+    if (data.seduta_id == CurrentSedutaId) {
+        $('#presenze').hide();
+        $('#detail').hide();
+        $('#text').show().find('.data').show();
+        $('#text').show().find( 'h1.text-content').html('<strong>Punto ' + data.numero + '</strong><br />' + data.oggetto);
+        $('#text').show().find('.alert').hide();
+    }
+});
+
 socket.on('stop_punto', function (data) {
     if (data.seduta_id == CurrentSedutaId) {
         $('#presenze').show();
