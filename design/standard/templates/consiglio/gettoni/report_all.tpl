@@ -4,7 +4,7 @@
 	<tr>	  
         <th style="vertical-align: middle">Consiglieri</th>
         {foreach $sedute as $seduta}
-            <th style="vertical-align: middle; text-align: center">
+            <th style="vertical-align: middle; text-align: center;{if $seduta.competenza|eq('Giunta')}background:#eee;{/if}">
                 <a href="{$seduta.editorial_url|ezurl(no)}">
                     {$seduta.competenza}<br />{$seduta.data_ora|datetime('custom', '%j %M <small>%H:%i</small>')}
                 </a>
@@ -28,7 +28,7 @@
 			
                 {set $presenze = count($politico.rilevazioni_presenze[$seduta.object.id])}
 				{set $progress = $politico.percentuale_presenza[$seduta.object.id]}
-                <td style="vertical-align: middle; text-align: center"{if and( $seduta.competenza|eq('Giunta'), $is_assessore|not() )}class="active"{/if}>
+                <td style="vertical-align: middle; text-align: center; {if and( $seduta.competenza|eq('Giunta'), $is_assessore|not() )}background:#ccc;{elseif $seduta.competenza|eq('Giunta')}background:#eee;{/if}">
 					
 					{if and( $seduta.competenza|eq('Giunta'), $is_assessore|not() )}{skip}{/if}
 					
