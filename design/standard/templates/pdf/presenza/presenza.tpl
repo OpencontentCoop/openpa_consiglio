@@ -33,7 +33,7 @@
         {else}
             di Giunta del Consiglio delle autonomie locali
         {/if}
-        il giorno {$seduta.data_ora|datetime( 'custom', '%j %F %Y' )}, dalle ore {$seduta.data_ora|datetime( 'custom', '%H:%i' )} alle ore {$seduta.data_ora_fine|datetime( 'custom', '%H:%i' )}.</p>
+        il giorno {$seduta.data_ora|datetime( 'custom', '%j %F %Y' )}, dalle ore {$checkin|datetime( 'custom', '%H:%i' )} alle ore {$checkout|datetime( 'custom', '%H:%i' )}.</p>
 
     <p class="indent">In fede</p>
 <br />

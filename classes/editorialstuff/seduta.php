@@ -1172,6 +1172,13 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                     }
                 }
 
+                $helper = new OpenPAConsiglioPresenzaHelper( $this, null, $politico->attribute( 'id' ) );
+                $data = $helper->getData();
+                $checkin = $data['checkin'] ? $data['checkin'] : $this->dataOraEffettivaInizio();
+                $checkout = $data['checkout'] ? $data['checkout'] : $this->dataOraFine();
+                $tpl->setVariable( 'checkin', $checkin );
+                $tpl->setVariable( 'checkout', $checkout );
+
                 $content = $tpl->fetch( 'design:pdf/presenza/presenza.tpl' );
 
                 /** @var eZContentClass $objectClass */

@@ -91,7 +91,9 @@ class OpenPAConsiglioPresenzaHelper
             'events' => array(),
             'time' => 0,
             'in_percent' => 0,
-            'out_percent' => 0
+            'out_percent' => 0,
+            'checkin' => false,
+            'checkout' => false
         );
     }
 
@@ -104,6 +106,11 @@ class OpenPAConsiglioPresenzaHelper
         $inPercent = array();
         $outPercent = array();
         $totalTimeCount = array();
+        $checkin = false;
+        $checkout = false;
+
+        $inArray = array();
+        $outArray = array();
 
         $timeStampInizioSeduta = $this->seduta->dataOraEffettivaInizio();
 
@@ -186,6 +193,21 @@ class OpenPAConsiglioPresenzaHelper
 
                     $tempDetections[$detection->attribute( 'created_time' )][] = $detection;
                     $isIn = $detection->attribute( 'is_in' );
+
+                    if ( $detection->attribute( 'is_in' ) == 1 )
+                    {
+                        if ( $detection->attribute( 'type' ) == 'checkin' )
+                        {
+                            $inArray[] = $detection;
+                        }
+                        $outArray = array();
+                    }
+
+                    if ( $detection->attribute( 'is_in' ) == 0
+                         && ( $detection->attribute( 'type' ) == 'checkin' || $detection->attribute( 'type' ) == 'manual' ) )
+                    {
+                        $outArray[] = $detection;
+                    }
                 }
             }
 
@@ -213,6 +235,23 @@ class OpenPAConsiglioPresenzaHelper
             'name' => $endText
         );
 
+        if ( !empty( $inArray ) )
+        {
+            $in = array_shift( $inArray );
+            if ( $in instanceof OpenPAConsiglioPresenza )
+            {
+                $checkin = $in->attribute( 'created_time' );
+            }
+        }
+
+        if ( !empty( $outArray ) )
+        {
+            $out = array_shift( $outArray );
+            if ( $out instanceof OpenPAConsiglioPresenza )
+            {
+                $checkout = $out->attribute( 'created_time' );
+            }
+        }
 
 
         $inPercentSum = array_sum( $inPercent );
@@ -224,7 +263,9 @@ class OpenPAConsiglioPresenzaHelper
             'time' => $totalTime,
             'control' => array_sum( $totalTimeCount ),
             'in_percent' => number_format( $inPercentSum, 2 ),
-            'out_percent' => number_format( $outPercentSum, 2 )
+            'out_percent' => number_format( $outPercentSum, 2 ),
+            'checkin' => $checkin,
+            'checkout' => $checkout
         );
     }
 
