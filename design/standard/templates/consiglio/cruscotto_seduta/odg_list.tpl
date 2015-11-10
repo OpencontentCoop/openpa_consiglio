@@ -2,7 +2,7 @@
     {foreach $post.odg as $index => $punto}
         <div class="list-group-item{if $punto.current_state.identifier|eq('in_progress')} list-group-item-success{elseif $punto.current_state.identifier|eq('closed')} list-group-item-info{/if}">
 
-            <a href="#" data-action_url="{concat('consiglio/cruscotto_seduta/',$post.object_id,'/launchMonitorPunto/',$punto.object_id)|ezurl()}" class="btn btn-info btn-xs launch_monitor_punto pull-right"><i class="fa fa-desktop"></i></a>
+            <a href="#" data-action_url="{concat('consiglio/cruscotto_seduta/',$post.object_id,'/launchMonitorPunto/',$punto.object_id)|ezurl(no)}" class="btn btn-info btn-xs launch_monitor_punto pull-right"><i class="fa fa-desktop"></i></a>
 
             <p>
                 <a href="#" class="show-verbale" data-verbale_id="{$punto.object.id}">
