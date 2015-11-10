@@ -43,4 +43,24 @@ class SedutaFactory extends OCEditorialStuffPostFactory
         );
         return $fields;
     }
+
+    public static function reindex()
+    {
+        /** @var Seduta[] $sedute */
+        $sedute = OCEditorialStuffHandler::instance( 'seduta' )->fetchItems(
+            array(
+                'state' => array( 'closed' ),
+                'limit' => 1000,
+                'offset' => 0,
+                'sort' => array( 'modified' => 'desc' )
+            ), array()
+        );
+        foreach( $sedute as $seduta )
+        {
+            $objectID = $seduta->id();
+            eZDB::instance()->query( "INSERT INTO ezpending_actions( action, param ) VALUES ( 'index_object', '$objectID' )" );
+        }
+
+    }
+
 }
