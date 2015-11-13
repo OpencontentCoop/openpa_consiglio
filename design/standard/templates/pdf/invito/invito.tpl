@@ -12,7 +12,7 @@
 </div>
 <div id="content" style="line-height: {$line_height}em;">
     <p>
-        <i>Trento, {current_date()|datetime( 'custom', '%j %F %Y' )}</i><br />
+        <i>Trento, {currentdate()|datetime( 'custom', '%j %F %Y' )}</i><br />
         {if $protocollo}<i>Prot. n. {$protocollo}</i>{/if}
     </p>
 
