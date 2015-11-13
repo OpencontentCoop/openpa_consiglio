@@ -98,6 +98,20 @@
                             </table>
                         </td>
                     </tr>
+					<tr>
+                        <td>Assenti</td>
+                        <td colspan="7">
+                            <table class="table table-condensed">
+                                <tr>
+                                    <td style="vertical-align: middle;border-top: none">
+                                        <small>
+                                            {foreach $post_result.assenti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}
+                                        </small>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
                   </tbody>    
                 {else}
                   <thead>
