@@ -75,10 +75,18 @@ $ViewList['presenze'] = array(
     'unordered_params' => array()
 );
 
+$ViewList['collaboration'] = array(
+    'functions' => array( 'collaboration' ),
+    'script' => 'collaboration.php',
+    'params' => array( 'ReferenteId', 'Action' ),
+    'unordered_params' => array( 'offset' => 'Offset' )
+);
+
 
 
 $FunctionList = array();
 $FunctionList['use'] = array();
+$FunctionList['collaboration'] = array();
 $FunctionList['admin'] = array();
 $FunctionList['cruscotto_seduta'] = array();
 $FunctionList['monitor_sala'] = array();

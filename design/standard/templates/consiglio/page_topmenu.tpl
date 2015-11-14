@@ -15,8 +15,13 @@
 
         <div class="main-nav" role="navigation">
             <ul class="horizontal_list main_menu clearfix">
-                <li class="menu-item{if $current_module|eq('consiglio/dashboard/')} current{/if}"><a href="{'consiglio/dashboard'|ezurl(no)}"><b>Bacheca</b></a></li>
-                <li class="menu-item{if $current_module|eq('consiglio/collaboration/')} current{/if}"><a href="{'consiglio/collaboration'|ezurl(no)}"><b>Area collaborativa</b></a></li>
+                {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'use' ))}
+                    <li class="menu-item{if $current_module|eq('consiglio/dashboard/')} current{/if}"><a href="{'consiglio/dashboard'|ezurl(no)}"><b>Bacheca</b></a></li>
+                {/if}
+
+                {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'collaboration' ))}
+                    <li class="menu-item{if $current_module|eq('consiglio/collaboration/')} current{/if}"><a href="{'consiglio/collaboration'|ezurl(no)}"><b>Area collaborativa</b></a></li>
+                {/if}
 
                 {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
                 <li class="menu-item{if or($current_module|eq('editorialstuff/dashboard/seduta'),$current_module|eq('editorialstuff/dashboard/audizione'))} current{/if}">
@@ -42,7 +47,7 @@
                         </ul>
                     </div>
                 </li>
-                {else}
+                {elseif fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'use' ))}
                   <li class="menu-item{if $current_module|eq('editorialstuff/dashboard/seduta')} current{/if}"><a href="{'editorialstuff/dashboard/seduta'|ezurl(no)}"><b>Archivio sedute</b></a></li>
                   <li class="menu-item{if $current_module|eq('editorialstuff/dashboard/audizione')} current{/if}"><a href="{'editorialstuff/dashboard/audizione'|ezurl(no)}"><b>Archivio audizioni</b></a></li>
                   <li class="menu-item{if $current_module|eq('editorialstuff/dashboard/parere')} current{/if}"><a href="{'editorialstuff/dashboard/parere'|ezurl(no)}"><b>Archivio pareri</b></a></li>
