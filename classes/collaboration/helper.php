@@ -9,6 +9,8 @@ class OpenPAConsiglioCollaborationHelper
      */
     protected $referente;
 
+    public $redirectParams;
+
     public function __construct()
     {
         self::createCollaborationContainerIfNeeded();
@@ -142,6 +144,7 @@ class OpenPAConsiglioCollaborationHelper
                 if ( $parentNodeId && ( $filePath || $text ) )
                 {
                     $this->addComment( $parentNodeId, $text, $filePath );
+                    $this->redirectParams = '/tag-' . $parentNodeId;
                 }
             }
         }

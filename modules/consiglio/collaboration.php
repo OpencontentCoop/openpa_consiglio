@@ -47,7 +47,7 @@ elseif( $referente instanceof eZuser )
         }
         elseif ( is_string( $action ) && $helper->executeAction( $action ) )
         {
-            $module->redirectTo( 'consiglio/collaboration/' . $referente->id() );
+            $module->redirectTo( 'consiglio/collaboration/' . $referente->id() . $helper->redirectParams );
             return;
         }
 
