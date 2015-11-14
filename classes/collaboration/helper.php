@@ -73,7 +73,7 @@ class OpenPAConsiglioCollaborationHelper
      */
     public function getAreaUsers( $asObject = true )
     {
-        $users = array( 14 );
+        $users = array();
         $limitValue = $this->getArea()->attribute( 'path_string' );
         $role = self::createRoleIfNeeded();
         $query = "SELECT * FROM ezuser_role WHERE role_id='{$role->ID}' AND limit_identifier='Subtree' AND limit_value='$limitValue'";
@@ -83,7 +83,7 @@ class OpenPAConsiglioCollaborationHelper
         {
             $users[] = $row['contentobject_id'];
         }
-        return $asObject ? eZContentObject::fetchIDArray( $users ) : $users;
+        return $asObject ? !empty( $users ) ? eZContentObject::fetchIDArray( $users ) : array() : $users;
     }
 
     /**
@@ -110,7 +110,7 @@ class OpenPAConsiglioCollaborationHelper
         }
         elseif ( $action == 'add_comment' && eZHTTPTool::instance()->hasPostVariable( 'PublishComment' ) )
         {
-            if ( in_array( eZUser::currentUserID(), $this->getAreaUserIdList() ) || eZUser::currentUserID() == 14 )
+            if ( in_array( eZUser::currentUserID(), $this->getAreaUserIdList() ) )
             {
                 $filePath = $text = $parentNodeId = null;
                 if ( eZHTTPTool::instance()->hasPostVariable( 'Tag' ) && ( eZHTTPTool::instance()->hasPostVariable( 'CommentText' ) || eZHTTPTool::instance()->hasPostVariable( 'CommentFile' ) ) )

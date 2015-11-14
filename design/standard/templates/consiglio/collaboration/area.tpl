@@ -36,6 +36,7 @@
     </div>
     <div class="col-md-3">
 
+        {if count( $area_tags )|gt(0)}
         <h3><i class="fa fa-plus"></i> Aggiungi il tuo intervento</h3>
         <div class="well well-sm clearfix">
             <form class="form" method="post" enctype="multipart/form-data" action="{concat('consiglio/collaboration/', $referente.id, '/add_comment')|ezurl(no)}">
@@ -62,6 +63,7 @@
                 <button type="submit" class="btn btn-success pull-right" name="PublishComment">Pubblica</button>
             </form>
         </div>
+        {/if}
 
         <h3><i class="fa fa-tags"></i> Tematiche di discussione</h3>
         <div class="list-group">
