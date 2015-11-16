@@ -3,7 +3,7 @@
 class OpenPAConsiglioPresenzaHelper
 {
     /**
-     * @vat OpenPAConsiglioPresenza[]
+     * @vat OpenPAConsiglioPresenza[]|OpenPAConsiglioPresenzaCached[]
      */
     protected $presenze = array();
 
@@ -48,13 +48,32 @@ class OpenPAConsiglioPresenzaHelper
 
         $this->userId = $userId;
 
-        $this->presenze = OpenPAConsiglioPresenza::fetchBySeduta(
-            $this->seduta,
-            null,
-            null,
-            null,
-            $this->userId
-        );
+        if ( $this->seduta->is( 'closed' ) )
+        {
+            $cacheFilePath = self::presenzeCacheFilePath( $this->seduta );
+            $cacheFile = eZClusterFileHandler::instance( $cacheFilePath );
+            $presenzeCached = $cacheFile->processCache(
+                array( 'OpenPAConsiglioPresenzaHelper', 'presenzeCacheRetrieve' ),
+                array( 'OpenPAConsiglioPresenzaHelper', 'presenzeCacheGenerate' ),
+                null,
+                null,
+                $seduta->id()
+            );
+            foreach( $presenzeCached as $presenzaCached )
+            {
+                $this->presenze[] = new OpenPAConsiglioPresenzaCached( $presenzaCached );
+            }
+        }
+        else
+        {
+            $this->presenze = OpenPAConsiglioPresenza::fetchBySeduta(
+                $this->seduta,
+                null,
+                null,
+                null,
+                $this->userId
+            );
+        }
 
         foreach ( $this->partecipantiIds as $userId )
         {
@@ -71,9 +90,37 @@ class OpenPAConsiglioPresenzaHelper
             {
                 $userDetections = $this->appendCustomDetections( $this->customDetections, $userDetections );
             }
-
             $this->data[$userId] = $this->getEventsAndIntervals( $userId, $userDetections );
         }
+    }
+
+    public static function presenzeCacheFilePath( Seduta $seduta )
+    {
+        $cacheFile = $seduta->id() . '.cache';
+        $cachePath = eZDir::path( array( eZSys::cacheDirectory(), 'openpa_consiglio', 'presenze', $cacheFile ) );
+        return $cachePath;
+    }
+
+    public static function presenzeCacheGenerate( $file, $sedutaId )
+    {
+        /** @var Seduta $seduta */
+        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $sedutaId );
+        $presenze = OpenPAConsiglioPresenza::fetchBySeduta( $seduta );
+        $data = array();
+        foreach( $presenze as $presenza )
+        {
+            $data[] = $presenza->jsonSerialize();
+        }
+        return array( 'content'  => $data,
+                      'scope'    => 'consiglio-presenze-seduta-cache',
+                      'datatype' => 'php',
+                      'store'    => true );
+    }
+
+    public static function presenzeCacheRetrieve( $file, $mtime, $args )
+    {
+        $Result = include( $file );
+        return $Result;
     }
 
     protected function appendCustomDetections( $newDetections, $detections )
@@ -145,7 +192,7 @@ class OpenPAConsiglioPresenzaHelper
 
     /**
      * @param int $userId
-     * @param OpenPAConsiglioPresenza[]|OpenPAConsiglioCustomDetection[] $userDetections
+     * @param OpenPAConsiglioPresenza[]|OpenPAConsiglioPresenzaCached[]|OpenPAConsiglioCustomDetection[] $userDetections
      *
      * @return array
      */
@@ -256,7 +303,7 @@ class OpenPAConsiglioPresenzaHelper
                     }
 
                     $tempDetections[$detection->attribute( 'created_time' )][] = $detection;
-                    if ( $detection instanceof OpenPAConsiglioPresenza )
+                    if ( $detection instanceof OpenPAConsiglioPresenza || $detection instanceof OpenPAConsiglioPresenzaCached )
                     {
                         $isIn = intval( $detection->attribute( 'is_in' ) );
 
@@ -310,7 +357,7 @@ class OpenPAConsiglioPresenzaHelper
         if ( !empty( $inArray ) )
         {
             $in = array_shift( $inArray );
-            if ( $in instanceof OpenPAConsiglioPresenza )
+            if ( $in instanceof OpenPAConsiglioPresenza || $in instanceof OpenPAConsiglioPresenzaCached )
             {
                 $checkin = $in->attribute( 'created_time' );
             }
@@ -319,7 +366,7 @@ class OpenPAConsiglioPresenzaHelper
         if ( !empty( $outArray ) )
         {
             $out = array_shift( $outArray );
-            if ( $out instanceof OpenPAConsiglioPresenza )
+            if ( $out instanceof OpenPAConsiglioPresenza || $out instanceof OpenPAConsiglioPresenzaCached )
             {
                 $checkout = $out->attribute( 'created_time' );
             }
@@ -365,6 +412,14 @@ class OpenPAConsiglioCustomDetection extends OpenPATempletizable
     }
 }
 
+class OpenPAConsiglioPresenzaCached extends OpenPATempletizable
+{
+    public function __construct( $data )
+    {
+        $data['created_time'] = $data['timestamp'];
+        parent::__construct( $data );
+    }
+}
 
 class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
 {
