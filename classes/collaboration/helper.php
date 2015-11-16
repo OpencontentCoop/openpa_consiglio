@@ -58,8 +58,56 @@ class OpenPAConsiglioCollaborationHelper
                 'name' => $name
             )
         );
+        /** @var eZContentObject $object */
         $object = eZContentFunctions::createAndPublishObject( $params );
+        $this->sendNotification( $object );
         return $object;
+    }
+
+    protected function sendNotification( eZContentObject $object )
+    {
+        $tpl = eZTemplate::factory();
+        $tpl->resetVariables();
+        $tpl->setVariable( 'referente', $this->referente );
+        $tpl->setVariable( 'area', $this->getArea() );
+        $tpl->setVariable( 'tag', $object );
+        $content = $tpl->fetch( 'design:consiglio/collaboration/mail_notifica_nuova_tematica.tpl' );
+        $subject = $tpl->variable( 'subject' );
+
+        $tpl = eZTemplate::factory();
+        $tpl->resetVariables();
+        $tpl->setVariable( 'content', $content );
+        $content = $tpl->fetch( 'design:consiglio/notification/mail_pagelayout.tpl' );
+
+        $ini = eZINI::instance();
+        $mail = new eZMail();
+        $emailSender = $ini->variable( 'MailSettings', 'EmailSender' );
+        if ( !$emailSender )
+        {
+            $emailSender = $ini->variable( "MailSettings", "AdminEmail" );
+        }
+        $senderName = $ini->variable( 'SiteSettings', 'SiteName' );
+        $mail->setSender( $emailSender, $senderName );
+        foreach( $this->getAreaUsers() as $index => $userObject )
+        {
+            $user = eZUser::fetch( $userObject->attribute( 'id' ) );
+            if ( $user instanceof eZUser )
+            {
+                if ( $index == 0 )
+                {
+                    $mail->setReceiver( $user->Email );
+                }
+                else
+                {
+                    $mail->addCc( $user->Email );
+                }
+            }
+        }
+
+        $mail->setSubject( $subject );
+        $mail->setBody( $content );
+        $mail->setContentType( 'text/html' );
+        eZMailTransport::send( $mail );
     }
 
     public function addComment( $parentNodeId, $text, $filePath )
