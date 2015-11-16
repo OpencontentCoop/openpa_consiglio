@@ -16,6 +16,8 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
 
     protected $endTimestamp;
 
+    protected static $userCache = array();
+
     public function __construct( $data = null )
     {
     }
@@ -128,7 +130,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
             {
                 if ( $calcoloPresenze[$partecipante->id()] > 0 )
                 {
-                    $presenti[$partecipante->id()] = eZUser::fetch(
+                    $presenti[$partecipante->id()] = $this->fetchUser(
                         intval( $partecipante->id() )
                     );
                 }
@@ -137,6 +139,15 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
             $this->data['presenti'] = $presenti;
         }
         return $this->data['presenti'];
+    }
+
+    protected function fetchUser( $id )
+    {
+        if ( !isset( self::$userCache[$id] ) )
+        {
+            self::$userCache[$id] = eZUser::fetch( $id );
+        }
+        return self::$userCache[$id];
     }
 
     protected function calcolaPresenze()
@@ -213,7 +224,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
         {
             if ( !isset( $presenti[$partecipante->id()] ) )
             {
-                $assenti[] = eZUser::fetch( $partecipante->id() );
+                $assenti[] = $this->fetchUser( $partecipante->id() );
             }
         }
         return $assenti;
