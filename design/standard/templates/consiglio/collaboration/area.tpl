@@ -37,6 +37,10 @@
                 <div class="alert alert-warning">
                     Per iniziare inserisci una tematica di discussione
                 </div>
+            {else}
+                <div class="alert alert-warning">
+                    Nessuna tematica di discussione è attiva al momento.
+                </div>
             {/if}
         {/if}
 
