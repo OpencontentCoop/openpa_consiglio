@@ -122,19 +122,14 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
         if ( !isset( $this->data['presenti'] ) )
         {
             $seduta = $this->currentVotazione->getSeduta();
-            $intervals = array( 0, $this->endTimestamp );
+            $calcoloPresenze = $this->calcolaPresenze();
             $presenti = array();
             foreach ( $seduta->partecipanti() as $partecipante )
             {
-                $presenza = OpenPAConsiglioPresenza::getUserInOutInSeduta(
-                    $seduta,
-                    $partecipante->id(),
-                    $intervals
-                );
-                if ( $presenza instanceof OpenPAConsiglioPresenza && $presenza->isIn() )
+                if ( $calcoloPresenze[$partecipante->id()] > 0 )
                 {
-                    $presenti[$presenza->attribute( 'user_id' )] = eZUser::fetch(
-                        intval( $presenza->attribute( 'user_id' ) )
+                    $presenti[$partecipante->id()] = eZUser::fetch(
+                        intval( $partecipante->id() )
                     );
                 }
             }
@@ -142,6 +137,61 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
             $this->data['presenti'] = $presenti;
         }
         return $this->data['presenti'];
+    }
+
+    protected function calcolaPresenze()
+    {
+        $presenzeInVotazione = array();
+        $customEvents = array();
+        $start = $this->currentVotazione->stringAttribute( Votazione::$startDateIdentifier, 'intval' );
+        $customEvents[] = new OpenPAConsiglioCustomDetection(
+            $start,
+            'inizio'
+        );
+        $end = $this->currentVotazione->stringAttribute( Votazione::$endDateIdentifier, 'intval' );
+        $customEvents[] = new OpenPAConsiglioCustomDetection(
+            $end,
+            'fine'
+        );
+        $seduta = $this->currentVotazione->getSeduta();
+        $presenze = new OpenPAConsiglioPresenzaHelper( $seduta, $customEvents );
+        $data = $presenze->getData();
+
+        foreach( $data as $userId => $userData )
+        {
+            $isIn = false;
+            $collect = false;
+            $collectIsIn = array();
+            foreach( $userData['events'] as $index => $event )
+            {
+                if ( $event['type'] == 'interval' )
+                {
+                    $isIn = $event['is_in'];
+                }
+
+                if ( $event['type'] == 'event' && isset( $event['items'] ) )
+                {
+                    foreach( $event['items'] as $item )
+                    {
+                        if ( $item instanceof OpenPAConsiglioCustomDetection && $item->attribute( 'label' ) == 'inizio' )
+                        {
+                            $collect = true;
+                        }
+                        if ( $item instanceof OpenPAConsiglioCustomDetection && $item->attribute( 'label' ) == 'fine' )
+                        {
+                            $collect = false;
+                        }
+                    }
+                }
+
+                if ( $collect )
+                {
+                    $collectIsIn[$index] = $isIn;
+                }
+            }
+            $presenzeInVotazione[$userId] = array_sum( $collectIsIn );
+        }
+        return $presenzeInVotazione;
     }
 
     /**
@@ -158,14 +208,10 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
     protected function getAssenti()
     {
         $assenti = array();
-        $presentiIds = array();
-        foreach( $this->getPresenti() as $presente )
-        {
-            $presentiIds[] = $presente->id();
-        }
+        $presenti = $this->getPresenti();
         foreach( $this->currentVotazione->getSeduta()->partecipanti() as $partecipante )
         {
-            if ( !in_array( $partecipante->id(), $presentiIds ) )
+            if ( !isset( $presenti[$partecipante->id()] ) )
             {
                 $assenti[] = eZUser::fetch( $partecipante->id() );
             }
