@@ -13,9 +13,9 @@
 
             {foreach $post.votazioni as $votazione}
 
-            <table class="table table-bordered" id="votazione-{$votazione.object.id}">
-                {def $post_result = $votazione.result}
-                {if $votazione.current_state.identifier|eq('closed')}
+            {def $post_result = $votazione.result}
+            {if $votazione.current_state.identifier|eq('closed')}
+                <table class="table table-bordered" id="votazione-{$votazione.object.id}">
                   <thead>
                     <tr class="info">
                         <th style="white-space: nowrap">Chiusa il</th>
@@ -40,7 +40,7 @@
                     </tr>
                   </tbody>
                 </table>
-                <table class="table table-bordered"
+                <table class="table table-bordered">
                     <tr>
                         <td rowspan="2" style="vertical-align: middle;border-right: 0">Presenti</td>
                         <td rowspan="2" style="vertical-align: middle;border-left: 0">{$post_result.presenti_count}</td>
@@ -108,8 +108,9 @@
                             </table>
                         </td>
                     </tr>
-                  </tbody>    
+                </table>
                 {else}
+                <table class="table table-bordered" id="votazione-{$votazione.object.id}">
                   <thead>
                     <tr class="info">
                         <th style="white-space: nowrap">Creata il</th>
@@ -125,10 +126,10 @@
                         <td>{attribute_view_gui attribute=$votazione.object.data_map.short_text}</td>
                         <td><span class="label label-info">NON EFFETTUATA</span></td>
                     </tr>
-                </tbody>
+                  </tbody>
+                </table>
               {/if}
-              {undef $post_result}                
-            </table>
+              {undef $post_result}
             {delimiter}<br />{/delimiter}
             {/foreach}
         </div>
