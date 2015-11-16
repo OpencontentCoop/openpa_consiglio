@@ -169,7 +169,7 @@ class OpenPAConsiglioVoto extends eZPersistentObject
         $row['value'] = (string) $value;
         $row['created_time'] = $createdTime;
         $row['anomaly'] = intval( $anomaly );
-        $row['presenza_id'] = intval( $presenza->attribute( 'id' ) );
+        $row['presenza_id'] = $presenza instanceof OpenPAConsiglioPresenza ? intval( $presenza->attribute( 'id' ) ) : 0;
 
         $votazione = new OpenPAConsiglioVoto( $row );
         return $votazione;
