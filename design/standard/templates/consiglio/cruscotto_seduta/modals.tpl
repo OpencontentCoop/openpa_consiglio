@@ -62,6 +62,14 @@
         </div>
     </div>
 </div>
+
+<div id="detailPresenzeInVotazione" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content"><em>Caricamento...</em></div>
+    </div>
+</div>
+
+
 {*
 <div class="modal fade" id="startVotazioneTemplate" role="dialog" data-backdrop="static" aria-labelledby="previewLabel">
     <div class="modal-dialog modal-lg" role="document">
@@ -129,6 +137,13 @@
             onShow: function (modal, button) {
                 modal.find('.modal-body').html('<div class="text-center"><i class="fa fa-gear fa-spin fa-2x"></i></div>');
                 modal.find('.modal-body').load( button.data('load_url') );
+            }
+        },
+        {
+            name: 'detailPresenzeInVotazione',
+            title: 'Dettagli presenza utente',
+            onShow: function (modal, button) {
+                modal.find('.modal-content').load( button.data('load_url') );
             }
         }
     ];

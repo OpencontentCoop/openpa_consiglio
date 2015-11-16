@@ -112,8 +112,28 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
             'contrari_count' => 'getContrariCount',
             'astenuti' => 'getAstenuti',
             'astenuti_count' => 'getAstenutiCount',
+            'anomalie' => 'getAnomalie'
         );        
         return $this;
+    }
+
+    protected function getAnomalie()
+    {
+        $data = array();
+        $calcoloPresenze = $this->calcolaPresenze();
+        /** @var OpenPAConsiglioVoto[] $anomalie */
+        $anomalie = eZPersistentObject::fetchObjectList( OpenPAConsiglioVoto::definition(),
+            null,
+            array( 'votazione_id' => $this->currentVotazione->id(), 'anomaly' => 1 ),
+            false,
+            null
+        );
+        foreach( $anomalie as $anomalia )
+        {
+            $userId = $anomalia->attribute( 'user_id' );
+            $data[$userId] = $calcoloPresenze[$userId] > 0 ? 'warning' : 'danger';
+        }
+        return $data;
     }
 
     /**
@@ -153,54 +173,72 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
     protected function calcolaPresenze()
     {
         $presenzeInVotazione = array();
-        $customEvents = array();
-        $start = $this->currentVotazione->stringAttribute( Votazione::$startDateIdentifier, 'intval' );
-        $customEvents[] = new OpenPAConsiglioCustomDetection(
-            $start,
-            'inizio'
-        );
-        $end = $this->currentVotazione->stringAttribute( Votazione::$endDateIdentifier, 'intval' );
-        $customEvents[] = new OpenPAConsiglioCustomDetection(
-            $end,
-            'fine'
-        );
         $seduta = $this->currentVotazione->getSeduta();
-        $presenze = new OpenPAConsiglioPresenzaHelper( $seduta, $customEvents );
-        $data = $presenze->getData();
-
-        foreach( $data as $userId => $userData )
+        if ( $this->currentVotazione->is( 'closed' ) )
         {
-            $isIn = false;
-            $collect = false;
-            $collectIsIn = array();
-            foreach( $userData['events'] as $index => $event )
-            {
-                if ( $event['type'] == 'interval' )
-                {
-                    $isIn = $event['is_in'];
-                }
+            $customEvents = array();
+            $start = $this->currentVotazione->stringAttribute(
+                Votazione::$startDateIdentifier,
+                'intval'
+            );
+            $customEvents[] = new OpenPAConsiglioCustomDetection(
+                $start,
+                'inizio'
+            );
+            $end = $this->currentVotazione->stringAttribute(
+                Votazione::$endDateIdentifier,
+                'intval'
+            );
+            $customEvents[] = new OpenPAConsiglioCustomDetection(
+                $end,
+                'fine'
+            );
+            $presenze = new OpenPAConsiglioPresenzaHelper( $seduta, $customEvents );
+            $data = $presenze->getData();
 
-                if ( $event['type'] == 'event' && isset( $event['items'] ) )
+            foreach ( $data as $userId => $userData )
+            {
+                $isIn = false;
+                $collect = false;
+                $collectIsIn = array();
+                foreach ( $userData['events'] as $index => $event )
                 {
-                    foreach( $event['items'] as $item )
+                    if ( $event['type'] == 'interval' )
                     {
-                        if ( $item instanceof OpenPAConsiglioCustomDetection && $item->attribute( 'label' ) == 'inizio' )
+                        $isIn = $event['is_in'];
+                    }
+
+                    if ( $event['type'] == 'event' && isset( $event['items'] ) )
+                    {
+                        foreach ( $event['items'] as $item )
                         {
-                            $collect = true;
-                        }
-                        if ( $item instanceof OpenPAConsiglioCustomDetection && $item->attribute( 'label' ) == 'fine' )
-                        {
-                            $collect = false;
+                            if ( $item instanceof OpenPAConsiglioCustomDetection
+                                 && $item->attribute( 'label' ) == 'inizio'
+                            )
+                            {
+                                $collect = true;
+                            }
+                            if ( $item instanceof OpenPAConsiglioCustomDetection
+                                 && $item->attribute( 'label' ) == 'fine'
+                            )
+                            {
+                                $collect = false;
+                            }
                         }
                     }
-                }
 
-                if ( $collect )
-                {
-                    $collectIsIn[$index] = $isIn;
+                    if ( $collect )
+                    {
+                        $collectIsIn[$index] = $isIn;
+                    }
                 }
+                $presenzeInVotazione[$userId] = array_sum( $collectIsIn );
             }
-            $presenzeInVotazione[$userId] = array_sum( $collectIsIn );
+        }
+        else
+        {
+            $registro = $seduta->registroPresenze();
+            $presenzeInVotazione = $registro['hash_user_id'];
         }
         return $presenzeInVotazione;
     }

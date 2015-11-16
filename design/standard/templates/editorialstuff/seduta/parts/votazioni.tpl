@@ -15,6 +15,7 @@
 
             {def $post_result = $votazione.result}
             {if $votazione.current_state.identifier|eq('closed')}
+                {def $anomalie = $post_result.anomalie}
                 <table class="table table-bordered" id="votazione-{$votazione.object.id}">
                   <thead>
                     <tr class="info">
@@ -52,27 +53,21 @@
                                     <th style="vertical-align: middle; border-top: none">Favorevoli</th>
                                     <td style="vertical-align: middle; border-top: none" align="center">{$post_result.favorevoli_count}</td>
                                     <td style="vertical-align: middle; border-top: none" class="favorevoli">
-                                        <small>
-                                            {foreach $post_result.favorevoli as $user}<a href="#{$user.contentobject_id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$post.object.id, '/',$user.contentobject_id,'/',$votazione.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenzeInVotazione">{$user.contentobject.name|wash()}</a>{delimiter}, {/delimiter}{/foreach}
-                                        </small>
+                                        {foreach $post_result.favorevoli as $user}{include uri='design:editorialstuff/seduta/parts/_user_in_votazione.tpl'}{delimiter}, {/delimiter}{/foreach}
                                     </td>
                                 </tr>
                                 <tr>
                                     <th style="vertical-align: middle; border-top: none">Contrari</th>
                                     <td style="vertical-align: middle; border-top: none" align="center">{$post_result.contrari_count}</td>
                                     <td style="vertical-align: middle; border-top: none" class="contrari">
-                                        <small>
-                                            {foreach $post_result.contrari as $user}<a href="#{$user.contentobject_id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$post.object.id, '/',$user.contentobject_id,'/',$votazione.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenzeInVotazione">{$user.contentobject.name|wash()}</a>{delimiter}, {/delimiter}{/foreach}
-                                        </small>
+                                        {foreach $post_result.contrari as $user}{include uri='design:editorialstuff/seduta/parts/_user_in_votazione.tpl'}{delimiter}, {/delimiter}{/foreach}
                                     </td>
                                 </tr>
                                 <tr>
                                     <th style="vertical-align: middle; border-top: none">Astenuti</th>
                                     <td style="vertical-align: middle; border-top: none" align="center">{$post_result.astenuti_count}</td>
                                     <td style="vertical-align: middle; border-top: none" class="astenuti">
-                                        <small>
-                                            {foreach $post_result.astenuti as $user}<a href="#{$user.contentobject_id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$post.object.id, '/',$user.contentobject_id,'/',$votazione.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenzeInVotazione">{$user.contentobject.name|wash()}</a>{delimiter}, {/delimiter}{/foreach}
-                                        </small>
+                                        {foreach $post_result.astenuti as $user}{include uri='design:editorialstuff/seduta/parts/_user_in_votazione.tpl'}{delimiter}, {/delimiter}{/foreach}
                                     </td>
                                 </tr>
                             </table>
@@ -85,9 +80,7 @@
                             <table class="table table-condensed">
                                 <tr>
                                     <td style="vertical-align: middle;border-top: none">
-                                        <small>
-                                            {foreach $post_result.non_votanti as $user}<a href="#{$user.contentobject_id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$post.object.id, '/',$user.contentobject_id,'/',$votazione.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenzeInVotazione">{$user.contentobject.name|wash()}</a>{delimiter}, {/delimiter}{/foreach}
-                                        </small>
+                                        {foreach $post_result.non_votanti as $user}{include uri='design:editorialstuff/seduta/parts/_user_in_votazione.tpl'}{delimiter}, {/delimiter}{/foreach}
                                     </td>
                                 </tr>
                             </table>
@@ -100,15 +93,14 @@
                             <table class="table table-condensed">
                                 <tr>
                                     <td style="vertical-align: middle;border-top: none">
-                                        <small>
-                                            {foreach $post_result.assenti as $user}<a href="#{$user.contentobject_id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$post.object.id, '/',$user.contentobject_id,'/',$votazione.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenzeInVotazione">{$user.contentobject.name|wash()}</a>{delimiter}, {/delimiter}{/foreach}
-                                        </small>
+                                        {foreach $post_result.assenti as $user}{include uri='design:editorialstuff/seduta/parts/_user_in_votazione.tpl'}{delimiter}, {/delimiter}{/foreach}
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
                 </table>
+                {undef $anomalie}
                 {else}
                 <table class="table table-bordered" id="votazione-{$votazione.object.id}">
                   <thead>

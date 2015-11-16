@@ -91,6 +91,7 @@ socket.on('real_stop_votazione', function (data) {
 socket.on('show_votazione', function (data) {
     if (data.seduta_id == CurrentSedutaId) {
         $('#presenze').hide();
+        $('#text').hide();
         $('#detail').html('<div class="text-center"><i class="fa fa-gear fa-spin fa-3x"></i></div>');
         $('#detail').load(VotazioneDataBaseUrl + data.id + '/parts:risultato_votazione_monitor' + '?time=' + Date.now()).show();
     }
