@@ -1,6 +1,6 @@
 <div class="panel-body" style="background: #fff">
     {if $post.current_state.identifier|eq( 'closed' )}
-        <p><a class="btn btn-info btn-xs" href="{concat('consiglio/gettoni/select-', $post.object_id)|ezurl(no)}">Apri in Gettoni di presenza</a></p>
+        <p class="text-right"><a class="btn btn-info btn-xs" href="{concat('consiglio/gettoni/select-', $post.object_id)|ezurl(no)}">Apri in Gettoni di presenza</a></p>
     {/if}
     <div id="presenze-seduta" data-url="{concat('openpa/data/timeline_presenze_seduta?seduta=',$post.object.id)|ezurl(no)}">
     {foreach $post.partecipanti as $politico}
