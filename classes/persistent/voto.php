@@ -164,7 +164,7 @@ class OpenPAConsiglioVoto extends eZPersistentObject
             throw new ConsiglioApiException( "Valore del voto ($value) non valido", ConsiglioApiException::VOTO_NOT_VALID );
         }
         $presenza = OpenPAConsiglioPresenza::getUserInOutInSeduta( $seduta, $userId );
-        $anomaly = $presenza instanceof OpenPAConsiglioPresenza ? $presenza->attribute( 'is_in' ) == false : false;
+        $anomaly = $presenza instanceof OpenPAConsiglioPresenza ? $presenza->attribute( 'is_in' ) == false : true;
 
         $row['value'] = (string) $value;
         $row['created_time'] = $createdTime;
