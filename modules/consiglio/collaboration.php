@@ -7,6 +7,11 @@ $referenteId = intval( $Params['ReferenteId'] );
 $action = $Params['Action'];
 $referente = eZUser::fetch( $referenteId );
 
+if ( $referenteId == 0 && eZUser::currentUser()->contentObject()->attribute( 'class_identifier' ) == 'politico' )
+{
+    $referente = eZUser::currentUser();
+}
+
 $Offset = $Params['Offset'];
 if ( isset( $Params['UserParameters'] ) )
     $UserParameters = $Params['UserParameters'];
@@ -20,7 +25,7 @@ $viewParameters = array_merge( $viewParameters, $UserParameters );
 $tpl->setVariable( 'view_parameters', $viewParameters );
 
 $helper = new OpenPAConsiglioCollaborationHelper();
-if ( $referenteId == 0 || !$referente instanceof eZUser )
+if ( !$referente instanceof eZUser )
 {
     $listAreas = OpenPAConsiglioCollaborationHelper::listAccessAreas();
     if ( count( $listAreas ) == 1 )

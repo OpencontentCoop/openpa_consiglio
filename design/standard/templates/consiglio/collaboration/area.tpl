@@ -5,10 +5,11 @@
 </div>
 <hr/>
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-md-8">
         {def $page_limit = 100
              $page_url = concat('consiglio/collaboration/', $referente.id )}
         {if $tag}
+            <h2><i class="fa fa-tag"></i> {$tag.name|wash()}</h2>
             {set $page_url = concat('consiglio/collaboration/', $referente.id, '/', $tag.node_id )}
             {def $comments = fetch( content, list, hash( parent_node_id, $tag.node_id, class_filter_type, include, class_filter_array, array( 'comment' ), limit, $page_limit, offset, $view_parameters.offset, sort_by, array( published, desc ) ) )}
             {def $comments_count = fetch( content, list_count, hash( parent_node_id, $tag.node_id, class_filter_type, include, class_filter_array, array( 'comment' ) ))}
@@ -30,11 +31,17 @@
                     item_limit=$page_limit}
 
         {else}
-            <p>Nessun intervento presente. Intervieni per primo!</p>
+            {if count( $area_tags )|gt(0)}
+                <p>Nessun intervento presente. Intervieni per primo!</p>
+            {elseif  fetch( user, current_user ).contentobject_id|eq($referente.id)}
+                <div class="alert alert-warning">
+                    Per iniziare inserisci una tematica di discussione
+                </div>
+            {/if}
         {/if}
 
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
 
         {if count( $area_tags )|gt(0)}
         <h3><i class="fa fa-plus"></i> Aggiungi il tuo intervento</h3>
@@ -85,9 +92,9 @@
         </div>
 
         {if fetch( user, current_user ).contentobject_id|eq($referente.id)}
-        <form class="form-inline" method="post" action="{concat('consiglio/collaboration/', $referente.id, '/add_tag')|ezurl(no)}">
+        <form class="form-inline text-right" method="post" action="{concat('consiglio/collaboration/', $referente.id, '/add_tag')|ezurl(no)}">
             <div class="form-group">
-                <label for="inputPassword2" class="sr-only">Password</label>
+                <label for="NewAreaName" class="sr-only">Aggiungi nuova tematica</label>
                 <input type="text" class="form-control" id="NewAreaName" name="NewTagName" placeholder="Aggiungi nuova tematica">
             </div>
             <button type="submit" class="btn btn-success"><i class="fa fa-plus"></i></button>
@@ -97,9 +104,15 @@
         <hr/>
         <h3><i class="fa fa-users"></i> Partecipanti</h3>
         <ul class="list-group">
+            {if count($area_users)|gt(1)}
             {foreach $area_users as $area_user}
                 <li class="list-group-item">{content_view_gui content_object=$area_user view="politico_line"}</li>
             {/foreach}
+            {else}
+                <div class="alert alert-warning">
+                    Al momento nessun referente locale è stato aggiunto a questa area. Contatta la segreteria per maggiori informazioni.
+                </div>
+            {/if}
         </ul>
     </div>
 </div>
