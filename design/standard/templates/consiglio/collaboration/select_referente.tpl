@@ -1,5 +1,5 @@
 {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
-    {def $politici = fetch( editorialstuff, posts, hash( factory_identifier, politico ) )}
+    {def $politici = fetch( editorialstuff, posts, hash( factory_identifier, politico, limit, 100, sort, hash( 'politico/cognome', 'asc' ) ) )}
     {foreach $politici as $politico}
         <ul class="list-unstyled">
             <li><a href="{concat('consiglio/collaboration/',$politico.object.id)|ezurl(no)}">Area collaborativa di {$politico.object.name|wash()}</a></li>
