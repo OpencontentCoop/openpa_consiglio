@@ -22,10 +22,6 @@
                         <th style="white-space: nowrap">Tipo</th>
                         <th style="white-space: nowrap">Testo</th>
                         <th style="white-space: nowrap">Esito</th>
-                        <th style="white-space: nowrap">Presenti</th>
-                        <th style="white-space: nowrap">Assenti</th>
-                        <th style="white-space: nowrap">Votanti</th>
-                        <th style="white-space: nowrap">Non votanti</th>
                     </tr>
                   </thead>
                   <tbody>                    
@@ -41,25 +37,23 @@
                             {elseif $post_result.approvata}<span class="label label-success">APPROVATA</span>
                             {elseif $post_result.approvata|not}<span class="label label-danger">RESPINTA</span>{/if}
                         </td>
-                        <td>{$post_result.presenti_count}</td>
-                        <td>{$post_result.assenti_count}</td>
-                        <td>
-                            {$post_result.votanti_count}
-                        </td>
-                        <td>
-                            {$post_result.non_votanti_count}
-                        </td>
                     </tr>
+                  </tbody>
+                </table>
+                <table class="table table-bordered"
                     <tr>
-                        <td>Hanno espresso una preferenza</td>
-                        <td colspan="7">
+                        <td rowspan="2" style="vertical-align: middle;border-right: 0">Presenti</td>
+                        <td rowspan="2" style="vertical-align: middle;border-left: 0">{$post_result.presenti_count}</td>
+                        <td style="vertical-align: middle;border-right: 0">Votanti</td>
+                        <td style="vertical-align: middle;border-left: 0">{$post_result.votanti_count}</td>
+                        <td>
                             <table class="table table-condensed">
                                 <tr>
                                     <th style="vertical-align: middle; border-top: none">Favorevoli</th>
                                     <td style="vertical-align: middle; border-top: none" align="center">{$post_result.favorevoli_count}</td>
                                     <td style="vertical-align: middle; border-top: none" class="favorevoli">
                                         <small>
-                                            {foreach $post_result.favorevoli as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}
+                                            {foreach $post_result.favorevoli as $user}<a href="#{$user.contentobject_id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$post.object.id, '/',$user.contentobject_id,'/',$votazione.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenzeInVotazione">{$user.contentobject.name|wash()}</a>{delimiter}, {/delimiter}{/foreach}
                                         </small>
                                     </td>
                                 </tr>
@@ -68,7 +62,7 @@
                                     <td style="vertical-align: middle; border-top: none" align="center">{$post_result.contrari_count}</td>
                                     <td style="vertical-align: middle; border-top: none" class="contrari">
                                         <small>
-                                            {foreach $post_result.contrari as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}
+                                            {foreach $post_result.contrari as $user}<a href="#{$user.contentobject_id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$post.object.id, '/',$user.contentobject_id,'/',$votazione.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenzeInVotazione">{$user.contentobject.name|wash()}</a>{delimiter}, {/delimiter}{/foreach}
                                         </small>
                                     </td>
                                 </tr>
@@ -77,7 +71,7 @@
                                     <td style="vertical-align: middle; border-top: none" align="center">{$post_result.astenuti_count}</td>
                                     <td style="vertical-align: middle; border-top: none" class="astenuti">
                                         <small>
-                                            {foreach $post_result.astenuti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}
+                                            {foreach $post_result.astenuti as $user}<a href="#{$user.contentobject_id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$post.object.id, '/',$user.contentobject_id,'/',$votazione.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenzeInVotazione">{$user.contentobject.name|wash()}</a>{delimiter}, {/delimiter}{/foreach}
                                         </small>
                                     </td>
                                 </tr>
@@ -85,13 +79,14 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Non hanno espresso una preferenza</td>
-                        <td colspan="7">
+                        <td style="vertical-align: middle;border-right: 0">Non votanti</td>
+                        <td style="vertical-align: middle;border-left: 0">{$post_result.non_votanti_count}</td>
+                        <td>
                             <table class="table table-condensed">
                                 <tr>
                                     <td style="vertical-align: middle;border-top: none">
                                         <small>
-                                            {foreach $post_result.non_votanti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}
+                                            {foreach $post_result.non_votanti as $user}<a href="#{$user.contentobject_id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$post.object.id, '/',$user.contentobject_id,'/',$votazione.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenzeInVotazione">{$user.contentobject.name|wash()}</a>{delimiter}, {/delimiter}{/foreach}
                                         </small>
                                     </td>
                                 </tr>
@@ -99,13 +94,14 @@
                         </td>
                     </tr>
 					<tr>
-                        <td>Assenti</td>
-                        <td colspan="7">
+                        <td style="vertical-align: middle;border-right: 0">Assenti</td>
+                        <td style="vertical-align: middle;border-left: 0">{$post_result.assenti_count}</td>
+                        <td colspan="3">
                             <table class="table table-condensed">
                                 <tr>
                                     <td style="vertical-align: middle;border-top: none">
                                         <small>
-                                            {foreach $post_result.assenti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}
+                                            {foreach $post_result.assenti as $user}<a href="#{$user.contentobject_id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$post.object.id, '/',$user.contentobject_id,'/',$votazione.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenzeInVotazione">{$user.contentobject.name|wash()}</a>{delimiter}, {/delimiter}{/foreach}
                                         </small>
                                     </td>
                                 </tr>
@@ -120,10 +116,6 @@
                         <th style="white-space: nowrap">Tipo</th>
                         <th style="white-space: nowrap">Testo</th>
                         <th style="white-space: nowrap">Esito</th>
-                        <th style="white-space: nowrap">Presenti</th>
-                        <th style="white-space: nowrap">Assenti</th>
-                        <th style="white-space: nowrap">Votanti</th>
-                        <th style="white-space: nowrap">Non votanti</th>
                     </tr>
                   </thead>
                   <tbody> 
@@ -132,9 +124,6 @@
                         <td>{attribute_view_gui attribute=$votazione.object.data_map.type}</td>
                         <td>{attribute_view_gui attribute=$votazione.object.data_map.short_text}</td>
                         <td><span class="label label-info">NON EFFETTUATA</span></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
                     </tr>
                 </tbody>
               {/if}
@@ -145,3 +134,23 @@
         </div>
     </div>
 </div>
+
+<div id="detailPresenzeInVotazione" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content"><em>Caricamento...</em></div>
+    </div>
+</div>
+
+{ezscript_require( array( 'ezjsc::jquery' ) )}
+<script type="application/javascript">
+{literal}
+$(document).ready(function(){
+    $('#detailPresenzeInVotazione').on('show.bs.modal', function (event) {
+        var url = $(event.relatedTarget).data('url');
+        $(this).find('.modal-content').load(url);
+    }).on('hide.bs.modal', function (event) {
+        $(this).find('.modal-content').html('<em>Caricamento...</em>');
+    });
+});
+{/literal}
+</script>

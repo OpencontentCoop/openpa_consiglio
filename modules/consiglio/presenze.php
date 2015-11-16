@@ -6,8 +6,7 @@ $tpl = eZTemplate::factory();
 $http = eZHTTPTool::instance();
 $sedutaId = intval( $Params['SedutaId'] );
 $userId = intval( $Params['UserId'] );
-$action = $Params['Action'];
-$actionParameter = $Params['ActionParameter'];
+$votazioneId = intval( $Params['VotazioneId'] );
 
 try
 {
@@ -21,8 +20,43 @@ try
     $totalTime = 0;
     $totalPercent = 0;
 
+    $customEvents = null;
+    if ( $votazioneId > 0 )
+    {
+        try
+        {
+            $votazione = OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $votazioneId );
+            if ( $votazione instanceof Votazione )
+            {
+                $customEvents = array();
+                $start = $votazione->stringAttribute( Votazione::$startDateIdentifier, 'intval' );
+                $customEvents[] = new OpenPAConsiglioCustomDetection(
+                    $start,
+                    'Inizio ' . $votazione->getObject()->attribute( 'name' )
+                );
+                $end = $votazione->stringAttribute( Votazione::$endDateIdentifier, 'intval' );
+                $customEvents[] = new OpenPAConsiglioCustomDetection(
+                    $end,
+                    'Fine ' . $votazione->getObject()->attribute( 'name' )
+                );
+                $userVoted = OpenPAConsiglioVoto::userAlreadyVoted( $votazione, $userId, false );
+                if ( $userVoted instanceof  OpenPAConsiglioVoto )
+                {
+                    $customEvents[] = new OpenPAConsiglioCustomDetection(
+                        $userVoted->attribute( 'created_time' ),
+                        'Voto',
+                        'fa-times'
+                    );
+                }
+            }
+        }
+        catch( Exception $e )
+        {
+            eZDebug::writeError( $e->getMessage() );
+        }
+    }
 
-    $helper = new OpenPAConsiglioPresenzaHelper( $seduta, null, $politico->id() );
+    $helper = new OpenPAConsiglioPresenzaHelper( $seduta, $customEvents, $politico->id() );
     $data = $helper->getData();
 
 //    echo '<pre>';

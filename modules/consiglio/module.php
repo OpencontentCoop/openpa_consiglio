@@ -71,7 +71,7 @@ $ViewList['gettoni'] = array(
 $ViewList['presenze'] = array(
     'functions' => array( 'use' ),
     'script' => 'presenze.php',
-    'params' => array( 'SedutaId', 'UserId', 'Action', 'ActionParameter' ),
+    'params' => array( 'SedutaId', 'UserId', 'VotazioneId' ),
     'unordered_params' => array()
 );
 

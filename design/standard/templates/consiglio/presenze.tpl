@@ -25,25 +25,33 @@
                     <div style="margin: 10px 0">
                         <p style="white-space: nowrap">
                             {foreach $event.items as $item}
-                                {if $item.type|eq('checkin')}
-                                    <span class="fa-stack fa-lg"
-                                          style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
-                                        <i class="fa fa-check-circle fa-stack-2x"></i>
-                                    </span>
-                                    <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
-                                {elseif $item.type|eq('beacons')}
-                                    <span class="fa-stack fa-lg"
-                                          style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
-                                        <i class="fa fa-wifi fa-stack-2x"></i>
-                                    </span>
+                                {if $item.type|ne( 'custom' )}
+                                    {if $item.type|eq('checkin')}
+                                        <span class="fa-stack fa-lg"
+                                              style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
+                                            <i class="fa fa-check-circle fa-stack-2x"></i>
+                                        </span>
+                                        <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
+                                    {elseif $item.type|eq('beacons')}
+                                        <span class="fa-stack fa-lg"
+                                              style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
+                                            <i class="fa fa-wifi fa-stack-2x"></i>
+                                        </span>
 
-                                    <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
-                                {elseif $item.type|eq('manual')}
+                                        <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
+                                    {elseif $item.type|eq('manual')}
+                                        <span class="fa-stack fa-lg"
+                                              style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
+                                            <i class="fa fa-thumbs-up fa-stack-2x"></i>
+                                        </span>
+                                        <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
+                                    {/if}
+                                {else}
                                     <span class="fa-stack fa-lg"
-                                          style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
-                                        <i class="fa fa-thumbs-up fa-stack-2x"></i>
-                                    </span>
-                                    <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
+                                          style="white-space:nowrap;margin-right:5px;">
+                                    <i class="fa {if is_set( $item.icon )}{$item.icon}{else}fa-star{/if} fa-stack-2x"></i>
+                                </span>
+                                    <small><strong>{$item.label}</strong> {$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
                                 {/if}
                             {/foreach}
                         </p>
@@ -74,6 +82,7 @@
         <th>Metodo</th>
     </tr>
     {foreach $detections as $detection}
+        {if $detection.type|ne( 'custom' )}
         <tr class="{if $detection.in_out}success{else}warning{/if}">
             <td>{$detection.id}</td>
             <td>{$detection.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</td>
@@ -88,5 +97,6 @@
                 {/if}
             </td>
         </tr>
+        {/if}
     {/foreach}
 </table>

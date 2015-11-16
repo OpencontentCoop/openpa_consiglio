@@ -9,7 +9,10 @@ class OpenPAConsiglioPresenzaHelper
 
     protected $seduta;
 
-    protected $startTime;
+    /**
+     * @var array
+     */
+    protected $customDetections;
 
     protected $userId;
 
@@ -24,11 +27,16 @@ class OpenPAConsiglioPresenzaHelper
     protected $data;
 
     /**
+     * @var array[]
+     */
+    protected $inIntervalsData;
+
+    /**
      * @param Seduta $seduta
-     * @param int $startTime
+     * @param array $customDetections
      * @param int $userId
      */
-    public function __construct( Seduta $seduta, $startTime = null, $userId = null )
+    public function __construct( Seduta $seduta, $customDetections = null, $userId = null )
     {
         $this->data = array();
 
@@ -36,13 +44,13 @@ class OpenPAConsiglioPresenzaHelper
 
         $this->partecipantiIds = $this->seduta->partecipanti( false );
 
-        $this->startTime = $startTime;
+        $this->customDetections = $customDetections;
 
         $this->userId = $userId;
 
         $this->presenze = OpenPAConsiglioPresenza::fetchBySeduta(
             $this->seduta,
-            $this->startTime,
+            null,
             null,
             null,
             $this->userId
@@ -50,8 +58,44 @@ class OpenPAConsiglioPresenzaHelper
 
         foreach ( $this->partecipantiIds as $userId )
         {
-            $this->data[$userId] = $this->getEventsAndIntervals( $userId );
+            $userDetections = array();
+            foreach ( $this->presenze as $detection )
+            {
+                if ( $detection->attribute( 'user_id' ) == $userId )
+                {
+                    $userDetections[] = $detection;
+                }
+            }
+
+            if ( is_array( $this->customDetections ) )
+            {
+                $userDetections = $this->appendCustomDetections( $this->customDetections, $userDetections );
+            }
+
+            $this->data[$userId] = $this->getEventsAndIntervals( $userId, $userDetections );
         }
+    }
+
+    protected function appendCustomDetections( $newDetections, $detections )
+    {
+        foreach ( $newDetections as $newDetection )
+        {
+            if ( $newDetection instanceof OpenPAConsiglioCustomDetection )
+            {
+                $detections[] = $newDetection;
+            }
+            else
+            {
+                $detections[] = new OpenPAConsiglioCustomDetection(
+                    $newDetection,
+                    'CustomEvent-' . $newDetection
+                );
+            }
+        }
+        usort( $detections, function( $a, $b ){
+            return ( $a->attribute( 'created_time' ) < $b->attribute( 'created_time' ) ) ? -1 : 1;
+        });
+        return $detections;
     }
 
     public function getPercent()
@@ -68,6 +112,7 @@ class OpenPAConsiglioPresenzaHelper
                 $data[$userId] = $this->data[$userId]['in_percent'];
             }
         }
+
         return $data;
     }
 
@@ -81,6 +126,7 @@ class OpenPAConsiglioPresenzaHelper
         {
             $data = $this->data;
         }
+
         return $data;
     }
 
@@ -97,10 +143,14 @@ class OpenPAConsiglioPresenzaHelper
         );
     }
 
-    protected function getEventsAndIntervals( $userId )
+    /**
+     * @param int $userId
+     * @param OpenPAConsiglioPresenza[]|OpenPAConsiglioCustomDetection[] $userDetections
+     *
+     * @return array
+     */
+    protected function getEventsAndIntervals( $userId, $userDetections )
     {
-        /** @var OpenPAConsiglioPresenza[] $userDetections */
-        $userDetections = array();
         $events = array();
         $totalTime = null;
         $inPercent = array();
@@ -115,12 +165,16 @@ class OpenPAConsiglioPresenzaHelper
         $timeStampInizioSeduta = $this->seduta->dataOraEffettivaInizio();
 
         if ( $this->seduta->is( 'in_progress' ) )
+        {
             $timeStampFineSeduta = time();
+        }
         else
+        {
             $timeStampFineSeduta = $this->seduta->dataOraFine();
+        }
 
         $totalTime = $timeStampFineSeduta - $timeStampInizioSeduta;
-        $isIn = false;
+        $isIn = 0;
 
         $events[] = array(
             'type' => 'event',
@@ -130,20 +184,15 @@ class OpenPAConsiglioPresenzaHelper
 
         $intervals = array();
         $startInterval = $timeStampInizioSeduta;
-        foreach ( $this->presenze as $detection )
+        foreach ( $userDetections as $detection )
         {
-            if ( $detection->attribute( 'user_id' ) == $userId )
+            if ( $detection->attribute( 'created_time' ) > $startInterval )
             {
-                $userDetections[] = $detection;
-
-                if ( $detection->attribute( 'created_time' ) > $startInterval )
-                {
-                    $intervals[] = array(
-                        $startInterval,
-                        $detection->attribute( 'created_time' )
-                    );
-                    $startInterval = $detection->attribute( 'created_time' );
-                }
+                $intervals[] = array(
+                    $startInterval,
+                    $detection->attribute( 'created_time' )
+                );
+                $startInterval = $detection->attribute( 'created_time' );
             }
         }
 
@@ -153,7 +202,7 @@ class OpenPAConsiglioPresenzaHelper
                 $startInterval,
                 $timeStampFineSeduta
             );
-        }        
+        }
 
         foreach ( $intervals as $interval )
         {
@@ -171,42 +220,62 @@ class OpenPAConsiglioPresenzaHelper
             $newInterval = array(
                 'type' => 'interval',
                 'duration' => $duration,
+                'start' => $startInterval,
+                'end' => $endInterval,
                 'is_in' => $isIn,
                 'percent' => number_format( $percent, 2 )
             );
 
             if ( $newInterval['is_in'] )
+            {
                 $inPercent[] = $newInterval['percent'];
+            }
             else
+            {
                 $outPercent[] = $newInterval['percent'];
+            }
 
             $events[] = $newInterval;
 
             $tempDetections = array();
             foreach ( $userDetections as $detection )
             {
-                if ( ( $detection->attribute( 'created_time' ) > $startInterval && $detection->attribute( 'created_time' ) <= $endInterval )
-                     || ( $detection->attribute( 'created_time' ) > $timeStampFineSeduta && $endInterval == $timeStampFineSeduta ) )
+                if ( ( $detection->attribute(
+                            'created_time'
+                        ) > $startInterval
+                       && $detection->attribute( 'created_time' ) <= $endInterval )
+                     || ( $detection->attribute(
+                            'created_time'
+                        ) > $timeStampFineSeduta
+                          && $endInterval == $timeStampFineSeduta )
+                )
                 {
                     if ( !isset( $tempDetections[$detection->attribute( 'created_time' )] ) )
-                        $tempDetections[$detection->attribute( 'created_time' )] = array();
-
-                    $tempDetections[$detection->attribute( 'created_time' )][] = $detection;
-                    $isIn = $detection->attribute( 'is_in' );
-
-                    if ( $detection->attribute( 'is_in' ) == 1 )
                     {
-                        if ( $detection->attribute( 'type' ) == 'checkin' )
-                        {
-                            $inArray[] = $detection;
-                        }
-                        $outArray = array();
+                        $tempDetections[$detection->attribute( 'created_time' )] = array();
                     }
 
-                    if ( $detection->attribute( 'is_in' ) == 0
-                         && ( $detection->attribute( 'type' ) == 'checkin' || $detection->attribute( 'type' ) == 'manual' ) )
+                    $tempDetections[$detection->attribute( 'created_time' )][] = $detection;
+                    if ( $detection instanceof OpenPAConsiglioPresenza )
                     {
-                        $outArray[] = $detection;
+                        $isIn = intval( $detection->attribute( 'is_in' ) );
+
+                        if ( $detection->attribute( 'is_in' ) == 1 )
+                        {
+                            if ( $detection->attribute( 'type' ) == 'checkin' )
+                            {
+                                $inArray[] = $detection;
+                            }
+                            $outArray = array();
+                        }
+
+                        if ( $detection->attribute( 'is_in' ) == 0
+                             && ( $detection->attribute( 'type' ) == 'checkin'
+                                  || $detection->attribute( 'type' ) == 'manual' )
+                        )
+                        {
+                            $outArray[] = $detection;
+                        }
                     }
                 }
             }
@@ -225,8 +294,11 @@ class OpenPAConsiglioPresenzaHelper
 
         $endText = "Fine seduta";
 
-        if ( $this->seduta->is( 'in_progress' ) ){
-           $endText = "Adesso (fine seduta prevista alle ore " . $this->seduta->dataOraFine( 'H:i') . ")";
+        if ( $this->seduta->is( 'in_progress' ) )
+        {
+            $endText = "Adesso (fine seduta prevista alle ore " . $this->seduta->dataOraFine(
+                    'H:i'
+                ) . ")";
         }
 
         $events[] = array(
@@ -272,7 +344,24 @@ class OpenPAConsiglioPresenzaHelper
     protected function calculatePercent( $duration, $totalTime )
     {
         $percent = $duration * 100 / $totalTime;
+
         return $percent;
+    }
+}
+
+class OpenPAConsiglioCustomDetection extends OpenPATempletizable
+{
+    public function __construct( $timestamp, $label, $icon = null )
+    {
+        $data = array(
+            'id' => 'CutstomEvent-' . $timestamp,
+            'type' => 'custom',
+            'created_time' => $timestamp,
+            'label' => $label
+        );
+        if ( $icon )
+            $data['icon'] = $icon;
+        parent::__construct( $data );
     }
 }
 
