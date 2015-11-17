@@ -8,5 +8,3 @@ foreach( OpenPAConsiglioNotificationTransport::availableTransports() as $transpo
 {
     $transport->sendMassive();
 }
-
-SedutaFactory::reindex();
