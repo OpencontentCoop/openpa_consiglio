@@ -106,7 +106,7 @@
 
 {include uri="design:consiglio/cruscotto_seduta/modals.tpl"}
 
-{ezscript_require( array( 'ezjsc::jquery' ) )}
+{ezscript_require( array( 'ezjsc::jquery', 'jquery.confirm.min.js' ) )}
 <script src="{'javascript/socket.io-1.3.5.js'|ezdesign(no)}"></script>
 <script src="{'javascript/cruscotto_seduta_tools.js'|ezdesign(no)}?_={currentdate()}"></script>
 <script src="{'javascript/cruscotto_seduta.js'|ezdesign(no)}?_={currentdate()}"></script>

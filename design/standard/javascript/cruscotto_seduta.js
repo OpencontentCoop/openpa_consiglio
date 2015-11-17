@@ -33,13 +33,24 @@ $(document).on('click', 'a.seduta_start_stop', function (e) {
     e.preventDefault();
     var button = $(e.currentTarget);
     var container = button.parent();
-    $.get(button.data('action_url'), function () {
-        container.load( container.data('load_url'), function () {
-            Odg.reload();
-            var text = "\n" + button.data('add_to_verbale') + ' ' + currentDate() + "\n";
-            Verbale.showVerbale(CurrentSedutaId,text);
-        });
-        clearErrors();
+    var actionName = button.text();
+    $.confirm({
+        text: 'Confermi l\'azione "' + actionName + '"?',
+        confirmButton: "Confermo",
+        cancelButton: "Annulla",
+        confirm: function() {
+            $.get(button.data('action_url'), function () {
+                container.load( container.data('load_url'), function () {
+                    Odg.reload();
+                    var text = "\n" + button.data('add_to_verbale') + ' ' + currentDate() + "\n";
+                    Verbale.showVerbale(CurrentSedutaId,text);
+                });
+                clearErrors();
+            });
+        },
+        cancel: function() {
+            // nothing to do
+        }
     });
 });
 
@@ -47,24 +58,47 @@ $(document).on('click', 'a.punto_start_stop', function (e) {
     e.preventDefault();
     var button = $(e.currentTarget);
     var puntoId = button.data('punto_id');
-    $.get(button.data('action_url'), function () {
-        var text = "\n" + button.data('add_to_verbale') + ' ' + currentDate() + "\n";
-        Verbale.showVerbale(puntoId,text);
-        Odg.reload();
-        clearErrors();
-    }).fail(function (response, status, xhr) {
-        handelResponseError(response, status, xhr);
+    var actionName = button.text() + ' ' + button.parents('.list-group-item').find('a.show-verbale').text();
+
+    $.confirm({
+        text: 'Confermi l\'azione "' + actionName + '"?',
+        confirmButton: "Confermo",
+        cancelButton: "Annulla",
+        confirm: function() {
+            $.get(button.data('action_url'), function () {
+                var text = "\n" + button.data('add_to_verbale') + ' ' + currentDate() + "\n";
+                Verbale.showVerbale(puntoId,text);
+                Odg.reload();
+                clearErrors();
+            }).fail(function (response, status, xhr) {
+                handelResponseError(response, status, xhr);
+            });
+        },
+        cancel: function() {
+            // nothing to do
+        }
     });
 });
 
 $(document).on('click', '.partecipante .actions a', function (e) {
     e.preventDefault();
     var current = $(e.currentTarget);
-    $.ajax({
-        url: current.data('action_url'),
-        method: 'GET',
-        error: function (response, status, xhr) {
-            handelResponseError(response, status, xhr);
+    var actionName = current.attr('title') + ' ' + current.parents('.partecipante').find('.nome').text();
+    $.confirm({
+        text: 'Confermi l\'azione "' + actionName + '"?',
+        confirmButton: "Confermo",
+        cancelButton: "Annulla",
+        confirm: function() {
+            $.ajax({
+                url: current.data('action_url'),
+                method: 'GET',
+                error: function (response, status, xhr) {
+                    handelResponseError(response, status, xhr);
+                }
+            });
+        },
+        cancel: function() {
+            // nothing to do
         }
     });
 });
@@ -73,7 +107,19 @@ $(document).on('click', '.partecipante .stato-votazione a.mark_invalid', functio
     e.preventDefault();
     var current = $(e.currentTarget);
     var partecipante = Presenze.getPartecipante( current.parents( '.partecipante' ).data( 'partecipante' ) );
-    partecipante.removeVotoPartecipante(current.data());    
+    var actionName = 'Annulla voto di  ' + current.parents('.partecipante').find('.nome').text();
+    $.confirm({
+        text: 'Confermi l\'azione "' + actionName + '"?',
+        confirmButton: "Confermo",
+        cancelButton: "Annulla",
+        confirm: function() {
+            partecipante.removeVotoPartecipante(current.data());
+        },
+        cancel: function() {
+            // nothing to do
+        }
+    });
+    e.preventDefault();
 });
 
 $(document).on('change', '#message-point', function (e) {
@@ -86,12 +132,36 @@ $(document).on('click', '#popolaTestoVotazione', function (e) {
 });
 
 $(document).on('click', '.start_votazione', function (e) {
-    $(e.currentTarget).startVotazione();
+    var currentTarget = $(e.currentTarget);
+    var actionName = currentTarget.data('add_to_verbale');
+    $.confirm({
+        text: 'Confermi l\'azione "' + actionName + '"?',
+        confirmButton: "Confermo",
+        cancelButton: "Annulla",
+        confirm: function() {
+            currentTarget.startVotazione();
+        },
+        cancel: function() {
+            // nothing to do
+        }
+    });
     e.preventDefault();
 });
 
 $(document).on('click', '.stop_votazione', function (e) {
-    $(e.currentTarget).stopVotazione();
+    var currentTarget = $(e.currentTarget);
+    var actionName = currentTarget.data('add_to_verbale');
+    $.confirm({
+        text: 'Confermi l\'azione "' + actionName + '"?',
+        confirmButton: "Confermo",
+        cancelButton: "Annulla",
+        confirm: function() {
+            currentTarget.stopVotazione();
+        },
+        cancel: function() {
+            // nothing to do
+        }
+    });
     e.preventDefault();
 });
 

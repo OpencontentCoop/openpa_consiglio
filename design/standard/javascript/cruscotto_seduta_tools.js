@@ -52,7 +52,7 @@ $(document).on('click', '.modal button.btn-primary', function (e) {
     var currentModal = $(e.currentTarget).parents('.modal');
     var currentAction = currentModal.data('current');
     var currentActionSettings = currentModal.data('currentSettings');
-    if (typeof currentActionSettings.action_url == 'string') {
+    if (currentActionSettings && typeof currentActionSettings.action_url == 'string') {
         var values = [];
         $.each(currentActionSettings.fields, function (fieldIndex, fieldName) {
             var field = currentModal.find('*[name="' + fieldName + '"]');
