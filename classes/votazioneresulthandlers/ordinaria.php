@@ -4,7 +4,7 @@ class OpenPAConsiglioVotazioneResultHandlerOrdinaria extends OpenPAConsiglioVota
 {
     public function getDescription()
     {
-        return "Votazione a <b>maggioranza semplice</b>. Il quorum strutturale è rappresentato dalla metà più uno degli aventi diritto. Il quorum funzionale è rappresentato dalla maggioranza dei votanti.";
+        return "Votazione a <b>maggioranza semplice</b>. Il quorum costitutivo è rappresentato dalla metà più uno degli aventi diritto. Il quorum deliberativo è rappresentato dalla maggioranza dei votanti.";
     }
 
     public function getTemplateName()

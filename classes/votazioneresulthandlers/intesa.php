@@ -4,7 +4,7 @@ class OpenPAConsiglioVotazioneResultHandlerIntesa extends OpenPAConsiglioVotazio
 {
     public function getDescription()
     {
-        return "Votazione a <b>maggioranza assoluta</b>. Il quorum strutturale e funzionale sono rappresentati dalla maggioranza degli aventi diritt";
+        return "Votazione a <b>maggioranza assoluta</b>. Il quorum costitutivo e deliberativo sono rappresentati dalla maggioranza degli aventi diritt";
     }
 
     protected function getQuorumFunzionale()
