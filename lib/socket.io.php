@@ -115,14 +115,10 @@ class SocketIO
     }
 
     public function emit($event, $args, $endpoint = null, $callback = null) {
-        return $this->send(self::TYPE_EVENT, null, $endpoint, json_encode(array(
-                'name' => $event,
-                'args' => $args,
-            )
-        ));
+        return $this->send(self::TYPE_JSON_MESSAGE, 2, $endpoint, json_encode(array( $event, $args, ) ));
     }
 
-    public function send($type, $id = null, $endpoint = null, $message = null)
+    public function send($type, $id, $endpoint = null, $message = null)
     {
         if ( $this->connect() )
         {
@@ -131,7 +127,7 @@ class SocketIO
                 throw new \InvalidArgumentException( 'type parameter must inferior to 9.' );
             }
 
-            $raw_message = $type.':'.$id.':'.$endpoint.':'.$message;
+            $raw_message = $type.$id.$message;
             $payload = new Payload();
             $payload->setOpcode(Payload::OPCODE_TEXT)
                     ->setMask(true)
