@@ -23,6 +23,14 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
 
     public $InOut;
 
+    public $isIn;
+
+    public $hasCheckin;
+
+    public $hasManual;
+
+    public $hasBeacons;
+
     function OpenPAConsiglioPresenza( $row = array() )
     {
         $this->PersistentDataDirty = false;
@@ -257,120 +265,142 @@ class OpenPAConsiglioPresenza extends eZPersistentObject
      */
     public function isIn()
     {
-        if ( $this->attribute( 'type' ) == 'beacons' )
+        if ( $this->isIn === null )
         {
-            $hasCheckout = false;
-            $hasCheckin = $this->hasCheckin( true );
-            if ( $hasCheckin instanceof OpenPAConsiglioPresenza && intval( $hasCheckin->attribute( 'in_out' ) ) == 0 )
+            if ( $this->attribute( 'type' ) == 'beacons' )
             {
-                $hasCheckout = true; // ha già eseguito il checkout
-            }
-            if ( $hasCheckout )
-            {
-                return false;
-            }
-            else
-            {
-                $hasManual = $this->hasManual( true );
-                if ( $hasManual instanceof OpenPAConsiglioPresenza )
+                $hasCheckout = false;
+                $hasCheckin = $this->hasCheckin( true );
+                if ( $hasCheckin instanceof OpenPAConsiglioPresenza
+                     && intval( $hasCheckin->attribute( 'in_out' ) ) == 0
+                )
                 {
-                    if ( intval( $hasManual->attribute( 'in_out' ) ) == 0 && intval( $this->attribute( 'in_out' ) ) == 1 )
+                    $hasCheckout = true; // ha già eseguito il checkout
+                }
+                if ( $hasCheckout )
+                {
+                    $this->isIn = false;
+                }
+                else
+                {
+                    $hasManual = $this->hasManual( true );
+                    if ( $hasManual instanceof OpenPAConsiglioPresenza )
                     {
-                        return false; // beacons postivo ma e manual negativo
-                    }
-                    elseif ( intval( $hasManual->attribute( 'in_out' ) ) == 1 && intval( $this->attribute( 'in_out' ) ) == 0 )
-                    {
-                        return true; // beacons negativo ma e manual positivo
+                        if ( intval( $hasManual->attribute( 'in_out' ) ) == 0
+                             && intval( $this->attribute( 'in_out' ) ) == 1
+                        )
+                        {
+                            $this->isIn = false; // beacons postivo ma e manual negativo
+                        }
+                        elseif ( intval( $hasManual->attribute( 'in_out' ) ) == 1
+                                 && intval( $this->attribute( 'in_out' ) ) == 0
+                        )
+                        {
+                            $this->isIn = true; // beacons negativo ma e manual positivo
+                        }
                     }
                 }
-            }            
+            }
+
+            $this->isIn = $this->attribute( 'in_out' );
         }
-        return $this->attribute( 'in_out' );
+        return $this->isIn;
     }
 
     public function hasCheckin( $asObject = false )
     {
-        /** @var OpenPAConsiglioPresenza[] $presenze */
-        $presenze = parent::fetchObjectList(
-            self::definition(),
-            null,
-            array(
-                'seduta_id' => intval( $this->attribute( 'seduta_id' ) ),
-                'user_id' => (int) $this->attribute( 'user_id' ),
-                'type' => 'checkin',
-                'created_time' => array( '<=', intval( $this->attribute( 'created_time' ) ) )
-            ),
-            array( 'created_time' => 'desc' ),
-            array( 'limit' => 1, 'offset' => 0 )
-        );
-        if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
-        {
-            if ( $asObject )
-                return $presenze[0];
-            else
-                return $presenze[0]->attribute( 'in_out' );
-        }
-        return false;
-    }
-
-    public function hasManual( $asObject = false )
-    {
-        $sedutaId = $this->attribute( 'seduta_id' );
-        if ( !empty( $sedutaId ) )
+        if ( $this->hasCheckin == null )
         {
             /** @var OpenPAConsiglioPresenza[] $presenze */
             $presenze = parent::fetchObjectList(
                 self::definition(),
                 null,
                 array(
-                    'seduta_id' => $this->attribute( 'seduta_id' ),
+                    'seduta_id' => intval( $this->attribute( 'seduta_id' ) ),
                     'user_id' => (int)$this->attribute( 'user_id' ),
-                    'type' => 'manual',
-                    'created_time' => array( '<=', $this->attribute( 'created_time' ) )
+                    'type' => 'checkin',
+                    'created_time' => array( '<=', intval( $this->attribute( 'created_time' ) ) )
                 ),
                 array( 'created_time' => 'desc' ),
                 array( 'limit' => 1, 'offset' => 0 )
             );
             if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
             {
-                if ( $asObject )
-                    return $presenze[0];
-                else
-                    return $presenze[0]->attribute( 'in_out' );
+                $this->hasCheckin = $presenze[0];
             }
         }
-        return false;
+        if ( !$asObject && $this->hasCheckin instanceof OpenPAConsiglioPresenza )
+            return $this->hasCheckin->attribute( 'in_out' );
+        return $this->hasCheckin;
+    }
+
+    public function hasManual( $asObject = false )
+    {
+        if ( $this->hasManual === null )
+        {
+            $sedutaId = $this->attribute( 'seduta_id' );
+            if ( !empty( $sedutaId ) )
+            {
+                /** @var OpenPAConsiglioPresenza[] $presenze */
+                $presenze = parent::fetchObjectList(
+                    self::definition(),
+                    null,
+                    array(
+                        'seduta_id' => $this->attribute( 'seduta_id' ),
+                        'user_id' => (int)$this->attribute( 'user_id' ),
+                        'type' => 'manual',
+                        'created_time' => array( '<=', $this->attribute( 'created_time' ) )
+                    ),
+                    array( 'created_time' => 'desc' ),
+                    array( 'limit' => 1, 'offset' => 0 )
+                );
+                if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
+                {
+                    $this->hasManual = $presenze[0];
+                }
+            }
+        }
+        if ( !$asObject && $this->hasManual instanceof OpenPAConsiglioPresenza )
+            return $this->hasManual->attribute( 'in_out' );
+        return $this->hasManual;
     }
 
     public function hasBeacons( $asObject = false )
     {
-        /** @var OpenPAConsiglioPresenza[] $presenze */
-        $presenze = parent::fetchObjectList(
-            self::definition(),
-            null,
-            array(
-                'seduta_id' => intval( $this->attribute( 'seduta_id' ) ),
-                'user_id' => (int) $this->attribute( 'user_id' ),
-                'type' => 'beacons',
-                'created_time' => array( '<=', intval( $this->attribute( 'created_time' ) ) )
-            ),
-            array( 'created_time' => 'desc' ),
-            array( 'limit' => 1, 'offset' => 0 )
-        );
-        if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
+        if ( $this->hasBeacons === null )
         {
-            if ( $asObject )
-                return $presenze[0];
-            else
-                return $presenze[0]->attribute( 'in_out' );
+            /** @var OpenPAConsiglioPresenza[] $presenze */
+            $presenze = parent::fetchObjectList(
+                self::definition(),
+                null,
+                array(
+                    'seduta_id' => intval( $this->attribute( 'seduta_id' ) ),
+                    'user_id' => (int)$this->attribute( 'user_id' ),
+                    'type' => 'beacons',
+                    'created_time' => array( '<=', intval( $this->attribute( 'created_time' ) ) )
+                ),
+                array( 'created_time' => 'desc' ),
+                array( 'limit' => 1, 'offset' => 0 )
+            );
+            if ( isset( $presenze[0] ) && $presenze[0] instanceof OpenPAConsiglioPresenza )
+            {
+                $this->hasBeacons = $presenze[0];
+            }
         }
-        return false;
+        if ( !$asObject && $this->hasBeacons instanceof OpenPAConsiglioPresenza )
+            return $this->hasBeacons->attribute( 'in_out' );
+        return $this->hasBeacons;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize( $includeFunctionAttributes = true )
     {
         $data = array();
-        foreach( $this->attributes() as $identifier )
+
+        $def = $this->definition();
+        $attributes = $includeFunctionAttributes ? $this->attributes() : array_keys( $def["fields"] );
+        $attributes[] = 'is_in';
+
+        foreach( $attributes as $identifier )
         {
             if ( $identifier == 'created_time' )
             {

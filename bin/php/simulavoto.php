@@ -36,13 +36,14 @@ if ( !$votazione instanceof Votazione )
 {
     throw new Exception( "Post {$this->Id} is not a valid Votazione" );
 }
+$partecipanti = $votazione->getSeduta()->partecipanti();
 /** @var eZUser[] $presenti */
 $presenti = $votazione->getResultHandler()->attribute( 'presenti' );
 $p = empty( $options['par'] ) ? count( $partecipanti ) : $options['par'];
 $f = empty( $options['fav'] ) ? 0 : $options['fav'];
 $c = empty( $options['con'] ) ? 0 : $options['con'];
 $a = empty( $options['ast'] ) ? 0 : $options['ast'];
-
+$report = array();
 $index = 0;
 foreach( $presenti as $presente )
 {
@@ -73,9 +74,11 @@ foreach( $presenti as $presente )
             $key = array_rand( $values );
             $value = $values[$key];
         }
+        $name = $presente->attribute( 'object' )->attribute( 'name' );
         $cli->warning(
-            'Voto ' . $value . ' per ' . $presente->attribute( 'contentobject' )->attribute( 'name' ), false
+            'Voto ' . $value . ' per ' . $name, false
         );
+        $report[$value][] = $name;
 //        try
 //        {
 //            $votazione->addVoto( $value, $presente->id() );
@@ -105,9 +108,9 @@ foreach( $presenti as $presente )
         {
             $cli->output( $data->presenza->id );
         }
-
     }
 }
+print_r( $report );
 
 
 $script->shutdown();

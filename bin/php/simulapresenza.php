@@ -36,7 +36,7 @@ eZUser::setCurrentlyLoggedInUser( $user, $user->attribute( 'contentobject_id' ) 
 try
 {
 
-    $url = $options['url'] ? $options['url'] : 'cal';
+    $host = $options['url'] !== null ? $options['url'] : 'cal';
     $selectPartecipante = intval( $options['partecipante'] );
     $inout = $options['inout'] !== null ? intval($options['inout']) : 1;
     $type = $options['type'] ? $options['type'] : 'checkin';
@@ -59,7 +59,7 @@ try
         if ( $inout == 2 )
             $inout = array_rand( array( 0, 1 ) );
 
-        $url = "http://{$url}/api/consiglio/v1/seduta/{$seduta->id()}/presenza";
+        $url = "http://{$host}/api/consiglio/v1/seduta/{$seduta->id()}/presenza";
         $credentials = "admin:gabricecek";
         $headers = array( "Authorization: Basic " . base64_encode( $credentials ) );
         $postString = "in_out={$inout}&type={$type}&user_id={$partecipante->id()}";
@@ -79,7 +79,7 @@ try
             $cli->output( $partecipante->getObject()->attribute( 'name' ) . ' ', false );
             $cli->output( $data->presenza->id );
         }
-
+        curl_close($ch);
     }
 
 }

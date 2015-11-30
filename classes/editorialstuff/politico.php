@@ -158,7 +158,7 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
      *
      * @return bool|mixed|string
      */
-    protected function stringAttribute( $identifier, $callback = null )
+    public function stringAttribute( $identifier, $callback = null )
     {
         $string = '';
         if ( isset( $this->dataMap[$identifier] ) )

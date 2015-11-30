@@ -38,21 +38,21 @@
                     <th style="vertical-align: middle">Favorevoli</th>
                     <td style="vertical-align: middle" align="center">{$post_result.favorevoli_count}</td>
                     <td style="vertical-align: middle" class="favorevoli">
-                        {foreach $post_result.favorevoli as $user}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/user_in_votazione.tpl' is_monitor=true() votazione=$post user=$user anomalie=$anomalie}{delimiter} {/delimiter}{/foreach}
+                        {foreach $post_result.favorevoli as $partecipante}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/partecipante_in_votazione.tpl' is_monitor=true() votazione=$post partecipante=$partecipante anomalie=$anomalie}{delimiter} {/delimiter}{/foreach}
                     </td>
                 </tr>
                 <tr>
                     <th style="vertical-align: middle">Contrari</th>
                     <td style="vertical-align: middle" align="center">{$post_result.contrari_count}</td>
                     <td style="vertical-align: middle" class="contrari">
-                        {foreach $post_result.contrari as $user}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/user_in_votazione.tpl' is_monitor=true() votazione=$post user=$user anomalie=$anomalie}{delimiter} {/delimiter}{/foreach}
+                        {foreach $post_result.contrari as $partecipante}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/partecipante_in_votazione.tpl' is_monitor=true() votazione=$post partecipante=$partecipante anomalie=$anomalie}{delimiter} {/delimiter}{/foreach}
                     </td>
                 </tr>
                 <tr>
                     <th style="vertical-align: middle">Astenuti</th>
                     <td style="vertical-align: middle" align="center">{$post_result.astenuti_count}</td>
                     <td style="vertical-align: middle" class="astenuti">
-                        {foreach $post_result.astenuti as $user}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/user_in_votazione.tpl' is_monitor=true() votazione=$post user=$user anomalie=$anomalie}{delimiter} {/delimiter}{/foreach}
+                        {foreach $post_result.astenuti as $partecipante}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/partecipante_in_votazione.tpl' is_monitor=true() votazione=$post partecipante=$partecipante anomalie=$anomalie}{delimiter} {/delimiter}{/foreach}
                     </td>
                 </tr>
             </table>
@@ -62,7 +62,7 @@
         <th style="vertical-align: middle">Non hanno espresso una preferenza</th>
         <td align="center" style="vertical-align: middle">{$post_result.non_votanti_count}</td>
         <td style="vertical-align: middle" class="astenuti">
-            {foreach $post_result.non_votanti as $user}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/user_in_votazione.tpl' is_monitor=true() votazione=$post user=$user anomalie=$anomalie}{delimiter} {/delimiter}{/foreach}
+            {foreach $post_result.non_votanti as $partecipante}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/partecipante_in_votazione.tpl' is_monitor=true() votazione=$post partecipante=$partecipante anomalie=$anomalie}{delimiter} {/delimiter}{/foreach}
         </td>
     </tr>
 </table>

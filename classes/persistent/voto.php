@@ -196,6 +196,11 @@ class OpenPAConsiglioVoto extends eZPersistentObject
 
     public static function votanti( Votazione $votazione, $asObjects = false, $checkConsistency = false, $valueCondition = null )
     {
+        $partecipanti = array();
+        if ( $asObjects || $checkConsistency )
+        {
+            $partecipanti = $votazione->getSeduta()->partecipanti();
+        }
         $conds = array( 'votazione_id' => $votazione->id() );
         if ( $valueCondition !== null )
         {
@@ -213,10 +218,14 @@ class OpenPAConsiglioVoto extends eZPersistentObject
         {
             if ( $asObjects || $checkConsistency )
             {
-                $user = eZUser::fetch( $voto->attribute( 'user_id' ) );
-                if ( !$checkConsistency && !$user instanceof eZUser )
+                $user = false;
+                foreach( $partecipanti as $partecipante )
                 {
-                    $user = new eZUser( array( 'contentobject_id' => $voto->attribute( 'user_id' ) ) );
+                    if ( $partecipante->id() == $voto->attribute( 'user_id' ) )
+                    {
+                        $user = $partecipante;
+                        break;
+                    }
                 }
             }
             else

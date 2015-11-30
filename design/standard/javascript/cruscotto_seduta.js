@@ -2,6 +2,7 @@ var Verbale = $('#verbale');
 var Odg = $('#odg_list');
 var Votazioni = $('#votazioni');
 var Presenze = $('#presenze');
+var TotaleVotanti = $('#totale-votanti');
 
 //var timeoutId;
 //$(document).on('input propertychange change insertText', 'textarea', function (e) {

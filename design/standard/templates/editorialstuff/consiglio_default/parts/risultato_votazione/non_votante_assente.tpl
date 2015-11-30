@@ -19,14 +19,14 @@
         <th style="vertical-align: middle">Presenti</th>
         <td style="vertical-align: middle" class="presenti">{$post_result.presenti_count}</td>
         <td class="presenti">
-            <small>{foreach $post_result.presenti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}</small>
+            <small>{foreach $post_result.presenti as $partecipante}{$partecipante.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}</small>
         </td>
     </tr>
     <tr>
         <th style="vertical-align: middle">Assenti</th>
         <td style="vertical-align: middle" align="center">{$post_result.assenti_count}</td>
         <td class="assenti">
-            <small>{foreach $post_result.assenti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}</small>
+            <small>{foreach $post_result.assenti as $partecipante}{$partecipante.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}</small>
         </td>
     </tr>
 {/if}
@@ -37,21 +37,21 @@
         <th style="vertical-align: middle">Presenti</th>
         <td style="vertical-align: middle" class="presenti">{$post_result.presenti_count}</td>
         <td class="presenti">
-            {foreach $post_result.presenti as $user}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/user_in_votazione.tpl' votazione=$post user=$user anomalie=$anomalie} {/foreach}
+            {foreach $post_result.presenti as $partecipante}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/partecipante_in_votazione.tpl' votazione=$post partecipante=$partecipante anomalie=$anomalie} {/foreach}
         </td>
     </tr>
     <tr>
         <th rowspan="2" style="vertical-align: middle">Assenti</th>
         <td style="vertical-align: middle" align="center">{$post_result.assenti_count}</td>
         <td class="assenti">
-            {foreach $post_result.assenti as $user}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/user_in_votazione.tpl' votazione=$post user=$user anomalie=$anomalie} {/foreach}
+            {foreach $post_result.assenti as $partecipante}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/partecipante_in_votazione.tpl' votazione=$post partecipante=$partecipante anomalie=$anomalie} {/foreach}
         </td>
     </tr>
     <tr>
         <td style="vertical-align: middle" align="center">{$post_result.non_votanti_count}</td>
         <td style="vertical-align: middle" class="votanti">
             <b><small>Assenti perché non hanno espresso una preferenza:</small></b>
-            {foreach $post_result.non_votanti as $user}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/user_in_votazione.tpl' votazione=$post user=$user anomalie=$anomalie} {/foreach}
+            {foreach $post_result.non_votanti as $partecipante}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/partecipante_in_votazione.tpl' votazione=$post partecipante=$partecipante anomalie=$anomalie} {/foreach}
         </td>
     </tr>
     <tr>
@@ -60,7 +60,7 @@
     <tr>
         <th style="vertical-align: middle">Hanno espresso una preferenza</th>
         <td style="vertical-align: middle" align="center">{$post_result.votanti_count}</td>
-        {*<td style="vertical-align: middle" class="votanti"><small>{foreach $post_result.votanti as $user}{$user.contentobject.name|wash()}{delimiter}, {/delimiter}{/foreach}</small></td>*}
+        {*<td style="vertical-align: middle" class="votanti"><small>{foreach $post_result.votanti as $partecipante}{$partecipante.object.name|wash()}{delimiter}, {/delimiter}{/foreach}</small></td>*}
         <td>
             <table class="table table-bordered">
                 <tr>
@@ -68,7 +68,7 @@
                     <td style="vertical-align: middle"
                         align="center">{$post_result.favorevoli_count}</td>
                     <td style="vertical-align: middle" class="favorevoli">
-                        {foreach $post_result.favorevoli as $user}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/user_in_votazione.tpl' votazione=$post user=$user anomalie=$anomalie} {/foreach}
+                        {foreach $post_result.favorevoli as $partecipante}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/partecipante_in_votazione.tpl' votazione=$post partecipante=$partecipante anomalie=$anomalie} {/foreach}
                     </td>
                 </tr>
                 <tr>
@@ -76,7 +76,7 @@
                     <td style="vertical-align: middle"
                         align="center">{$post_result.contrari_count}</td>
                     <td style="vertical-align: middle" class="contrari">
-                        {foreach $post_result.contrari as $user}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/user_in_votazione.tpl' votazione=$post user=$user anomalie=$anomalie} {/foreach}
+                        {foreach $post_result.contrari as $partecipante}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/partecipante_in_votazione.tpl' votazione=$post partecipante=$partecipante anomalie=$anomalie} {/foreach}
                     </td>
                 </tr>
                 <tr>
@@ -84,7 +84,7 @@
                     <td style="vertical-align: middle"
                         align="center">{$post_result.astenuti_count}</td>
                     <td style="vertical-align: middle" class="astenuti">
-                        {foreach $post_result.astenuti as $user}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/user_in_votazione.tpl' votazione=$post user=$user anomalie=$anomalie} {/foreach}
+                        {foreach $post_result.astenuti as $partecipante}{include uri='design:editorialstuff/consiglio_default/parts/risultato_votazione/partecipante_in_votazione.tpl' votazione=$post partecipante=$partecipante anomalie=$anomalie} {/foreach}
                     </td>
                 </tr>
             </table>

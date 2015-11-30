@@ -113,7 +113,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
             'astenuti' => 'getAstenuti',
             'astenuti_count' => 'getAstenutiCount',
             'anomalie' => 'getAnomalie'
-        );        
+        );
         return $this;
     }
 
@@ -150,13 +150,9 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
             {
                 if ( $calcoloPresenze[$partecipante->id()] > 0 )
                 {
-                    $presenti[$partecipante->id()] = $this->fetchUser(
-                        intval( $partecipante->id() )
-                    );
+                    $this->data['presenti'][$partecipante->id()] = $partecipante;
                 }
             }
-
-            $this->data['presenti'] = $presenti;
         }
         return $this->data['presenti'];
     }
@@ -193,7 +189,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
                 $end,
                 'fine'
             );
-            $presenze = new OpenPAConsiglioPresenzaHelper( $seduta, $customEvents );
+            $presenze = new OpenPAConsiglioPresenzaHelper( $seduta, $customEvents, null, true, "votazione-{$this->currentVotazione->id()}-" );
             $data = $presenze->getData();
 
             foreach ( $data as $userId => $userData )
@@ -262,7 +258,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
         {
             if ( !isset( $presenti[$partecipante->id()] ) )
             {
-                $assenti[] = $this->fetchUser( $partecipante->id() );
+                $assenti[] = $partecipante;
             }
         }
         return $assenti;
@@ -284,7 +280,11 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
     {
         if ( !isset( $this->data['votanti'] ) )
         {
-            $this->data['votanti'] = OpenPAConsiglioVoto::votanti( $this->currentVotazione, true, true );
+            $votanti = OpenPAConsiglioVoto::votanti( $this->currentVotazione, true, true );
+            usort( $votanti, function($a, $b){
+                return strcmp( $a->stringAttribute( 'cognome' ), $b->stringAttribute( 'cognome' ) );
+            });
+            $this->data['votanti'] = $votanti;
         }
         return $this->data['votanti'];
     }
@@ -337,7 +337,11 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
     {
         if ( !isset( $this->data['favorevoli'] ) )
         {
-            $this->data['favorevoli'] = OpenPAConsiglioVoto::votanti( $this->currentVotazione, true, true, OpenPAConsiglioVoto::FAVOREVOLE );
+            $favorevoli = OpenPAConsiglioVoto::votanti( $this->currentVotazione, true, true, OpenPAConsiglioVoto::FAVOREVOLE );
+            usort( $favorevoli, function($a, $b){
+                return strcmp( $a->stringAttribute( 'cognome' ), $b->stringAttribute( 'cognome' ) );
+            });
+            $this->data['favorevoli'] = $favorevoli;
         }
         return $this->data['favorevoli'];
     }
@@ -361,7 +365,11 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
     {
         if ( !isset( $this->data['contrari'] ) )
         {
-            $this->data['contrari'] = OpenPAConsiglioVoto::votanti( $this->currentVotazione, true, true, OpenPAConsiglioVoto::CONTRARIO );
+            $contrari = OpenPAConsiglioVoto::votanti( $this->currentVotazione, true, true, OpenPAConsiglioVoto::CONTRARIO );
+            usort( $contrari, function($a, $b){
+                return strcmp( $a->stringAttribute( 'cognome' ), $b->stringAttribute( 'cognome' ) );
+            });
+            $this->data['contrari'] = $contrari;
         }
         return $this->data['contrari'];
     }
@@ -385,7 +393,11 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
     {
         if ( !isset( $this->data['astenuti'] ) )
         {
-            $this->data['astenuti'] = OpenPAConsiglioVoto::votanti( $this->currentVotazione, true, true, OpenPAConsiglioVoto::ASTENUTO );
+            $astenuti = OpenPAConsiglioVoto::votanti( $this->currentVotazione, true, true, OpenPAConsiglioVoto::ASTENUTO );
+            usort( $astenuti, function($a, $b){
+                return strcmp( $a->stringAttribute( 'cognome' ), $b->stringAttribute( 'cognome' ) );
+            });
+            $this->data['astenuti'] = $astenuti;
         }
         return $this->data['astenuti'];
     }

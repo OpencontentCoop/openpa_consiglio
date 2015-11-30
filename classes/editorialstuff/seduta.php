@@ -9,7 +9,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 {
     const DATE_FORMAT = 'Y-m-d H:i:s';
 
-    protected $partecipanti;
+    protected static $partecipantiPerSeduta = array();
 
     protected $consiglieri;
 
@@ -720,8 +720,9 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
      */
     public function partecipanti( $asObject = true )
     {
-        if ( $this->partecipanti === null )
+        if ( !isset( self::$partecipantiPerSeduta[$this->id()] ) )
         {
+            $partecipanti = array();
             if ( isset( $this->dataMap['partecipanti'] )
                  && $this->dataMap['partecipanti']->hasContent()
             )
@@ -729,18 +730,17 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 $ids = explode( '-', $this->dataMap['partecipanti']->toString() );
                 foreach ( $ids as $id )
                 {
-                    $this->partecipanti[] = OCEditorialStuffHandler::instance(
+                    $partecipanti[] = OCEditorialStuffHandler::instance(
                         'politico'
                     )->getFactory()->instancePost( array( 'object_id' => $id ) );
                 }
             }
             else
             {
-                $this->partecipanti = array();
                 $organoNodeId = $this->stringRelatedObjectAttribute( 'organo', 'main_node_id' );
                 if ( is_array( $organoNodeId ) && is_numeric( $organoNodeId[0] ) )
                 {
-                    $this->partecipanti = OCEditorialStuffHandler::instance(
+                    $partecipanti = OCEditorialStuffHandler::instance(
                         'politico'
                     )->fetchItems(
                         array(
@@ -752,12 +752,18 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                     );
                 }
             }
+
+            usort( $partecipanti, function($a, $b){
+                return strcmp( $a->stringAttribute( 'cognome' ), $b->stringAttribute( 'cognome' ) );
+            });
+            self::$partecipantiPerSeduta[$this->id()] = $partecipanti;
         }
 
         if ( !$asObject )
         {
             $ids = array();
-            foreach ( $this->partecipanti as $partecipante )
+            /** @var Politico $partecipante */
+            foreach ( self::$partecipantiPerSeduta[$this->id()] as $partecipante )
             {
                 $ids[] = $partecipante->id();
             }
@@ -765,7 +771,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
             return $ids;
         }
 
-        return $this->partecipanti;
+        return self::$partecipantiPerSeduta[$this->id()];
     }
 
     public function setPartecipanti()

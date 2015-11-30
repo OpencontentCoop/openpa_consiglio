@@ -101,7 +101,13 @@ var handelResponseError = function (response, status, xhr) {
 var clearErrors = function () {
     $('#alert_area').html('');
 };
-
+var showTotaleVotanti = function(){
+    TotaleVotanti.show();
+};
+var hideTotaleVotanti = function(){
+    TotaleVotanti.hide();
+    TotaleVotanti.html('0');
+};
 
 jQuery.fn.sortElements = (function () {
 
@@ -162,6 +168,7 @@ jQuery.fn.extend({
             method: 'POST',
             data: {idVotazione:self.data('votazione')},
             success: function (data) {
+                showTotaleVotanti();
                 startTimer();
                 Presenze.startVotoPartecipanti();
                 var text = "\n" + self.data('add_to_verbale') + ' ' + currentDate() + "\n";
@@ -171,6 +178,7 @@ jQuery.fn.extend({
             },
             error: function (response, status, xhr) {
                 handelResponseError(response, status, xhr);
+                hideTotaleVotanti();
                 self.html(content);
             },
             dataType: 'json'
@@ -189,12 +197,15 @@ jQuery.fn.extend({
             method: 'POST',
             data: {idVotazione:idVotazione},
             success: function (data) {
+                hideTotaleVotanti();
                 Votazioni.reload();
                 Presenze.resetVotoPartecipanti();
                 clearErrors();
                 $('a#viewVotazione-'+idVotazione).trigger('click');
+
             },
             error: function (response, status, xhr) {
+                hideTotaleVotanti();
                 Votazioni.reload();
                 handelResponseError(response, status, xhr);
             },
@@ -264,6 +275,8 @@ jQuery.fn.extend({
             stato.addClass( 'ha-votato' );
         }
         self.data('last_update', data.created_timestamp );
+        var totale = parseInt( TotaleVotanti.text() ) + 1;
+        TotaleVotanti.html( totale );
     },
     
     removeVotoPartecipante: function(data){      

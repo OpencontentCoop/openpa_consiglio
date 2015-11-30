@@ -37,7 +37,7 @@ class OpenPAConsiglioPushNotifier
     {
         //$this->storeToFile( $identifier, $data );
         $this->sendToSocket( $identifier, $data );
-        //$this->sendToBackend( $identifier, $data );
+        //$this->sendToBackend( $identifier, $data ); //@todo remove
     }
 
     protected function storeToFile( $identifier, $data )

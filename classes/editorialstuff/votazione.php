@@ -22,6 +22,11 @@ class Votazione extends OCEditorialStuffPost
     public static $contrariIdentifier = 'contrari';
 
     /**
+     * @var Seduta
+     */
+    protected $seduta;
+
+    /**
      * @var eZContentObjectAttribute[]
      */
     protected $dataMap;
@@ -32,7 +37,6 @@ class Votazione extends OCEditorialStuffPost
     )
     {
         parent::__construct( $data, $factory );
-        $this->dataMap = $this->getObject()->attribute( 'data_map' );
     }
 
     /**
@@ -319,8 +323,12 @@ class Votazione extends OCEditorialStuffPost
      */
     public function getSeduta()
     {
-        $sedutaId = $this->stringAttribute( self::$sedutaIdentifier, 'intval' );
-        return OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $sedutaId );
+        if ( $this->seduta == null )
+        {
+            $sedutaId = $this->stringAttribute( self::$sedutaIdentifier, 'intval' );
+            $this->seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $sedutaId );
+        }
+        return $this->seduta;
     }
 
     public function checkAccess( $seduta, $userId )

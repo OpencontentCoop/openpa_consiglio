@@ -35,8 +35,10 @@ class OpenPAConsiglioPresenzaHelper
      * @param Seduta $seduta
      * @param array $customDetections
      * @param int $userId
+     * @param bool|false $useCache
+     * @param bool|false $prefixFileCache
      */
-    public function __construct( Seduta $seduta, $customDetections = null, $userId = null )
+    public function __construct( Seduta $seduta, $customDetections = null, $userId = null, $useCache = false, $prefixFileCache = false )
     {
         $this->data = array();
 
@@ -48,9 +50,12 @@ class OpenPAConsiglioPresenzaHelper
 
         $this->userId = $userId;
 
+
         if ( $this->seduta->is( 'closed' ) )
+            $useCache = true;
+        if ( $useCache )
         {
-            $cacheFilePath = self::presenzeCacheFilePath( $this->seduta );
+            $cacheFilePath = self::presenzeCacheFilePath( $this->seduta, $prefixFileCache );
             $cacheFile = eZClusterFileHandler::instance( $cacheFilePath );
             $presenzeCached = $cacheFile->processCache(
                 array( 'OpenPAConsiglioPresenzaHelper', 'presenzeCacheRetrieve' ),
@@ -94,9 +99,9 @@ class OpenPAConsiglioPresenzaHelper
         }
     }
 
-    public static function presenzeCacheFilePath( Seduta $seduta )
+    public static function presenzeCacheFilePath( Seduta $seduta, $prefixFileCache = false )
     {
-        $cacheFile = $seduta->id() . '.cache';
+        $cacheFile = $prefixFileCache . $seduta->id() . '.cache';
         $cachePath = eZDir::path( array( eZSys::cacheDirectory(), 'openpa_consiglio', 'presenze', $cacheFile ) );
         return $cachePath;
     }
@@ -109,7 +114,7 @@ class OpenPAConsiglioPresenzaHelper
         $data = array();
         foreach( $presenze as $presenza )
         {
-            $data[] = $presenza->jsonSerialize();
+            $data[] = $presenza->jsonSerialize(false);
         }
         return array( 'content'  => $data,
                       'scope'    => 'consiglio-presenze-seduta-cache',
@@ -287,13 +292,9 @@ class OpenPAConsiglioPresenzaHelper
             $tempDetections = array();
             foreach ( $userDetections as $detection )
             {
-                if ( ( $detection->attribute(
-                            'created_time'
-                        ) > $startInterval
+                if ( ( $detection->attribute( 'created_time' ) > $startInterval
                        && $detection->attribute( 'created_time' ) <= $endInterval )
-                     || ( $detection->attribute(
-                            'created_time'
-                        ) > $timeStampFineSeduta
+                     || ( $detection->attribute( 'created_time' ) > $timeStampFineSeduta
                           && $endInterval == $timeStampFineSeduta )
                 )
                 {
