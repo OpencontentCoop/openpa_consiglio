@@ -19,6 +19,7 @@ http.listen(8090, function () {
 io.on('connection', function (socket) {
     console.log('-> connected');
     socket.on('broadcast', function (data) {
+        console.log(data);
         if(data.sa == currentSA) {
             io.emit(data.identifier, data.data);
             console.log(new Date());

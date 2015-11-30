@@ -1,7 +1,7 @@
 <?php
 
 use ElephantIO\Client;
-use ElephantIO\Engine\SocketIO\Version1X;
+use ElephantIO\Client as ElephantIOClient;
 
 class OpenPAConsiglioPushNotifier
 {
@@ -23,7 +23,7 @@ class OpenPAConsiglioPushNotifier
 
         $host = OpenPAINI::variable( 'OpenPAConsiglio', 'SocketUrl', 'cal' );
         $port = intval( OpenPAINI::variable( 'OpenPAConsiglio', 'SocketPort', 8090 ) );
-        $this->socketIo = new Client(new Version1X("http://{$host}:{$port}"));
+        $this->socketIo = new SocketIO($host, $port );
     }
 
     public static function instance()
@@ -60,9 +60,7 @@ class OpenPAConsiglioPushNotifier
             'data' => $data
         );
         try{
-            $this->socketIo->initialize();
             $this->socketIo->emit('broadcast', $data);
-            $this->socketIo->close();
         }catch (Exception $e){
             eZLog::write( $e->getMessage(), 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log');
         }
