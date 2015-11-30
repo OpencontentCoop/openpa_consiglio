@@ -32,9 +32,7 @@ class Invito extends OCEditorialStuffPost
         $locale = eZLocale::instance();
         $puntoFactory = OCEditorialStuffHandler::instance( 'punto' )->getFactory();
 
-        /** @var eZContentObjectAttribute[] $dataMap */
-        $dataMap = $this->object->dataMap();
-        $listPunti = explode( '-', $dataMap['object']->toString() );
+        $listPunti = explode( '-', $this->dataMap['object']->toString() );
         foreach ( $listPunti as $puntoId )
         {
             try

@@ -28,7 +28,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     )
     {
         parent::__construct( $data, $factory );
-        $this->dataMap = $this->getObject()->attribute( 'data_map' );
     }
 
     public function attributes()

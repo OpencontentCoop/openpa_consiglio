@@ -23,7 +23,6 @@ class Audizione extends OCEditorialStuffPostNotifiable implements OCEditorialStu
     )
     {
         parent::__construct( $data, $factory );
-        $this->dataMap = $this->getObject()->attribute( 'data_map' );
     }
 
     public function attributes()

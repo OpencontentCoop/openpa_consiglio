@@ -30,10 +30,9 @@ class Allegato extends OCEditorialStuffPost
 
     public function isSostituito()
     {
-        $dataMap = $this->getObject()->dataMap();
-        if ( isset( $dataMap['sostituito'] ) )
+        if ( isset( $this->dataMap['sostituito'] ) )
         {
-            return (bool) $dataMap['sostituito']->attribute( 'data_int' );
+            return (bool) $this->dataMap['sostituito']->attribute( 'data_int' );
         }
         return false;
     }
