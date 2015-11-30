@@ -1,21 +1,29 @@
 <?php
 
+use ElephantIO\Client;
+use ElephantIO\Engine\SocketIO\Version1X;
+
 class OpenPAConsiglioPushNotifier
 {
     private static $_instance;
 
     protected $file;
 
-    protected $IsModified;
+    protected $backendEndPoint;
 
-    protected $data;
+    protected $socketIo;
 
     protected function __construct()
     {
         $cacheDirectory = eZSys::cacheDirectory();
         $filename = $cacheDirectory . '/' . 'push_notifications.json';
         $this->file = eZClusterFileHandler::instance( $filename );
-        $this->IsModified = false;
+
+        $this->backendEndPoint = OpenPAINI::variable( 'OpenPAConsiglio', 'BackendEndPoint' );
+
+        $host = OpenPAINI::variable( 'OpenPAConsiglio', 'SocketUrl', 'cal' );
+        $port = intval( OpenPAINI::variable( 'OpenPAConsiglio', 'SocketPort', 8090 ) );
+        $this->socketIo = new Client(new Version1X("http://{$host}:{$port}"));
     }
 
     public static function instance()
@@ -26,17 +34,41 @@ class OpenPAConsiglioPushNotifier
     }
 
     public function emit( $identifier, $data )
-    {        
-        $this->data = array(
+    {
+        //$this->storeToFile( $identifier, $data );
+        $this->sendToSocket( $identifier, $data );
+        //$this->sendToBackend( $identifier, $data );
+    }
+
+    protected function storeToFile( $identifier, $data )
+    {
+        $data = array(
             'identifier' => $identifier,
             'data' => $data
         );
-        $this->IsModified = true;
-        $this->store();
-        $this->sendToMobile( $identifier, $data );
+        $this->file->storeContents( json_encode( $data ), 'push_notifications', false, true );
+        $this->IsModified = false;
+        if ( $data['identifier'] !== 'null' )
+            eZLog::write( $data['identifier'] . ' ' . var_export( $data['data'], 1 ), 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log' );
     }
 
-    protected function sendToMobile( $identifier, $data )
+    protected function sendToSocket( $identifier, $data )
+    {
+        $data = array(
+            'sa' => OpenPABase::getCurrentSiteaccessIdentifier(),
+            'identifier' => $identifier,
+            'data' => $data
+        );
+        try{
+            $this->socketIo->initialize();
+            $this->socketIo->emit('broadcast', $data);
+            $this->socketIo->close();
+        }catch (Exception $e){
+            eZLog::write( $e->getMessage(), 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log');
+        }
+    }
+
+    protected function sendToBackend( $identifier, $data )
     {
         $endPoint = OpenPAINI::variable( 'OpenPAConsiglio', 'BackendEndPoint' );
         $url = false;
@@ -47,7 +79,7 @@ class OpenPAConsiglioPushNotifier
         {
             case 'start_seduta':
             case 'stop_seduta':
-                $url = $endPoint . '/api/consiglio/seduta';
+                $url = $this->backendEndPoint . '/api/consiglio/seduta';
                 $values = array(
                     'id' => $data['id'],
                     'type' => $data['stato'],
@@ -59,7 +91,7 @@ class OpenPAConsiglioPushNotifier
 
             case 'start_punto':
             case 'stop_punto':
-                $url = $endPoint . '/api/consiglio/punto';
+                $url = $this->backendEndPoint . '/api/consiglio/punto';
                 $values = array(
                     'id' => $data['id'],
                     'type' => $data['stato'],
@@ -70,7 +102,7 @@ class OpenPAConsiglioPushNotifier
 
             case 'start_votazione':
             case 'stop_votazione':
-                $url = $endPoint . '/api/consiglio/votazione';
+                $url = $this->backendEndPoint . '/api/consiglio/votazione';
                 $values = array(
                     'id' => $data['id'],
                     'type' => $data['stato'],
@@ -94,17 +126,5 @@ class OpenPAConsiglioPushNotifier
             curl_close( $ch );
         }
     }
-
-    function store()
-    {
-        if ( $this->IsModified )
-        {
-            $this->file->storeContents( json_encode( $this->data ), 'push_notifications', false, true );
-            $this->IsModified = false;
-            if ( $this->data['identifier'] !== 'null' )
-                eZLog::write( $this->data['identifier'] . ' ' . var_export( $this->data['data'], 1 ), 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log' );
-        }
-    }
-
 
 }

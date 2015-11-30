@@ -1,9 +1,9 @@
 <?php
 
-$votazione = OCEditorialStuffHandler::instance( 'votazione' )->getFactory()->instancePost( array( 'object_id' => $_GET['s'] ) );
-
 echo '<pre>';
-print_r($votazione->getResultHandler()->attribute( 'presenti' ));
+
+$push = OpenPAConsiglioPushNotifier::instance();
+$push->emit('ping',array('test'=> 'tost'));
 
 
 //$seduta = OCEditorialStuffHandler::instance( 'seduta' )->getFactory()->instancePost( array( 'object_id' => $_GET['s'] ) );

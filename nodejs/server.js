@@ -5,56 +5,74 @@ var http = require('http').createServer(),
     fs = require('fs'),
     arguments = process.argv.slice(2);
 
-http.listen(8090);
-
 var currentSA = arguments[0];
 
-if ( currentSA == undefined )
-{
-    console.log( "Specifica un site identifier" );
+if (currentSA == undefined) {
+    console.log("Specifica un site identifier");
     process.exit();
 }
 
-var baseFile = arguments[1] || '/home/httpd/openpa.opencontent.it/html';
-var file = baseFile + '/var/' + currentSA + '/cache/push_notifications.json';
+http.listen(8090, function () {
+    console.log('listening events ' + currentSA + ' on *:8090');
+});
 
-console.log( "Start for " + currentSA + ' watching file ' + file );
-
-var lastEmitData;
-var emit = function(event, filename){
-    fs.readFile(file, 'utf8', function (err, data) {
-        var obj;
-        if (err) throw err;
-        if ( lastEmitData !== data ) {
-            obj = JSON.parse(data);
-            console.log(obj);
-            io.emit(obj.identifier, obj.data);
-            lastEmitData = data;
+io.on('connection', function (socket) {
+    console.log('-> connected');
+    socket.on('broadcast', function (data) {
+        if(data.sa == currentSA) {
+            io.emit(data.identifier, data.data);
+            console.log(new Date());
+            console.log('emit ' + data.identifier + ': ');
+            console.log(data.data);
         }
     });
-};
+    socket.on('disconnect', function () {
+        console.log('<- disconnected');
+    });
+});
 
-if ( !fs.exists( file ) )
-    fs.writeFile( file, '' );
 
-var fileWatcher;
-var watcher = {
-    start: function(){
-        fileWatcher = fs.watch( file );
-        fileWatcher.on( 'change', function(event, filename){
-            emit(event, filename);
-            watcher.restart();
-        });
-        return fileWatcher;
-    },
-    stop: function(){
-        fileWatcher.close();
-    },
-    restart: function(){
-        watcher.stop();
-        watcher.start();
-    }
-};
-watcher.start();
+//
+//var baseFile = arguments[1] || '/home/httpd/openpa.opencontent.it/html';
+//var file = baseFile + '/var/' + currentSA + '/cache/push_notifications.json';
+//
+//console.log( "Start for " + currentSA + ' watching file ' + file );
+//
+//var lastEmitData;
+//var emit = function(event, filename){
+//    fs.readFile(file, 'utf8', function (err, data) {
+//        var obj;
+//        if (err) throw err;
+//        if ( lastEmitData !== data ) {
+//            obj = JSON.parse(data);
+//            console.log(obj);
+//            io.emit(obj.identifier, obj.data);
+//            lastEmitData = data;
+//        }
+//    });
+//};
+//
+//if ( !fs.exists( file ) )
+//    fs.writeFile( file, '' );
+//
+//var fileWatcher;
+//var watcher = {
+//    start: function(){
+//        fileWatcher = fs.watch( file );
+//        fileWatcher.on( 'change', function(event, filename){
+//            emit(event, filename);
+//            watcher.restart();
+//        });
+//        return fileWatcher;
+//    },
+//    stop: function(){
+//        fileWatcher.close();
+//    },
+//    restart: function(){
+//        watcher.stop();
+//        watcher.start();
+//    }
+//};
+//watcher.start();
 
 

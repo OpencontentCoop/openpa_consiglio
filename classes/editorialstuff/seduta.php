@@ -1023,9 +1023,18 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
     {
         foreach ( $this->partecipanti( false ) as $userId )
         {
-            $this->addPresenza( 0, 'checkin', $userId ); //eseguo il checkout
-            $this->addPresenza( 0, 'beacons', $userId ); //spengo i beacons
-            $this->addPresenza( 0, 'manual', $userId ); //spengo i beacons
+//            $this->addPresenza( 0, 'checkin', $userId ); //eseguo il checkout
+//            $this->addPresenza( 0, 'beacons', $userId ); //spengo i beacons
+//            $this->addPresenza( 0, 'manual', $userId ); //spengo i beacons
+            OpenPAConsiglioPresenza::create( $this, 0, 'checkin', $userId )->store();
+            OpenPAConsiglioPresenza::create( $this, 0, 'beacons', $userId )->store();
+            $presenza = OpenPAConsiglioPresenza::create( $this, 0, 'manual', $userId );
+            $presenza->store();
+
+            OpenPAConsiglioPushNotifier::instance()->emit(
+                'presenze',
+                $presenza->jsonSerialize()
+            );
         }
 
         $this->setState( 'seduta.closed' );

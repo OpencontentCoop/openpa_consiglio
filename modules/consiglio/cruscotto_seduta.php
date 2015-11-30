@@ -165,10 +165,6 @@ elseif ( $action )
                         'show_votazione',
                         $votazione->jsonSerialize()
                     );
-                    OpenPAConsiglioPushNotifier::instance()->emit(
-                        'null',
-                        array()
-                    );
                 }
             } break;
 
@@ -177,10 +173,6 @@ elseif ( $action )
                 OpenPAConsiglioPushNotifier::instance()->emit(
                     'show_presenze',
                     $seduta->jsonSerialize()
-                );
-                OpenPAConsiglioPushNotifier::instance()->emit(
-                    'null',
-                    array()
                 );
             } break;
 
@@ -194,10 +186,6 @@ elseif ( $action )
                         OpenPAConsiglioPushNotifier::instance()->emit(
                             'show_punto',
                             $punto->jsonSerialize()
-                        );
-                        OpenPAConsiglioPushNotifier::instance()->emit(
-                            'null',
-                            array()
                         );
                     }
                 }
