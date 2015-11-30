@@ -12,7 +12,7 @@ $script = eZScript::instance( array( 'description' => ( "Simula voto." ),
 
 $script->startup();
 
-$options = $script->getOptions( '[votazione:][par:][fav:][con:][ast:]',
+$options = $script->getOptions( '[votazione:][par:][fav:][con:][ast:][url:]',
     '',
     array(
         'votazione'  => 'Id votazione',
@@ -20,6 +20,7 @@ $options = $script->getOptions( '[votazione:][par:][fav:][con:][ast:]',
         'fav'  => 'Numero di favorevoli',
         'con'  => 'Numero di contrari',
         'ast'  => 'Numero di astenuti',
+        'url' => 'endpoint url'
     )
 );
 
@@ -73,16 +74,38 @@ foreach( $presenti as $presente )
             $value = $values[$key];
         }
         $cli->warning(
-            'Voto ' . $value . ' per ' . $presente->attribute( 'contentobject' )->attribute( 'name' )
+            'Voto ' . $value . ' per ' . $presente->attribute( 'contentobject' )->attribute( 'name' ), false
         );
-        try
+//        try
+//        {
+//            $votazione->addVoto( $value, $presente->id() );
+//        }
+//        catch( Exception $e )
+//        {
+//            $cli->error( $e->getMessage() );
+//        }
+
+        $url = $options['url'] ? $options['url'] : 'cal';
+        $url = "http://{$url}/api/consiglio/v1/votazione/{$votazione->id()}";
+        $credentials = "admin:gabricecek";
+        $headers = array( "Authorization: Basic " . base64_encode( $credentials ) );
+        $postString = "value={$value}&user_id={$presente->id()}";
+        $ch = curl_init();
+        curl_setopt( $ch, CURLOPT_URL, $url );
+        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+        curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+        curl_setopt( $ch, CURLOPT_POST, strlen( $postString ) );
+        curl_setopt( $ch, CURLOPT_POSTFIELDS, $postString );
+        $data = json_decode( curl_exec( $ch ) );
+        if ( isset($data->error_message))
         {
-            $votazione->addVoto( $value, $presente->id() );
+            $cli->error($data->error_message);
         }
-        catch( Exception $e )
+        else
         {
-            $cli->error( $e->getMessage() );
+            $cli->output( $data->presenza->id );
         }
+
     }
 }
 
