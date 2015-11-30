@@ -1,8 +1,5 @@
 <?php
 
-use ElephantIO\Client;
-use ElephantIO\Client as ElephantIOClient;
-
 class OpenPAConsiglioPushNotifier
 {
     private static $_instance;
@@ -37,7 +34,7 @@ class OpenPAConsiglioPushNotifier
     {
         //$this->storeToFile( $identifier, $data );
         $this->sendToSocket( $identifier, $data );
-        //$this->sendToBackend( $identifier, $data ); //@todo remove
+        $this->sendToBackend( $identifier, $data );
     }
 
     protected function storeToFile( $identifier, $data )
@@ -47,7 +44,6 @@ class OpenPAConsiglioPushNotifier
             'data' => $data
         );
         $this->file->storeContents( json_encode( $data ), 'push_notifications', false, true );
-        $this->IsModified = false;
         if ( $data['identifier'] !== 'null' )
             eZLog::write( $data['identifier'] . ' ' . var_export( $data['data'], 1 ), 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log' );
     }
@@ -68,7 +64,6 @@ class OpenPAConsiglioPushNotifier
 
     protected function sendToBackend( $identifier, $data )
     {
-        $endPoint = OpenPAINI::variable( 'OpenPAConsiglio', 'BackendEndPoint' );
         $url = false;
         $values = array();
         $dateTime = new DateTime();
