@@ -76,7 +76,7 @@ foreach( $presenti as $presente )
         }
         $name = $presente->attribute( 'object' )->attribute( 'name' );
         $cli->warning(
-            'Voto ' . $value . ' per ' . $name, false
+            'Voto ' . $value . ' per ' . $name . ' ', false
         );
         $report[$value][] = $name;
 //        try
@@ -106,7 +106,7 @@ foreach( $presenti as $presente )
         }
         else
         {
-            $cli->output( $data->presenza->id );
+            $cli->output( $data->result );
         }
     }
 }
