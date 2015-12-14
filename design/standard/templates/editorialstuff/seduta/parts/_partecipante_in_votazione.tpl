@@ -3,7 +3,4 @@
    href="#{$partecipante.object.id}"
    data-url="{concat('layout/set/modal/consiglio/presenze/',$post.object.id, '/',$partecipante.object.id,'/',$votazione.object.id)|ezurl(no)}"
    data-toggle="modal"
-   data-target="#detailPresenzeInVotazione">
-    <small>{$name}</small>
-</a>
-{undef $name}
+   data-target="#detailPresenzeInVotazione"><small>{$name}</small></a>{undef $name}
