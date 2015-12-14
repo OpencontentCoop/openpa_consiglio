@@ -258,8 +258,8 @@ class OpenPAConsiglioGettoniHelper
         }
 
         $data[] = array( 'Totale', '', array_sum( $totaloneKm ), array_sum( $totaloneSpese ) );
-        $data[] = array( 'IBAN', '', eZPreferences::value( 'consiglio_gettoni_iban', $currentSelectedUser ) , '' );
-        $data[] = array( 'TRATTENUTE', '', eZPreferences::value( 'consiglio_gettoni_trattenute', $currentSelectedUser ) , '' );
+        $data[] = array( 'IBAN', eZPreferences::value( 'consiglio_gettoni_iban', $currentSelectedUser ) , '', '' );
+        $data[] = array( 'TRATTENUTE', eZPreferences::value( 'consiglio_gettoni_trattenute', $currentSelectedUser ), '', '' );
 
         $objPHPExcel = new PHPExcel();
         $objPHPExcel->getProperties()->setCreator('cal.tn.it')
