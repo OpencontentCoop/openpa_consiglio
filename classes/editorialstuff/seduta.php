@@ -1233,22 +1233,23 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     protected function exportVotazioni()
     {
-        $export = new Spreadsheet();
-        $export->addColumn( new TextColumn( "Data" ) );
-        $export->addColumn( new TextColumn( "Tipo" ) );
-        $export->addColumn( new TextColumn( "Testo" ) );
-        $export->addColumn( new TextColumn( "Esito" ) );
-        $export->addColumn( new TextColumn( "Numero presenti" ) );
-        $export->addColumn( new TextColumn( "Numero assenti" ) );
-        $export->addColumn( new TextColumn( "Numero votanti" ) );
-        $export->addColumn( new TextColumn( "Numero non votanti" ) );
-        $export->addColumn( new TextColumn( "Numero favorevoli" ) );
-        $export->addColumn( new TextColumn( "Numero contrari" ) );
-        $export->addColumn( new TextColumn( "Numero astenuti" ) );
+        $data = array();
 
+        $keys = array();
+        $keys[] = "Data";
+        $keys[] = "Tipo";
+        $keys[] = "Testo";
+        $keys[] = "Esito";
+        $keys[] = "Numero presenti";
+        $keys[] = "Numero assenti";
+        $keys[] = "Numero votanti";
+        $keys[] = "Numero non votanti";
+        $keys[] = "Numero favorevoli";
+        $keys[] = "Numero contrari";
+        $keys[] = "Numero astenuti";
         foreach( $this->partecipanti() as $partecipante )
         {
-            $export->addColumn( new TextColumn( $partecipante->getObject()->attribute( 'name' ) ) );
+            $keys[] = $partecipante->getObject()->attribute( 'name' );
         }
 
         foreach( $this->votazioni() as $votazione )
@@ -1359,11 +1360,18 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 $row[] = $user;
             }
 
-            $export->addRow( $row );
+            $data[] = array_combine( $keys, $row );
         }
 
-        $writer = new OdsWriter();
-        $writer->includeColumnHeaders = true;
-        $export->download($writer, "Votazioni");
+        $objPHPExcel = new PHPExcel();
+        $objPHPExcel->getProperties()->setCreator('cal.tn.it')
+                    ->setLastModifiedBy('cal.tn.it')
+                    ->setTitle('Votazioni')
+                    ->setSubject('Votazioni')
+                    ->setDescription( 'Votazioni ' . $this->getObject()->attribute( 'name' ) );
+        $objPHPExcel->getActiveSheet()->fromArray($data);
+
+        $objWriter = PHPExcel_IOFactory::createWriter( $objPHPExcel, 'Excel5' );
+        $objWriter->save( 'php://output' );
     }
 }
