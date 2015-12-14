@@ -694,8 +694,10 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     public function handleDigestItemNotification( $event, $notificationType )
     {
         $subscribersRules = OCEditorialStuffNotificationRule::fetchList( $notificationType, null, $this->id() );
+        $alreadySent = array();
         foreach ( $subscribersRules as $subscribersRule )
         {
+            $alreadySent[] = $subscribersRule->attribute( 'user_id' );
             $subscribersRuleString = in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? 'referente' : 'consigliere';
             $this->createNotificationItem( $event, $subscribersRule, $subscribersRuleString, OpenPAConsiglioNotificationTransport::DIGEST_ITEM_TRANSPORT );
         }
@@ -705,7 +707,8 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             foreach ( $utentiAppassionati as $subscribersRule )
             {
-                $this->createNotificationItem( $event, $subscribersRule, 'interessato', OpenPAConsiglioNotificationTransport::DIGEST_ITEM_TRANSPORT );
+                if ( !in_array( $subscribersRule->attribute( 'user_id' ), $alreadySent ) )
+                    $this->createNotificationItem( $event, $subscribersRule, 'interessato', OpenPAConsiglioNotificationTransport::DIGEST_ITEM_TRANSPORT );
             }
         }
     }
@@ -713,6 +716,41 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     public function handlePublishNotification( $event )
     {
         $this->handleDigestItemNotification( $event, 'punto/publish' );
+        $subscribersRules = OCEditorialStuffNotificationRule::fetchList( 'punto/publish', null, $this->id() );
+        $alreadySent = array();
+        foreach ( $subscribersRules as $subscribersRule )
+        {
+            $subscribersRuleString = in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? 'referente' : 'consigliere';
+            $user = eZUser::fetch( $subscribersRule->attribute( 'user_id' ) );
+            if ( $user instanceof eZUser )
+            {
+                $alreadySent[] = $user->id();
+                $this->createNotificationItem(
+                    $event,
+                    $subscribersRule,
+                    $subscribersRuleString,
+                    OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT
+                );
+            }
+        }
+
+        $utentiAppassionati = $this->getUtentiInteressatiAllaMateria( true );
+        if ( !empty( $utentiAppassionati ) )
+        {
+            foreach ( $utentiAppassionati as $subscribersRule )
+            {
+                $user = eZUser::fetch( $subscribersRule->attribute( 'user_id' ) );
+                if ( $user instanceof eZUser && !in_array( $user->id(), $alreadySent ) )
+                {
+                    $this->createNotificationItem(
+                        $event,
+                        $subscribersRule,
+                        'interessato',
+                        OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT
+                    );
+                }
+            }
+        }
     }
 
     public function handleUpdateReferentiNotification( $event )
@@ -735,6 +773,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     public function handleChangeAllegatiNotification( $event, $refer )
     {
         $subscribersRules = OCEditorialStuffNotificationRule::fetchList( 'punto/change_allegati', null, $this->id() );
+        $alreadySent = array();
         foreach ( $subscribersRules as $subscribersRule )
         {
             $subscribersRuleString = in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? 'referente' : 'consigliere';
@@ -744,6 +783,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 $canTool = new OpenPAWhoCan( $refer->getObject(), 'read', $user );
                 if ( $canTool->run() )
                 {
+                    $alreadySent[] = $user->id();
                     $this->createNotificationItem(
                         $event,
                         $subscribersRule,
@@ -762,7 +802,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             foreach ( $utentiAppassionati as $subscribersRule )
             {
                 $user = eZUser::fetch( $subscribersRule->attribute( 'user_id' ) );
-                if ( $user instanceof eZUser && $refer instanceof OCEditorialStuffPostInterface )
+                if ( $user instanceof eZUser && $refer instanceof OCEditorialStuffPostInterface && !in_array( $user->id(), $alreadySent ) )
                 {
                     $canTool = new OpenPAWhoCan( $refer->getObject(), 'read', $user );
                     if ( $canTool->run() )
@@ -783,6 +823,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     public function handleAddOsservazioneNotification( $event, $refer )
     {
         $subscribersRules = OCEditorialStuffNotificationRule::fetchList( 'punto/add_osservazione', null, $this->id() );
+        $alreadySent = array();
         foreach ( $subscribersRules as $subscribersRule )
         {
             $subscribersRuleString = in_array( $subscribersRule->attribute( 'user_id' ), $this->getIdsReferenti() ) ? 'referente' : 'consigliere';
@@ -792,6 +833,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 $canTool = new OpenPAWhoCan( $refer->getObject(), 'read', $user );
                 if ( $canTool->run() )
                 {
+                    $alreadySent[] = $user->id();
                     $this->createNotificationItem(
                         $event,
                         $subscribersRule,
@@ -810,7 +852,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             foreach ( $utentiAppassionati as $subscribersRule )
             {
                 $user = eZUser::fetch( $subscribersRule->attribute( 'user_id' ) );
-                if ( $user instanceof eZUser && $refer instanceof OCEditorialStuffPostInterface )
+                if ( $user instanceof eZUser && $refer instanceof OCEditorialStuffPostInterface && !in_array( $user->id(), $alreadySent ) )
                 {
                     $canTool = new OpenPAWhoCan( $refer->getObject(), 'read', $user );
                     if ( $canTool->run() )
@@ -923,6 +965,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
      * @param OCEditorialStuffNotificationRule $subscribersRule
      * @param $subscribersRuleString
      * @param $type
+     * @param $refer
      *
      * @return OpenPAConsiglioNotificationItem
      */
@@ -950,7 +993,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $transport = OpenPAConsiglioNotificationTransport::instance( $type );
         $templateName = $transport->notificationTemplateUri( $event, $subscribersRuleString );
 
-        $diff = array();
         $notifiedVersion = $event->attribute( OCEditorialStuffEventType::FIELD_VERSION ) - 1;
         $diff = $this->diff( $notifiedVersion );
 
@@ -1245,7 +1287,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
     /**
      * Restituisce un array con gli id degli utenti appassionati alla materia
-     *
+     * @param bool $asObjects
      * @return OCEditorialStuffNotificationRule[]
      */
     protected function getUtentiInteressatiAllaMateria( $asObjects = false )
