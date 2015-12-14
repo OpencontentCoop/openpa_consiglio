@@ -207,19 +207,12 @@ class OpenPAConsiglioGettoniHelper
         $helper = new OpenPAConsiglioGettoniHelper();
         $helper->setPolitico( $politico );
 
-        // Instantiate new spreadsheet
-        $export = new Spreadsheet();
-
-        $export->addColumn(new TextColumn("Convocazione"));
-        $export->addColumn(new TextColumn("Sede"));
-        $export->addColumn(new TextColumn("Chilometri"));
-        $export->addColumn(new TextColumn("Spese"));
-
-        $export->addRow( array( $interval->intervalName, 'Nota spese ' . $politico->getObject()->attribute( 'name' ), '', '' ) );
-        $export->addRow( array( 'Convocazione', 'Sede', 'Chilometri', 'Spese' ) );
+        $data = array(
+            array( 'Nota spese ' . $interval->intervalName . ' ' . $politico->getObject()->attribute( 'name' ), '', '', '' ),
+            array( 'Convocazione', 'Sede', 'Chilometri', 'Spese' )
+        );
 
         $sedute = $helper->getSedute( $interval );
-        $rows = array();
         $totaloneKm = array();
         $totaloneSpese = array();
         foreach( $sedute as $seduta )
@@ -261,17 +254,33 @@ class OpenPAConsiglioGettoniHelper
                 $km,
                 array_sum( $totaleSpese )
             );
-            $export->addRow( $row );
+            $data[] = $row;
         }
 
-        $export->addRow( array( 'Totale', '', array_sum( $totaloneKm ), array_sum( $totaloneSpese ) ) );
-        $export->addRow( array( '', '', '', '' ) );
-        $export->addRow( array( 'IBAN', '', eZPreferences::value( 'consiglio_gettoni_iban', $currentSelectedUser ) , '' ) );
-        $export->addRow( array( 'TRATTENUTE', '', eZPreferences::value( 'consiglio_gettoni_trattenute', $currentSelectedUser ) , '' ) );
+        $data[] = array( 'Totale', '', array_sum( $totaloneKm ), array_sum( $totaloneSpese ) );
+        $data[] = array( 'IBAN', '', eZPreferences::value( 'consiglio_gettoni_iban', $currentSelectedUser ) , '' );
+        $data[] = array( 'TRATTENUTE', '', eZPreferences::value( 'consiglio_gettoni_trattenute', $currentSelectedUser ) , '' );
 
-        $writer = new OdsWriter();
-        //$writer->includeColumnHeaders = true;
-        $export->download($writer, "Nota spese");
+        $objPHPExcel = new PHPExcel();
+        $objPHPExcel->getProperties()->setCreator('cal.tn.it')
+                    ->setLastModifiedBy('cal.tn.it')
+                    ->setTitle('Nota spese')
+                    ->setSubject('Nota spese')
+                    ->setDescription( 'Nota spese' );
+        $objPHPExcel->getActiveSheet()->fromArray($data);
+
+        $filename = 'Nota spese ' . $interval->intervalName . ' ' . $politico->getObject()->attribute( 'name' ) . '.xls';
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header ('Pragma: public'); // HTTP/1.0
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+        eZExecution::cleanExit();
     }
 
     protected static function loadSpese( eZUser $currentSelectedUser, $sedutaId, $politicoId, $interval )
