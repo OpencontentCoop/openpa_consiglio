@@ -2,7 +2,7 @@
 
 Egregio/Gentile  {$user.contentobject.name|wash()},<br />
 
-come richiesto si segnala che, nell’area riservata del sistema informatico disponibile all’indirizzo {social_pagedata('consiglio').site_url}, in corrispondenza della {$punto.seduta.object.name|wash()}, è stato pubblicato il seguente punto in materia di<em>{$punto.materia|implode( ', ' )}</em>:
+come richiesto si segnala che, nell’area riservata del sistema informatico disponibile all’indirizzo {social_pagedata('consiglio').site_url}, in corrispondenza della {$punto.seduta.object.name|wash()}, è stato pubblicato il seguente punto in materia di <em>{$punto.materia|implode( ', ' )}</em>:
 <strong>{attribute_view_gui attribute=$punto.object.data_map.oggetto}</strong>.
 
 <p>Per agevolare l’attività istruttoria si segnalano ulteriori informazioni di potenziale interesse, relative al punto citato:</p>
