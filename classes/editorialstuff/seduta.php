@@ -1247,10 +1247,17 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
         $keys[] = "Numero favorevoli";
         $keys[] = "Numero contrari";
         $keys[] = "Numero astenuti";
-        foreach( $this->partecipanti() as $partecipante )
-        {
-            $keys[] = $partecipante->getObject()->attribute( 'name' );
-        }
+        $keys[] =  "Non Votanti";
+        $keys[] = "Favorevoli";
+        $keys[] = "Contrari";
+        $keys[] = "Astenuti";
+        $keys[] = "Assenti";
+        //foreach( $this->partecipanti() as $partecipante )
+        //{
+        //    $keys[] = $partecipante->getObject()->attribute( 'name' );
+        //}
+        
+        $allData[] = $keys;
 
         foreach( $this->votazioni() as $votazione )
         {
@@ -1291,17 +1298,22 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
 
             $row = array(
-                $data,
-                $dataMap['type']->toString(),
-                $dataMap['short_text']->toString(),
-                $esito,
-                $presenti,
-                $assenti,
-                $votanti,
-                count( $nonVotanti ),
-                count( $favorevoli ),
-                count( $contrari ),
-                count( $astenuti )
+                "Data" => $data,
+                "Tipo" => $dataMap['type']->toString(),
+                "Testo" => $dataMap['short_text']->toString(),
+                "Esito" => $esito,
+                "Numero presenti" => (string)$presenti,
+                "Numero assento" => (string)$assenti,
+                "Numero votanti" => (string)$votanti,
+                "Numero non votanti" => (string)count( $nonVotanti ),
+                "Numero favorevoli" => (string)count( $favorevoli ),
+                "Numero contrari" => (string)count( $contrari ),
+                "Numero astenuti" => (string)count( $astenuti ),
+                "Non Votanti" => '',
+                "Favorevoli" => '',
+                "Contrari" => '',
+                "Astenuti" => '',
+                "Assenti" => ''
             );
 
             foreach( $this->partecipanti() as $partecipante )
@@ -1316,6 +1328,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                         if ( $votante->id() == $partecipante->id() )
                         {
                             $user = 'NON VOTANTE';
+                            $row["Non Votanti"] .= $partecipante->getObject()->attribute( 'name' ) . ', ';
                         }
                     }
                     if ( !$user )
@@ -1325,6 +1338,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                             if ( $votante->id() == $partecipante->id() )
                             {
                                 $user = 'FAVOREVOLE';
+                                $row["Favorevoli"] .= $partecipante->getObject()->attribute( 'name' ) . ', ';
                             }
                         }
                     }
@@ -1335,6 +1349,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                             if ( $votante->id() == $partecipante->id() )
                             {
                                 $user = 'CONTRARIO';
+                                $row["Contrari"] .= $partecipante->getObject()->attribute( 'name' ) . ', ';
                             }
                         }
                     }
@@ -1345,24 +1360,39 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                             if ( $votante->id() == $partecipante->id() )
                             {
                                 $user = 'ASTENUTO';
+                                $row["Astenuti"] .= $partecipante->getObject()->attribute( 'name' ) . ', ';
                             }
                         }
                     }
                     if ( !$user )
                     {
                         $user = 'ASSENTE';
+                        $row["Assenti"] .= $partecipante->getObject()->attribute( 'name' ) . ', ';
                     }
                 }
                 else
                 {
                     $user = '';
                 }
-                $row[] = $user;
+                
+                //$row[] = $user;
             }
+            
+            $row["Non Votanti"] = trim( $row["Non Votanti"] );
+            $row["Favorevoli"] = trim( $row["Favorevoli"] );
+            $row["Contrari"] = trim( $row["Contrari"] );
+            $row["Astenuti"] = trim( $row["Astenuti"] );
+            $row["Assenti"] = trim( $row["Assenti"] );
+            
+            $row["Non Votanti"] = rtrim( $row["Non Votanti"], ',' );
+            $row["Favorevoli"] = rtrim( $row["Favorevoli"], ',' );
+            $row["Contrari"] = rtrim( $row["Contrari"], ',' );
+            $row["Astenuti"] = rtrim( $row["Astenuti"], ',' );
+            $row["Assenti"] = rtrim( $row["Assenti"], ',' );
 
-            $allData[] = array_combine( $keys, $row );
-        }
-
+            $allData[] = $row;
+        }        
+        
         $objPHPExcel = new PHPExcel();
         $objPHPExcel->getProperties()->setCreator('cal.tn.it')
                     ->setLastModifiedBy('cal.tn.it')
