@@ -1233,7 +1233,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
 
     protected function exportVotazioni()
     {
-        $data = array();
+        $allData = array();
 
         $keys = array();
         $keys[] = "Data";
@@ -1360,7 +1360,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                 $row[] = $user;
             }
 
-            $data[] = array_combine( $keys, $row );
+            $allData[] = array_combine( $keys, $row );
         }
 
         $objPHPExcel = new PHPExcel();
@@ -1369,7 +1369,7 @@ class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileCon
                     ->setTitle('Votazioni')
                     ->setSubject('Votazioni')
                     ->setDescription( 'Votazioni ' . $this->getObject()->attribute( 'name' ) );
-        $objPHPExcel->getActiveSheet()->fromArray($data);
+        $objPHPExcel->getActiveSheet()->fromArray($allData);
 
         $objWriter = PHPExcel_IOFactory::createWriter( $objPHPExcel, 'Excel5' );
         $objWriter->save( 'php://output' );
