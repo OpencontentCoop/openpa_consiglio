@@ -1,6 +1,6 @@
 <?php
 
-class SedutaFactory extends OCEditorialStuffPostFactory
+class SedutaFactory extends OCEditorialStuffPostNotifiableFactory
 {
 
     /**
@@ -61,6 +61,19 @@ class SedutaFactory extends OCEditorialStuffPostFactory
             eZDB::instance()->query( "INSERT INTO ezpending_actions( action, param ) VALUES ( 'index_object', '$objectID' )" );
         }
 
+    }
+
+    /**
+     * @return array[] array( 'type' => array( 'handler_method' => <methodName> ) )
+     */
+    public function notificationEventTypesConfiguration()
+    {
+        return array(
+            'updateDataOra' => array(
+                'name' => 'Aggiornamento data e ora',
+                'handler_method' => 'handleUpdateNotification',
+            )
+        );
     }
 
 }

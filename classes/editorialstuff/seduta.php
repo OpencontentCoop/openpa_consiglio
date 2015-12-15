@@ -5,7 +5,7 @@ use Fusonic\SpreadsheetExport\ColumnTypes\TextColumn;
 use Fusonic\SpreadsheetExport\Writers\OdsWriter;
 
 
-class Seduta extends OCEditorialStuffPost implements OCEditorialStuffPostFileContainerInterface, OCEditorialStuffPostInputActionInterface
+class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPostFileContainerInterface, OCEditorialStuffPostInputActionInterface
 {
     const DATE_FORMAT = 'Y-m-d H:i:s';
 

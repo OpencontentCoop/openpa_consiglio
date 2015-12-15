@@ -1,4 +1,4 @@
-{set-block scope=root variable=subject}Pubblicazione nuovo punto in seduta {$punto.seduta.object.name|wash()}] {/set-block}
+{set-block scope=root variable=subject}Pubblicazione nuovo punto in seduta {$punto.seduta.object.name|wash()}{/set-block}
 
 Egregio/Gentile  {$user.contentobject.name|wash()},<br />
 
