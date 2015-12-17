@@ -69,7 +69,7 @@ class SedutaFactory extends OCEditorialStuffPostNotifiableFactory
     public function notificationEventTypesConfiguration()
     {
         return array(
-            'updateDataOra' => array(
+            'update_data_ora' => array(
                 'name' => 'Aggiornamento data e ora',
                 'handler_method' => 'handleUpdateNotification',
             )

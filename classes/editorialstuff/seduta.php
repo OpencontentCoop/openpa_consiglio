@@ -378,15 +378,27 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         /** @var eZTime $ora */
         $ora = $this->dataMap['orario']->content();
 
-        $dateTime = new DateTime();
-        $dateTime->setTimestamp( $data->attribute( 'timestamp' ) );
-        $dateTime->setTime( $ora->attribute( 'hour' ), $ora->attribute( 'minute' ) );
+        $dateTime = $this->getDateTimeFromEzContents( $data, $ora );
 
         if ( $returnFormat )
         {
             return $dateTime->format( $returnFormat );
         }
 
+        return $dateTime;
+    }
+
+    /**
+     * @param eZDate $data
+     * @param eZTime $ora
+     *
+     * @return DateTime
+     */
+    protected function getDateTimeFromEzContents( eZDate $data, eZTime $ora )
+    {
+        $dateTime = new DateTime();
+        $dateTime->setTimestamp( $data->attribute( 'timestamp' ) );
+        $dateTime->setTime( $ora->attribute( 'hour' ), $ora->attribute( 'minute' ) );
         return $dateTime;
     }
 
@@ -1122,6 +1134,127 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         $object->setAttribute( 'published', $this->dataOra() );
         $object->store();
         eZSearch::addObject( $object );
+
+        $hasValidOdg = false;
+        foreach( $this->odg() as $punto )
+        {
+            if ( $punto->is( 'published' ) )
+            {
+                $hasValidOdg = true;
+                break;
+            }
+        }
+
+        if ( $this->is( 'pending' ) && $hasValidOdg )
+        {
+            $lastVersion = $this->getObject()->attribute( 'current_version' ) - 1;
+            $diff = $this->diff( $lastVersion );
+            if ( isset( $diff['data'] ) || isset( $diff['orario'] ) )
+            {
+                $this->createNotificationEvent( 'update_data_ora' );
+            }
+        }
+    }
+
+    public function handleUpdateNotification( $event )
+    {
+        foreach ( $this->partecipanti( false ) as $partecipanteId )
+        {
+            $this->createNotificationItem(
+                $event,
+                $partecipanteId,
+                'default'
+            );
+        }
+    }
+
+    /**
+     * @param eZNotificationEvent $event
+     * @param int $userId
+     * @param $subscribersRuleString
+     *
+     * @return OpenPAConsiglioNotificationItem
+     */
+    protected function createNotificationItem( eZNotificationEvent $event, $userId, $subscribersRuleString )
+    {
+        $type = OpenPAConsiglioNotificationTransport::DEFAULT_TRANSPORT;
+        $time = time();
+        $transport = OpenPAConsiglioNotificationTransport::instance( $type );
+        $templateName = $transport->notificationTemplateUri( $event, $subscribersRuleString );
+
+        $notifiedVersion = $event->attribute( OCEditorialStuffEventType::FIELD_VERSION ) - 1;
+        $diff = $this->diff( $notifiedVersion );
+
+        /** @var eZContentObjectVersion $oldVersion */
+        $oldVersion = $this->getObject()->version( $notifiedVersion );
+        /** @var eZContentObjectAttribute[] $oldVersionDataMap */
+        $oldVersionDataMap = $oldVersion->dataMap();
+        /** @var eZDate $data */
+        $data = $oldVersionDataMap['data']->content();
+        /** @var eZTime $ora */
+        $ora = $oldVersionDataMap['orario']->content();
+        $oldDate = $this->getDateTimeFromEzContents( $data, $ora )->format( 'U' );
+
+        $variables = array(
+            'user' => eZUser::fetch( $userId ),
+            'seduta' => $this,
+            'diff' => $diff,
+            'old_date' => $oldDate
+        );
+
+        $tpl = eZTemplate::factory();
+        $tpl->resetVariables();
+        foreach( $variables as $name => $value )
+        {
+            $tpl->setVariable( $name, $value );
+        }
+        $content = $tpl->fetch( $templateName );
+        $subject = $tpl->variable( 'subject' );
+
+        return $transport->addItem(
+            array(
+                'object_id'          => $this->id(),
+                'user_id'            => $userId,
+                'created_time'       => time(),
+                'type'               => $type,
+                'subject'            => $subject,
+                'body'               => $content,
+                'expected_send_time' => $time
+            )
+        );
+    }
+
+    protected function diff( $version )
+    {
+        $diff = array();
+        if ( $version >= 1 && $version != $this->getObject()->attribute( 'current_version' ) )
+        {
+            $current = $this->getObject()->currentVersion();
+            $version = $this->getObject()->version( $version );
+
+            if ( $version instanceof eZContentObjectVersion && $current instanceof eZContentObjectVersion )
+            {
+                if ( $version->attribute( 'version' ) != $current->attribute( 'version' ) )
+                {
+                    /** @var eZContentObjectAttribute[] $oldAttributes */
+                    $oldAttributes = $version->dataMap();
+                    /** @var eZContentObjectAttribute[] $newAttributes */
+                    $newAttributes = $current->dataMap();
+                    foreach ( $oldAttributes as $oldAttribute )
+                    {
+                        $newAttribute = $newAttributes[$oldAttribute->attribute( 'contentclass_attribute_identifier' )];
+                        if ( $oldAttribute->toString() !== $newAttribute->toString() )
+                        {
+                            $diff[$oldAttribute->attribute( 'contentclass_attribute_identifier' )] = array(
+                                'old' => $oldAttribute,
+                                'new' => $newAttribute
+                            );
+                        }
+                    }
+                }
+            }
+        }
+        return $diff;
     }
 
     public function executeAction( $actionIdentifier, $actionParameters, eZModule $module = null )

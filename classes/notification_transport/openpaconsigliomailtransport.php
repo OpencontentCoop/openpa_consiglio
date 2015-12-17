@@ -79,8 +79,7 @@ class OpenPAConsiglioMailTransport
         }
         else
         {
-            die('test');
-            //return eZMailTransport::send( $mail );
+            return eZMailTransport::send( $mail );
         }
     }
 }
