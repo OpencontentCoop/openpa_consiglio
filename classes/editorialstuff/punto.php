@@ -669,17 +669,13 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 case 'move':
                 case 'update_referenti':
                 case 'update_termini':
-                case 'publish':
                     $createNotificationEvent = $this->getSeduta()->is( 'pending' );
                     break;
 
+                case 'publish':
                 case 'change_allegati':
-                    $createNotificationEvent = !$this->getSeduta()->is( 'draft' );
-                    break;
-
                 case 'add_osservazione':
-                    $createNotificationEvent = !$this->getSeduta()->is( 'draft' )
-                                               && !$this->getSeduta()->is( 'closed' );
+                    $createNotificationEvent = !$this->getSeduta()->is( 'draft' ) && !$this->getSeduta()->is( 'closed' );
                     break;
             }
         }
