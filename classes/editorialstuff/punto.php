@@ -715,7 +715,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
     public function handlePublishNotification( $event )
     {
-        $this->handleDigestItemNotification( $event, 'punto/publish' );
         $subscribersRules = OCEditorialStuffNotificationRule::fetchList( 'punto/publish', null, $this->id() );
         $alreadySent = array();
         foreach ( $subscribersRules as $subscribersRule )
