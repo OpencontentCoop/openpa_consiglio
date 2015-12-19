@@ -370,7 +370,7 @@ class OpenPAConsiglioPresenzaHelper
                 );
                 $startInterval = $detection->attribute( 'created_time' );
 
-                if ( !$firstPuntoStarted && $detection->attribute( 'type' ) == 'start-punto' )
+                if ( !$firstPuntoStarted && ( $detection->attribute( 'type' ) == 'start-punto' || $detection->attribute( 'type' ) == 'restart-punto' ) )
                 {
                     $startCountTimestamp = $detection->attribute( 'created_time' );
                     $firstPuntoStarted = true;
