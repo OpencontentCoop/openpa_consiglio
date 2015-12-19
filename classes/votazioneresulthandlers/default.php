@@ -145,7 +145,7 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
         {
             $seduta = $this->currentVotazione->getSeduta();
             $calcoloPresenze = $this->calcolaPresenze();
-            $presenti = array();
+            $this->data['presenti'] = array();
             foreach ( $seduta->partecipanti() as $partecipante )
             {
                 if ( $calcoloPresenze[$partecipante->id()] > 0 )
