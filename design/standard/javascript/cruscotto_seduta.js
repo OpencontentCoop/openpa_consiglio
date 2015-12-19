@@ -19,8 +19,14 @@ var TotaleVotanti = $('#totale-votanti');
 
 $(document).on('click', 'a.save-verbale', function (e) {
     e.preventDefault();
-    var name = $(e.currentTarget).prev().attr('name');
+    var name = $(e.currentTarget).siblings('textarea').attr('name');
     Verbale.saveVerbale(name);
+});
+
+$(document).on('click', 'a.add-timeholder', function (e) {
+    e.preventDefault();
+    var text = "\n" + currentDate() + "\n";
+    Verbale.showVerbale($(e.currentTarget).data('verbale'),text);
 });
 
 $(document).on('click', 'a.show-verbale', function (e) {

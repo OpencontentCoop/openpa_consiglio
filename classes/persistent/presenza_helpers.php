@@ -210,7 +210,7 @@ class OpenPAConsiglioPresenzaHelper
                 {
                     $puntiDetections[] = new OpenPAConsiglioCustomDetection(
                         $history->attribute( 'created_time' ),
-                        'Inizio Punto ' . $labels[$history->attribute( 'object_id' )],
+                        'Apertura punto ' . $labels[$history->attribute( 'object_id' )],
                         'fa-file-o',
                         'start-punto'
                     );
@@ -219,9 +219,18 @@ class OpenPAConsiglioPresenzaHelper
                 {
                     $puntiDetections[] = new OpenPAConsiglioCustomDetection(
                         $history->attribute( 'created_time' ),
-                        'Fine Punto ' . $labels[$history->attribute( 'object_id' )],
+                        'Chiusura punto ' . $labels[$history->attribute( 'object_id' )],
                         'fa-file',
                         'end-punto'
+                    );
+                }
+                if ( $params['before_state_id'] == $endAfterStateId && $params['after_state_id'] == $startAfterStateId )
+                {
+                    $puntiDetections[] = new OpenPAConsiglioCustomDetection(
+                        $history->attribute( 'created_time' ),
+                        'Riapertura punto ' . $labels[$history->attribute( 'object_id' )],
+                        'fa-file-o',
+                        'restart-punto'
                     );
                 }
 

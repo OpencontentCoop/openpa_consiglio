@@ -18,7 +18,7 @@
         <div class="alert alert-danger alert-dismissible">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             {foreach $errors as $error}
-                <p>{$error|wash()}</p>
+                <p><strong>{$error|wash()}</strong></p>
             {/foreach}
         </div>
     {/if}

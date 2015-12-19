@@ -1644,7 +1644,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 }
                 else
                 {
-                    throw new ConsiglioApiException( 'Il punto ' . $puntoInProgress->getObject()->attribute( 'name' ) . ' è in corso', ConsiglioApiException::PUNTO_ALREADY_OPEN );
+                    throw new ConsiglioApiException( 'Impossibile aprire il punto richiesto perché il ' . $puntoInProgress->getObject()->attribute( 'name' ) . ' è in corso', ConsiglioApiException::PUNTO_ALREADY_OPEN );
                 }
             }
         }

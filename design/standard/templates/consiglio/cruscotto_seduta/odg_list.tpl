@@ -29,6 +29,15 @@
                             Concludi trattazione
                         </a>
                     </p>
+                {elseif $punto.current_state.identifier|eq('closed')}
+                    <p>
+                        <a class="btn btn-warning btn-sm btn-block punto_start_stop"
+                           data-punto_id="{$punto.object_id}"
+                           data-action_url="{concat('consiglio/cruscotto_seduta/',$post.object_id,'/startPunto/',$punto.object_id)|ezurl(no)}"
+                           data-add_to_verbale="Fine trattazione">
+                            Riapri trattazione
+                        </a>
+                    </p>
                 {/if}
             {/if}
         </div>
