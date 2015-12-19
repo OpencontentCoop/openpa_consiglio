@@ -414,7 +414,7 @@ class OpenPAConsiglioPresenzaHelper
             $newInterval = array(
                 'type' => 'interval',
                 'duration' => $duration,
-                'duration_in_minutes' => number_format( $duration/60, 2 ),
+                'duration_in_minutes' => $this->formatSeconds( $duration ),
                 'start' => $startInterval,
                 'end' => $endInterval,
                 'do_count' => $doCount,
@@ -526,12 +526,18 @@ class OpenPAConsiglioPresenzaHelper
             'detections' => $pureDetections,
             'events' => $events,
             'time' => $totalTime,
+            'time_in_minutes' => $this->formatSeconds( $totalTime ),
             'control' => array_sum( $totalTimeCount ),
             'in_percent' => number_format( $inPercentSum, 2 ),
             'out_percent' => number_format( $outPercentSum, 2 ),
             'checkin' => $checkin,
             'checkout' => $checkout
         );
+    }
+
+    protected function formatSeconds( $t, $f=':' )
+    {
+        return sprintf("%02d%s%02d%s%02d", floor($t/3600), $f, ($t/60)%60, $f, $t%60);
     }
 
     protected function calculatePercent( $duration, $totalTime )

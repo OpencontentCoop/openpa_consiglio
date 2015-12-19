@@ -65,6 +65,8 @@ try
     $tpl->setVariable( 'seduta', $seduta );
     $tpl->setVariable( 'politico', $politico );
     $tpl->setVariable( 'time_total', $data['time'] );
+    $tpl->setVariable( 'time_control', $data['control'] );
+    $tpl->setVariable( 'time_total_in_minutes', $data['time_in_minutes'] );
     $tpl->setVariable( 'events', $data['events'] );
     $tpl->setVariable( 'detections', $data['detections'] );
     $tpl->setVariable( 'in_percent', $data['in_percent'] );
