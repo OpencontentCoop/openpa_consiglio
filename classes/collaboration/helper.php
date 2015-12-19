@@ -40,7 +40,7 @@ class OpenPAConsiglioCollaborationHelper
                                                                                                       'DepthOperator' => 'eq',
                                                                                                       'ClassFilterType' => 'include',
                                                                                                       'ClassFilterArray' => array( 'folder' ),
-                                                                                                      'SortBy' => array( 'name', 'asc' ) ) );
+                                                                                                      'SortBy' => array( 'published', 'desc' ) ) );
     }
 
     /**
@@ -110,7 +110,7 @@ class OpenPAConsiglioCollaborationHelper
         eZMailTransport::send( $mail );
     }
 
-    public function addComment( $parentNodeId, $text, $filePath )
+    public function addComment( $parentNodeId, $text )
     {
         $params =  array(
             'creator_id' => eZUser::currentUserID(),
@@ -119,7 +119,21 @@ class OpenPAConsiglioCollaborationHelper
             'attributes' => array(
                 'subject' => substr( $text, 0, 10 ) . '...',
                 'message' => $text,
-                'author' => eZUser::currentUser()->contentObject()->attribute( 'name' ),
+                'author' => eZUser::currentUser()->contentObject()->attribute( 'name' )
+            )
+        );
+        $object = eZContentFunctions::createAndPublishObject( $params );
+        return $object;
+    }
+
+    public function addFile( $parentNodeId, $filePath )
+    {
+        $params =  array(
+            'creator_id' => eZUser::currentUserID(),
+            'class_identifier' => 'file',
+            'parent_node_id' => $parentNodeId,
+            'attributes' => array(
+                'name' => basename( $filePath ),
                 'file' => $filePath
             )
         );
@@ -165,6 +179,7 @@ class OpenPAConsiglioCollaborationHelper
 
     public function executeAction( $action )
     {
+
         if ( $action == 'add_tag' && eZHTTPTool::instance()->hasPostVariable( 'NewTagName' ) )
         {
             if ( eZUser::currentUserID() == $this->referente->id() )
@@ -177,8 +192,50 @@ class OpenPAConsiglioCollaborationHelper
         {
             if ( in_array( eZUser::currentUserID(), $this->getAreaUserIdList() ) )
             {
-                $filePath = $text = $parentNodeId = null;
-                if ( eZHTTPTool::instance()->hasPostVariable( 'Tag' ) && ( eZHTTPTool::instance()->hasPostVariable( 'CommentText' ) || eZHTTPTool::instance()->hasPostVariable( 'CommentFile' ) ) )
+                $text = $parentNodeId = null;
+                if ( eZHTTPTool::instance()->hasPostVariable( 'Tag' ) && eZHTTPTool::instance()->hasPostVariable( 'CommentText' ) )
+                {
+                    if ( eZHTTPTool::instance()->hasPostVariable( 'Tag' ) )
+                    {
+                        $parentNodeId = intval( eZHTTPTool::instance()->postVariable( 'Tag' ) );
+                        $parentNode = eZContentObjectTreeNode::fetch( $parentNodeId );
+                        if ( $parentNode instanceof eZContentObjectTreeNode )
+                        {
+                            if ( $parentNode->attribute( 'parent_node_id' ) != $this->getArea()->attribute( 'node_id' ) )
+                            {
+                                $parentNodeId = null;
+                            }
+                        }
+
+                    }
+                    if ( eZHTTPTool::instance()->hasPostVariable( 'CommentText' ) )
+                    {
+                        $text = eZHTTPTool::instance()->postVariable( 'CommentText' );
+                    }
+
+                    $text = trim( $text);
+                    if( empty( $text ) )
+                    {
+                        throw new Exception( "Compila il campo di testo" );
+                    }
+                }
+                if ( $parentNodeId && $text )
+                {
+                    $this->addComment( $parentNodeId, $text );
+                    $this->redirectParams = '/tag-' . $parentNodeId;
+                }
+            }
+            else
+            {
+                throw new Exception( "Operazione non permessa: non sei iscritto come partecipante a quest'area" );
+            }
+        }
+        elseif ( $action == 'add_file' && eZHTTPTool::instance()->hasPostVariable( 'PublishFile' ) )
+        {
+            if ( in_array( eZUser::currentUserID(), $this->getAreaUserIdList() ) )
+            {
+                $filePath = $parentNodeId = null;
+                if ( eZHTTPTool::instance()->hasPostVariable( 'Tag' ) && $this->validateFileInput( 'CommentFile' ) )
                 {
                     if ( eZHTTPTool::instance()->hasPostVariable( 'Tag' ) )
                     {
@@ -201,17 +258,29 @@ class OpenPAConsiglioCollaborationHelper
                         $filePath = dirname( $binaryFile->Filename ) . '/' . $binaryFile->attribute( 'original_filename' );
                         eZFile::rename( $binaryFile->Filename, $filePath );
                     }
-                    if ( eZHTTPTool::instance()->hasPostVariable( 'CommentText' ) )
+                    else
                     {
-                        $text = eZHTTPTool::instance()->postVariable( 'CommentText' );
+                        throw new Exception( "Errore nel caricamento del file" );
                     }
                 }
-                if ( $parentNodeId && ( $filePath || $text ) )
+                if ( $parentNodeId && $filePath )
                 {
-                    $this->addComment( $parentNodeId, $text, $filePath );
+                    $this->addFile( $parentNodeId, $filePath );
                     $this->redirectParams = '/tag-' . $parentNodeId;
                 }
+                else
+                {
+                    throw new Exception( "Errore" );
+                }
             }
+            else
+            {
+                throw new Exception( "Operazione non permessa: non sei iscritto come partecipante a quest'area" );
+            }
+        }
+        else
+        {
+            throw new Exception( "Operazione non consentita" );
         }
         return true;
     }

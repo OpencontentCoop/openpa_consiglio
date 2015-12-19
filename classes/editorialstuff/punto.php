@@ -49,6 +49,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $attributes[] = 'data_doc';
         $attributes[] = 'referente_politico';
         $attributes[] = 'referente_tecnico';
+        $attributes[] = 'numero';
 
         return $attributes;
     }
@@ -136,6 +137,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         if ( $property == 'referente_politico' || $property == 'referente_tecnico' )
         {
             return implode( ', ', $this->stringRelatedObjectAttribute( $property, 'name' ) );
+        }
+
+        if ( $property == 'numero' )
+        {
+            return $this->stringAttribute( 'n_punto', 'intval' );
         }
 
         return parent::attribute( $property );

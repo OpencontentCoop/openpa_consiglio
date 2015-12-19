@@ -45,17 +45,27 @@ elseif( $referente instanceof eZuser )
     if ( $helper->canReadArea() )
     {
         $selectedTag = false;
+        $error = false;
 
         if( strpos( $action, 'tag-' ) === 0 )
         {
             $selectedTag = eZContentObjectTreeNode::fetch( str_replace( 'tag-', '', $action ) );
         }
-        elseif ( is_string( $action ) && $helper->executeAction( $action ) )
+        elseif ( is_string( $action ) )
         {
-            $module->redirectTo( 'consiglio/collaboration/' . $referente->id() . $helper->redirectParams );
-            return;
+            try
+            {
+                $helper->executeAction( $action );
+                $module->redirectTo( 'consiglio/collaboration/' . $referente->id() . $helper->redirectParams );
+                return;
+            }
+            catch( Exception $e )
+            {
+                $error = $e->getMessage();
+            }
         }
 
+        $tpl->setVariable( 'error', $error );
         $tpl->setVariable( 'referente', $referente->contentObject() );
         $tpl->setVariable( 'area', $helper->getArea() );
         $tpl->setVariable( 'tag', $selectedTag );
