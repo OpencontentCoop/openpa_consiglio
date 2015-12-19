@@ -72,7 +72,7 @@ $ViewList['presenze'] = array(
     'functions' => array( 'use' ),
     'script' => 'presenze.php',
     'params' => array( 'SedutaId', 'UserId', 'VotazioneId' ),
-    'unordered_params' => array()
+    'unordered_params' => array( 'full_count' )
 );
 
 $ViewList['collaboration'] = array(

@@ -8,6 +8,9 @@ $sedutaId = intval( $Params['SedutaId'] );
 $userId = intval( $Params['UserId'] );
 $votazioneId = intval( $Params['VotazioneId'] );
 
+if ( isset( $Params['UserParameters']['full_count'] ) )
+    OpenPAConsiglioPresenzaHelper::$countStrategy = false;
+
 try
 {
     /** @var Seduta $seduta */
@@ -58,12 +61,6 @@ try
 
     $helper = new OpenPAConsiglioPresenzaHelper( $seduta, $customEvents, $politico->id() );
     $data = $helper->getData();
-
-//    echo '<pre>';
-//    print_r($detections);
-//    print_r($current->intervals );
-//    print_r($events);
-//    die();
 
     $tpl->setVariable( 'seduta', $seduta );
     $tpl->setVariable( 'politico', $politico );

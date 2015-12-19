@@ -2,6 +2,8 @@
 
 class OpenPAConsiglioPresenzaHelper
 {
+    public static $countStrategy = 'first_punto';
+
     /**
      * @vat OpenPAConsiglioPresenza[]|OpenPAConsiglioPresenzaCached[]
      */
@@ -30,6 +32,8 @@ class OpenPAConsiglioPresenzaHelper
      * @var array[]
      */
     protected $inIntervalsData;
+
+    protected static $puntiDetections = array();
 
     /**
      * @param Seduta $seduta
@@ -90,7 +94,8 @@ class OpenPAConsiglioPresenzaHelper
                     $userDetections[] = $detection;
                 }
             }
-
+            $puntiDetections = $this->getPuntiDetections( $this->seduta, $useCache );
+            $userDetections = $this->appendCustomDetections( $puntiDetections, $userDetections );
             if ( is_array( $this->customDetections ) )
             {
                 $userDetections = $this->appendCustomDetections( $this->customDetections, $userDetections );
@@ -126,6 +131,102 @@ class OpenPAConsiglioPresenzaHelper
     {
         $Result = include( $file );
         return $Result;
+    }
+
+    protected function getPuntiDetections( Seduta $seduta, $useCache )
+    {
+        if ( !isset( self::$puntiDetections[$seduta->id()] ) )
+        {
+            if ( $useCache )
+            {
+                $cacheFilePath = self::presenzeCacheFilePath( $this->seduta, 'punti-' );
+                $cacheFile = eZClusterFileHandler::instance( $cacheFilePath );
+                self::$puntiDetections[$seduta->id()] = $cacheFile->processCache(
+                    array( 'OpenPAConsiglioPresenzaHelper', 'puntiDetectionCacheRetrieve' ),
+                    array( 'OpenPAConsiglioPresenzaHelper', 'puntiDetectionCacheGenerate' ),
+                    null,
+                    null,
+                    $seduta
+                );
+            }
+            else
+            {
+                self::$puntiDetections[$seduta->id()] = self::fetchPuntiDetection( $seduta );
+            }
+        }
+
+        return self::$puntiDetections[$seduta->id()];
+    }
+
+    public static function puntiDetectionCacheGenerate( $file, Seduta $seduta )
+    {
+        return array( 'content'  => self::fetchPuntiDetection( $seduta ),
+                      'scope'    => 'consiglio-presenze-seduta-cache',
+                      'datatype' => 'php',
+                      'store'    => true );
+    }
+
+    public static function puntiDetectionCacheRetrieve( $file, $mtime, $args )
+    {
+        $Result = include( $file );
+        return $Result;
+    }
+
+    protected static function fetchPuntiDetection( Seduta $seduta )
+    {
+        $puntiDetections = array();
+        $ids = array();
+        $labels = array();
+        $states = array();
+        foreach ( $seduta->odg() as $punto )
+        {
+            $ids[] = $punto->id();
+            $labels[$punto->id()] = $punto->attribute( 'numero' );
+            if ( empty( $states ) )
+            {
+                $states = $punto->getFactory()->states();
+            }
+        }
+        if ( !empty( $ids ) && !empty( $states ) )
+        {
+            $startBeforeStateId = $states['punto.published']->attribute( 'id' );
+            $startAfterStateId = $states['punto.in_progress']->attribute( 'id' );
+            $endBeforeStateId = $states['punto.in_progress']->attribute( 'id' );
+            $endAfterStateId = $states['punto.closed']->attribute( 'id' );
+
+            /** @var OCEditorialStuffHistory[] $histories */
+            $histories = OCEditorialStuffHistory::fetchObjectList(
+                OCEditorialStuffHistory::definition(),
+                null,
+                array( 'handler' => 'history', 'type' => "updateobjectstate", 'object_id' => array( $ids ) ),
+                array( 'created_time' => 'asc' )
+            );
+
+            foreach ( $histories as $history )
+            {
+                $params = $history->attribute( 'params' );
+                if ( $params['before_state_id'] == $startBeforeStateId && $params['after_state_id'] == $startAfterStateId )
+                {
+                    $puntiDetections[] = new OpenPAConsiglioCustomDetection(
+                        $history->attribute( 'created_time' ),
+                        'Inizio Punto ' . $labels[$history->attribute( 'object_id' )],
+                        'fa-file-o',
+                        'start-punto'
+                    );
+                }
+                if ( $params['before_state_id'] == $endBeforeStateId && $params['after_state_id'] == $endAfterStateId )
+                {
+                    $puntiDetections[] = new OpenPAConsiglioCustomDetection(
+                        $history->attribute( 'created_time' ),
+                        'Fine Punto ' . $labels[$history->attribute( 'object_id' )],
+                        'fa-file',
+                        'end-punto'
+                    );
+                }
+
+            }
+        }
+        return $puntiDetections;
     }
 
     protected function appendCustomDetections( $newDetections, $detections )
@@ -225,77 +326,103 @@ class OpenPAConsiglioPresenzaHelper
             $timeStampFineSeduta = $this->seduta->dataOraFine();
         }
 
-        $totalTime = $timeStampFineSeduta - $timeStampInizioSeduta;
-        $isIn = 0;
-
         $events[] = array(
             'type' => 'event',
             'timestamp' => $timeStampInizioSeduta,
             'name' => "Inizio seduta"
         );
 
+        $startCountTimestamp = $timeStampInizioSeduta;
+        $endCountTimestamp = $timeStampFineSeduta;
+
         $intervals = array();
         $startInterval = $timeStampInizioSeduta;
+
+        if ( self::$countStrategy == 'first_punto' )
+            $firstPuntoStarted = false;
+        else
+            $firstPuntoStarted = true;
+
         foreach ( $userDetections as $detection )
         {
             if ( $detection->attribute( 'created_time' ) > $startInterval )
             {
                 $intervals[] = array(
                     $startInterval,
-                    $detection->attribute( 'created_time' )
+                    $detection->attribute( 'created_time' ),
+                    $firstPuntoStarted
                 );
                 $startInterval = $detection->attribute( 'created_time' );
+
+                if ( !$firstPuntoStarted && $detection->attribute( 'type' ) == 'start-punto' )
+                {
+                    $startCountTimestamp = $detection->attribute( 'created_time' );
+                    $firstPuntoStarted = true;
+                }
+
             }
         }
 
-        if ( $timeStampFineSeduta > $startInterval )
+        if ( $endCountTimestamp > $startInterval )
         {
             $intervals[] = array(
                 $startInterval,
-                $timeStampFineSeduta
+                $endCountTimestamp,
+                true
             );
         }
 
+        $isIn = 0;
+        $totalTime = $endCountTimestamp - $startCountTimestamp;
+
         foreach ( $intervals as $interval )
         {
-            list( $startInterval, $endInterval ) = $interval;
+            list( $startInterval, $endInterval, $doCount ) = $interval;
 
-            if ( $this->seduta->is( 'closed' ) && $endInterval > $timeStampFineSeduta )
+            if ( $this->seduta->is( 'closed' ) && $endInterval > $endCountTimestamp )
             {
-                $endInterval = $timeStampFineSeduta;
+                $endInterval = $endCountTimestamp;
             }
 
             $duration = $endInterval - $startInterval;
-            $totalTimeCount[] = $duration;
-            $percent = $this->calculatePercent( $duration, $totalTime );
+            if ( $doCount )
+            {
+                $totalTimeCount[] = $duration;
+                $percent = $this->calculatePercent( $duration, $totalTime );
+            }
+            else
+            {
+                $percent = 0;
+            }
 
             $newInterval = array(
                 'type' => 'interval',
                 'duration' => $duration,
                 'start' => $startInterval,
                 'end' => $endInterval,
-                'is_in' => $isIn,
-                'percent' => number_format( $percent, 2 )
+                'is_in' => $doCount ? $isIn : -1,
+                'raw_percent' => $percent > 0 ? $percent : 0,
+                'percent' => $percent > 0 ? number_format( $percent, 2 ) : 0
             );
 
-            if ( $newInterval['is_in'] )
+            if ( $newInterval['is_in'] == 1 )
             {
-                $inPercent[] = $newInterval['percent'];
+                $inPercent[] = $newInterval['raw_percent'];
             }
-            else
+            elseif( $newInterval['is_in'] == 0 )
             {
-                $outPercent[] = $newInterval['percent'];
+                $outPercent[] = $newInterval['raw_percent'];
             }
 
             $events[] = $newInterval;
-
             $tempDetections = array();
+
             foreach ( $userDetections as $detection )
             {
                 if ( ( $detection->attribute( 'created_time' ) > $startInterval
                        && $detection->attribute( 'created_time' ) <= $endInterval )
-                     || ( $detection->attribute( 'created_time' ) > $timeStampFineSeduta
-                          && $endInterval == $timeStampFineSeduta )
+                     || ( $detection->attribute( 'created_time' ) > $endCountTimestamp
+                          && $endInterval == $endCountTimestamp )
                 )
                 {
                     if ( !isset( $tempDetections[$detection->attribute( 'created_time' )] ) )
@@ -310,7 +437,8 @@ class OpenPAConsiglioPresenzaHelper
 
                         if ( $detection->attribute( 'is_in' ) == 1 )
                         {
-                            if ( $detection->attribute( 'type' ) == 'checkin' )
+                            if ( $detection->attribute( 'type' ) == 'checkin'
+                                 || $detection->attribute( 'type' ) == 'manual' )
                             {
                                 $inArray[] = $detection;
                             }
@@ -373,7 +501,6 @@ class OpenPAConsiglioPresenzaHelper
             }
         }
 
-
         $inPercentSum = array_sum( $inPercent );
         $outPercentSum = array_sum( $outPercent );
 
@@ -399,17 +526,24 @@ class OpenPAConsiglioPresenzaHelper
 
 class OpenPAConsiglioCustomDetection extends OpenPATempletizable
 {
-    public function __construct( $timestamp, $label, $icon = null )
+    public function __construct( $timestamp = null, $label = null, $icon = null, $type = 'custom' )
     {
         $data = array(
             'id' => 'CutstomEvent-' . $timestamp,
-            'type' => 'custom',
+            'type' => $type,
             'created_time' => $timestamp,
-            'label' => $label
+            'label' => $label,
+            '_timestamp_readable' => date( DateTime::ISO8601, $timestamp )
         );
         if ( $icon )
             $data['icon'] = $icon;
         parent::__construct( $data );
+    }
+    public static function __set_state( $data )
+    {
+        $new = new static();
+        $new->data = $data['data'];
+        return $new;
     }
 }
 
@@ -446,8 +580,6 @@ class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
         if ( $seduta instanceof Seduta )
         {
             $helper = new OpenPAConsiglioPresenzaHelper( $seduta );
-            $percent = $helper->getPercent();
-
             self::$data[$id] = $helper->getData();
         }
         else
@@ -494,7 +626,6 @@ class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
             }
             elseif ( $this->functionName == 'importo' )
             {
-                $percent = $data['in_percent'];
                 return $this->calcolaImportoGettone( $data['in_percent'] );
             }
             elseif ( $this->functionName == 'presenze' )

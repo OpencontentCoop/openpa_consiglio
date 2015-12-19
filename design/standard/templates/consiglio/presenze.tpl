@@ -11,6 +11,7 @@
         {foreach $events as $event}
 
             {if $event.type|eq('event')}
+
                 {if is_set( $event.items )|not()}
                     <div style="margin: 10px 0">
                         <p>
@@ -25,44 +26,43 @@
                     <div style="margin: 10px 0">
                         <p style="white-space: nowrap">
                             {foreach $event.items as $item}
-                                {if $item.type|ne( 'custom' )}
-                                    {if $item.type|eq('checkin')}
-                                        <span class="fa-stack fa-lg"
-                                              style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
-                                            <i class="fa fa-check-circle fa-stack-2x"></i>
-                                        </span>
-                                        <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
-                                    {elseif $item.type|eq('beacons')}
-                                        <span class="fa-stack fa-lg"
-                                              style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
-                                            <i class="fa fa-wifi fa-stack-2x"></i>
-                                        </span>
+                                {if $item.type|eq('checkin')}
+                                    <span class="fa-stack fa-lg"
+                                          style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
+                                        <i class="fa fa-check-circle fa-stack-2x"></i>
+                                    </span>
+                                    <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )} </small>
+                                {elseif $item.type|eq('beacons')}
+                                    <span class="fa-stack fa-lg"
+                                          style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
+                                        <i class="fa fa-wifi fa-stack-2x"></i>
+                                    </span>
 
-                                        <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
-                                    {elseif $item.type|eq('manual')}
-                                        <span class="fa-stack fa-lg"
-                                              style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
-                                            <i class="fa fa-thumbs-up fa-stack-2x"></i>
-                                        </span>
-                                        <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
-                                    {/if}
+                                    <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )} </small>
+                                {elseif $item.type|eq('manual')}
+                                    <span class="fa-stack fa-lg"
+                                          style="white-space:nowrap;margin-right:5px;color:{if $item.in_out|eq(1)}{$color_in}{else}{$color_out}{/if}">
+                                        <i class="fa fa-thumbs-up fa-stack-2x"></i>
+                                    </span>
+                                    <small>{$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )} </small>
                                 {else}
                                     <span class="fa-stack fa-lg"
                                           style="white-space:nowrap;margin-right:5px;">
-                                    <i class="fa {if is_set( $item.icon )}{$item.icon}{else}fa-star{/if} fa-stack-2x"></i>
-                                </span>
-                                    <small><strong>{$item.label}</strong> {$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</small>
+                                        <i class="fa {if is_set( $item.icon )}{$item.icon}{else}fa-star{/if} fa-stack-2x"></i>
+                                    </span>
+                                    <small><strong>{$item.label}</strong> {$item.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )} </small>
                                 {/if}
                             {/foreach}
                         </p>
                     </div>
                 {/if}
-            {/if}
 
-            {if $event.type|eq('interval')}
-                <div style="margin-left: 18px; max-height: 200px; min-height: 30px; display: block; border-left: 4px solid {if $event.is_in}{$color_in}{else}{$color_out}{/if}; height: {$event.percent|mul(2)}px">
-                    <p style="line-height:{if $event.percent|mul(2)|gt(30)}{$event.percent|mul(2)}px{else}30px{/if}; color:{if $event.is_in}{$color_in}{else}{$color_out}{/if}">
-                        <i class="fa fa-play"></i> <strong>{if $event.is_in}PRESENTE{else}ASSENTE{/if} {$event.percent}%</strong>
+            {elseif $event.type|eq('interval')}
+                <div style="margin-left: 18px; max-height: 200px; min-height: 30px; display: block; border-left: 4px solid {if $event.is_in|eq(1)}{$color_in}{elseif $event.is_in|eq(0)}{$color_out}{else}#ccc{/if}; height: {$event.percent|mul(2)}px">
+                    <p style="line-height:{if $event.percent|mul(2)|gt(30)}{$event.percent|mul(2)}px{else}30px{/if}; color:{if $event.is_in|eq(1)}{$color_in}{elseif $event.is_in|eq(0)}{$color_out}{else}#ccc{/if}">
+                        {if or( $event.is_in|eq(1), $event.is_in|eq(0) )}
+                            <i class="fa fa-play"></i> <strong>{if $event.is_in}PRESENTE{else}ASSENTE{/if} {$event.percent}%</strong>
+                        {/if}
                     </p>
                 </div>
             {/if}
@@ -82,7 +82,7 @@
         <th>Metodo</th>
     </tr>
     {foreach $detections as $detection}
-        {if $detection.type|ne( 'custom' )}
+        {if array('checkin', 'manual', 'beacons')|contains($detection.type)}
         <tr class="{if $detection.in_out}success{else}warning{/if}">
             <td>{$detection.id}</td>
             <td>{$detection.created_time|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</td>
@@ -99,4 +99,35 @@
         </tr>
         {/if}
     {/foreach}
+</table>
+
+{def $checkInSum = array()
+     $checkOutSum = array()
+     $checkDurataSum = array()}
+<h3>Dettaglio Conteggi</h3>
+<table class="table table-striped">
+    <tr>
+        <th>Inizio</th>
+        <th>Fine</th>
+        <th class="text-right">Durata</th>
+        <th class="text-right">Percentuale presenza</th>
+        <th class="text-right">Percentuale assenza</th>
+    </tr>
+    {foreach $events as $event}
+        {if $event.type|eq('interval')}
+            <tr>
+                <td>{$event.start|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</td>
+                <td>{$event.end|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</td>
+                <td class="text-right">{if $event.is_in|ge(0)}{if $event.duration|gt(0)}{$event.duration}{set $checkDurataSum = $checkDurataSum|append($event.duration)}{else}0{/if}{/if}</td>
+                <td class="text-right">{if $event.is_in|eq(1)}{$event.raw_percent}{set $checkInSum = $checkInSum|append($event.raw_percent)}{/if}</td>
+                <td class="text-right">{if $event.is_in|eq(0)}{$event.raw_percent}{set $checkOutSum = $checkOutSum|append($event.raw_percent)}{/if}</td>
+            </tr>
+        {/if}
+    {/foreach}
+    <tr>
+        <th class="text-right" colspan="2">Totale</th>
+        <th class="text-right">{$checkDurataSum|array_sum()}</th>
+        <th class="text-right">{$checkInSum|array_sum()}</th>
+        <th class="text-right">{$checkOutSum|array_sum()}</th>
+    </tr>
 </table>

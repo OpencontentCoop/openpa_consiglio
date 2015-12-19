@@ -4,6 +4,57 @@
     <h1>{$area.name|wash()}</h1>
 </div>
 <hr/>
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <ul class="nav navbar-nav">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-tags"></i> Tematiche di discussione <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    {if count( $area_tags )|gt(0)}
+                        {foreach $area_tags as $area_tag}
+                            <li><a href="{concat('consiglio/collaboration/', $referente.id, '/tag-', $area_tag.node_id)|ezurl(no)}">
+                                    <i class="fa fa-tag"></i> {$area_tag.name|shorten(45)wash()} <span class="badge">{$area_tag.children_count}</span>
+                                </a></li>
+                        {/foreach}
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{concat('consiglio/collaboration/', $referente.id)|ezurl(no)}">Mostra tutto</a></li>
+                    {/if}
+                </ul>
+            </li>
+        </ul>
+        {if fetch( user, current_user ).contentobject_id|eq($referente.id)}
+            <form class="navbar-form navbar-left" method="post" action="{concat('consiglio/collaboration/', $referente.id, '/add_tag')|ezurl(no)}">
+                <div class="form-group">
+                    <label for="NewAreaName" class="sr-only">Aggiungi nuova tematica</label>
+                    <input type="text" class="form-control" id="NewAreaName" name="NewTagName" placeholder="Aggiungi nuova tematica">
+                </div>
+                <button type="submit" class="btn btn-success"><i class="fa fa-plus"></i></button>
+            </form>
+        {/if}
+        <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-users"></i> Partecipanti <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    {if count($area_users)|gt(1)}
+                        {foreach $area_users as $area_user}
+                            <li><a href="#">{$area_user.name|wash()}</a></li>
+                        {/foreach}
+                    {else}
+                        <li><a href="#">Al momento nessun referente locale è stato aggiunto a questa area. Contatta la segreteria per maggiori informazioni.</a></li>
+                    {/if}
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+{if $error}
+    <div class="alert alert-danger">
+        <h3 style="margin: 0">{$error|wash()}</h3>
+    </div>
+{/if}
+
 <div class="row">
     <div class="col-md-8">
         {def $page_limit = 100
@@ -55,10 +106,6 @@
                     <label for="Text" class="control-label">Testo</label>
                     <textarea class="form-control" rows="5" name="CommentText" id="Text"></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="File">File</label>
-                    <input type="file" id="File" name="CommentFile" />
-                </div>
                 {if $tag}
                     <input type="hidden" name="Tag" value="{$tag.node_id}" />
                 {else}
@@ -76,6 +123,31 @@
         </div>
         {/if}
 
+        {if count( $area_tags )|gt(0)}
+            <h3><i class="fa fa-plus"></i> Aggiungi un file</h3>
+            <div class="well well-sm clearfix">
+                <form class="form" method="post" enctype="multipart/form-data" action="{concat('consiglio/collaboration/', $referente.id, '/add_file')|ezurl(no)}">
+                    <div class="form-group">
+                        <label for="File">File</label>
+                        <input type="file" id="File" name="CommentFile" />
+                    </div>
+                    {if $tag}
+                        <input type="hidden" name="Tag" value="{$tag.node_id}" />
+                    {else}
+                        <div class="form-group">
+                            <label for="Tag">Tematica</label>
+                            <select name="Tag" id="Tag" class="form-control">
+                                {foreach $area_tags as $area_tag}
+                                    <option value="{$area_tag.node_id}">{$area_tag.name|wash()}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    {/if}
+                    <button type="submit" class="btn btn-success pull-right" name="PublishFile">Aggiungi</button>
+                </form>
+            </div>
+        {/if}
+{*
         <h3><i class="fa fa-tags"></i> Tematiche di discussione</h3>
         <div class="list-group">
             {foreach $area_tags as $area_tag}
@@ -95,16 +167,6 @@
             {/foreach}
         </div>
 
-        {if fetch( user, current_user ).contentobject_id|eq($referente.id)}
-        <form class="form-inline text-right" method="post" action="{concat('consiglio/collaboration/', $referente.id, '/add_tag')|ezurl(no)}">
-            <div class="form-group">
-                <label for="NewAreaName" class="sr-only">Aggiungi nuova tematica</label>
-                <input type="text" class="form-control" id="NewAreaName" name="NewTagName" placeholder="Aggiungi nuova tematica">
-            </div>
-            <button type="submit" class="btn btn-success"><i class="fa fa-plus"></i></button>
-        </form>
-        {/if}
-
         <hr/>
         <h3><i class="fa fa-users"></i> Partecipanti</h3>
         <ul class="list-group">
@@ -118,5 +180,6 @@
                 </div>
             {/if}
         </ul>
+*}
     </div>
 </div>
