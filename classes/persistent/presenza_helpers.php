@@ -311,6 +311,7 @@ class OpenPAConsiglioPresenzaHelper
         $totalTimeCount = array();
         $checkin = false;
         $checkout = false;
+        $pureDetections = array();
 
         $inArray = array();
         $outArray = array();
@@ -345,6 +346,11 @@ class OpenPAConsiglioPresenzaHelper
 
         foreach ( $userDetections as $detection )
         {
+            if ( $detection instanceof OpenPAConsiglioPresenza || $detection instanceof OpenPAConsiglioPresenzaCached )
+            {
+                $pureDetections[] = $detection;
+            }
+
             if ( $detection->attribute( 'created_time' ) > $startInterval )
             {
                 $intervals[] = array(
@@ -506,7 +512,7 @@ class OpenPAConsiglioPresenzaHelper
         $outPercentSum = array_sum( $outPercent );
 
         return array(
-            'detections' => $userDetections,
+            'detections' => $pureDetections,
             'events' => $events,
             'time' => $totalTime,
             'control' => array_sum( $totalTimeCount ),
