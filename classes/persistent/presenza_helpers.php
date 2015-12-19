@@ -400,7 +400,8 @@ class OpenPAConsiglioPresenzaHelper
                 'duration' => $duration,
                 'start' => $startInterval,
                 'end' => $endInterval,
-                'is_in' => $doCount ? $isIn : -1,
+                'do_count' => $doCount,
+                'is_in' => $isIn,
                 'raw_percent' => $percent > 0 ? $percent : 0,
                 'percent' => $percent > 0 ? number_format( $percent, 2 ) : 0
             );

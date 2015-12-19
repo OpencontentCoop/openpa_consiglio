@@ -58,10 +58,10 @@
                 {/if}
 
             {elseif $event.type|eq('interval')}
-                <div style="margin-left: 18px; max-height: 200px; min-height: 30px; display: block; border-left: 4px solid {if $event.is_in|eq(1)}{$color_in}{elseif $event.is_in|eq(0)}{$color_out}{else}#ccc{/if}; height: {$event.percent|mul(2)}px">
-                    <p style="line-height:{if $event.percent|mul(2)|gt(30)}{$event.percent|mul(2)}px{else}30px{/if}; color:{if $event.is_in|eq(1)}{$color_in}{elseif $event.is_in|eq(0)}{$color_out}{else}#ccc{/if}">
+                <div style="margin-left: 18px; max-height: 200px; min-height: 30px; display: block; border-left: 4px solid {if $event.do_count}{if $event.is_in|eq(1)}{$color_in}{elseif $event.is_in|eq(0)}{$color_out}{/if}{else}#ccc{/if}; height: {$event.percent|mul(2)}px">
+                    <p style="line-height:{if $event.percent|mul(2)|gt(30)}{$event.percent|mul(2)}px{else}30px{/if}; color:{if $event.do_count}{if $event.is_in|eq(1)}{$color_in}{elseif $event.is_in|eq(0)}{$color_out}{/if}{else}#ccc{/if}">
                         {if or( $event.is_in|eq(1), $event.is_in|eq(0) )}
-                            <i class="fa fa-play"></i> <strong>{if $event.is_in}PRESENTE{else}ASSENTE{/if} {$event.percent}%</strong>
+                            <i class="fa fa-play"></i> <strong>{if $event.is_in}PRESENTE{else}ASSENTE{/if} {if $event.do_count}{$event.percent}%{/if}</strong>
                         {/if}
                     </p>
                 </div>
@@ -118,9 +118,9 @@
             <tr>
                 <td>{$event.start|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</td>
                 <td>{$event.end|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</td>
-                <td class="text-right">{if $event.is_in|ge(0)}{if $event.duration|gt(0)}{$event.duration}{set $checkDurataSum = $checkDurataSum|append($event.duration)}{else}0{/if}{/if}</td>
-                <td class="text-right">{if $event.is_in|eq(1)}{$event.raw_percent}{set $checkInSum = $checkInSum|append($event.raw_percent)}{/if}</td>
-                <td class="text-right">{if $event.is_in|eq(0)}{$event.raw_percent}{set $checkOutSum = $checkOutSum|append($event.raw_percent)}{/if}</td>
+                <td class="text-right">{if $event.do_count}{if $event.duration|gt(0)}{$event.duration}{set $checkDurataSum = $checkDurataSum|append($event.duration)}{else}0{/if}{/if}</td>
+                <td class="text-right">{if and( $event.do_count, $event.is_in|eq(1))}{$event.raw_percent}{set $checkInSum = $checkInSum|append($event.raw_percent)}{/if}</td>
+                <td class="text-right">{if and( $event.do_count, $event.is_in|eq(0))}{$event.raw_percent}{set $checkOutSum = $checkOutSum|append($event.raw_percent)}{/if}</td>
             </tr>
         {/if}
     {/foreach}

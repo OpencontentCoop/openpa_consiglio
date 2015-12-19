@@ -19,6 +19,8 @@ class DataHandlerTimeLinePresenzeSeduta implements OpenPADataHandlerInterface
      */
     protected $format;
 
+    protected $userId;
+
     public function __construct( array $Params )
     {
         $module = isset( $Params['Module'] ) ? $Params['Module'] : false;
