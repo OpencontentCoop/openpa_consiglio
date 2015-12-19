@@ -109,7 +109,7 @@
     <tr>
         <th>Inizio</th>
         <th>Fine</th>
-        <th class="text-right">Durata</th>
+        <th class="text-right">Durata in minuti</th>
         <th class="text-right">Percentuale presenza</th>
         <th class="text-right">Percentuale assenza</th>
     </tr>
@@ -118,7 +118,7 @@
             <tr>
                 <td>{$event.start|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</td>
                 <td>{$event.end|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}</td>
-                <td class="text-right">{if $event.do_count}{if $event.duration|gt(0)}{$event.duration}{set $checkDurataSum = $checkDurataSum|append($event.duration)}{else}0{/if}{/if}</td>
+                <td class="text-right">{if $event.do_count}{if $event.duration|gt(0)}{$event.duration_in_minutes}{set $checkDurataSum = $checkDurataSum|append($event.duration_in_minutes)}{else}0{/if}{/if}</td>
                 <td class="text-right">{if and( $event.do_count, $event.is_in|eq(1))}{$event.raw_percent}{set $checkInSum = $checkInSum|append($event.raw_percent)}{/if}</td>
                 <td class="text-right">{if and( $event.do_count, $event.is_in|eq(0))}{$event.raw_percent}{set $checkOutSum = $checkOutSum|append($event.raw_percent)}{/if}</td>
             </tr>

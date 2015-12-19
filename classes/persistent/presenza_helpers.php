@@ -95,6 +95,7 @@ class OpenPAConsiglioPresenzaHelper
                 }
             }
             $puntiDetections = $this->getPuntiDetections( $this->seduta, $useCache );
+            //@todo se $puntiDetections è vuoto passare a strategia di voto full?
             $userDetections = $this->appendCustomDetections( $puntiDetections, $userDetections );
             if ( is_array( $this->customDetections ) )
             {
@@ -404,6 +405,7 @@ class OpenPAConsiglioPresenzaHelper
             $newInterval = array(
                 'type' => 'interval',
                 'duration' => $duration,
+                'duration_in_minutes' => number_format( $duration/60, 2 ),
                 'start' => $startInterval,
                 'end' => $endInterval,
                 'do_count' => $doCount,
