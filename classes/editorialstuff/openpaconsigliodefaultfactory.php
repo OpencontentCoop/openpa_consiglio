@@ -129,4 +129,10 @@ class OpenPAConsiglioDefaultFactory extends OCEditorialStuffPostDefaultFactory
 
         return true;
     }
+
+    protected function dashboardModuleResultTemplate( $parameters, OCEditorialStuffHandlerInterface $handler, eZModule $module )
+    {
+        $parameters['heuristic'] = true;
+        return parent::dashboardModuleResultTemplate( $parameters, $handler, $module );
+    }
 }
