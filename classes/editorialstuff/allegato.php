@@ -5,6 +5,14 @@ class Allegato extends OCEditorialStuffPost
 
     const DATE_FORMAT = 'Y-m-d H:i:s';
 
+    protected $firstPost;
+
+    protected $canShare;
+
+    protected $isShared;
+
+    protected $sharedUrl;
+
     public function onChangeState( eZContentObjectState $beforeState, eZContentObjectState $afterState )
     {
     }
@@ -14,6 +22,9 @@ class Allegato extends OCEditorialStuffPost
         $attributes = parent::attributes();
         $attributes[] = 'riferimento';
         $attributes[] = 'sostituito';
+        $attributes[] = 'can_share';
+        $attributes[] = 'is_shared';
+        $attributes[] = 'shared_url';
         return $attributes;
     }
 
@@ -25,7 +36,106 @@ class Allegato extends OCEditorialStuffPost
         if ( $property == 'sostituito' )
             return $this->isSostituito();
 
+        if ( $property == 'can_share' )
+            return $this->canShare();
+
+        if ( $property == 'is_shared' )
+            return $this->isShared();
+
+        if ( $property == 'shared_url' )
+            return $this->sharedUrl();
+
         return parent::attribute( $property );
+    }
+
+    protected function canShare()
+    {
+        if ( $this->canShare === null )
+        {
+            $this->canShare = false;
+            $post = $this->getFirstReverseRelatedPost();
+            if ( $post instanceof Punto )
+            {
+                $this->canShare = $post->canShare() && $post->isShared();
+            }
+        }
+        return $this->canShare;
+    }
+
+    protected function isShared()
+    {
+
+        if ( $this->isShared === null )
+        {
+            $this->isShared = false;
+            $post = $this->getFirstReverseRelatedPost();
+            if ( $post instanceof Punto )
+            {
+                if ( $post->isShared() )
+                {
+                    $aree = AreaCollaborativaFactory::fetchByPolitico( eZUser::currentUser() );
+                    foreach ( $aree as $area )
+                    {
+                        $this->isShared = $area->fetchCountFilesByRelation( $this->id() ) > 0;
+                        break;
+                    }
+                }
+            }
+        }
+        return $this->isShared;
+    }
+
+    protected function sharedUrl()
+    {
+        if ( $this->sharedUrl === null )
+        {
+            $this->sharedUrl = false;
+            $post = $this->getFirstReverseRelatedPost();
+            if ( $post instanceof Punto )
+            {
+                $this->sharedUrl = $post->sharedUrl();
+            }
+        }
+        return $this->sharedUrl;
+    }
+
+    public function share()
+    {
+        $file = $this->attributeFile();
+        $fileInfo = $file->storedFileInformation( $file->attribute( 'object' ), $file->attribute( 'version' ), $file->attribute( 'language_code' ) );
+        if ( isset( $fileInfo['filepath'] ) )
+        {
+            $post = $this->getFirstReverseRelatedPost();
+            if ( $post instanceof Punto )
+            {
+                if ( $this->canShare() )
+                {
+                    try
+                    {
+                        $aree = AreaCollaborativaFactory::fetchByPolitico( eZUser::currentUser() );
+                        foreach ( $aree as $area )
+                        {
+                            $helper = new OpenPAConsiglioCollaborationHelper( $area );
+                            $rooms = $area->fetchRoomsByRelation( $post->id() );
+                            foreach ( $rooms as $room )
+                            {
+                                return $helper->addFile(
+                                    $room->attribute( 'node_id' ),
+                                    $fileInfo['filepath'], //@todo make it cluster safe
+                                    $this->object->attribute( 'name' ),
+                                    $this->id(),
+                                    false
+                                );
+                            }
+                        }
+                    }
+                    catch ( Exception $e )
+                    {
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public function isSostituito()
@@ -53,26 +163,33 @@ class Allegato extends OCEditorialStuffPost
 
     protected function getFirstReverseRelatedPost()
     {
-        $firstPost = null;
-        $reverseObjects = $this->getObject()->reverseRelatedObjectList( false, 0, false, array( 'AllRelations' => true, 'AsObject' => false ) );
-        foreach( OCEditorialStuffHandler::instances() as $instance )
+        if ( $this->firstPost == null )
         {
-            foreach ( $reverseObjects as $reverseObject )
+            $reverseObjects = $this->getObject()->reverseRelatedObjectList(
+                false,
+                0,
+                false,
+                array( 'AllRelations' => true, 'AsObject' => false )
+            );
+            foreach ( OCEditorialStuffHandler::instances() as $instance )
             {
-                if( $reverseObject['contentclass_identifier'] == $instance->getFactory()->classIdentifier() )
+                foreach ( $reverseObjects as $reverseObject )
                 {
-                    try
+                    if ( $reverseObject['contentclass_identifier'] == $instance->getFactory()->classIdentifier() )
                     {
-                        return $instance->fetchByObjectId( $reverseObject['id'] );
-                    }
-                    catch( Exception $e )
-                    {
+                        try
+                        {
+                            $this->firstPost = $instance->fetchByObjectId( $reverseObject['id'] );
+                        }
+                        catch ( Exception $e )
+                        {
 
+                        }
                     }
                 }
             }
         }
-        return $firstPost;
+        return $this->firstPost;
     }
 
     /**
@@ -93,7 +210,7 @@ class Allegato extends OCEditorialStuffPost
     }
 
     /**
-     * @return eZBinaryFile
+     * @return eZContentObjectAttribute
      */
     public function attributeFile()
     {

@@ -97,6 +97,76 @@ class AreaCollaborativa extends OCEditorialStuffPost
         );
     }
 
+    /**
+     * @param $relationId
+     *
+     * @return eZFindResultNode[]
+     */
+    public function fetchRoomsByRelation( $relationId )
+    {
+        $solr = new eZSolr();
+        $search = $solr->search( null, array(
+           'ContentClassID' => array( 'openpa_consiglio_collaboration_room' ),
+           'SubTreeArray' => array( $this->object->attribute( 'main_node_id' ) ),
+           'Filter' => array( 'submeta_relation___id_si:' . $relationId )
+        ));
+        return $search['SearchResult'];
+    }
+
+
+    /**
+     * @param $relationId
+     *
+     * @return int
+     */
+    public function fetchCountRoomsByRelation( $relationId )
+    {
+        $solr = new eZSolr();
+        $search = $solr->search( null, array(
+            'SearchLimit' => 1,
+            'ContentClassID' => array( 'openpa_consiglio_collaboration_room' ),
+            'SubTreeArray' => array( $this->object->attribute( 'main_node_id' ) ),
+            'Filter' => array( 'submeta_relation___id_si:' . $relationId ),
+            'Limitation' => array()
+        ));
+        return $search['SearchCount'];
+    }
+
+
+    /**
+     * @param $relationId
+     *
+     * @return eZFindResultNode[]
+     */
+    public function fetchFilesByRelation( $relationId )
+    {
+        $solr = new eZSolr();
+        $search = $solr->search( null, array(
+            'ContentClassID' => array( 'openpa_consiglio_collaboration_file' ),
+            'SubTreeArray' => array( $this->object->attribute( 'main_node_id' ) ),
+            'Filter' => array( 'submeta_relation___id_si:' . $relationId )
+        ));
+        return $search['SearchResult'];
+    }
+
+    /**
+     * @param $relationId
+     *
+     * @return int
+     */
+    public function fetchCountFilesByRelation( $relationId )
+    {
+        $solr = new eZSolr();
+        $search = $solr->search( null, array(
+            'SearchLimit' => 1,
+            'ContentClassID' => array( 'openpa_consiglio_collaboration_file' ),
+            'SubTreeArray' => array( $this->object->attribute( 'main_node_id' ) ),
+            'Filter' => array( 'submeta_relation___id_si:' . $relationId ),
+            'Limitation' => array()
+        ));
+        return $search['SearchCount'];
+    }
+
     public function onCreate()
     {
         self::createCollaborationGroup( $this->getObject() );

@@ -10,12 +10,12 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-tags"></i> Tematiche di discussione <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     <li><a href="{concat('consiglio/collaboration/', $area.object.id)|ezurl(no)}">Indice</a></li>
-                    {if count( $area_tags )|gt(0)}
+                    {if count( $area_rooms )|gt(0)}
                         <li role="separator" class="divider"></li>
-                        {foreach $area_tags as $area_tag}
-                            {if $area_tag.is_hidden|not()}
-                            <li><a href="{concat('consiglio/collaboration/', $area.object.id, '/tag-', $area_tag.node_id)|ezurl(no)}">
-                                    <i class="fa fa-tag"></i> {$area_tag.name|shorten(45)|wash()}
+                        {foreach $area_rooms as $area_room}
+                            {if $area_room.is_hidden|not()}
+                            <li><a href="{concat('consiglio/collaboration/', $area.object.id, '/room-', $area_room.node_id)|ezurl(no)}">
+                                    <i class="fa fa-tag"></i> {$area_room.name|shorten(45)|wash()}
                                 </a></li>
                             {/if}
                         {/foreach}
@@ -24,10 +24,10 @@
             </li>
         </ul>
         {if $area.politici_id_list|contains( fetch( user, current_user ).contentobject_id )}
-            <form class="navbar-form navbar-left" method="post" action="{concat('consiglio/collaboration/', $area.object.id, '/add_tag')|ezurl(no)}">
+            <form class="navbar-form navbar-left" method="post" action="{concat('consiglio/collaboration/', $area.object.id, '/add_room')|ezurl(no)}">
                 <div class="form-group">
                     <label for="NewAreaName" class="sr-only">Aggiungi nuova tematica</label>
-                    <input type="text" class="form-control" id="NewAreaName" name="NewTagName" placeholder="Aggiungi nuova tematica">
+                    <input type="text" class="form-control" id="NewAreaName" name="NewRoomName" placeholder="Aggiungi nuova tematica">
                 </div>
                 <button type="submit" class="btn btn-success"><i class="fa fa-plus"></i></button>
             </form>
@@ -55,14 +55,14 @@
     </div>
 {/if}
 
-{if $tag}
+{if $room}
 <div class="row">
     <div class="col-md-8">
         {def $page_limit = 100
-             $page_url = concat('consiglio/collaboration/', $area.object.id, '/', $tag.node_id )}
-        <h2><i class="fa fa-tag"></i> {$tag.name|wash()}</h2>
-        {def $comments = fetch( content, list, hash( parent_node_id, $tag.node_id, class_filter_type, include, class_filter_array, array( 'openpa_consiglio_collaboration_comment' ), limit, $page_limit, offset, $view_parameters.offset, sort_by, array( published, desc ) ) )}
-        {def $comments_count = fetch( content, list_count, hash( parent_node_id, $tag.node_id, class_filter_type, include, class_filter_array, array( 'openpa_consiglio_collaboration_comment' ) ))}
+             $page_url = concat('consiglio/collaboration/', $area.object.id, '/', $room.node_id )}
+        <h2><i class="fa fa-tag"></i> {$room.name|wash()}</h2>
+        {def $comments = fetch( content, list, hash( parent_node_id, $room.node_id, class_filter_type, include, class_filter_array, array( 'openpa_consiglio_collaboration_comment' ), limit, $page_limit, offset, $view_parameters.offset, sort_by, array( published, desc ) ) )}
+        {def $comments_count = fetch( content, list_count, hash( parent_node_id, $room.node_id, class_filter_type, include, class_filter_array, array( 'openpa_consiglio_collaboration_comment' ) ))}
 
         {if $comments_count|gt(0)}
 
@@ -89,7 +89,7 @@
                     <label for="Text" class="control-label">Testo</label>
                     <textarea class="form-control" rows="5" name="CommentText" id="Text"></textarea>
                 </div>
-                <input type="hidden" name="Tag" value="{$tag.node_id}" />
+                <input type="hidden" name="Room" value="{$room.node_id}" />
                 <button type="submit" class="btn btn-success pull-right" name="PublishComment">Pubblica</button>
             </form>
         </div>
@@ -97,21 +97,23 @@
     </div>
     <div class="col-md-4">
 
-        {def $files = fetch( content, list, hash( parent_node_id, $tag.node_id, class_filter_type, include, class_filter_array, array( 'openpa_consiglio_collaboration_file' ), sort_by, array( published, desc ) ) )}
-        {def $files_count = fetch( content, list_count, hash( parent_node_id, $tag.node_id, class_filter_type, include, class_filter_array, array( 'openpa_consiglio_collaboration_file' ) ))}
+        {def $files = fetch( content, list, hash( parent_node_id, $room.node_id, class_filter_type, include, class_filter_array, array( 'openpa_consiglio_collaboration_file' ), sort_by, array( published, desc ) ) )}
+        {def $files_count = fetch( content, list_count, hash( parent_node_id, $room.node_id, class_filter_type, include, class_filter_array, array( 'openpa_consiglio_collaboration_file' ) ))}
 
         {if $files_count|gt(0)}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong>File allegati</strong>
             </div>
-            <div class="panel-body">
-                <ul class="list-unstyled">
+            <table class="table">
                 {foreach $files as $file}
-                    <li>{node_view_gui content_node=$file view='consiglio_collaboration_file_item'}</li>
+                    <tr>
+                        <td>{node_view_gui content_node=$file view='consiglio_collaboration_file_item'}</td>
+                        <td style="white-space: nowrap">{include uri="design:parts/toolbar/node_edit.tpl" current_node=$file}
+                            {include uri="design:parts/toolbar/node_trash.tpl" current_node=$file}</td>
+                    </tr>
                 {/foreach}
-                </ul>
-            </div>
+                </table>
         </div>
         {/if}
 
@@ -123,7 +125,7 @@
                     <label for="File">File</label>
                     <input type="file" id="File" name="CommentFile" />
                 </div>
-                <input type="hidden" name="Tag" value="{$tag.node_id}" />
+                <input type="hidden" name="Room" value="{$room.node_id}" />
                 <button type="submit" class="btn btn-success pull-right" name="PublishFile">Aggiungi</button>
             </form>
         </div>
@@ -134,7 +136,7 @@
 {else}
     <div class="row">
         <div class="col-md-12">
-        {if count( $area_tags )|gt(0)}
+        {if count( $area_rooms )|gt(0)}
             <table class="table">
                 <tr>
                     <th>Titolo</th>
@@ -146,36 +148,36 @@
                         <th></th>
                     {/if}
                 </tr>
-                {foreach $area_tags as $area_tag}
+                {foreach $area_rooms as $area_room}
                     <tr>
                         <td>
-                            {if $area_tag.is_hidden|not}
-                            <a href="{concat('consiglio/collaboration/', $area.object.id, '/tag-', $area_tag.node_id)|ezurl(no)}">
-                                <i class="fa fa-tag"></i> {$area_tag.name|wash()}
+                            {if $area_room.is_hidden|not}
+                            <a href="{concat('consiglio/collaboration/', $area.object.id, '/room-', $area_room.node_id)|ezurl(no)}">
+                                <i class="fa fa-tag"></i> {$area_room.name|wash()}
                             </a>
                             {else}
-                                <i class="fa fa-tag"></i> {$area_tag.name|wash()}
+                                <i class="fa fa-tag"></i> {$area_room.name|wash()}
                             {/if}
                         </td>
                         <td style="white-space: nowrap">
-                            {$area_tag.object.published|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}
+                            {$area_room.object.published|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}
                         </td>
                         <td style="white-space: nowrap">
-                            {$area_tag.modified_subnode|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}
+                            {$area_room.modified_subnode|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}
                         </td>
                         <td style="white-space: nowrap">
-                            {$area_tag.children_count} interventi
+                            {$area_room.children_count} interventi
                         </td>
                         <td>
-                            {if $area_tag.is_hidden|not}
-                                <a class="btn btn-primary btn-sm" href="{concat('consiglio/collaboration/', $area.object.id, '/tag-', $area_tag.node_id)|ezurl(no)}">Accedi</a>
+                            {if $area_room.is_hidden|not}
+                                <a class="btn btn-primary btn-sm" href="{concat('consiglio/collaboration/', $area.object.id, '/room-', $area_room.node_id)|ezurl(no)}">Accedi</a>
                             {/if}
                         </td>
                         {if $area.politici_id_list|contains( fetch( user, current_user ).contentobject_id )}
-                            {if $area_tag.is_hidden}
-                                <td><a class="btn btn-danger btn-sm" href="{concat('consiglio/collaboration/', $area.object.id, '/hide-', $area_tag.node_id)|ezurl(no)}">Rivela</a></td>
+                            {if $area_room.is_hidden}
+                                <td><a class="btn btn-danger btn-sm" href="{concat('consiglio/collaboration/', $area.object.id, '/hide-', $area_room.node_id)|ezurl(no)}">Rivela</a></td>
                             {else}
-                                <td><a class="btn btn-success btn-sm" href="{concat('consiglio/collaboration/', $area.object.id, '/show-', $area_tag.node_id)|ezurl(no)}">Nascondi</a></td>
+                                <td><a class="btn btn-success btn-sm" href="{concat('consiglio/collaboration/', $area.object.id, '/show-', $area_room.node_id)|ezurl(no)}">Nascondi</a></td>
                             {/if}
 
                         {/if}

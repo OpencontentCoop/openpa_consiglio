@@ -5,6 +5,19 @@
         </h1>
         <h2>{$post.object.data_map.oggetto.content|wash()}</h2>
         {include uri=concat('design:', $template_directory, '/parts/workflow.tpl') post=$post}
+        {if $post.can_share}
+            {if $post.is_shared|not()}
+                <form action="{concat('consiglio/share')|ezurl(no)}" enctype="multipart/form-data" method="post">
+                    <input type="hidden" name="Factory" value="punto"/>
+                    <input type="hidden" name="Id" value="{$post.object_id}"/>
+                    <p class="clearfix">
+                        <button class="btn btn-primary" type="submit" name="Share"><i class="fa fa-share-alt"></i> Crea con questo punto una nuova discussione nell'area collaborativa</button>
+                    </p>
+                </form>
+            {else}
+                <a href="{$post.shared_url|ezurl(no)}" class="btn btn-default"><i class="fa fa-share-alt"></i> Punto in discussione nell'area collaborativa</a>
+            {/if}
+        {/if}
     </div>
 </div>
 <hr/>

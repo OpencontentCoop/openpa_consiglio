@@ -14,9 +14,7 @@
                 <th>Visibilit&agrave;</th>
                 {/if}
                 <th>Download</th>
-                {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
-                    <th></th>
-                {/if}
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -47,9 +45,25 @@
                     <td>{include uri='design:editorialstuff/default/parts/edit_state.tpl' post=$allegato}</td>
                     {/if}
                     <td>{attribute_view_gui attribute=$allegato.object.data_map.file}</td>
-                    {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
-                        <td><a href="{concat('editorialstuff/file/punto/remove/', $post.object.id, '/documenti/', $allegato.object.id )|ezurl(no)}" class="btn btn-link btn-xs"><i class="fa fa-trash"></i></a></td>
-                    {/if}
+                    <td>
+                        {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
+                            <a href="{concat('editorialstuff/file/punto/remove/', $post.object.id, '/documenti/', $allegato.object.id )|ezurl(no)}" class="btn btn-link btn-xs"><i class="fa fa-trash"></i></a>
+                        {/if}
+                        {if $allegato.can_share}
+                            {if $allegato.is_shared|not()}
+                                <form action="{concat('consiglio/share')|ezurl(no)}" enctype="multipart/form-data" method="post">
+                                    <input type="hidden" name="Factory" value="allegati_seduta"/>
+                                    <input type="hidden" name="Id" value="{$allegato.object_id}"/>
+                                    <input type="hidden" name="RedirectUrl" value="{$post.editorial_url}"/>
+                                    <p class="clearfix">
+                                        <button class="btn btn-primary" type="submit" name="Share"><i class="fa fa-share-alt"></i> Copia in area collaborativa</button>
+                                    </p>
+                                </form>
+                            {else}
+                                <a href="{$post.shared_url|ezurl(no)}" class="btn btn-default"><i class="fa fa-share-alt"></i> Copiato in area collaborativa</a>
+                            {/if}
+                        {/if}
+                    </td>
                 </tr>
             {/foreach}
             </tbody>

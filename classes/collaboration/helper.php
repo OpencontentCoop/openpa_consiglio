@@ -26,75 +26,78 @@ class OpenPAConsiglioCollaborationHelper
         return $this->area->group()->mainNode();
     }
 
-    public function getAreaTags()
+    public function getAreaRooms()
     {
         return $this->area->rooms( in_array( eZUser::currentUserID(), $this->area->politiciIdList() ) );
     }
 
     protected function sendNotification( eZContentObject $object )
     {
-        $tpl = eZTemplate::factory();
-        $tpl->resetVariables();
-        $tpl->setVariable( 'area', $this->getArea() );
-        $tpl->setVariable( 'object', $object );
-        $content = $tpl->fetch( 'design:consiglio/collaboration/mail_notification.tpl' );
-        $subject = $tpl->variable( 'subject' );
-
-        $tpl = eZTemplate::factory();
-        $tpl->resetVariables();
-        $tpl->setVariable( 'content', $content );
-        $content = $tpl->fetch( 'design:consiglio/notification/mail_pagelayout.tpl' );
-
-        $ini = eZINI::instance();
-        $mail = new eZMail();
-        $emailSender = $ini->variable( 'MailSettings', 'EmailSender' );
-        if ( !$emailSender )
+        if ( $object instanceof eZContentObject )
         {
-            $emailSender = $ini->variable( "MailSettings", "AdminEmail" );
-        }
-        $senderName = $ini->variable( 'SiteSettings', 'SiteName' );
-        $mail->setSender( $emailSender, $senderName );
+            $tpl = eZTemplate::factory();
+            $tpl->resetVariables();
+            $tpl->setVariable( 'area', $this->getArea() );
+            $tpl->setVariable( 'object', $object );
+            $content = $tpl->fetch( 'design:consiglio/collaboration/mail_notification.tpl' );
+            $subject = $tpl->variable( 'subject' );
 
-        $users = array_merge( $this->getAreaUsers( false ), $this->area->politiciIdList() );
-        foreach( $users as $index => $userId )
-        {
-            if ( $object->attribute( 'owner_id' ) != $userId )
+            $tpl = eZTemplate::factory();
+            $tpl->resetVariables();
+            $tpl->setVariable( 'content', $content );
+            $content = $tpl->fetch( 'design:consiglio/notification/mail_pagelayout.tpl' );
+
+            $ini = eZINI::instance();
+            $mail = new eZMail();
+            $emailSender = $ini->variable( 'MailSettings', 'EmailSender' );
+            if ( !$emailSender )
             {
-                $user = eZUser::fetch( $userId );
-                if ( $user instanceof eZUser )
+                $emailSender = $ini->variable( "MailSettings", "AdminEmail" );
+            }
+            $senderName = $ini->variable( 'SiteSettings', 'SiteName' );
+            $mail->setSender( $emailSender, $senderName );
+
+            $users = array_merge( $this->getAreaUsers( false ), $this->area->politiciIdList() );
+            foreach ( $users as $index => $userId )
+            {
+                if ( $object->attribute( 'owner_id' ) != $userId )
                 {
-                    if ( $index == 0 )
+                    $user = eZUser::fetch( $userId );
+                    if ( $user instanceof eZUser )
                     {
-                        $mail->setReceiver( $user->Email );
-                    }
-                    else
-                    {
-                        $mail->addCc( $user->Email );
+                        if ( $index == 0 )
+                        {
+                            $mail->setReceiver( $user->Email );
+                        }
+                        else
+                        {
+                            $mail->addCc( $user->Email );
+                        }
                     }
                 }
             }
-        }
 
-        $mail->setSubject( $subject );
-        $mail->setBody( $content );
-        $mail->setContentType( 'text/html' );
-        OpenPAConsiglioMailTransport::send( $mail );
+            $mail->setSubject( $subject );
+            $mail->setBody( $content );
+            $mail->setContentType( 'text/html' );
+            OpenPAConsiglioMailTransport::send( $mail );
+        }
     }
 
     /**
      * @param $name
-     * @param $relations
+     * @param $relationId
      *
      * @return eZContentObject
      */
-    public function addAreaTag( $name, $relations = '' )
+    public function addAreaRoom( $name, $relationId = null )
     {
         $params =  array(
             'class_identifier' => 'openpa_consiglio_collaboration_room',
             'parent_node_id' => $this->getArea()->attribute( 'node_id' ),
             'attributes' => array(
                 'name' => $name,
-                'relations' => $relations
+                'relation' => $relationId
             )
         );
         /** @var eZContentObject $object */
@@ -103,14 +106,14 @@ class OpenPAConsiglioCollaborationHelper
         return $object;
     }
 
-    public function addComment( $parentNodeId, $text )
+    public function addComment( $parentNodeId, $text, $subject = null )
     {
         $params =  array(
             'creator_id' => eZUser::currentUserID(),
             'class_identifier' => 'openpa_consiglio_collaboration_comment',
             'parent_node_id' => $parentNodeId,
             'attributes' => array(
-                'subject' => substr( $text, 0, 10 ) . '...',
+                'subject' => $subject ? $subject : substr( $text, 0, 10 ) . '...',
                 'message' => $text
             )
         );
@@ -120,21 +123,22 @@ class OpenPAConsiglioCollaborationHelper
         return $object;
     }
 
-    public function addFile( $parentNodeId, $filePath )
+    public function addFile( $parentNodeId, $filePath, $subject = null, $relationId = null, $deleteOriginalFile = true )
     {
         $params =  array(
             'creator_id' => eZUser::currentUserID(),
             'class_identifier' => 'openpa_consiglio_collaboration_file',
             'parent_node_id' => $parentNodeId,
             'attributes' => array(
-                'subject' => basename( $filePath ),
-                'file' => $filePath
+                'subject' => $subject ? $subject : basename( $filePath ),
+                'file' => $filePath,
+                'relation' => $relationId
             )
         );
         /** @var eZContentObject $object */
         $object = eZContentFunctions::createAndPublishObject( $params );
         $file = eZClusterFileHandler::instance( $filePath );
-        if ( $file->exists() )
+        if ( $file->exists() && $deleteOriginalFile )
         {
             $file->delete();
         }
@@ -180,12 +184,12 @@ class OpenPAConsiglioCollaborationHelper
 
     public function executeAction( $action )
     {
-        if ( $action == 'add_tag' && eZHTTPTool::instance()->hasPostVariable( 'NewTagName' ) )
+        if ( $action == 'add_room' && eZHTTPTool::instance()->hasPostVariable( 'NewRoomName' ) )
         {
             if ( $this->canParticipate() )
             {
-                $object = $this->addAreaTag( eZHTTPTool::instance()->postVariable( 'NewTagName' ) );
-                $this->redirectParams = '/tag-' . $object->attribute( 'main_node_id' );
+                $object = $this->addAreaRoom( eZHTTPTool::instance()->postVariable( 'NewRoomName' ) );
+                $this->redirectParams = '/room-' . $object->attribute( 'main_node_id' );
             }
             else
             {
@@ -197,11 +201,11 @@ class OpenPAConsiglioCollaborationHelper
             if ( $this->canParticipate() )
             {
                 $text = $parentNodeId = null;
-                if ( eZHTTPTool::instance()->hasPostVariable( 'Tag' ) && eZHTTPTool::instance()->hasPostVariable( 'CommentText' ) )
+                if ( eZHTTPTool::instance()->hasPostVariable( 'Room' ) && eZHTTPTool::instance()->hasPostVariable( 'CommentText' ) )
                 {
-                    if ( eZHTTPTool::instance()->hasPostVariable( 'Tag' ) )
+                    if ( eZHTTPTool::instance()->hasPostVariable( 'Room' ) )
                     {
-                        $parentNodeId = intval( eZHTTPTool::instance()->postVariable( 'Tag' ) );
+                        $parentNodeId = intval( eZHTTPTool::instance()->postVariable( 'Room' ) );
                         $parentNode = eZContentObjectTreeNode::fetch( $parentNodeId );
                         if ( $parentNode instanceof eZContentObjectTreeNode )
                         {
@@ -226,7 +230,7 @@ class OpenPAConsiglioCollaborationHelper
                 if ( $parentNodeId && $text )
                 {
                     $this->addComment( $parentNodeId, $text );
-                    $this->redirectParams = '/tag-' . $parentNodeId;
+                    $this->redirectParams = '/room-' . $parentNodeId;
                 }
             }
             else
@@ -239,11 +243,11 @@ class OpenPAConsiglioCollaborationHelper
             if ( $this->canParticipate() )
             {
                 $filePath = $parentNodeId = null;
-                if ( eZHTTPTool::instance()->hasPostVariable( 'Tag' ) && $this->validateFileInput( 'CommentFile' ) )
+                if ( eZHTTPTool::instance()->hasPostVariable( 'Room' ) && $this->validateFileInput( 'CommentFile' ) )
                 {
-                    if ( eZHTTPTool::instance()->hasPostVariable( 'Tag' ) )
+                    if ( eZHTTPTool::instance()->hasPostVariable( 'Room' ) )
                     {
-                        $parentNodeId = intval( eZHTTPTool::instance()->postVariable( 'Tag' ) );
+                        $parentNodeId = intval( eZHTTPTool::instance()->postVariable( 'Room' ) );
                         $parentNode = eZContentObjectTreeNode::fetch( $parentNodeId );
                         if ( $parentNode instanceof eZContentObjectTreeNode )
                         {
@@ -269,7 +273,7 @@ class OpenPAConsiglioCollaborationHelper
                 if ( $parentNodeId && $filePath )
                 {
                     $this->addFile( $parentNodeId, $filePath );
-                    $this->redirectParams = '/tag-' . $parentNodeId;
+                    $this->redirectParams = '/room-' . $parentNodeId;
                 }
                 else
                 {

@@ -32,17 +32,30 @@ class AreaCollaborativaFactory extends OpenPAConsiglioDefaultFactory
     }
 
     /**
-     * @param eZUser $referente
+     * @param eZUser $politico
      *
      * @return AreaCollaborativa[]
      * @throws Exception
      */
-    public static function fetchByReferente( eZUser $referente )
+    public static function fetchByPolitico( eZUser $politico )
     {
         $search = OCEditorialStuffHandler::instance( 'areacollaborativa' )->fetchItems( array(
             'limit' => 100,
             'offset' => 0,
-            'filters' => array( 'submeta_politici___id_si:' . $referente->id() )
+            'filters' => array( 'submeta_politici___id_si:' . $politico->id() )
+        ), array() );
+        return $search;
+    }
+
+    /**
+     * @param eZUser $politico
+     *
+     * @return int
+     */
+    public static function fetchCountByPolitico( eZUser $politico )
+    {
+        $search = OCEditorialStuffHandler::instance( 'areacollaborativa' )->fetchItemsCount( array(
+            'filters' => array( 'submeta_politici___id_si:' . $politico->id() )
         ), array() );
         return $search;
     }

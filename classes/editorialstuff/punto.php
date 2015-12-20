@@ -22,6 +22,10 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         return $this->factory;
     }
 
+    protected $canCreateAreaRoom;
+    protected $hasAreaRoom;
+    protected $areaRoomLink;
+
     public function __construct(
         array $data = array(),
         OCEditorialStuffPostFactoryInterface $factory
@@ -50,6 +54,9 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $attributes[] = 'referente_politico';
         $attributes[] = 'referente_tecnico';
         $attributes[] = 'numero';
+        $attributes[] = 'can_share';
+        $attributes[] = 'is_shared';
+        $attributes[] = 'shared_url';
 
         return $attributes;
     }
@@ -144,7 +151,99 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             return $this->stringAttribute( 'n_punto', 'intval' );
         }
 
+        if ( $property == 'can_share' )
+        {
+            return $this->canShare();
+        }
+
+        if ( $property == 'is_shared' )
+        {
+            return $this->isShared();
+        }
+
+        if ( $property == 'shared_url' )
+        {
+            return $this->sharedUrl();
+        }
+
         return parent::attribute( $property );
+    }
+
+    public function canShare()
+    {
+        if ( $this->canCreateAreaRoom === null )
+        {
+            $this->canCreateAreaRoom = false;
+            if ( eZUser::currentUser()->contentObject()->attribute('class_identifier') == 'politico' )
+            {
+                try
+                {
+                    $this->canCreateAreaRoom = AreaCollaborativaFactory::fetchCountByPolitico(eZUser::currentUser()) > 0;
+                }
+                catch ( Exception $e )
+                {
+                }
+            }
+        }
+        return $this->canCreateAreaRoom;
+    }
+
+    public function isShared()
+    {
+        if ( $this->hasAreaRoom === null )
+        {
+            $this->hasAreaRoom = false;
+            try
+            {
+                $aree = AreaCollaborativaFactory::fetchByPolitico( eZUser::currentUser() );
+                foreach( $aree as $area )
+                {
+                    $this->hasAreaRoom = $area->fetchCountRoomsByRelation( $this->id() ) > 0;
+                    break;
+                }
+            }
+            catch( Exception $e )
+            {
+            }
+        }
+        return $this->hasAreaRoom;
+    }
+
+    public function sharedUrl()
+    {
+        if ( $this->areaRoomLink === null )
+        {
+            $aree = AreaCollaborativaFactory::fetchByPolitico( eZUser::currentUser() );
+            foreach ( $aree as $area )
+            {
+                $rooms = $area->fetchRoomsByRelation( $this->id() );
+                foreach ( $rooms as $room )
+                {
+                    $this->areaRoomLink = 'consiglio/collaboration/' . $area->getObject()->attribute('id') . '/room-' . $room->attribute( 'node_id' );
+                }
+            }
+        }
+        return $this->areaRoomLink;
+    }
+
+    public function share()
+    {
+        if ( eZUser::currentUser()->contentObject()->attribute( 'class_identifier' ) == 'politico' )
+        {
+            try
+            {
+                $aree = AreaCollaborativaFactory::fetchByPolitico( eZUser::currentUser() );
+                foreach( $aree as $area )
+                {
+                    $helper = new OpenPAConsiglioCollaborationHelper( $area );
+                    return $helper->addAreaRoom( $this->dataMap['oggetto']->content(), $this->id() );
+                }
+            }
+            catch( Exception $e )
+            {
+            }
+        }
+        return false;
     }
 
     /**
@@ -1059,6 +1158,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         {
             $this->removeUsersFromNotifications();
             $this->addUsersToNotifications();
+        }
+
+        if ( $actionIdentifier == 'SharePunto' )
+        {
+            $this->sharePunto();
         }
     }
 

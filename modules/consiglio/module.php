@@ -82,6 +82,13 @@ $ViewList['collaboration'] = array(
     'unordered_params' => array( 'offset' => 'Offset' )
 );
 
+$ViewList['share'] = array(
+    'functions' => array( 'collaboration' ),
+    'script' => 'share.php',
+    'params' => array( 'Action' ),
+    'unordered_params' => array()
+);
+
 
 
 $FunctionList = array();

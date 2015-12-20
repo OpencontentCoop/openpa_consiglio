@@ -48,21 +48,25 @@ try
             $helper = new OpenPAConsiglioCollaborationHelper( $area );
             if ( $helper->canReadArea() )
             {
-                $selectedTag = false;
+                $selectedRoom = false;
                 $error = false;
 
-                if ( strpos( $action, 'tag-' ) === 0 )
+                if ( strpos( $action, 'room-' ) === 0 )
                 {
-                    $selectedTag = eZContentObjectTreeNode::fetch(
-                        str_replace( 'tag-', '', $action )
+                    $selectedRoom = eZContentObjectTreeNode::fetch(
+                        str_replace( 'room-', '', $action )
                     );
-                    if ( $selectedTag->attribute( 'parent_node_id' ) != $area->mainNode()->attribute( 'main_node_id' ) )
+                    if ( !$selectedRoom instanceof eZContentObjectTreeNode )
+                    {
+                        throw new Exception( "La tematica non esiste" );
+                    }
+                    if ( $selectedRoom->attribute( 'parent_node_id' ) != $area->mainNode()->attribute( 'main_node_id' ) )
                     {
                         throw new Exception( "Errore" );
                     }
-                    if ( $selectedTag->attribute( 'is_hidden' ) )
+                    if ( $selectedRoom->attribute( 'is_hidden' ) )
                     {
-                        throw new Exception( "Area {$selectedTag->attribute( 'name' )} non accessibile" );
+                        throw new Exception( "Area {$selectedRoom->attribute( 'name' )} non accessibile" );
                     }
                 }
                 elseif ( is_string( $action ) )
@@ -76,9 +80,9 @@ try
                 $tpl->setVariable( 'can_participate', $helper->canParticipate() );
                 $tpl->setVariable( 'area_node', $helper->getArea() );
                 $tpl->setVariable( 'area', $area );
-                $tpl->setVariable( 'tag', $selectedTag );
+                $tpl->setVariable( 'room', $selectedRoom );
                 $tpl->setVariable( 'area_users', $helper->getAreaUsers() );
-                $tpl->setVariable( 'area_tags', $helper->getAreaTags() );
+                $tpl->setVariable( 'area_rooms', $helper->getAreaRooms() );
                 $Result['content'] = $tpl->fetch( 'design:consiglio/collaboration/area.tpl' );
             }
             else

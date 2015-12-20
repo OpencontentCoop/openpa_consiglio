@@ -6,6 +6,8 @@
                 {$owner.name|wash()}
             </strong>
             <small>{$node.object.published|l10n('date')} alle ore {$node.object.published|l10n('shorttime')} {*<span class="pull-right"><i class="fa fa-tag"></i> {$node.parent.name|wash()}</span> *}</small>
+            {include uri="design:parts/toolbar/node_edit.tpl" current_node=$node}
+            {include uri="design:parts/toolbar/node_trash.tpl" current_node=$node}
         </div>
         <div class="panel-body">
             {if $node|has_attribute('message')}
