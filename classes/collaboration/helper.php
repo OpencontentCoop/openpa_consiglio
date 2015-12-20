@@ -54,18 +54,23 @@ class OpenPAConsiglioCollaborationHelper
         }
         $senderName = $ini->variable( 'SiteSettings', 'SiteName' );
         $mail->setSender( $emailSender, $senderName );
-        foreach( $this->getAreaUsers() as $index => $userObject )
+
+        $users = array_merge( $this->getAreaUsers( false ), $this->area->politiciIdList() );
+        foreach( $users as $index => $userId )
         {
-            $user = eZUser::fetch( $userObject->attribute( 'id' ) );
-            if ( $user instanceof eZUser )
+            if ( $object->attribute( 'owner_id' ) != $userId )
             {
-                if ( $index == 0 )
+                $user = eZUser::fetch( $userId );
+                if ( $user instanceof eZUser )
                 {
-                    $mail->setReceiver( $user->Email );
-                }
-                else
-                {
-                    $mail->addCc( $user->Email );
+                    if ( $index == 0 )
+                    {
+                        $mail->setReceiver( $user->Email );
+                    }
+                    else
+                    {
+                        $mail->addCc( $user->Email );
+                    }
                 }
             }
         }
