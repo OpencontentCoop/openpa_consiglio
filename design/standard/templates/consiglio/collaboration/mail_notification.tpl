@@ -29,7 +29,7 @@
 <p>
     Link per accedere all'area collaborativa riservata:<br />
     {if $area}
-        <a href="http://{social_pagedata('consiglio').site_url}/consiglio/collaboration/{$area.contentobject_id}">{$area.name|wash()}</a>
+        <a href="http://{social_pagedata('consiglio').site_url}/consiglio/collaboration/{$area.contentobject_id}">{$area.name|wash()}</a><br />
     {/if}
     {if $room}
         <a href="http://{social_pagedata('consiglio').site_url}/consiglio/collaboration/{$area.contentobject_id}/room-{$room.node_id}">Tematica di discussione</a>
