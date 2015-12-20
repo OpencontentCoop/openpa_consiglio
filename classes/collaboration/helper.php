@@ -231,7 +231,7 @@ class OpenPAConsiglioCollaborationHelper
         }
         elseif ( $action == 'add_file' && eZHTTPTool::instance()->hasPostVariable( 'PublishFile' ) )
         {
-            if ( in_array( eZUser::currentUserID(), $this->getAreaUserIdList() ) )
+            if ( $this->canParticipate() )
             {
                 $filePath = $parentNodeId = null;
                 if ( eZHTTPTool::instance()->hasPostVariable( 'Tag' ) && $this->validateFileInput( 'CommentFile' ) )
