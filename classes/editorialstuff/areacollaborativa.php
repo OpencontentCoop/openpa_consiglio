@@ -225,6 +225,7 @@ class AreaCollaborativa extends OCEditorialStuffPost
                             eZContentClass::classIDByIdentifier( 'openpa_consiglio_collaboration_area' ),
                             eZContentClass::classIDByIdentifier( 'openpa_consiglio_collaboration_comment' ),
                             eZContentClass::classIDByIdentifier( 'openpa_consiglio_collaboration_room' ),
+                            eZContentClass::classIDByIdentifier( 'openpa_consiglio_collaboration_file' ),
                             eZContentClass::classIDByIdentifier( 'user' )
                         )
                     )
