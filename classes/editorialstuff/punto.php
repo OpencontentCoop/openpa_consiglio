@@ -1159,11 +1159,6 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             $this->removeUsersFromNotifications();
             $this->addUsersToNotifications();
         }
-
-        if ( $actionIdentifier == 'SharePunto' )
-        {
-            $this->sharePunto();
-        }
     }
 
     public function moveIn( Seduta $seduta )

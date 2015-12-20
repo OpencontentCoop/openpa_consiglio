@@ -107,6 +107,7 @@
                         }
                         osservazioni.find('.upload-form').show();
                         osservazioni.find('.upload-loading').hide();
+                        osservazioni.find('#OsservazioneCreator').prop('selectedIndex',0);
                     }
                 });
             });

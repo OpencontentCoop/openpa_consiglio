@@ -84,30 +84,40 @@ class OsservazioneFactory extends AllegatoFactory
                 'attributes' => $attributes
             )
         );
-        $params['attributes'][$this->fileAttributeIdentifier()] = $filePath;
-        if ( !isset( $params['attributes']['messaggio'] ) || trim( $params['attributes']['messaggio'] ) == '' )
+        if ( isset( $properties['creator_id'] ) && !empty( $properties['creator_id'] ) )
         {
-            $name = basename( $filePath );
-            $parts = explode( '.', $name );
-            $suffix = array_pop( $parts );
-            $name = implode( '.', $parts );
-            $params['attributes']['messaggio'] = $name;
-        }
-        $contentObject = eZContentFunctions::createAndPublishObject( $params );
-        if ( $contentObject instanceof eZContentObject )
-        {
-            $allegato = OCEditorialStuffHandler::instanceFromFactory( $this )->fetchByObjectId( $contentObject->attribute( 'id' ) );
-            if ( isset( $properties['state_identifier'] ) )
+            $params['attributes'][$this->fileAttributeIdentifier()] = $filePath;
+            if ( !isset( $params['attributes']['messaggio'] )
+                 || trim( $params['attributes']['messaggio'] ) == ''
+            )
             {
-                $allegato->setState( $properties['state_identifier'] );
+                $name = basename( $filePath );
+                $parts = explode( '.', $name );
+                $suffix = array_pop( $parts );
+                $name = implode( '.', $parts );
+                $params['attributes']['messaggio'] = $name;
             }
-            $response['contentobject'] = $contentObject;
-            $response['contentobject_id'] = $contentObject->attribute( 'id' );
+            $contentObject = eZContentFunctions::createAndPublishObject( $params );
+            if ( $contentObject instanceof eZContentObject )
+            {
+                $allegato = OCEditorialStuffHandler::instanceFromFactory( $this )->fetchByObjectId( $contentObject->attribute( 'id' ) );
+                if ( isset( $properties['state_identifier'] ) )
+                {
+                    $allegato->setState( $properties['state_identifier'] );
+                }
+                $response['contentobject'] = $contentObject;
+                $response['contentobject_id'] = $contentObject->attribute( 'id' );
+            }
+            else
+            {
+                $response['errors'] = array( array( 'description' => 'Errore nella creazione del nuovo contenuto' ) );
+            }
         }
         else
         {
-            $response['errors'] = array( array( 'description' => 'Errore nella creazione del nuovo contenuto' ) );
+            $response['errors'] = array( array( 'description' => 'Inserire il nome del osservatore' ) );
         }
+
         return $response;
     }
 
