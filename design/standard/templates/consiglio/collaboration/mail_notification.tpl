@@ -8,14 +8,14 @@
     {def $tag = $object.main_node.parent}
     {def $area = $tag.parent}
     {set-block scope=root variable=subject}Nuovo intervento in {$area.name|wash()}{/set-block}
-    <p>La presente per notificarLe l'inserimento di un nuovo intervento nella tematica di dicussione  {$tag.name|wash()} nell'area collaborativa alla quale partecipa:
-        <a href="http://{social_pagedata('consiglio').site_url}/consiglio/collaboration/{$area.contentobject_id}/tag-{$tag.node_id}"><strong>{$object.name|wash()}</strong></a>
+    <p>La presente per notificarLe l'inserimento di un nuovo intervento nella tematica di dicussione  <a href="http://{social_pagedata('consiglio').site_url}/consiglio/collaboration/{$area.contentobject_id}/tag-{$tag.node_id}"><strong>{$tag.name|wash()}</strong></a> nell'area collaborativa alla quale partecipa:
+        {$object.name|wash()}
     </p>
 {elseif $object.class_identifier|eq('openpa_consiglio_collaboration_file')}
     {def $tag = $object.main_node.parent}
     {def $area = $tag.parent}
     {set-block scope=root variable=subject}Nuovo documento in {$area.name|wash()}{/set-block}
-    <p>La presente per notificarLe l'inserimento di un nuovo documento nella tematica di dicussione  {$tag.name|wash()} nell'area collaborativa alla quale partecipa:
-        <a href="http://{social_pagedata('consiglio').site_url}/consiglio/collaboration/{$area.contentobject_id}/tag-{$tag.node_id}"><strong>{$object.name|wash()}</strong></a>
+    <p>La presente per notificarLe l'inserimento di un nuovo documento nella tematica di dicussione <a href="http://{social_pagedata('consiglio').site_url}/consiglio/collaboration/{$area.contentobject_id}/tag-{$tag.node_id}"><strong>{$tag.name|wash()}</strong></a> nell'area collaborativa alla quale partecipa:
+        {$object.name|wash()}
     </p>
 {/if}
