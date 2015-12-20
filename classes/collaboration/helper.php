@@ -78,7 +78,7 @@ class OpenPAConsiglioCollaborationHelper
         $mail->setSubject( $subject );
         $mail->setBody( $content );
         $mail->setContentType( 'text/html' );
-        eZMailTransport::send( $mail );
+        OpenPAConsiglioMailTransport::send( $mail );
     }
 
     /**
