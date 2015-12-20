@@ -6,37 +6,22 @@ class ReferenteLocale extends OCEditorialStuffPost implements OCEditorialStuffPo
     public function attributes()
     {
         $attributes = parent::attributes();
-        $attributes[] = 'politici';
+        $attributes[] = 'areas';
         return $attributes;
     }
 
     public function attribute( $property )
     {
-        if ( $property == 'politici' )
+        if ( $property == 'areas' )
         {
-            return $this->getPoliticoMatchList();
+            return $this->getAreas();
         }
         return parent::attribute( $property );
     }
 
-    protected function getPoliticoMatchList()
+    protected function getAreas()
     {
-        /** @var eZUser $user */
-        $user = eZUser::fetch( $this->id() );
-        $data = array();
-        $politici = OCEditorialStuffHandler::instance( 'politico' )->fetchItems( array( 'limit' => 100, 'offset' => 0, 'sort' => array( 'politico/cognome' => 'asc' ) ) );
-        foreach( $politici as $politico )
-        {
-            $area = OpenPAConsiglioCollaborationHelper::createCollaborationAreaIfNeeded( eZUser::fetch( $politico->id() ) );
-            $areaGroup = OpenPAConsiglioCollaborationHelper::createCollaborationGroupIfNeeded( eZUser::fetch( $politico->id() ) );
-            $data[] = array(
-                'is_active' => in_array( $areaGroup->attribute( 'id' ), $user->groups() ),
-                'politico' => $politico,
-                'area' => $area,
-                'area_group' => $areaGroup
-            );
-        }
-        return $data;
+        return OCEditorialStuffHandler::instance( 'areacollaborativa' )->fetchItems( array( 'limit' => 100, 'offset' => 0, 'sort' => array( 'name' => 'asc' ) ) );
     }
 
     public function tabs()
@@ -53,7 +38,7 @@ class ReferenteLocale extends OCEditorialStuffPost implements OCEditorialStuffPo
         $tabs[] = array(
             'identifier' => 'referrer',
             'name' => 'Aree di riferimento',
-            'template_uri' => "design:{$templatePath}/parts/referrer.tpl"
+            'template_uri' => "design:{$templatePath}/parts/areas.tpl"
         );
         $tabs[] = array(
             'identifier' => 'history',

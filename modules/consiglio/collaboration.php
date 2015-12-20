@@ -3,14 +3,8 @@
 $module = $Params['Module'];
 $tpl = eZTemplate::factory();
 $http = eZHTTPTool::instance();
-$referenteId = intval( $Params['ReferenteId'] );
+$areaId = intval( $Params['AreaId'] );
 $action = $Params['Action'];
-$referente = eZUser::fetch( $referenteId );
-
-if ( $referenteId == 0 && eZUser::currentUser()->contentObject()->attribute( 'class_identifier' ) == 'politico' )
-{
-    $referente = eZUser::currentUser();
-}
 
 $Offset = $Params['Offset'];
 if ( isset( $Params['UserParameters'] ) )
@@ -18,66 +12,96 @@ if ( isset( $Params['UserParameters'] ) )
 else
     $UserParameters = array();
 
-if ( $Offset ) $Offset = (int) $Offset;
+if ( $Offset )
+    $Offset = (int)$Offset;
 
 $viewParameters = array( 'offset' => $Offset );
 $viewParameters = array_merge( $viewParameters, $UserParameters );
 $tpl->setVariable( 'view_parameters', $viewParameters );
 
-$helper = new OpenPAConsiglioCollaborationHelper();
-if ( !$referente instanceof eZUser )
+$area = null;
+
+try
 {
-    $listAreas = OpenPAConsiglioCollaborationHelper::listAccessAreas();
-    if ( count( $listAreas ) == 1 )
+    $listAreas = array();
+    if ( $areaId == 0 )
     {
-        $module->redirectTo( 'consiglio/collaboration/' . $listAreas[0]->attribute( 'object' )->attribute( 'owner_id' ) );
-        return false;
+        $listAreas = OCEditorialStuffHandler::instance( 'areacollaborativa' )->fetchItems(
+            array( 'limit' => 100, 'offset' => 0, 'sort' => array( 'name' => 'asc' ) )
+        );
+        if ( count( $listAreas ) == 1 )
+        {
+            $module->redirectTo( 'consiglio/collaboration/' . $listAreas[0]->id() );
+            return;
+        }
+        else
+        {
+            $tpl->setVariable( 'areas', $listAreas );
+            $Result['content'] = $tpl->fetch( 'design:consiglio/collaboration/select_area.tpl' );
+        }
     }
-    else
+    elseif ( $areaId > 0 )
     {
-        $tpl->setVariable( 'areas', $listAreas );
-        $Result['content'] = $tpl->fetch( 'design:consiglio/collaboration/select_referente.tpl' );
+        $area = AreaCollaborativaFactory::fetchById( $areaId );
+        if ( $area instanceof AreaCollaborativa )
+        {
+            $helper = new OpenPAConsiglioCollaborationHelper( $area );
+            if ( $helper->canReadArea() )
+            {
+                $selectedTag = false;
+                $error = false;
+
+                if ( strpos( $action, 'tag-' ) === 0 )
+                {
+                    $selectedTag = eZContentObjectTreeNode::fetch(
+                        str_replace( 'tag-', '', $action )
+                    );
+                    if ( $selectedTag->attribute( 'parent_node_id' ) != $area->mainNode()->attribute( 'main_node_id' ) )
+                    {
+                        throw new Exception( "Errore" );
+                    }
+                    if ( $selectedTag->attribute( 'is_hidden' ) )
+                    {
+                        throw new Exception( "Area {$selectedTag->attribute( 'name' )} non accessibile" );
+                    }
+                }
+                elseif ( is_string( $action ) )
+                {
+                    $helper->executeAction( $action );
+                    $module->redirectTo( 'consiglio/collaboration/' . $areaId . $helper->redirectParams );
+                    return;
+                }
+
+                $tpl->setVariable( 'error', $error );
+                $tpl->setVariable( 'can_participate', $helper->canParticipate() );
+                $tpl->setVariable( 'area_node', $helper->getArea() );
+                $tpl->setVariable( 'area', $area );
+                $tpl->setVariable( 'tag', $selectedTag );
+                $tpl->setVariable( 'area_users', $helper->getAreaUsers() );
+                $tpl->setVariable( 'area_tags', $helper->getAreaTags() );
+                $Result['content'] = $tpl->fetch( 'design:consiglio/collaboration/area.tpl' );
+            }
+            else
+            {
+                throw new Exception( "Non hai permessi per poter leggere questo contenuto" );
+            }
+        }
+        else
+        {
+            throw new Exception( "Area non trovata" );
+        }
     }
+
 }
-elseif( $referente instanceof eZuser )
+catch ( Exception $e )
 {
-    $helper->setReferente( $referente );
-    if ( $helper->canReadArea() )
-    {
-        $selectedTag = false;
-        $error = false;
-
-        if( strpos( $action, 'tag-' ) === 0 )
-        {
-            $selectedTag = eZContentObjectTreeNode::fetch( str_replace( 'tag-', '', $action ) );
-        }
-        elseif ( is_string( $action ) )
-        {
-            try
-            {
-                $helper->executeAction( $action );
-                $module->redirectTo( 'consiglio/collaboration/' . $referente->id() . $helper->redirectParams );
-                return;
-            }
-            catch( Exception $e )
-            {
-                $error = $e->getMessage();
-            }
-        }
-
-        $tpl->setVariable( 'error', $error );
-        $tpl->setVariable( 'referente', $referente->contentObject() );
-        $tpl->setVariable( 'area', $helper->getArea() );
-        $tpl->setVariable( 'tag', $selectedTag );
-        $tpl->setVariable( 'area_users', $helper->getAreaUsers() );
-        $tpl->setVariable( 'area_tags', $helper->getAreaTags() );
-        $Result['content'] = $tpl->fetch( 'design:consiglio/collaboration/area.tpl' );
-    }
-    else
-    {
-        $module->redirectTo( 'consiglio/collaboration/' );
-        return false;
-    }
+    $error = $e->getMessage();
+    $listAreas = OCEditorialStuffHandler::instance( 'areacollaborativa' )->fetchItems(
+        array( 'limit' => 100, 'offset' => 0, 'sort' => array( 'name' => 'asc' ) )
+    );
+    $tpl->setVariable( 'areas', $listAreas );
+    $tpl->setVariable( 'error', $error );
+    $Result['content'] = $tpl->fetch( 'design:consiglio/collaboration/select_area.tpl' );
 }
 
 $Result['node_id'] = 0;
@@ -94,12 +118,20 @@ $contentInfoArray['persistent_variable'] = array(
 );
 if ( is_array( $tpl->variable( 'persistent_variable' ) ) )
 {
-    $contentInfoArray['persistent_variable'] = array_merge( $contentInfoArray['persistent_variable'], $tpl->variable( 'persistent_variable' ) );
+    $contentInfoArray['persistent_variable'] = array_merge(
+        $contentInfoArray['persistent_variable'],
+        $tpl->variable( 'persistent_variable' )
+    );
 }
 $tpl->setVariable( 'site_title', $contentInfoArray['persistent_variable']['site_title'] );
 $Result['content_info'] = $contentInfoArray;
 $Result['path'] = array(
     array( 'text' => 'Area collaborativa', 'url' => $contentInfoArray['url_alias'] )
 );
-if ( $referente instanceof eZUser )
-    $Result['path'][] = array( 'text' => $referente->contentObject()->attribute( 'name' ), 'url' => false );
+if ( $area instanceof AreaCollaborativa )
+{
+    $Result['path'][] = array(
+        'text' => $area->getObject()->attribute( 'name' ),
+        'url' => false
+    );
+}

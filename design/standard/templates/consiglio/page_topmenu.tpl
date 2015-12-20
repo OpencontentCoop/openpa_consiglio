@@ -35,7 +35,7 @@
                         </ul>
                     </div>
                 </li>
-                <li class="menu-item{if or($current_module|eq('editorialstuff/dashboard/materia'),$current_module|eq('editorialstuff/dashboard/politico'),$current_module|eq('editorialstuff/dashboard/tecnico'),$current_module|eq('editorialstuff/dashboard/invitato'),$current_module|eq('editorialstuff/dashboard/referentelocale'))} current{/if}">
+                <li class="menu-item{if or($current_module|eq('editorialstuff/dashboard/areacollaborativa'),$current_module|eq('editorialstuff/dashboard/materia'),$current_module|eq('editorialstuff/dashboard/politico'),$current_module|eq('editorialstuff/dashboard/tecnico'),$current_module|eq('editorialstuff/dashboard/invitato'),$current_module|eq('editorialstuff/dashboard/referentelocale'))} current{/if}">
                     <a href="#"><b>Gestione</b></a>
                     <div class="sub_menu_wrap">
                         <ul class="sub_menu">
@@ -45,6 +45,7 @@
                             <li><a href="{'editorialstuff/dashboard/invitato'|ezurl(no)}">Invitati</a></li>
                             <li><a href="{'consiglio/gettoni'|ezurl(no)}">Gettoni di presenza</a></li>
                             <li><a href="{'editorialstuff/dashboard/referentelocale'|ezurl(no)}">Referenti locali</a></li>
+                            <li><a href="{'editorialstuff/dashboard/areacollaborativa'|ezurl(no)}">Aree collaborative</a></li>
                         </ul>
                     </div>
                 </li>

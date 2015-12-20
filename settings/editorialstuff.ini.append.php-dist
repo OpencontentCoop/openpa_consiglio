@@ -13,9 +13,17 @@ Identifiers[]=materia
 Identifiers[]=convocazione_seduta
 Identifiers[]=votazione
 Identifiers[]=osservazioni
+Identifiers[]=areacollaborativa
 
 [Settings]
 DefaultFactoryClassName=OpenPAConsiglioDefaultFactory
+
+[areacollaborativa]
+ClassName=AreaCollaborativaFactory
+CreationButtonText=Crea nuova area
+ClassIdentifier=openpa_consiglio_collaboration_area
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 
 [seduta]
 ClassName=SedutaFactory

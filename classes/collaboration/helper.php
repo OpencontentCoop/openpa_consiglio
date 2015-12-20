@@ -5,73 +5,39 @@ class OpenPAConsiglioCollaborationHelper
     const MAX_FILESIZE_FIELD = 0;
 
     /**
-     * @var eZUser
+     * @var AreaCollaborativa
      */
-    protected $referente;
+    protected $area;
 
     public $redirectParams;
 
-    public function __construct()
+    public function __construct( AreaCollaborativa $area )
     {
-        self::createCollaborationContainerIfNeeded();
-        self::createPoliticoRoleIfNeeded();
-    }
-
-    public function setReferente( eZUser $referente )
-    {
-        $this->referente = $referente;
-        self::createCollaborationAreaIfNeeded( $this->referente );
-        self::createCollaborationGroupIfNeeded( $this->referente );
+        $this->area = $area;
     }
 
     public function getArea()
     {
-        return self::createCollaborationAreaIfNeeded( $this->referente )->mainNode();
+        return $this->area->mainNode();
     }
 
     public function getAreaGroup()
     {
-        return self::createCollaborationGroupIfNeeded( $this->referente )->mainNode();
+        return $this->area->group()->mainNode();
     }
 
     public function getAreaTags()
     {
-        return self::createCollaborationAreaIfNeeded( $this->referente )->mainNode()->subTree( array( 'Depth' => 1,
-                                                                                                      'DepthOperator' => 'eq',
-                                                                                                      'ClassFilterType' => 'include',
-                                                                                                      'ClassFilterArray' => array( 'folder' ),
-                                                                                                      'SortBy' => array( 'published', 'desc' ) ) );
-    }
-
-    /**
-     * @param $name
-     *
-     * @return eZContentObject
-     */
-    public function addAreaTag( $name )
-    {
-        $params =  array(
-            'creator_id' => $this->referente->id(),
-            'class_identifier' => 'folder',
-            'parent_node_id' => $this->getArea()->attribute( 'node_id' ),
-            'attributes' => array(
-                'name' => $name
-            )
-        );
-        /** @var eZContentObject $object */
-        $object = eZContentFunctions::createAndPublishObject( $params );
-        $this->sendNotification( $object );
-        return $object;
+        return $this->area->rooms( in_array( eZUser::currentUserID(), $this->area->politiciIdList() ) );
     }
 
     protected function sendNotification( eZContentObject $object )
     {
         $tpl = eZTemplate::factory();
         $tpl->resetVariables();
-        $tpl->setVariable( 'referente', $this->referente );
         $tpl->setVariable( 'area', $this->getArea() );
-        $tpl->setVariable( 'tag', $object );
-        $content = $tpl->fetch( 'design:consiglio/collaboration/mail_notifica_nuova_tematica.tpl' );
+        $tpl->setVariable( 'object', $object );
+        $content = $tpl->fetch( 'design:consiglio/collaboration/mail_notification.tpl' );
         $subject = $tpl->variable( 'subject' );
 
         $tpl = eZTemplate::factory();
@@ -110,19 +76,42 @@ class OpenPAConsiglioCollaborationHelper
         eZMailTransport::send( $mail );
     }
 
+    /**
+     * @param $name
+     * @param $relations
+     *
+     * @return eZContentObject
+     */
+    public function addAreaTag( $name, $relations = '' )
+    {
+        $params =  array(
+            'class_identifier' => 'openpa_consiglio_collaboration_room',
+            'parent_node_id' => $this->getArea()->attribute( 'node_id' ),
+            'attributes' => array(
+                'name' => $name,
+                'relations' => $relations
+            )
+        );
+        /** @var eZContentObject $object */
+        $object = eZContentFunctions::createAndPublishObject( $params );
+        $this->sendNotification( $object );
+        return $object;
+    }
+
     public function addComment( $parentNodeId, $text )
     {
         $params =  array(
             'creator_id' => eZUser::currentUserID(),
-            'class_identifier' => 'comment',
+            'class_identifier' => 'openpa_consiglio_collaboration_comment',
             'parent_node_id' => $parentNodeId,
             'attributes' => array(
                 'subject' => substr( $text, 0, 10 ) . '...',
-                'message' => $text,
-                'author' => eZUser::currentUser()->contentObject()->attribute( 'name' )
+                'message' => $text
             )
         );
+        /** @var eZContentObject $object */
         $object = eZContentFunctions::createAndPublishObject( $params );
+        $this->sendNotification( $object );
         return $object;
     }
 
@@ -130,19 +119,21 @@ class OpenPAConsiglioCollaborationHelper
     {
         $params =  array(
             'creator_id' => eZUser::currentUserID(),
-            'class_identifier' => 'file',
+            'class_identifier' => 'openpa_consiglio_collaboration_file',
             'parent_node_id' => $parentNodeId,
             'attributes' => array(
-                'name' => basename( $filePath ),
+                'subject' => basename( $filePath ),
                 'file' => $filePath
             )
         );
+        /** @var eZContentObject $object */
         $object = eZContentFunctions::createAndPublishObject( $params );
         $file = eZClusterFileHandler::instance( $filePath );
         if ( $file->exists() )
         {
             $file->delete();
         }
+        $this->sendNotification( $object );
         return $object;
     }
 
@@ -154,8 +145,8 @@ class OpenPAConsiglioCollaborationHelper
     {
         /** @var eZContentObjectTreeNode[] $userNodes */
         $userNodes = $this->getAreaGroup()->children();
-        $users = array( $this->referente->contentObject() );
-        $userIds = array( $this->referente->id() );
+        $users = array();
+        $userIds = array();
         foreach( $userNodes as $user )
         {
             $userIds[] = $user->attribute( 'contentobject_id' );
@@ -172,6 +163,11 @@ class OpenPAConsiglioCollaborationHelper
         return $this->getAreaUsers( false );
     }
 
+    public function canParticipate()
+    {
+        return in_array( eZUser::currentUserID(), $this->getAreaUserIdList() ) || in_array( eZUser::currentUserID(), $this->area->politiciIdList() );
+    }
+
     public function canReadArea()
     {
         return $this->getArea()->object()->canRead();
@@ -179,18 +175,21 @@ class OpenPAConsiglioCollaborationHelper
 
     public function executeAction( $action )
     {
-
         if ( $action == 'add_tag' && eZHTTPTool::instance()->hasPostVariable( 'NewTagName' ) )
         {
-            if ( eZUser::currentUserID() == $this->referente->id() )
+            if ( $this->canParticipate() )
             {
                 $object = $this->addAreaTag( eZHTTPTool::instance()->postVariable( 'NewTagName' ) );
                 $this->redirectParams = '/tag-' . $object->attribute( 'main_node_id' );
             }
+            else
+            {
+                throw new Exception( "Operazione non consentita" );
+            }
         }
         elseif ( $action == 'add_comment' && eZHTTPTool::instance()->hasPostVariable( 'PublishComment' ) )
         {
-            if ( in_array( eZUser::currentUserID(), $this->getAreaUserIdList() ) )
+            if ( $this->canParticipate() )
             {
                 $text = $parentNodeId = null;
                 if ( eZHTTPTool::instance()->hasPostVariable( 'Tag' ) && eZHTTPTool::instance()->hasPostVariable( 'CommentText' ) )
@@ -248,7 +247,6 @@ class OpenPAConsiglioCollaborationHelper
                                 $parentNodeId = null;
                             }
                         }
-
                     }
                     if ( $this->validateFileInput( 'CommentFile' ) )
                     {
@@ -277,6 +275,17 @@ class OpenPAConsiglioCollaborationHelper
             {
                 throw new Exception( "Operazione non permessa: non sei iscritto come partecipante a quest'area" );
             }
+        }
+        elseif ( strpos( $action, 'hide-' ) === 0 && in_array( eZUser::currentUserID(), $this->area->politiciIdList() ) )
+        {
+            $nodeId = str_replace( 'hide-', '', $action );
+            eZContentOperationCollection::changeHideStatus( $nodeId );
+
+        }
+        elseif ( strpos( $action, 'show-' ) === 0 && in_array( eZUser::currentUserID(), $this->area->politiciIdList() ) )
+        {
+            $nodeId = str_replace( 'show-', '', $action );
+            eZContentOperationCollection::changeHideStatus( $nodeId );
         }
         else
         {
@@ -307,219 +316,6 @@ class OpenPAConsiglioCollaborationHelper
             return false;
         }
         return true;
-    }
-
-    /**
-     * @return eZContentObject
-     */
-    protected static function createCollaborationContainerIfNeeded()
-    {
-        $remoteId = 'openpa_consiglio_collaboration_container';
-        $object = eZContentObject::fetchByRemoteID( 'openpa_consiglio_collaboration_container' );
-        if ( !$object instanceof eZContentObject )
-        {
-            $params =  array(
-                'remote_id' => $remoteId,
-                'class_identifier' => 'folder',
-                'parent_node_id' => eZINI::instance( 'content.ini' )->variable( 'NodeSettings', 'MediaRootNode' ),
-                'attributes' => array(
-                    'name' => 'Aree collaborative'
-                )
-            );
-            $object = eZContentFunctions::createAndPublishObject( $params );
-        }
-        return $object;
-    }
-
-    /**
-     * @param eZUser $referente
-     *
-     * @return eZContentObject
-     */
-    public static function createCollaborationAreaIfNeeded( eZUser $referente )
-    {
-        $remoteId = 'openpa_consiglio_collaboration_area_' . $referente->id();
-        $object = eZContentObject::fetchByRemoteID( $remoteId );
-        if ( !$object instanceof eZContentObject )
-        {
-            $params =  array(
-                'remote_id' => $remoteId,
-                'creator_id' => $referente->id(),
-                'class_identifier' => 'folder',
-                'parent_node_id' => self::createCollaborationContainerIfNeeded()->attribute( 'main_node_id' ),
-                'attributes' => array(
-                    'name' => 'Area collaborativa di ' . $referente->contentObject()->attribute( 'name' )
-                )
-            );
-            $object = eZContentFunctions::createAndPublishObject( $params );
-        }
-        return $object;
-    }
-
-    /**
-     * @param eZUser $referente
-     *
-     * @return eZContentObject
-     */
-    public static function createCollaborationGroupIfNeeded( eZUser $referente )
-    {
-        $remoteId = 'openpa_consiglio_collaboration_group_' . $referente->id();
-        $object = eZContentObject::fetchByRemoteID( $remoteId );
-        if ( !$object instanceof eZContentObject )
-        {
-            $params =  array(
-                'remote_id' => $remoteId,
-                'creator_id' => $referente->id(),
-                'class_identifier' => 'user_group',
-                'parent_node_id' => self::createCollaborationAreaIfNeeded( $referente )->attribute( 'main_node_id' ),
-                'attributes' => array(
-                    'name' => 'Utenti area collaborativa di ' . $referente->contentObject()->attribute( 'name' )
-                )
-            );
-            $object = eZContentFunctions::createAndPublishObject( $params );
-        }
-        self::assignCollaborationRole( $object->attribute( 'id' ), $referente );
-        return $object;
-    }
-
-    /**
-     * @return eZContentObjectTreeNode[]
-     */
-    public static function listAccessAreas()
-    {
-        return self::createCollaborationContainerIfNeeded()->mainNode()->subTree(
-            array(
-                'Depth' => 1,
-                'DepthOperator' => 'eq',
-                'ClassFilterType' => 'include',
-                'ClassFilterArray' => array( 'folder' )
-            )
-        );
-    }
-
-    /**
-     * @return eZRole
-     */
-    protected static function createRoleIfNeeded()
-    {
-        $roleName = 'Gestione sedute consiglio - Area Collaborativa';
-        $role = eZRole::fetchByName( $roleName );
-        if ( !$role instanceof eZRole )
-        {
-            $role = eZRole::create( $roleName );
-            $role->store();
-
-            $policies = array(
-                array(
-                    'ModuleName' => 'consiglio',
-                    'FunctionName' => 'collaboration',
-                    'Limitation' => array()
-                ),
-                array(
-                    'ModuleName' => 'content',
-                    'FunctionName' => 'read',
-                    'Limitation' => array(
-                        'Class' => array(
-                            eZContentClass::classIDByIdentifier( 'comment' ),
-                            eZContentClass::classIDByIdentifier( 'folder' ),
-                            eZContentClass::classIDByIdentifier( 'user' )
-                        )
-                    )
-                ),
-                array(
-                    'ModuleName' => 'content',
-                    'FunctionName' => 'create',
-                    'Limitation' => array(
-                        'Class' => array(
-                            eZContentClass::classIDByIdentifier( 'comment' )
-                        ),
-                        'ParentClass' => array(
-                            eZContentClass::classIDByIdentifier( 'folder' )
-                        )
-                    )
-                ),
-            ); //@todo
-            foreach( $policies as $policy )
-            {
-                $role->appendPolicy( $policy['ModuleName'], $policy['FunctionName'], $policy['Limitation'] );
-            }
-
-        }
-        return $role;
-    }
-
-    protected static function createPoliticoRoleIfNeeded()
-    {
-        $roleName = 'Gestione sedute consiglio - Area Collaborativa - Politico';
-        $role = eZRole::fetchByName( $roleName );
-        if ( !$role instanceof eZRole )
-        {
-            $role = eZRole::create( $roleName );
-            $role->store();
-
-            $policies = array(
-                array(
-                    'ModuleName' => 'consiglio',
-                    'FunctionName' => 'collaboration',
-                    'Limitation' => array()
-                ),
-                array(
-                    'ModuleName' => 'content',
-                    'FunctionName' => 'read',
-                    'Limitation' => array(
-                        'Class' => array(
-                            eZContentClass::classIDByIdentifier( 'comment' ),
-                            eZContentClass::classIDByIdentifier( 'folder' ),
-                            eZContentClass::classIDByIdentifier( 'user' )
-                        )
-                    )
-                ),
-                array(
-                    'ModuleName' => 'content',
-                    'FunctionName' => 'create',
-                    'Limitation' => array(
-                        'Class' => array(
-                            eZContentClass::classIDByIdentifier( 'comment' )
-                        ),
-                        'ParentClass' => array(
-                            eZContentClass::classIDByIdentifier( 'folder' )
-                        ),
-                        'ParentOwner' => 1
-                    )
-                ),
-                array(
-                    'ModuleName' => 'content',
-                    'FunctionName' => 'create',
-                    'Limitation' => array(
-                        'Class' => array(
-                            eZContentClass::classIDByIdentifier( 'folder' )
-                        ),
-                        'ParentClass' => array(
-                            eZContentClass::classIDByIdentifier( 'folder' )
-                        ),
-                        'ParentOwner' => 1
-                    )
-                )
-            ); //@todo
-            foreach( $policies as $policy )
-            {
-                $role->appendPolicy( $policy['ModuleName'], $policy['FunctionName'], $policy['Limitation'] );
-            }
-            $politicoRepositorySettings = OCEditorialStuffHandler::instance( 'politico' )->getFactory()->getConfiguration();
-            $nodeId = $politicoRepositorySettings['CreationRepositoryNode'];
-            $object = eZContentObject::fetchByNodeID( $nodeId );
-            if ( $object instanceof eZContentObject )
-                $role->assignToUser( $object->attribute( 'id' ) );
-        }
-        return $role;
-    }
-
-
-    protected static function assignCollaborationRole( $groupId, eZUser $referente )
-    {
-        $subTreeLimitationNodeId = self::createCollaborationAreaIfNeeded( $referente )->attribute( 'main_node_id' );
-        $role = self::createRoleIfNeeded();
-        $role->assignToUser( $groupId, 'subtree', $subTreeLimitationNodeId );
     }
 
 }

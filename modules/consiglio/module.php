@@ -78,7 +78,7 @@ $ViewList['presenze'] = array(
 $ViewList['collaboration'] = array(
     'functions' => array( 'collaboration' ),
     'script' => 'collaboration.php',
-    'params' => array( 'ReferenteId', 'Action' ),
+    'params' => array( 'AreaId', 'Action' ),
     'unordered_params' => array( 'offset' => 'Offset' )
 );
 
