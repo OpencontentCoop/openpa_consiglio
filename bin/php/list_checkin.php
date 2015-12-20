@@ -23,7 +23,7 @@ $sedute = OCEditorialStuffHandler::instance( 'seduta' )->fetchItems(
     array(
         'limit' => 1000,
         'offset' => 0,
-        'sort' => array( 'name' => 'asc' )
+        'sort' => array( 'published' => 'asc' )
     )
 );
 
