@@ -1,6 +1,6 @@
 {set-block scope=root variable=subject}Segnalazione modifiche a punto previsto in seduta {$punto.seduta.object.name|wash()}{/set-block}
 
-Egregio/Gentile {$user.contentobject.name|wash()},<br />
+Gentile {$user.contentobject.name|wash()},<br />
 come richiesto si segnalano le modifiche apportate al punto in materia di <em>{$punto.materia|implode( ', ' )}</em> programmato nella <strong>{$punto.seduta.object.name|wash()}</strong> e concernente "<strong>{attribute_view_gui attribute=$punto.object.data_map.oggetto}</strong>":
 
 {include uri='design:consiglio/notification/common/punto/add_osservazione.tpl'}
