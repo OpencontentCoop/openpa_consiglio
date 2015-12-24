@@ -2,7 +2,8 @@
 /** @var eZModule $module */
 $module = $Params['Module'];
 $http = eZHTTPTool::instance();
-
+$isAjax = $http->hasVariable( 'AjaxMode' );
+$done = false;
 if ( $http->hasVariable( 'AddMateria' ) )
 {
     $type = 'materia/like';
@@ -15,6 +16,7 @@ if ( $http->hasVariable( 'AddMateria' ) )
         {
             $rule = OCEditorialStuffNotificationRule::create( $type, $id, $userId );
             $rule->store();
+            $done = true;
         }
     }
 }
@@ -29,8 +31,14 @@ elseif ( $http->hasVariable( 'RemoveMateria' ) )
         if ( $exists instanceof OCEditorialStuffNotificationRule )
         {
             $exists->remove();
+            $done = true;
         }
     }
 }
 
+if ( $isAjax )
+{
+    echo json_encode( intval($done) );
+    eZExecution::cleanExit();
+}
 $module->redirectTo( 'consiglio/dashboard' );
