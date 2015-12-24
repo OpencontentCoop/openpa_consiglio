@@ -5,7 +5,7 @@
 {elseif $post.current_state.identifier|eq('sent')}
     <a class="btn btn-success btn-lg seduta_start_stop"
        data-action_url="{concat('consiglio/cruscotto_seduta/',$post.object_id,'/startSeduta')|ezurl(no)}"
-       data-add_to_verbale="Inizio trattazione">Inizia seduta</a>
+       data-add_to_verbale="Apertura accredito partecipanti">Apertura accredito partecipanti</a>
 {else}
     <a class="btn btn-default btn-lg disabled">Seduta {$post.current_state.current_translation.name|wash()}</a>
 {/if}
