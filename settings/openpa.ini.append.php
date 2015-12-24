@@ -13,4 +13,6 @@ SocketPort=8090
 BackendEndPoint=http://consiglio.u-hopper.com
 DashboardAlertsContainerNode=2615
 UseMailDebug=true
+#UseMailDebugAddress=telch@comunitrentini.it,lr@opencontent.it,riccadonna@comunitrentini.it
+UseMailDebugAddress=lr@opencontent.it
 */ ?>

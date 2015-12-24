@@ -1,7 +1,7 @@
 {if $object.class_identifier|eq('openpa_consiglio_collaboration_room')}
     {def $area = $object.main_node.parent}
     {set-block scope=root variable=subject}Nuova tematica di discussione in {$area.name|wash()}{/set-block}
-    <p>La presente per notificarLe la creazione della nuova tematica di discussione nell'area collaborativa alla quale partecipa:
+    <p>La presente per segnalare la creazione della nuova tematica di discussione nell'area collaborativa alla quale partecipa:
     <a href="http://{social_pagedata('consiglio').site_url}/consiglio/collaboration/{$area.contentobject_id}/room-{$object.main_node_id}"><strong>{$object..data_map.name.content|wash()}</strong></a>
     </p>
 
@@ -10,7 +10,7 @@
     {def $area = $room.parent}
     {set-block scope=root variable=subject}Nuovo intervento in {$area.name|wash()}{/set-block}
     <p>
-        La presente per notificarLe l'inserimento di un nuovo intervento nella tematica di discussione nell'area collaborativa alla quale partecipa:
+        La presente per segnalare l'inserimento di un nuovo intervento nella tematica di discussione nell'area collaborativa alla quale partecipa:
     </p>
     <p>
         <em>{$object.data_map.message.content|wash()}</em>
@@ -20,7 +20,7 @@
     {def $room = $object.main_node.parent}
     {def $area = $room.parent}
     {set-block scope=root variable=subject}Nuovo documento in {$area.name|wash()}{/set-block}
-    <p>La presente per notificarLe l'inserimento del documento <em>{$object.name|wash()}</em> nell'area collaborativa alla quale partecipa</p>
+    <p>La presente per segnalare l'inserimento del documento <em>{$object.name|wash()}</em> nell'area collaborativa alla quale partecipa</p>
 
 {/if}
 
