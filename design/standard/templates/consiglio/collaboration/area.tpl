@@ -69,7 +69,30 @@
     <div class="col-md-8">
         {def $page_limit = 100
              $page_url = concat('consiglio/collaboration/', $area.object.id, '/', $room.node_id )}
-        <h2><i class="fa fa-tag"></i> {$room.name|wash()}</h2>
+
+        {def $current_user_is_subscriber = false()}
+        {foreach $room.data_map.notification_subscribers.content.relation_list as $item}
+            {if $item.contentobject_id|eq(fetch(user,current_user).contentobject_id)}
+                {set $current_user_is_subscriber = true()}
+                {break}
+            {/if}
+        {/foreach}
+        {if $current_user_is_subscriber}
+            <form class="form-inline" method="post" action="{concat('consiglio/collaboration/', $area.object.id, '/unsubscribe')|ezurl(no)}">
+                <input type="hidden" name="RoomId" value="{$area_room.object.id}" />
+                <button type="submit" class="btn btn-danger">Disattiva notifiche mail degli aggiornamenti</button>
+            </form>
+        {else}
+            <form class="form-inline" method="post" action="{concat('consiglio/collaboration/', $area.object.id, '/subscribe')|ezurl(no)}">
+                <input type="hidden" name="RoomId" value="{$area_room.object.id}" />
+                <button type="submit" class="btn btn-success">Attiva notifiche mail degli aggiornamenti</button>
+            </form>
+        {/if}
+
+        <h2>
+            <i class="fa fa-tag"></i> {$room.name|wash()}
+        </h2>
+
         {def $comments = fetch( content, list, hash( parent_node_id, $room.node_id, class_filter_type, include, class_filter_array, array( 'openpa_consiglio_collaboration_comment' ), limit, $page_limit, offset, $view_parameters.offset, sort_by, array( published, desc ) ) )}
         {def $comments_count = fetch( content, list_count, hash( parent_node_id, $room.node_id, class_filter_type, include, class_filter_array, array( 'openpa_consiglio_collaboration_comment' ) ))}
 
@@ -183,7 +206,7 @@
                                     <input type="text" class="form-control calendar_picker" id="NewRoomExpiry{$area_room.object.id}" name="RoomExpiry" placeholder="con scadenza (GG/MM/AAAA)" value="{$area_room.data_map.expiry.content.timestamp|datetime( 'custom', '%j/%m/%Y' )}">
                                 </div>
                                 <input type="hidden" name="RoomId" value="{$area_room.object.id}" />
-                                <button type="submit" class="btn btn-success"><i class="fa fa-save"></i></button>
+                                <button type="submit" class="btn btn-success btn-xs">Salva</button>
                             </form>
                             {else}
                                 {$area_room.data_map.expiry.content.timestamp|datetime( 'custom', '%j/%m/%Y' )}

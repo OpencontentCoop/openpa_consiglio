@@ -31,7 +31,7 @@ class OpenPAConsiglioCollaborationHelper
         return $this->area->rooms( in_array( eZUser::currentUserID(), $this->area->politiciIdList() ) );
     }
 
-    protected function sendNotification( eZContentObject $object )
+    protected function sendNotification( eZContentObject $object, $receivers )
     {
         if ( $object instanceof eZContentObject )
         {
@@ -57,10 +57,33 @@ class OpenPAConsiglioCollaborationHelper
             $senderName = $ini->variable( 'SiteSettings', 'SiteName' );
             $mail->setSender( $emailSender, $senderName );
 
-            $users = array_merge( $this->getAreaUsers( false ), $this->area->politiciIdList() );
-            foreach ( $users as $index => $userId )
+            $index = 0;
+            if ( $receivers == 'all' )
             {
-                if ( $object->attribute( 'owner_id' ) != $userId )
+                $users = array_merge( $this->getAreaUsers( false ), $this->area->politiciIdList() );
+                foreach ( $users as $index => $userId )
+                {
+                    if ( $object->attribute( 'owner_id' ) != $userId )
+                    {
+                        $user = eZUser::fetch( $userId );
+                        if ( $user instanceof eZUser )
+                        {
+                            if ( $index == 0 )
+                            {
+                                $mail->setReceiver( $user->Email );
+                                $index++;
+                            }
+                            else
+                            {
+                                $mail->addCc( $user->Email );
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach( $receivers as $userId )
                 {
                     $user = eZUser::fetch( $userId );
                     if ( $user instanceof eZUser )
@@ -68,6 +91,7 @@ class OpenPAConsiglioCollaborationHelper
                         if ( $index == 0 )
                         {
                             $mail->setReceiver( $user->Email );
+                            $index++;
                         }
                         else
                         {
@@ -77,7 +101,7 @@ class OpenPAConsiglioCollaborationHelper
                 }
             }
 
-            if ( trim( $subject ) != '' )
+            if ( trim( $subject ) != '' && $index > 0 )
             {
                 $mail->setSubject( $subject );
                 $mail->setBody( $content );
@@ -90,23 +114,26 @@ class OpenPAConsiglioCollaborationHelper
     /**
      * @param $name
      * @param $relationId
+     * @param $expiryTimestamp
      *
      * @return eZContentObject
      */
     public function addAreaRoom( $name, $relationId = null, $expiryTimestamp = null )
     {
+        $users = array_merge( $this->getAreaUsers( false ), $this->area->politiciIdList() );
         $params =  array(
             'class_identifier' => 'openpa_consiglio_collaboration_room',
             'parent_node_id' => $this->getArea()->attribute( 'node_id' ),
             'attributes' => array(
                 'name' => $name,
                 'relation' => $relationId,
-                'expiry' => $expiryTimestamp
+                'expiry' => $expiryTimestamp,
+                'notification_subscribers' => implode( '-', $users )
             )
         );
         /** @var eZContentObject $object */
         $object = eZContentFunctions::createAndPublishObject( $params );
-        $this->sendNotification( $object );
+        $this->sendNotification( $object, 'all' );
         return $object;
     }
 
@@ -118,10 +145,21 @@ class OpenPAConsiglioCollaborationHelper
             $dataMap = $room->dataMap();
             if ( isset( $dataMap['expiry'] ) )
             {
-                $dataMap['expiry']->fromString( $expiryTimestamp );
-                $dataMap['expiry']->store();
-                eZSearch::addObject( $room, true );
-                $this->sendNotification( $room );
+                $oldTimestamp = $dataMap['expiry']->toString();
+                $oldDateTime = new DateTime();
+                $oldDateTime->setTimestamp( $oldTimestamp );
+
+                $newDateTime = new DateTime();
+                $newDateTime->setTimestamp( $expiryTimestamp );
+
+                $diff = $newDateTime->diff( $oldDateTime );
+                if ( $diff->format('%a') != 0 )
+                {
+                    $dataMap['expiry']->fromString( $expiryTimestamp );
+                    $dataMap['expiry']->store();
+                    eZSearch::addObject( $room, true );
+                    $this->sendNotification( $room, 'all' );
+                }
             }
         }
     }
@@ -139,7 +177,7 @@ class OpenPAConsiglioCollaborationHelper
         );
         /** @var eZContentObject $object */
         $object = eZContentFunctions::createAndPublishObject( $params );
-        $this->sendNotification( $object );
+        $this->sendNotification( $object, $this->getNotificationSubscribers( $parentNodeId ) );
         return $object;
     }
 
@@ -162,8 +200,56 @@ class OpenPAConsiglioCollaborationHelper
         {
             $file->delete();
         }
-        $this->sendNotification( $object );
+        $this->sendNotification( $object, $this->getNotificationSubscribers( $parentNodeId ) );
         return $object;
+    }
+
+    public function getNotificationSubscribers( $roomNodeId )
+    {
+        $roomNode = eZContentObjectTreeNode::fetch( $roomNodeId );
+        /** @var eZContentObjectAttribute[] $dataMap */
+        $dataMap = $roomNode->attribute( 'data_map' );
+        if ( isset( $dataMap['notification_subscribers'] ) )
+        {
+            return explode( '-', $dataMap['notification_subscribers']->toString() );
+        }
+        return array();
+    }
+
+    public function appendNotificationSubscriber( $roomNodeId, $userId )
+    {
+        $roomNode = eZContentObjectTreeNode::fetch( $roomNodeId );
+        /** @var eZContentObjectAttribute[] $dataMap */
+        $dataMap = $roomNode->attribute( 'data_map' );
+        if ( isset( $dataMap['notification_subscribers'] ) )
+        {
+            $data = explode( '-', $dataMap['notification_subscribers']->toString() );
+            $data[] = $userId;
+            $data = array_unique( $data );
+            $dataMap['notification_subscribers']->fromString( implode( '-', $data ) );
+            $dataMap['notification_subscribers']->store();
+        }
+    }
+
+    public function removeNotificationSubscriber( $roomNodeId, $userId )
+    {
+        $roomNode = eZContentObjectTreeNode::fetch( $roomNodeId );
+        /** @var eZContentObjectAttribute[] $dataMap */
+        $dataMap = $roomNode->attribute( 'data_map' );
+        if ( isset( $dataMap['notification_subscribers'] ) )
+        {
+            $data = explode( '-', $dataMap['notification_subscribers']->toString() );
+            foreach( $data as $index => $item )
+            {
+                if ( $item == $userId )
+                {
+                    unset( $data[$index] );
+                }
+            }
+            $data = array_unique( $data );
+            $dataMap['notification_subscribers']->fromString( implode( '-', $data ) );
+            $dataMap['notification_subscribers']->store();
+        }
     }
 
     /**
@@ -341,6 +427,40 @@ class OpenPAConsiglioCollaborationHelper
             if ( $object instanceof eZContentObject )
             {
                 $this->updateAreaRoomExpiry( $object, $this->parseDate( $expiry ) );
+            }
+            else
+            {
+                throw new Exception( "Tematica non trovata" );
+            }
+        }
+        elseif ( $action == 'subscribe'
+                 && ( in_array( eZUser::currentUserID(), $this->getAreaUserIdList() )
+                      || in_array( eZUser::currentUserID(), $this->area->politiciIdList() ) ) )
+        {
+            $roomId = eZHTTPTool::instance()->postVariable( 'RoomId' );
+            $object = eZContentObject::fetch( intval($roomId) );
+            if ( $object instanceof eZContentObject )
+            {
+                $roomNodeId = $object->attribute( 'main_node_id' );
+                $this->appendNotificationSubscriber( $roomNodeId, eZUser::currentUserID() );
+                $this->redirectParams = '/room-' . $roomNodeId;
+            }
+            else
+            {
+                throw new Exception( "Tematica non trovata" );
+            }
+        }
+        elseif ( $action == 'unsubscribe'
+                 && ( in_array( eZUser::currentUserID(), $this->getAreaUserIdList() )
+                      || in_array( eZUser::currentUserID(), $this->area->politiciIdList() ) ) )
+        {
+            $roomId = eZHTTPTool::instance()->postVariable( 'RoomId' );
+            $object = eZContentObject::fetch( intval($roomId) );
+            if ( $object instanceof eZContentObject )
+            {
+                $roomNodeId = $object->attribute( 'main_node_id' );
+                $this->removeNotificationSubscriber( $roomNodeId, eZUser::currentUserID() );
+                $this->redirectParams = '/room-' . $roomNodeId;
             }
             else
             {
