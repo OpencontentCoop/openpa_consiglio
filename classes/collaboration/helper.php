@@ -77,10 +77,13 @@ class OpenPAConsiglioCollaborationHelper
                 }
             }
 
-            $mail->setSubject( $subject );
-            $mail->setBody( $content );
-            $mail->setContentType( 'text/html' );
-            OpenPAConsiglioMailTransport::send( $mail );
+            if ( trim( $subject ) != '' )
+            {
+                $mail->setSubject( $subject );
+                $mail->setBody( $content );
+                $mail->setContentType( 'text/html' );
+                OpenPAConsiglioMailTransport::send( $mail );
+            }
         }
     }
 
@@ -90,20 +93,37 @@ class OpenPAConsiglioCollaborationHelper
      *
      * @return eZContentObject
      */
-    public function addAreaRoom( $name, $relationId = null )
+    public function addAreaRoom( $name, $relationId = null, $expiryTimestamp = null )
     {
         $params =  array(
             'class_identifier' => 'openpa_consiglio_collaboration_room',
             'parent_node_id' => $this->getArea()->attribute( 'node_id' ),
             'attributes' => array(
                 'name' => $name,
-                'relation' => $relationId
+                'relation' => $relationId,
+                'expiry' => $expiryTimestamp
             )
         );
         /** @var eZContentObject $object */
         $object = eZContentFunctions::createAndPublishObject( $params );
         $this->sendNotification( $object );
         return $object;
+    }
+
+    public function updateAreaRoomExpiry( eZContentObject $room, $expiryTimestamp )
+    {
+        if ( $room->attribute( 'class_identifier' ) == 'openpa_consiglio_collaboration_room' )
+        {
+            /** @var eZContentObjectAttribute[] $dataMap */
+            $dataMap = $room->dataMap();
+            if ( isset( $dataMap['expiry'] ) )
+            {
+                $dataMap['expiry']->fromString( $expiryTimestamp );
+                $dataMap['expiry']->store();
+                eZSearch::addObject( $room, true );
+                $this->sendNotification( $room );
+            }
+        }
     }
 
     public function addComment( $parentNodeId, $text, $subject = null )
@@ -182,13 +202,30 @@ class OpenPAConsiglioCollaborationHelper
         return $this->getArea()->object()->canRead();
     }
 
+    protected function parseDate( $string, $fallback = null )
+    {
+        if ( $string )
+        {
+            $date = explode( '/', $string );
+            $time = mktime( 0,0,0, $date[1], $date[0], $date[2] );
+        }
+        else
+        {
+            $time = $fallback;
+        }
+        return $time;
+    }
+
     public function executeAction( $action )
     {
         if ( $action == 'add_room' && eZHTTPTool::instance()->hasPostVariable( 'NewRoomName' ) )
         {
             if ( $this->canParticipate() )
             {
-                $object = $this->addAreaRoom( eZHTTPTool::instance()->postVariable( 'NewRoomName' ) );
+                $name = eZHTTPTool::instance()->postVariable( 'NewRoomName', 'Nuova tematica' );
+                $expiry = eZHTTPTool::instance()->postVariable( 'NewRoomExpiry', null );
+                $expiryTimestamp = $this->parseDate( $expiry, time() );
+                $object = $this->addAreaRoom( $name, null, $expiryTimestamp );
                 $this->redirectParams = '/room-' . $object->attribute( 'main_node_id' );
             }
             else
@@ -295,6 +332,20 @@ class OpenPAConsiglioCollaborationHelper
         {
             $nodeId = str_replace( 'show-', '', $action );
             eZContentOperationCollection::changeHideStatus( $nodeId );
+        }
+        elseif ( $action == 'change_expiry' && in_array( eZUser::currentUserID(), $this->area->politiciIdList() ) )
+        {
+            $roomId = eZHTTPTool::instance()->postVariable( 'RoomId' );
+            $expiry = eZHTTPTool::instance()->postVariable( 'RoomExpiry', null );
+            $object = eZContentObject::fetch( intval($roomId) );
+            if ( $object instanceof eZContentObject )
+            {
+                $this->updateAreaRoomExpiry( $object, $this->parseDate( $expiry ) );
+            }
+            else
+            {
+                throw new Exception( "Tematica non trovata" );
+            }
         }
         else
         {

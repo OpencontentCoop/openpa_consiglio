@@ -26,8 +26,12 @@
         {if $area.politici_id_list|contains( fetch( user, current_user ).contentobject_id )}
             <form class="navbar-form navbar-left" method="post" action="{concat('consiglio/collaboration/', $area.object.id, '/add_room')|ezurl(no)}">
                 <div class="form-group">
-                    <label for="NewAreaName" class="sr-only">Aggiungi nuova tematica</label>
-                    <input type="text" class="form-control" id="NewAreaName" name="NewRoomName" placeholder="Aggiungi nuova tematica">
+                    <label for="NewRoomName" class="sr-only">Aggiungi nuova tematica</label>
+                    <input type="text" class="form-control" id="NewRoomName" name="NewRoomName" placeholder="Aggiungi nuova tematica">
+                </div>
+                <div class="form-group">
+                    <label for="NewRoomExpiry" class="sr-only">con scadenza</label>
+                    <input type="text" class="form-control calendar_picker" id="NewRoomExpiry" name="NewRoomExpiry" placeholder="con scadenza (GG/MM/AAAA)">
                 </div>
                 <button type="submit" class="btn btn-success"><i class="fa fa-plus"></i></button>
             </form>
@@ -56,6 +60,11 @@
 {/if}
 
 {if $room}
+{if $room.data_map.expiry.content.timestamp|lt( currentdate() )}
+    <div class="alert alert-warning">
+    <p><strong>Attenzione:</strong> questa tematica di discussione è scaduta il {$room.data_map.expiry.content.timestamp|datetime( 'custom', '%j/%m/%Y' )}</p>
+    </div>
+{/if}
 <div class="row">
     <div class="col-md-8">
         {def $page_limit = 100
@@ -142,6 +151,7 @@
                     <th>Titolo</th>
                     <th style="white-space: nowrap">Creata il</th>
                     <th style="white-space: nowrap">Ultima modifica</th>
+                    <th style="white-space: nowrap">Scadenza</th>
                     <th></th>
                     <th></th>
                     {if $area.politici_id_list|contains( fetch( user, current_user ).contentobject_id )}
@@ -160,10 +170,24 @@
                             {/if}
                         </td>
                         <td style="white-space: nowrap">
-                            {$area_room.object.published|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}
+                            {$area_room.object.published|datetime( 'custom', '%j/%m/%Y %H:%i' )}
                         </td>
                         <td style="white-space: nowrap">
-                            {$area_room.modified_subnode|datetime( 'custom', '%j/%m/%Y %H:%i:%s' )}
+                            {$area_room.modified_subnode|datetime( 'custom', '%j/%m/%Y %H:%i' )}
+                        </td>
+                        <td style="white-space: nowrap">
+                            {if $area.politici_id_list|contains( fetch( user, current_user ).contentobject_id )}
+                            <form class="form-inline" method="post" action="{concat('consiglio/collaboration/', $area.object.id, '/change_expiry')|ezurl(no)}">
+                                <div class="form-group">
+                                    <label for="NewRoomExpiry{$area_room.object.id}" class="sr-only">con scadenza</label>
+                                    <input type="text" class="form-control calendar_picker" id="NewRoomExpiry{$area_room.object.id}" name="RoomExpiry" placeholder="con scadenza (GG/MM/AAAA)" value="{$area_room.data_map.expiry.content.timestamp|datetime( 'custom', '%j/%m/%Y' )}">
+                                </div>
+                                <input type="hidden" name="RoomId" value="{$area_room.object.id}" />
+                                <button type="submit" class="btn btn-success"><i class="fa fa-save"></i></button>
+                            </form>
+                            {else}
+                                {$area_room.data_map.expiry.content.timestamp|datetime( 'custom', '%j/%m/%Y' )}
+                            {/if}
                         </td>
                         <td style="white-space: nowrap">
                             {$area_room.children_count} interventi
@@ -196,3 +220,19 @@
         </div>
     </div>
 {/if}
+
+{ezcss_require(array('datepicker.css'))}
+{ezscript_require( array( 'ezjsc::jquery', 'ezjsc::jqueryUI' ) )}
+<script type="text/javascript">
+    {literal}
+    $(function() {
+        $( ".calendar_picker" ).datepicker({
+            defaultDate: "+1w",
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            numberOfMonths: 1
+        });
+    });
+    {/literal}
+</script>
