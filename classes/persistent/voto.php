@@ -149,7 +149,7 @@ class OpenPAConsiglioVoto extends eZPersistentObject
         if ( $alreadyExists instanceof OpenPAConsiglioVoto )
         {
             throw new ConsiglioApiException(
-                "Esiste gia' un voto per user {$userId} nella votazione {$seduta->id()} della seduta {$votazione->id() }",
+                "Esiste gia' un voto per user {$userId} nella votazione {$votazione->id()} della seduta {$seduta->id()}",
                 ConsiglioApiException::VOTO_NOT_ALLOWED,
                 null,
                 array(

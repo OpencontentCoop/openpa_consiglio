@@ -5,6 +5,12 @@ class ConsiglioApiController extends ezpRestMvcController
 
     protected function getErrorResult( Exception $exception )
     {
+        eZLog::write( 
+            $exception->getMessage() . ' ' . $exception->getTraceAsString(), 
+            'openpa_consiglio_controller_error.log', 
+            eZSys::varDirectory() . '/log'
+        );
+        
         if ( $exception instanceof ConsiglioApiException )
         {
             $result = new ezcMvcResult;

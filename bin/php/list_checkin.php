@@ -31,8 +31,8 @@ $headers = array( 'Partecipante' );
 $rows = array();
 foreach( $sedute as $seduta )
 {
-    $headers[] = $seduta->getObject()->attribute( 'name' ) . ' - IN';
-    $headers[] = $seduta->getObject()->attribute( 'name' ) . ' - OUT';
+    $headers[] = $seduta->dataOra( 'd/m/y' ) . ' - ' . $seduta->attribute( 'competenza' ) . ' - IN';
+    $headers[] = $seduta->dataOra( 'd/m/y' ) . ' - ' . $seduta->attribute( 'competenza' ) . ' - OUT';
 
     $helper = new OpenPAConsiglioPresenzaHelper( $seduta );
     $data = $helper->getData();
@@ -51,10 +51,10 @@ foreach( $sedute as $seduta )
 
 $cache = eZSys::cacheDirectory();
 $fp = fopen($cache.'/export.csv', 'w');
-fputcsv($fp, $headers);
+fputcsv($fp, $headers, ';');
 foreach ($rows as $row )
 {
-    fputcsv($fp, $row);
+    fputcsv($fp, $row, ';');
 }
 fclose($fp);
 
