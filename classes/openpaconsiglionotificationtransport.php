@@ -95,12 +95,43 @@ class OpenPAConsiglioNotificationTransport
         return false;
     }
 
+    /**
+     * Controlla se l'oggetto di riferimento ha un attributo di tipo ezmatrix con identificatore 'altre_email'
+     * Se esiste popola il risultato con il contenuto
+     *
+     * @param eZUser $user
+     *
+     * @return array of email address
+     */
     protected function getUserAddresses( eZUser $user )
     {
-        //@todo
-        return array(
+        $addresses = array(
             $user->attribute( 'email' )
         );
+        $object = $user->contentObject();
+        if ( $object instanceof eZContentObject )
+        {
+            /** @var eZContentObjectAttribute[] $dataMap */
+            $dataMap = $object->dataMap();
+            if ( isset( $dataMap['altre_email'] ) && $dataMap['altre_email']->hasContent() )
+            {
+                /** @var eZMatrix $content */
+                $content = $dataMap['altre_email']->content();
+                if ( $content instanceof eZMatrix )
+                {
+                    $rows = $content->attribute( 'rows' );
+                    foreach ( $rows['sequential'] as $row )
+                    {
+                        $address = $row['columns'][0];
+                        if ( eZMail::validate( $address ) )
+                        {
+                            $addresses[] = $address;
+                        }
+                    }
+                }
+            }
+        }
+        return $addresses;
     }
 }
 
