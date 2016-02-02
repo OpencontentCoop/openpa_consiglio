@@ -50,7 +50,7 @@
 
     <hr/>
 
-    {if $post.factory_identifier|eq('politico')}
+    {if and( $post.factory_identifier|eq('politico'), $post.object.can_edit }}
     <div class="row edit-row">
         <div class="col-md-3"><strong><em>Gruppi</em></strong></div>
         <div class="col-md-9">
