@@ -56,6 +56,8 @@
                                     </select>
                                 </div>
                             </div>
+                        {else}
+                            <input type="hidden" name="FileProperties[creator_id]" value="{fetch(user,current_user).contentobject_id}" />
                         {/if}
 
                         <div class="clearfix">
