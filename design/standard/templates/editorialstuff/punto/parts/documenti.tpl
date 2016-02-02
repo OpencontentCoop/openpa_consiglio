@@ -110,7 +110,7 @@
                 }
             };
 
-            allegati.find(".allegati_docs tbody").sortable(allegatiSortableOptions).disableSelection();
+            allegati.find(".allegati_docs tbody").sortable(allegatiSortableOptions);
 
             $(document).on( 'click', 'input.edit-sostituito', function(e){
                 var input = $(e.currentTarget);
