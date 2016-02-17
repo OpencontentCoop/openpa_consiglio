@@ -108,7 +108,7 @@ class AreaCollaborativa extends OCEditorialStuffPost
         $search = $solr->search( null, array(
            'ContentClassID' => array( 'openpa_consiglio_collaboration_room' ),
            'SubTreeArray' => array( $this->object->attribute( 'main_node_id' ) ),
-           'Filter' => array( 'submeta_relation___id_si:' . $relationId )
+           'Filter' => array( OpenPASolr::generateSolrSubMetaField('relation','id').':' . $relationId )
         ));
         return $search['SearchResult'];
     }
@@ -126,7 +126,7 @@ class AreaCollaborativa extends OCEditorialStuffPost
             'SearchLimit' => 1,
             'ContentClassID' => array( 'openpa_consiglio_collaboration_room' ),
             'SubTreeArray' => array( $this->object->attribute( 'main_node_id' ) ),
-            'Filter' => array( 'submeta_relation___id_si:' . $relationId ),
+            'Filter' => array( OpenPASolr::generateSolrSubMetaField('relation','id').':' . $relationId ),
             'Limitation' => array()
         ));
         return $search['SearchCount'];
@@ -144,7 +144,7 @@ class AreaCollaborativa extends OCEditorialStuffPost
         $search = $solr->search( null, array(
             'ContentClassID' => array( 'openpa_consiglio_collaboration_file' ),
             'SubTreeArray' => array( $this->object->attribute( 'main_node_id' ) ),
-            'Filter' => array( 'submeta_relation___id_si:' . $relationId )
+            'Filter' => array( OpenPASolr::generateSolrSubMetaField('relation','id').':' . $relationId )
         ));
         return $search['SearchResult'];
     }
@@ -161,7 +161,7 @@ class AreaCollaborativa extends OCEditorialStuffPost
             'SearchLimit' => 1,
             'ContentClassID' => array( 'openpa_consiglio_collaboration_file' ),
             'SubTreeArray' => array( $this->object->attribute( 'main_node_id' ) ),
-            'Filter' => array( 'submeta_relation___id_si:' . $relationId ),
+            'Filter' => array( OpenPASolr::generateSolrSubMetaField('relation','id').':' . $relationId ),
             'Limitation' => array()
         ));
         return $search['SearchCount'];

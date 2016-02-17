@@ -35,7 +35,7 @@ class SedutaFactory extends OCEditorialStuffPostNotifiableFactory
     {
         $fields = parent::fields();
         $fields[] = array(
-            'solr_identifier' => "attr_from_time_dt",
+            'solr_identifier' => OpenPASolr::generateSolrField('from_time','date'),
             'object_property' => 'from_time',
             'attribute_identifier' => 'from_time',
             'index_extra' => true,

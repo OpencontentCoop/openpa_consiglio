@@ -41,7 +41,7 @@ class DataHandlerPercentualePresenzeSeduta implements OpenPADataHandlerInterface
                 $organoFilters = count( $organoNodeIds ) > 1 ? array( 'or' ) : array();
                 foreach ( $organoNodeIds as $nodeId )
                 {
-                    $organoFilters[] = 'submeta_organo___main_node_id_si:' . $nodeId;
+                    $organoFilters[] = OpenPASolr::generateSolrSubMetaField('organo','main_node_id').':' . $nodeId;
                 }
                 $filters[] = count( $organoFilters ) > 1 ? $organoFilters : $organoFilters[0];
             }
@@ -54,7 +54,7 @@ class DataHandlerPercentualePresenzeSeduta implements OpenPADataHandlerInterface
             );
             $totaleSedutePresenti = OCEditorialStuffHandler::instance( 'seduta' )->fetchItemsCount(
                 array(
-                    'filters' => array_merge( array( 'submeta_presenti___id_si:' . $this->politico->id() ), $filters ),
+                    'filters' => array_merge( array( OpenPASolr::generateSolrSubMetaField('presenti','id').':' . $this->politico->id() ), $filters ),
                     'state' => array( 'closed' )
                 )
             );

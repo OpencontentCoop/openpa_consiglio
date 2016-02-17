@@ -322,7 +322,7 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
             $organoFilters = count( $organoNodeIds ) > 1 ? array( 'or' ) : array();
             foreach( $organoNodeIds as $nodeId )
             {
-                $organoFilters[] = 'submeta_organo___main_node_id_si:' . $nodeId;
+                $organoFilters[] = OpenPASolr::generateSolrSubMetaField('organo','main_node_id').':' . $nodeId;
             }
 
             $sedute = OCEditorialStuffHandler::instance( 'seduta' )->fetchItems(

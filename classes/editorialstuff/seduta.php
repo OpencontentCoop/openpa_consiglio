@@ -759,7 +759,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
                             'filters' => array( 'meta_path_si:' . $organoNodeId[0] ),
                             'limit' => 100,
                             'offset' => 0,
-                            'sort' => array( 'attr_cognome_s' => 'asc' )
+                            'sort' => array( OpenPASolr::generateSolrField('cognome','string') => 'asc' )
                         )
                     );
                 }
@@ -797,7 +797,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
                     'filters' => array( 'meta_path_si:' . $organoNodeId[0] ),
                     'limit' => 100,
                     'offset' => 0,
-                    'sort' => array( 'attr_cognome_s' => 'asc' )
+                    'sort' => array( OpenPASolr::generateSolrField('cognome','string') => 'asc' )
                 )
             );
         }
@@ -826,7 +826,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
                 array(
                     'limit' => 100,
                     'offset' => 0,
-                    'sort' => array( 'attr_cognome_s' => 'asc' )
+                    'sort' => array( OpenPASolr::generateSolrField('cognome','string') => 'asc' )
                 )
             );
         }
@@ -1105,7 +1105,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         return OCEditorialStuffHandler::instance( 'votazione' )->fetchItems(
             array_merge(
                 array(
-                    'filters' => array( 'submeta_seduta___id_si:' . $this->id() ),
+                    'filters' => array( OpenPASolr::generateSolrSubMetaField('seduta','id').':' . $this->id() ),
                     'sort' => array( 'published' => 'desc' ),
                     'limit' => 100,
                     'offset' => 0

@@ -1,5 +1,5 @@
 {def $seduta_can_modify = $seduta.liquidata|not()}
-{def $spese = fetch( ezfind, search, hash( class_id, array('rendiconto_spese'), filter, array( concat('meta_owner_id_si:', $politico.object.id ), concat('submeta_relations___id_si:', $seduta.object.id )  ) ))}
+{def $spese = fetch( ezfind, search, hash( class_id, array('rendiconto_spese'), filter, array( concat('meta_owner_id_si:', $politico.object.id ), concat(solr_meta_subfield('relations','id'),':', $seduta.object.id )  ) ))}
 {def $sum = array()}
 <div class="no-export">
 <table class="table table-bordered table-condensed">

@@ -96,7 +96,7 @@ class OpenPAConsiglioGettoniHelper
                     $organoFilters = count( $organoNodeIds ) > 1 ? array( 'or' ) : array();
                     foreach ( $organoNodeIds as $nodeId )
                     {
-                        $organoFilters[] = 'submeta_organo___main_node_id_si:' . $nodeId;
+                        $organoFilters[] = OpenPASolr::generateSolrSubMetaField('organo','main_node_id').':' . $nodeId;
                     }
                     $filters[] = count( $organoFilters ) > 1 ? $organoFilters : $organoFilters[0];
                 }
@@ -231,7 +231,10 @@ class OpenPAConsiglioGettoniHelper
             $totaleSpese = array();
             $spese = eZFunctionHandler::execute( 'ezfind', 'search', array(
                 'class_id' => array('rendiconto_spese'),
-                'filter' => array( 'meta_owner_id_si:'.$politico->id(), 'submeta_relations___id_si:'.$seduta->id() )
+                'filter' => array(
+                    'meta_owner_id_si:'.$politico->id(),
+                    OpenPASolr::generateSolrSubMetaField('relations','id').':'.$seduta->id()
+                )
             ));
             if ( $spese['SearchCount'] > 0 )
             {
