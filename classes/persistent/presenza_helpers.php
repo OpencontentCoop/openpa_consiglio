@@ -664,11 +664,11 @@ class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
     protected function calcolaImportoGettone( $percent )
     {
         $base = 0;
-        if ( $percent > 75 )
+        if ( $percent >= 75 )
         {
             $base = 100;
         }
-        elseif ( $percent < 75 && $percent > 25 )
+        elseif ( $percent < 75 && $percent >= 25 )
         {
             $base = 50;
         }

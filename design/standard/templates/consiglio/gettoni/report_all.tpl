@@ -35,7 +35,7 @@
                     {if $presenze|gt(0)}
                         {def $importo = $politico.importo_gettone[$seduta.object.id]}
                         <div class="progress" style="margin-bottom: 0">
-                            <div class="progress-bar progress-bar-{if $progress|gt(75)}success{elseif $progress|gt(25)}warning{else}danger{/if}"
+                            <div class="progress-bar progress-bar-{if $progress|ge(75)}success{elseif $progress|ge(25)}warning{else}danger{/if}"
                                  style="min-width: 4em;width:{$progress}%;">                                
 								 <a style="color:#fff" href="#{$politico.object.id}" data-url="{concat('layout/set/modal/consiglio/presenze/',$seduta.object.id, '/',$politico.object.id)|ezurl(no)}" data-toggle="modal" data-target="#detailPresenze">
 								  {$importo}<span class="no-export">€</span>
