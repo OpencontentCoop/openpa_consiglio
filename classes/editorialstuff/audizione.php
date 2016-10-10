@@ -35,6 +35,7 @@ class Audizione extends OCEditorialStuffPostNotifiable implements OCEditorialStu
         $attributes[] = 'count_documenti';
         $attributes[] = 'can_add_osservazioni';
         $attributes[] = 'notification_subscribers';
+        $attributes[] = 'partecipanti';
 
         return $attributes;
     }
@@ -81,10 +82,27 @@ class Audizione extends OCEditorialStuffPostNotifiable implements OCEditorialStu
             /** @return int */
             return $this->notificationSubscribers();
         }
+        
+        if ( $property == 'partecipanti' )
+        {
+            /** @return array */
+            return $this->partecipanti();
+        }
 
         return parent::attribute( $property );
     }
 
+    public function partecipanti()
+    {
+        return OCEditorialStuffHandler::instance('politico')->fetchItems(
+            array(                            
+                'limit' => 100,
+                'offset' => 0,
+                'sort' => array( 'attr_cognome_s' => 'asc' )
+            )
+        );
+    }
+    
     public function indexFromTime()
     {
         return ezfSolrDocumentFieldBase::preProcessValue(
@@ -463,12 +481,12 @@ class Audizione extends OCEditorialStuffPostNotifiable implements OCEditorialStu
      * @return bool
      */
     protected function canAddOsservazioni()
-    {
-        if ( $this->is( '_public' ) )
+    {        
+        if ( $this->is( 'published' ) )
         {
             if ( isset( $this->dataMap['consenti_osservazioni'] ) && isset( $this->dataMap['termine_osservazioni'] ) )
             {
-                $now = time();
+                $now = time();                
                 return $this->dataMap['consenti_osservazioni']->attribute( 'data_int' ) == 1
                        && $now < $this->dataMap['termine_osservazioni']->toString();
             }

@@ -49,7 +49,7 @@
                                 <div class="col-sm-10">
                                     <select class="form-control" name="FileProperties[creator_id]"
                                             id="OsservazioneCreator">
-                                        {foreach $post.seduta.partecipanti as $partecipante}
+                                        {foreach $post.partecipanti as $partecipante}
                                             <option value="{$partecipante.object_id}">{$partecipante.object.name|wash()}</option>
                                         {/foreach}
                                     </select>
