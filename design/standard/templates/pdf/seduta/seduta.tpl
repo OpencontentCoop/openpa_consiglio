@@ -14,7 +14,7 @@
         <hr style="margin: 0; border: 0; height: 1px; background: #000;" />
         <p style="text-align:justify; margin: 0;font-size: .92em">
             <strong>
-                * SI PRECISA CHE LA CONVOCAZIONE VIENE INVIATA PER CONOSCENZA A TUTTI I SINDACI DEI COMUNI TRENTINI, AI SENSI DELL'ART.7, COMMA 3, DELLA L.P.7/2005
+                * SI PRECISA CHE LA CONVOCAZIONE VIENE INVIATA PER CONOSCENZA A TUTTI I SINDACI, AI PRESIDENTI DEI CONSIGLI COMUNALI E AI CONSIGLIERI DEI COMUNI TRENTINI, AI SENSI DELL'ART.7, COMMA 3, DELLA L.P. 7/2005
             </strong>
         </p>
     </div>
