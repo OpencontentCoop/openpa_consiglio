@@ -45,9 +45,9 @@
         }
         var properties = {}, text;
         if (presenza.IsIn == 1) {
-            properties.color = '#5cb85c';            
+            properties.color = '#5cb85c';
         } else {
-            properties.color = '#f0ad4e';            
+            properties.color = '#f0ad4e';
         }
         if (presenza.InOut == 1) {
             properties.detection_color = '#5cb85c';
@@ -93,8 +93,11 @@
                 $(window).bind('resize.TimelinePresenze', this.onResize);
             }
 
+            var builded = 0;
+
             this.build = function(){
-                console.log('build timeline');
+                builded = builded +1;
+                console.log('build timeline ' + builded);
                 presenzeLoaded = [];
                 userTimelines = [];
                 $('.timeline', this.container)
@@ -103,18 +106,18 @@
                         var timeline = buildTimelineContainer( $(this) );
                     })
                     .promise().done( function(){
-                        $.each( that.presenze, function(i,v){
-                            that.add(v);
-                        });
-                        if ( that.status == 'in_progress' ) {
-                            refreshInterval = setInterval(function () {
-                                var now = Math.round(+new Date() / 1000);
-                                setTimeHolders(now);
-                            }, 1000);
-                        }else{
-                            clearInterval(refreshInterval);
-                        }
+                    $.each( that.presenze, function(i,v){
+                        that.add(v);
                     });
+                    if ( that.status == 'in_progress' ) {
+                        refreshInterval = setInterval(function () {
+                            var now = Math.round(+new Date() / 1000);
+                            setTimeHolders(now);
+                        }, 1000);
+                    }else{
+                        clearInterval(refreshInterval);
+                    }
+                });
             };
 
             var that = this;
@@ -173,7 +176,7 @@
         // Method for updating the plugins options.
         TimelinePresenze.prototype.add = function(presenza) {
             var newEnd = Math.round(+new Date()/1000) + 3600;
-            if( presenza.CreatedTime > (this.end+60) ){
+            if( presenza.CreatedTime > (this.end+60) && this.status != 'closed' ){
                 this.end = newEnd;
                 this.total = this.end - this.start;
                 this.build();
