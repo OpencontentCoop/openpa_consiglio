@@ -86,6 +86,7 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
                 'data_seduta' => ( $seduta instanceof Seduta ) ? $seduta->dataOra() : null,
                 'ora_invito' => $oraInvito,
                 'punti' => $punti,
+                'descrizione_firmatario' => 'Il Presidente',
                 'firmatario' => '',
                 'firma' => '',
                 'protocollo' => isset( $dataMap['protocollo'] ) ? $dataMap['protocollo']->toString() : '',
@@ -108,6 +109,10 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
                     $url = $image['url'];
                     eZURI::transformURI( $url, false, 'full' );
                     $variables['firma'] = $url;
+                }
+
+                if ( isset($firmatarioDataMap['pre_firma']) && $firmatarioDataMap['pre_firma']->hasContent() ){
+                    $variables['descrizione_firmatario'] = $firmatarioDataMap['pre_firma']->toString();
                 }
             }
         }
