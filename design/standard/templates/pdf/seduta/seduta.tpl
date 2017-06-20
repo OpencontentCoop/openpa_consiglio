@@ -73,7 +73,7 @@
 
     {if $firmatario}
         <p id="firma">
-            Il Presidente<br/>
+            {$descrizione_firmatario}<br />
             {$firmatario}<br/>
             {if $firma}
                 <img src="{$firma}" width="100"/>

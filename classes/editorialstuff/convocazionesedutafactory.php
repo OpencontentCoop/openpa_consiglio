@@ -45,6 +45,7 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
             'data_seduta' => $dataOra,
             'ora_conclusione' => $oraConclusione,
             'odg' => $odg,
+            'descrizione_firmatario' => 'Il Presidente',
             'firmatario' => '',
             'firma' => '',
             'protocollo' => $protocollo
@@ -69,6 +70,10 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
                     $url = $image['url'];
                     eZURI::transformURI( $url, false, 'full' );
                     $variables['firma'] = $url;
+                }
+
+                if ( isset($firmatarioDataMap['pre_firma']) && $firmatarioDataMap['pre_firma']->hasContent() ){
+                    $variables['descrizione_firmatario'] = $firmatarioDataMap['pre_firma']->toString();
                 }
             }
         }
