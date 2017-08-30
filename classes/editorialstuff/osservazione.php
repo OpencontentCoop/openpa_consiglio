@@ -7,8 +7,7 @@ class Osservazione extends OCEditorialStuffPost
     public function onChangeState(
         eZContentObjectState $beforeState,
         eZContentObjectState $afterState
-    )
-    {
+    ) {
         // TODO: Implement onChangeState() method.
     }
 
@@ -16,38 +15,36 @@ class Osservazione extends OCEditorialStuffPost
     {
         $attributes = parent::attributes();
         $attributes[] = 'riferimento';
+
         return $attributes;
     }
 
-    public function attribute( $property )
+    public function attribute($property)
     {
-        if ( $property == 'riferimento' )
+        if ($property == 'riferimento') {
             return $this->getFirstReverseRelatedPost();
+        }
 
-        return parent::attribute( $property );
+        return parent::attribute($property);
     }
 
     protected function getFirstReverseRelatedPost()
     {
         $firstPost = null;
-        $reverseObjects = $this->getObject()->reverseRelatedObjectList( false, 0, false, array( 'AllRelations' => true, 'AsObject' => false ) );
-        foreach( OCEditorialStuffHandler::instances() as $instance )
-        {
-            foreach ( $reverseObjects as $reverseObject )
-            {
-                if( $reverseObject['contentclass_identifier'] == $instance->getFactory()->classIdentifier() )
-                {
-                    try
-                    {
-                        return $instance->fetchByObjectId( $reverseObject['id'] );
-                    }
-                    catch( Exception $e )
-                    {
+        $reverseObjects = $this->getObject()->reverseRelatedObjectList(false, 0, false,
+            array('AllRelations' => true, 'AsObject' => false));
+        foreach (OCEditorialStuffHandler::instances() as $instance) {
+            foreach ($reverseObjects as $reverseObject) {
+                if ($reverseObject['contentclass_identifier'] == $instance->getFactory()->classIdentifier()) {
+                    try {
+                        return $instance->fetchByObjectId($reverseObject['id']);
+                    } catch (Exception $e) {
 
                     }
                 }
             }
         }
+
         return $firstPost;
     }
 
@@ -57,14 +54,13 @@ class Osservazione extends OCEditorialStuffPost
     public function binaryFile()
     {
         $factory = $this->getFactory();
-        if ( $factory instanceof OCEditorialStuffPostFileFactoryInterface )
-        {
+        if ($factory instanceof OCEditorialStuffPostFileFactoryInterface) {
             $fileIdentifier = $factory->fileAttributeIdentifier();
-            if ( isset( $this->dataMap[$fileIdentifier] ) && $this->dataMap[$fileIdentifier]->hasContent() )
-            {
+            if (isset( $this->dataMap[$fileIdentifier] ) && $this->dataMap[$fileIdentifier]->hasContent()) {
                 return $this->dataMap[$fileIdentifier]->content();
             }
         }
+
         return null;
     }
 
@@ -74,37 +70,34 @@ class Osservazione extends OCEditorialStuffPost
     public function attributeFile()
     {
         $factory = $this->getFactory();
-        if ( $factory instanceof OCEditorialStuffPostFileFactoryInterface )
-        {
+        if ($factory instanceof OCEditorialStuffPostFileFactoryInterface) {
             $fileIdentifier = $factory->fileAttributeIdentifier();
-            if ( isset( $this->dataMap[$fileIdentifier] ) )
-            {
+            if (isset( $this->dataMap[$fileIdentifier] )) {
                 return $this->dataMap[$fileIdentifier];
             }
         }
+
         return null;
     }
 
     public function apiDownloadFileUrl()
     {
-        $binaryFile = $this->binaryFile() ;
-        if ( $binaryFile instanceof eZBinaryFile )
-        {
-            if ( OpenPAConsiglioDefaultFactory::localFileServerIsEnabled() )
-            {
-                $url = OpenPAConsiglioDefaultFactory::localFileServerDownloadUrl( $binaryFile );
-            }
-            else
-            {
-                $router = new ezpRestRouter( new ezcMvcRequest() );
+        $binaryFile = $this->binaryFile();
+        if ($binaryFile instanceof eZBinaryFile) {
+            if (OpenPAConsiglioSettings::instance()->localFileServerIsEnabled()) {
+                $url = OpenPAConsiglioSettings::instance()->localFileServerDownloadUrl($binaryFile);
+            } else {
+                $router = new ezpRestRouter(new ezcMvcRequest());
                 $url = $router->generateUrl(
                     'consiglioApiSedutaDownloadOsservazione',
-                    array( 'Id' => $this->id() )
+                    array('Id' => $this->id())
                 );
-                eZURI::transformURI( $url, false, 'full' );
+                eZURI::transformURI($url, false, 'full');
             }
+
             return $url;
         }
+
         return null;
     }
 
@@ -125,21 +118,20 @@ class Osservazione extends OCEditorialStuffPost
     {
         $data = array(
             'id' => $this->id(),
-            'data_pubblicazione' => DateTime::createFromFormat( 'U', $this->getObject()->attribute( 'published' ) )->format( self::DATE_FORMAT ),
-            'data_ultima_modifica' => DateTime::createFromFormat( 'U', $this->getObject()->attribute( 'modified' ) )->format( self::DATE_FORMAT ),
-            'visibilita' => $this->currentState()->attribute( 'identifier' ),
-            'title'      => $this->dataMap['messaggio']->content(),
+            'data_pubblicazione' => DateTime::createFromFormat('U', $this->getObject()->attribute('published'))->format(self::DATE_FORMAT),
+            'data_ultima_modifica' => DateTime::createFromFormat('U', $this->getObject()->attribute('modified'))->format(self::DATE_FORMAT),
+            'visibilita' => $this->currentState()->attribute('identifier'),
+            'title' => $this->dataMap['messaggio']->content(),
             'file_name' => null,
             'file_mime_type' => null,
             'file_size' => null,
             'file_download_url' => null
         );
-        $binaryFile = $this->binaryFile() ;
-        if ( $binaryFile instanceof eZBinaryFile )
-        {
-            $data['file_name'] = $binaryFile->attribute( 'original_filename' );
-            $data['file_mime_type'] = $binaryFile->attribute( 'mime_type' );
-            $data['file_size'] = $binaryFile->attribute( 'filesize' );
+        $binaryFile = $this->binaryFile();
+        if ($binaryFile instanceof eZBinaryFile) {
+            $data['file_name'] = $binaryFile->attribute('original_filename');
+            $data['file_mime_type'] = $binaryFile->attribute('mime_type');
+            $data['file_size'] = $binaryFile->attribute('filesize');
             $data['file_download_url'] = $this->apiDownloadFileUrl();
         }
 

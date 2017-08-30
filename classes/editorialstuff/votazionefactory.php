@@ -2,9 +2,9 @@
 
 class VotazioneFactory extends OpenPAConsiglioDefaultFactory
 {
-    public function instancePost( $data )
+    public function instancePost($data)
     {
-        return new Votazione( $data, $this );
+        return new Votazione($data, $this);
     }
 
 }

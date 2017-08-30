@@ -3,8 +3,8 @@
 
 class TecnicoFactory extends OpenPAConsiglioDefaultFactory
 {
-    public function instancePost( $data )
+    public function instancePost($data)
     {
-        return new Tecnico( $data, $this );
+        return new Tecnico($data, $this);
     }
 }

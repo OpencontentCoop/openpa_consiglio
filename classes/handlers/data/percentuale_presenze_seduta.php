@@ -1,6 +1,6 @@
 <?php
 
-class DataHandlerPercentualePresenzeSeduta implements OpenPADataHandlerInterface
+class DataHandlerPercentualePresenzeSeduta
 {
 
     /** @var Politico $politico */

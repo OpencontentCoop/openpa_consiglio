@@ -1,7 +1,7 @@
 <script src="{'javascript/socket.io-1.3.5.js'|ezdesign(no)}"></script>
 <script>
-    var SocketUrl = "{openpaini('OpenPAConsiglio','SocketUrl','cal')}"
-    var SocketPort = "{openpaini('OpenPAConsiglio','SocketPort','8090')}";
+    var SocketUrl = "{fetch(consiglio, socket_info).url}";
+    var SocketPort = "{fetch(consiglio, socket_info).port}";
     var CurrentSedutaId = {$seduta.object_id};
     var SedutaDataBaseUrl = "{concat('consiglio/data/seduta/',$seduta.object_id)|ezurl(no)}/";
     var VotazioneDataBaseUrl = "{'consiglio/data/votazione'|ezurl(no)}/";

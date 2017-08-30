@@ -17,7 +17,7 @@
     {foreach $post.invitati as $invitato}
         <tr>
             {def $invito = fetch( 'content', 'object', hash( 'remote_id', concat( 'invito_', $post.seduta_id, '_', $invitato.object_id ) ) )}
-            {def $stuff_post = object_handler($invito).gestione_sedute_consiglio.stuff}
+            {def $stuff_post = fetch(consiglio, post, hash(object, $invito))}
             {set $inviti = array()}
             {foreach $stuff_post.punti as $i}
                 {if ne($i.object_id, $post.object.id)}
@@ -66,7 +66,7 @@
                         {if eq($stuff_post.punti[0].object_id, $post.object.id)}
                             <span class="label-ora text-info"> (Orario di trattazione del punto) </span>
                         {else}
-                            <span class="label-ora text-warning"> (Orario di trattazione del punto precendete)</span>
+                            <span class="label-ora text-warning"> (Orario di trattazione del punto precendente)</span>
                         {/if}
                     {/if}
                 {/if}

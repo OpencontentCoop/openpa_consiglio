@@ -54,7 +54,7 @@
     </div>
 </div>
 
-{ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-tabdrop.js', 'jquery.editorialstuff_default.js', 'ezjsc::jqueryUI', 'bootstrap-editable.min.js', 'dhtmlxgantt.js' ) )}
+{ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-tabdrop.js', 'jquery.editorialstuff_default.js', 'ezjsc::jqueryUI', 'bootstrap/tooltip.js', 'bootstrap/popover.js', 'bootstrap-editable.min.js', 'dhtmlxgantt.js' ) )}
 {ezcss_require(array('bootstrap3-editable/css/bootstrap-editable.css', 'dhtmlxgantt.css'))}
 
 <script>

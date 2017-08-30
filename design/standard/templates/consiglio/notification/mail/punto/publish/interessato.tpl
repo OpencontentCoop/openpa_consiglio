@@ -7,8 +7,10 @@ come richiesto si segnala che, nell’area riservata del sistema informatico dis
 
 <p>Per agevolare l’attività istruttoria si segnalano ulteriori informazioni di potenziale interesse, relative al punto citato:</p>
 <ul>
-    <li>Referente politico: {$punto.referente_politico|wash()}</li>
-    <li>Referente tecnico: {$punto.referente_tecnico|wash()}</li>
+    <li>Referente istituzionale: {$punto.referente_politico|wash()}</li>
+    {if $punto.referente_tecnico}
+        <li>Referente tecnico: {$punto.referente_tecnico|wash()}</li>
+    {/if}
     {if $punto.can_add_osservazioni}<li>il termine ultimo per la presentazione delle osservazioni è: {attribute_view_gui attribute=$punto.object.data_map.termine_osservazioni}.</li>{/if}
 </ul>
 

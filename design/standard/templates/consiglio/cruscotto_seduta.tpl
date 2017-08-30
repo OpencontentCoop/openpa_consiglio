@@ -1,8 +1,8 @@
 {def $registro_presenze = $seduta.registro_presenze}
 {def $count_partecipanti = count($seduta.partecipanti)}
 <script>
-    var SocketUrl = "{openpaini('OpenPAConsiglio','SocketUrl','cal')}"
-    var SocketPort = "{openpaini('OpenPAConsiglio','SocketPort','8090')}";
+    var SocketUrl = "{fetch(consiglio, socket_info).url}";
+    var SocketPort = "{fetch(consiglio, socket_info).port}";
     var CurrentSedutaId = {$seduta.object_id};
     var SedutaDataBaseUrl = "{concat('consiglio/data/seduta/',$seduta.object_id)|ezurl(no)}/";
     var VotazioneDataBaseUrl = "{'consiglio/data/votazione'|ezurl(no)}/";
@@ -13,9 +13,9 @@
 <div id="timer" style="display: none;"><strong><span class="minutes">00</span>:<span class="seconds">00</span></strong></div>
 <div style="display:none;" id="loading"><i class="fa fa-gear fa-spin fa-2x"></i></div>
 
-<div id="alert_area" style="position: absolute; z-index: 1000; width: 96%; left: 2%; top: 4%;">
+<div id="alert_area" style="position: absolute;z-index: 1000;width: 50%;left: 25%;top: 50%;box-shadow: 0 5px 15px rgba(0,0,0,0.5);font-size: 1.2em">
     {if count( $errors )}
-        <div class="alert alert-danger alert-dismissible">
+        <div class="alert alert-danger alert-dismissible" style="margin-bottom: 0;font-size: 2em">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             {foreach $errors as $error}
                 <p><strong>{$error|wash()}</strong></p>
@@ -40,8 +40,8 @@
         </div>
     </div>
     <div class="row bg-primary hidden-xs hidden-sm">
-        <div class="col-md-7">Ordine del giorno</div>
-        <div class="col-md-2">
+        <div class="col-md-{if $enable_votazione}7{else}8{/if}">Ordine del giorno</div>
+        <div class="col-md-2"{if $enable_votazione|not()} style="display: none" {/if}>
             Votazioni
             <a class="btn btn-warning btn-xs"
                data-toggle="modal"
@@ -51,7 +51,7 @@
                 <i class="fa fa-plus"></i> Crea
             </a>
         </div>
-        <div class="col-md-3 no-padding">
+        <div class="col-md-{if $enable_votazione}3{else}4{/if} no-padding">
             Presenze
             <span class="label label-default">
                 <span class="totale-presenze">{$registro_presenze.in}</span>/{$count_partecipanti}
@@ -70,14 +70,14 @@
             {include uri="design:consiglio/cruscotto_seduta/odg_list.tpl" post=$seduta}
         </div>
     </div>
-    <div id="verbale-col" class="col-md-4">
+    <div id="verbale-col" class="col-md-{if $enable_votazione}4{else}5{/if}">
         <h2 class="visible-xs visible-sm">Verbale</h2>
         <div id="verbale" data-save_url="{concat('consiglio/cruscotto_seduta/',$seduta.object_id,'/saveVerbale')|ezurl(no)}"
              data-load_url="{concat('consiglio/data/seduta/',$seduta.object_id, '/:consiglio:cruscotto_seduta:verbale')|ezurl(no)}">
             {include uri="design:consiglio/cruscotto_seduta/verbale.tpl" post=$seduta}
         </div>
     </div>
-    <div id="votazioni-col" class="col-md-2">
+    <div id="votazioni-col" class="col-md-2"{if $enable_votazione|not()} style="display: none" {/if}>
         <h2 class="visible-xs visible-sm">
             Votazioni
                 <a class="btn btn-warning btn-xs"
@@ -92,7 +92,7 @@
             {include uri="design:consiglio/cruscotto_seduta/votazioni.tpl" post=$seduta}
         </div>
     </div>
-    <div id="presenze-col" class="col-md-3 no-padding">
+    <div id="presenze-col" class="col-md-{if $enable_votazione}3{else}4{/if} no-padding">
         <h2 class="visible-xs visible-sm">
             Presenze
             <span class="label label-default">

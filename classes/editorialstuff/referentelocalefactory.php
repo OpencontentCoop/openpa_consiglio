@@ -2,8 +2,8 @@
 
 class ReferenteLocaleFactory extends OpenPAConsiglioDefaultFactory
 {
-    public function instancePost( $data )
+    public function instancePost($data)
     {
-        return new ReferenteLocale( $data, $this );
+        return new ReferenteLocale($data, $this);
     }
 }

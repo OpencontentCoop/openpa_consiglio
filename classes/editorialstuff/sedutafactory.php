@@ -2,6 +2,13 @@
 
 class SedutaFactory extends OCEditorialStuffPostNotifiableFactory
 {
+    use OpenPAConsiglioConfigurableTrait;
+
+    public function __construct($configuration)
+    {
+        parent::__construct($configuration);
+        $this->overrideConfiguration($this->configuration);
+    }
 
     /**
      * @param OCEditorialStuffPostInterface $post
@@ -14,20 +21,19 @@ class SedutaFactory extends OCEditorialStuffPostNotifiableFactory
         OCEditorialStuffPostInterface $post,
         eZContentObjectState $beforeState,
         eZContentObjectState $afterState
-    )
-    {
+    ) {
     }
 
-    public function instancePost( $data )
+    public function instancePost($data)
     {
-        return new Seduta( $data, $this );
+        return new Seduta($data, $this);
     }
 
     public function getTemplateDirectory()
     {
         return 'editorialstuff/seduta';
     }
-    
+
     /**
      * @return array[]
      */
@@ -41,24 +47,24 @@ class SedutaFactory extends OCEditorialStuffPostNotifiableFactory
             'index_extra' => true,
             'index_plugin_call_function' => 'indexFromTime'
         );
+
         return $fields;
     }
 
     public static function reindex()
     {
         /** @var Seduta[] $sedute */
-        $sedute = OCEditorialStuffHandler::instance( 'seduta' )->fetchItems(
+        $sedute = OCEditorialStuffHandler::instance('seduta')->fetchItems(
             array(
-                'state' => array( 'closed' ),
+                'state' => array('closed'),
                 'limit' => 1000,
                 'offset' => 0,
-                'sort' => array( 'modified' => 'desc' )
+                'sort' => array('modified' => 'desc')
             ), array()
         );
-        foreach( $sedute as $seduta )
-        {
+        foreach ($sedute as $seduta) {
             $objectID = $seduta->id();
-            eZDB::instance()->query( "INSERT INTO ezpending_actions( action, param ) VALUES ( 'index_object', '$objectID' )" );
+            eZDB::instance()->query("INSERT INTO ezpending_actions( action, param ) VALUES ( 'index_object', '$objectID' )");
         }
 
     }

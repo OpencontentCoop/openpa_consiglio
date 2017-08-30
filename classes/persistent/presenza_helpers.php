@@ -548,7 +548,47 @@ class OpenPAConsiglioPresenzaHelper
     }
 }
 
-class OpenPAConsiglioCustomDetection extends OpenPATempletizable
+class OpenPAConsiglioPresenzaAbstract
+{
+    protected $data = array();
+
+    protected $fnData = array();
+
+    public function attributes()
+    {
+        $keys = array_merge( array_keys( $this->data ), array_keys( $this->fnData ) );
+        return $keys;
+    }
+
+    public function hasAttribute( $key )
+    {
+        return in_array( $key, $this->attributes() );
+    }
+
+    public function attribute( $key )
+    {
+        if ( isset( $this->data[$key] ) )
+        {
+            return $this->data[$key];
+        }
+        elseif ( isset( $this->fnData[$key] ) )
+        {
+            return call_user_func( array( $this, $this->fnData[$key] ) );
+            //return $this->{$this->fnData[$key]}();
+        }
+        eZDebug::writeNotice( "Attribute $key does not exist", get_called_class() );
+        return false;
+    }
+
+    public function __construct( $data = null )
+    {
+        if ( is_array( $data ) )
+            $this->data = $data;
+    }
+
+}
+
+class OpenPAConsiglioCustomDetection extends OpenPAConsiglioPresenzaAbstract
 {
     public function __construct( $timestamp = null, $label = null, $icon = null, $type = 'custom' )
     {
@@ -571,7 +611,7 @@ class OpenPAConsiglioCustomDetection extends OpenPATempletizable
     }
 }
 
-class OpenPAConsiglioPresenzaCached extends OpenPATempletizable
+class OpenPAConsiglioPresenzaCached extends OpenPAConsiglioPresenzaAbstract
 {
     public function __construct( $data )
     {
@@ -582,8 +622,6 @@ class OpenPAConsiglioPresenzaCached extends OpenPATempletizable
 
 class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
 {
-    public static $baseGettone = 120;
-
     /**
      * @var Politico
      */
@@ -650,7 +688,11 @@ class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
             }
             elseif ( $this->functionName == 'importo' )
             {
-                return $this->calcolaImportoGettone( $data['in_percent'] );
+                return OpenPAConsiglioConfiguration::instance()->calcolaImportGettone( $data['in_percent'] );
+            }
+            elseif ( $this->functionName == 'livello' )
+            {
+                return OpenPAConsiglioConfiguration::instance()->calcolaLivelloGettone( $data['in_percent'] );
             }
             elseif ( $this->functionName == 'presenze' )
             {
@@ -659,20 +701,6 @@ class OpenPAConsiglioPresenzaArrayAccess implements ArrayAccess
         }
 
         return null;
-    }
-
-    protected function calcolaImportoGettone( $percent )
-    {
-        $base = 0;
-        if ( $percent >= 75 )
-        {
-            $base = 100;
-        }
-        elseif ( $percent < 75 && $percent >= 25 )
-        {
-            $base = 50;
-        }
-        return number_format( ( intval( $base ) * self::$baseGettone/ 100 ), 2 );
     }
 
     public function offsetSet( $offset, $value ){}

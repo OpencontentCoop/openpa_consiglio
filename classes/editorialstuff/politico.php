@@ -1,225 +1,113 @@
 <?php
 
-class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInputActionInterface
+class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInputActionInterface, OpenPAConsiglioStringAttributeInterface
 {
+    use OpenPAConsiglioStringAttributeTrait;
+
     public function onChangeState(
         eZContentObjectState $beforeState,
         eZContentObjectState $afterState
-    )
-    {
+    ) {
 
     }
 
     public function attributes()
     {
         $attributes = parent::attributes();
-        $attributes[] = 'locations';
+        $attributes[] = 'organi';
         $attributes[] = 'is_in';
         $attributes[] = 'percentuale_presenza';
         $attributes[] = 'importo_gettone';
+        $attributes[] = 'livello_gettone';
         $attributes[] = 'rilevazioni_presenze';
+
         return $attributes;
     }
 
-    public function attribute( $property )
+    public function attribute($property)
     {
-        if ( $property == 'locations' )
-        {
-            return $this->availableLocations();
+        if ($property == 'organi') {
+            return $this->availableOrgani();
         }
 
-        if ( $property == 'is_in' )
-        {
-            return $this->currentLocations( );
+        if ($property == 'is_in') {
+            return $this->currentOrgani();
         }
 
-        if ( $property == 'percentuale_presenza' )
-        {
+        if ($property == 'percentuale_presenza') {
             return $this->getPercentualePresenza();
         }
 
-        if ( $property == 'importo_gettone' )
-        {
+        if ($property == 'importo_gettone') {
             return $this->getImportoGettone();
         }
-        
-        if ( $property == 'rilevazioni_presenze' )
-        {
+
+        if ($property == 'livello_gettone') {
+            return $this->getLivelloGettone();
+        }
+
+        if ($property == 'rilevazioni_presenze') {
             return $this->getRilevazioniPresenze();
-        }        
+        }
 
-        return parent::attribute( $property );
+        return parent::attribute($property);
     }
 
-    protected function availableLocations( $asObject = true )
+    protected function availableOrgani()
     {
         $data = array();
-        $configuration = $this->getFactory()->getConfiguration();
-        if ( $asObject )
-        {
-            foreach ( $configuration['Locations'] as $identifier => $nodeId )
-            {
-                $data[$identifier] = eZContentObjectTreeNode::fetch( $nodeId );
-            }
+        /** @var Organo[] $organi */
+        $organi = OCEditorialStuffHandler::instance('organo')->fetchItems(array('limit' => 50, 'offset' => 0));
+        foreach($organi as $organo) {
+            $data[$organo->getObject()->attribute('name')] = $organo->id();
         }
-        else
-        {
-            $data = $configuration['Locations'];
-        }
+
         return $data;
     }
 
-    protected function currentLocations()
+    protected function currentOrgani()
     {
-        $configuration = $this->getFactory()->getConfiguration();
-        $locations = $configuration['Locations'];
+        /** @var Organo[] $organi */
+        $organi = OCEditorialStuffHandler::instance('organo')->fetchItems(array('limit' => 50, 'offset' => 0));
 
         $data = array();
-        foreach( $locations as $identifier => $nodeId )
-        {
-            $data[$identifier] = false;
-            /** @var eZContentObjectTreeNode[] $assignedNodes */
-            $assignedNodes = $this->getObject()->assignedNodes();
-            foreach( $assignedNodes as $node )
-            {
-                if ( $node->attribute( 'parent' )->attribute( 'node_id' ) == $nodeId )
-                {
-                    $data[$identifier] = true;
-                    break;
-                }
-            }
+        foreach ($organi as $organo) {
+            $data[$organo->getObject()->attribute('name')] = in_array($this->id(), $organo->getComponenti(false));
         }
+
         return $data;
     }
 
-    protected function addLocation( $slug )
+    protected function addToOrgano($id)
     {
-        $configuration = $this->getFactory()->getConfiguration();
-        $nodeId = $configuration['Locations'][$slug];
-        if ( $nodeId )
-        {
-            $object = $this->getObject();
-            if ( $object instanceof eZContentObject )
-            {
-                eZContentOperationCollection::addAssignment(
-                    $object->attribute( 'main_node_id' ),
-                    $object->attribute( 'id' ),
-                    array( $nodeId )
-                );
-            }
+        /** @var Organo $organo */
+        $organo = OCEditorialStuffHandler::instance('organo')->fetchByObjectId($id);
+
+        if($organo instanceof Organo){
+            $organo->addComponente($this);
         }
     }
 
-    protected function removeLocation( $slug )
+    protected function removeFromOrgano($id)
     {
-        $configuration = $this->getFactory()->getConfiguration();
-        $nodeId = $configuration['Locations'][$slug];
-        $object = $this->getObject();
-        if ( $object instanceof eZContentObject )
-        {
-            /** @var eZContentObjectTreeNode[] $nodes */
-            $nodes = $object->attribute( 'assigned_nodes' );
-            $removeNodeIdList = array();
-            if ( count( $nodes ) > 1 )
-            {
-                foreach ( $nodes as $node )
-                {
-                    if ( $node->attribute( 'parent_node_id' ) == $nodeId )
-                    {
-                        $removeNodeIdList[] = $node->attribute( 'node_id' );
-                    }
-                }
-            }
-            if ( !empty( $removeNodeIdList ) )
-            {
-                eZContentOperationCollection::removeNodes( $removeNodeIdList );
-            }
+        /** @var Organo $organo */
+        $organo = OCEditorialStuffHandler::instance('organo')->fetchByObjectId($id);
+
+        if($organo instanceof Organo){
+            $organo->removeComponente($this);
         }
     }
 
-    public function executeAction( $actionIdentifier, $actionParameters, eZModule $module = null )
+    public function executeAction($actionIdentifier, $actionParameters, eZModule $module = null)
     {
-        if ( $actionIdentifier == 'AddLocation' && isset( $actionParameters['location'] ) )
-        {
-            $this->addLocation( $actionParameters['location'] );
+        if ($actionIdentifier == 'AddToOrgano' && isset( $actionParameters['organo'] )) {
+            $this->addToOrgano($actionParameters['organo']);
         }
 
-        if ( $actionIdentifier == 'RemoveLocation' && isset( $actionParameters['location'] ) )
-        {
-            $this->removeLocation( $actionParameters['location'] );
+        if ($actionIdentifier == 'RemoveFromOrgano' && isset( $actionParameters['organo'] )) {
+            $this->removeFromOrgano($actionParameters['organo']);
         }
     }
-
-    /**
-     * Restituisce il toString dell'attributo $identifier filtrato da $callback (se presente)
-     *
-     * @param string $identifier
-     * @param Callable $callback
-     *
-     * @return bool|mixed|string
-     */
-    public function stringAttribute( $identifier, $callback = null )
-    {
-        $string = '';
-        if ( isset( $this->dataMap[$identifier] ) )
-        {
-            $string = $this->dataMap[$identifier]->toString();
-        }
-        if ( is_callable( $callback ) )
-        {
-            return call_user_func( $callback, $string );
-        }
-
-        return $string;
-    }
-
-    /**
-     * Restituisce l'attributo $attributeIdentifier degli oggetti correlati all'attributo $identifier
-     * Se $attributeIdentifier = null restituisce gli oggetti
-     *
-     * @param string $identifier
-     * @param string $attributeIdentifier
-     *
-     * @return array|null
-     */
-    protected function stringRelatedObjectAttribute( $identifier, $attributeIdentifier = null )
-    {
-        $data = array();
-        $ids = explode( '-', $this->stringAttribute( $identifier ) );
-        foreach ( $ids as $id )
-        {
-            if ( is_numeric( $id ) )
-            {
-                $related = eZContentObject::fetch( $id );
-                if ( $related instanceof eZContentObject )
-                {
-                    if ( $attributeIdentifier )
-                    {
-                        if ( $related->hasAttribute( $attributeIdentifier ) )
-                        {
-                            $data[] = $related->attribute( $attributeIdentifier );
-                        }
-                        else
-                        {
-                            /** @var eZContentObjectAttribute[] $dataMap */
-                            $dataMap = $related->attribute( 'data_map' );
-                            if ( isset( $dataMap[$attributeIdentifier] ) )
-                            {
-                                $data[] = $dataMap[$attributeIdentifier]->toString();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        $data[] = $related;
-                    }
-                }
-            }
-        }
-
-        return empty( $data ) ? null : $data;
-    }
-
 
     /**
      *
@@ -243,48 +131,41 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
 
         // Recupero gli indirizzi email
         $email = array();
-        if ( $this->dataMap['email']->hasContent() )
-        {
+        if ($this->dataMap['email']->hasContent()) {
             $email [] = $this->dataMap['email']->content();
         }
 
-        if ( $this->dataMap['altre_email']->hasContent() )
-        {
+        if ($this->dataMap['altre_email']->hasContent()) {
             $email = array_merge(
                 $email,
-                explode( '&', $this->dataMap['altre_email']->toString() )
+                explode('&', $this->dataMap['altre_email']->toString())
             );
         }
 
         // Ricavo l'url dell'immagine se presente
         $imageUrl = '';
-        if ( $this->dataMap['image']->hasContent()
-             && $this->dataMap['image']->attribute( 'data_type_string' ) == 'ezimage'
-        )
-        {
-            $image = $this->dataMap['image']->content()->attribute( 'squaremedium' );
+        if ($this->dataMap['image']->hasContent()
+            && $this->dataMap['image']->attribute('data_type_string') == 'ezimage'
+        ) {
+            $image = $this->dataMap['image']->content()->attribute('squaremedium');
             $imageUrl = $image['url'];
-            eZURI::transformURI( $imageUrl, false, 'full' );
+            eZURI::transformURI($imageUrl, false, 'full');
         }
 
         $rappresentante = '';
-        if ( $this->dataMap['rappresentante']->hasContent()
-             && $this->dataMap['rappresentante']->attribute( 'data_type_string' ) == 'ezobjectrelationlist'
-        )
-        {
-            $relationIds = explode( '-', $this->dataMap['rappresentante']->toString() );
-            foreach( $relationIds as $relationId )
-            {
-                $relation = eZContentObject::fetch( $relationId );
-                if ( $relation instanceof eZContentObject )
-                {
-                    $rappresentante .= $relation->attribute( 'name' ) . ' ';
+        if ($this->dataMap['rappresentante']->hasContent()
+            && $this->dataMap['rappresentante']->attribute('data_type_string') == 'ezobjectrelationlist'
+        ) {
+            $relationIds = explode('-', $this->dataMap['rappresentante']->toString());
+            foreach ($relationIds as $relationId) {
+                $relation = eZContentObject::fetch($relationId);
+                if ($relation instanceof eZContentObject) {
+                    $rappresentante .= $relation->attribute('name') . ' ';
                 }
             }
         }
-        $rappresentante = trim( $rappresentante );
-        if ( empty( $rappresentante ) )
-        {
+        $rappresentante = trim($rappresentante);
+        if (empty( $rappresentante )) {
             $rappresentante = $this->object->ClassIdentifier;
         }
 
@@ -293,7 +174,7 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
             'type' => $rappresentante,
             'nome' => $this->dataMap['nome']->content(),
             'cognome' => $this->dataMap['cognome']->content(),
-            'email' => array_unique( $email ),
+            'email' => array_unique($email),
             'ruolo' => $this->dataMap['ruolo']->content(),
             'struttura_di_appartenenza' => $this->stringRelatedObjectAttribute(
                 'gruppo_politico',
@@ -308,37 +189,33 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
      */
     protected function lastSedutaInProgressOrClosed()
     {
-        $organoNodeIds = array();
-        $currentLocations = $this->currentLocations();
-        foreach( $this->availableLocations( false ) as $identifier => $nodeId )
-        {
-            if ( $currentLocations[$identifier] )
-            {
-                $organoNodeIds[] = $nodeId;
+        $organoIds = array();
+        $currentOrgani = $this->currentOrgani();
+        foreach ($this->availableOrgani() as $identifier => $id) {
+            if ($currentOrgani[$identifier]) {
+                $organoIds[] = $id;
             }
         }
-        if ( !empty( $organoNodeIds ) )
-        {
-            $organoFilters = count( $organoNodeIds ) > 1 ? array( 'or' ) : array();
-            foreach( $organoNodeIds as $nodeId )
-            {
-                $organoFilters[] = 'submeta_organo___main_node_id_si:' . $nodeId;
+        if (!empty( $organoIds )) {
+            $organoFilters = count($organoIds) > 1 ? array('or') : array();
+            foreach ($organoIds as $nodeId) {
+                $organoFilters[] = 'submeta_organo___id_si:' . $nodeId;
             }
 
-            $sedute = OCEditorialStuffHandler::instance( 'seduta' )->fetchItems(
+            $sedute = OCEditorialStuffHandler::instance('seduta')->fetchItems(
                 array(
                     'filters' => $organoFilters,
-                    'state' => array( 'in_progress', 'closed' ),
-                    'sort' => array( 'meta_published_dt' => 'desc' ),
+                    'state' => array('in_progress', 'closed'),
+                    'sort' => array('meta_published_dt' => 'desc'),
                     'limit' => 1,
                     'offset' => 0
                 )
-            );            
-            if ( isset( $sedute[0] ) )
-            {
+            );
+            if (isset( $sedute[0] )) {
                 return $sedute[0];
             }
         }
+
         return null;
     }
 
@@ -376,100 +253,91 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
             )
         );
         $seduta = $this->lastSedutaInProgressOrClosed();
-        if ( $seduta instanceof Seduta )
-        {
-            try
-            {
-                if ( $seduta instanceof Seduta )
-                {
+        if ($seduta instanceof Seduta) {
+            try {
+                if ($seduta instanceof Seduta) {
                     $data['seduta']['id'] = $seduta->id();
-                    $data['seduta']['stato'] = $seduta->currentState()->attribute( 'identifier' );
-                    $data['seduta']['data_svolgimento'] = $seduta->dataOra( Seduta::DATE_FORMAT );
-                    $data['seduta']['timestamp'] = $seduta->getObject()->attribute( 'modified' );
-                    $data['seduta']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $seduta->getObject()->attribute( 'modified' ) );
+                    $data['seduta']['stato'] = $seduta->currentState()->attribute('identifier');
+                    $data['seduta']['data_svolgimento'] = $seduta->dataOra(Seduta::DATE_FORMAT);
+                    $data['seduta']['timestamp'] = $seduta->getObject()->attribute('modified');
+                    $data['seduta']['_timestamp_readable'] = date(Seduta::DATE_FORMAT,
+                        $seduta->getObject()->attribute('modified'));
 
-                    $lastPresenza = OpenPAConsiglioPresenza::fetchLastByUserIDAndSedutaID( $this->id(), $seduta->id() );
-                    if ( $lastPresenza instanceof OpenPAConsiglioPresenza )
-                    {
-                        $data['seduta']['presenza']['id'] = intval( $lastPresenza->attribute( 'id' ) );
-                        $data['seduta']['presenza']['in_out'] = intval( $lastPresenza->attribute( 'in_out' ) );
-                        $data['seduta']['presenza']['timestamp'] = $lastPresenza->attribute( 'created_time' );
-                        $data['seduta']['presenza']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastPresenza->attribute( 'created_time' ) );
-                        $data['seduta']['presenza']['type'] = $lastPresenza->attribute( 'type' );
-                    }
-                    else
-                    {
+                    $lastPresenza = OpenPAConsiglioPresenza::fetchLastByUserIDAndSedutaID($this->id(), $seduta->id());
+                    if ($lastPresenza instanceof OpenPAConsiglioPresenza) {
+                        $data['seduta']['presenza']['id'] = intval($lastPresenza->attribute('id'));
+                        $data['seduta']['presenza']['in_out'] = intval($lastPresenza->attribute('in_out'));
+                        $data['seduta']['presenza']['timestamp'] = $lastPresenza->attribute('created_time');
+                        $data['seduta']['presenza']['_timestamp_readable'] = date(Seduta::DATE_FORMAT, $lastPresenza->attribute('created_time'));
+                        $data['seduta']['presenza']['type'] = $lastPresenza->attribute('type');
+                    } else {
                         $data['seduta']['presenza'] = null;
                     }
 
                     // ricavo punto attivo
                     $punto = $seduta->getPuntoInProgress();
-                    if ( !$punto instanceof Punto )
+                    if (!$punto instanceof Punto) {
                         $punto = $seduta->getPuntoLastClosed();
-                    if ( $punto instanceof Punto )
-                    {
-                        $data['seduta']['punto']['id'] = $punto->id();
-                        $data['seduta']['punto']['name'] = $punto->getObject()->attribute( 'name' );
-                        $data['seduta']['punto']['stato'] = $punto->currentState()->attribute( 'identifier' );
-                        $data['seduta']['punto']['timestamp'] = $punto->getObject()->attribute( 'modified' );
-                        $data['seduta']['punto']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $punto->getObject()->attribute( 'modified' ) );
                     }
-                    else
-                    {
+                    if ($punto instanceof Punto) {
+                        $data['seduta']['punto']['id'] = $punto->id();
+                        $data['seduta']['punto']['name'] = $punto->getObject()->attribute('name');
+                        $data['seduta']['punto']['stato'] = $punto->currentState()->attribute('identifier');
+                        $data['seduta']['punto']['timestamp'] = $punto->getObject()->attribute('modified');
+                        $data['seduta']['punto']['_timestamp_readable'] = date(Seduta::DATE_FORMAT, $punto->getObject()->attribute('modified'));
+                    } else {
                         $data['seduta']['punto'] = null;
                     }
 
                     // ricavo ultima votazione
                     $votazione = $seduta->getVotazioneLastModified();
-                    if ( $votazione instanceof Votazione )
-                    {
+                    if ($votazione instanceof Votazione) {
                         $data['seduta']['votazione']['id'] = $votazione->id();
-                        $data['seduta']['votazione']['stato'] = $votazione->currentState()->attribute( 'identifier' );
-                        $data['seduta']['votazione']['short_text'] = $votazione->stringAttribute( Votazione::$shortTextIdentifier );
-                        $data['seduta']['votazione']['text'] = $votazione->stringAttribute( Votazione::$textIdentifier );
-                        $data['seduta']['votazione']['punto_id'] = $votazione->stringAttribute( Votazione::$puntoIdentifier, 'intval' );
-                        $data['seduta']['votazione']['timestamp'] = $votazione->getObject()->attribute( 'modified' );
-                        $data['seduta']['votazione']['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $votazione->getObject()->attribute( 'modified' ) );
-                        $data['seduta']['votazione']['user_voted'] = $votazione->userAlreadyVoted( $this->id() );
-                    }
-                    else
-                    {
+                        $data['seduta']['votazione']['stato'] = $votazione->currentState()->attribute('identifier');
+                        $data['seduta']['votazione']['short_text'] = $votazione->stringAttribute(Votazione::$shortTextIdentifier);
+                        $data['seduta']['votazione']['text'] = $votazione->stringAttribute(Votazione::$textIdentifier);
+                        $data['seduta']['votazione']['punto_id'] = $votazione->stringAttribute(Votazione::$puntoIdentifier, 'intval');
+                        $data['seduta']['votazione']['timestamp'] = $votazione->getObject()->attribute('modified');
+                        $data['seduta']['votazione']['_timestamp_readable'] = date(Seduta::DATE_FORMAT, $votazione->getObject()->attribute('modified'));
+                        $data['seduta']['votazione']['user_voted'] = $votazione->userAlreadyVoted($this->id());
+                    } else {
                         $data['seduta']['votazione'] = null;
                     }
 
                 }
-            }
-            catch( Exception $e )
-            {
+            } catch (Exception $e) {
                 $data['seduta'] = null;
             }
-        }
-        else
-        {
+        } else {
             $data['seduta'] = null;
         }
 
         return $data;
     }
 
-    public function getTimelinePresenza( Seduta $seduta )
+    public function getTimelinePresenza(Seduta $seduta)
     {
-        return new OpenPAConsiglioPresenzaArrayAccess( $this );
+        return new OpenPAConsiglioPresenzaArrayAccess($this);
     }
 
     public function getPercentualePresenza()
     {
-        return new OpenPAConsiglioPresenzaArrayAccess( $this, 'percent' );
+        return new OpenPAConsiglioPresenzaArrayAccess($this, 'percent');
     }
 
     public function getImportoGettone()
     {
-        return new OpenPAConsiglioPresenzaArrayAccess( $this, 'importo' );
+        return new OpenPAConsiglioPresenzaArrayAccess($this, 'importo');
     }
-    
+
+    public function getLivelloGettone()
+    {
+        return new OpenPAConsiglioPresenzaArrayAccess($this, 'livello');
+    }
+
     public function getRilevazioniPresenze()
     {
-        return new OpenPAConsiglioPresenzaArrayAccess( $this, 'presenze' );
+        return new OpenPAConsiglioPresenzaArrayAccess($this, 'presenze');
     }
 
 }

@@ -15,7 +15,7 @@
         {if $seduta_can_modify}
         <td>
             <a href="#" class="btn btn-danger btn-xs remove-spesa" data-url="{concat('consiglio/gettoni/',$interval,'/',$politico.object.id, '/remove_spesa/', $spesa.object.id )|ezurl(no)}">
-                <i class="fa fa-trash"></i>
+                <i class="fa fa-times"></i>
             </a>
         </td>
         {/if}

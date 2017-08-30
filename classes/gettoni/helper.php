@@ -23,26 +23,25 @@ class OpenPAConsiglioGettoniHelper
 
     public function __construct()
     {
-        if ( !eZContentObject::fetchByRemoteID( 'openpa_consiglio_rendiconto_spese' ) )
-        {
-            $params =  array(
+        if (!eZContentObject::fetchByRemoteID('openpa_consiglio_rendiconto_spese')) {
+            $params = array(
                 'remote_id' => 'openpa_consiglio_rendiconto_spese',
                 'class_identifier' => 'folder',
-                'parent_node_id' => eZINI::instance( 'content.ini' )->variable( 'NodeSettings', 'MediaRootNode' ),
+                'parent_node_id' => eZINI::instance('content.ini')->variable('NodeSettings', 'MediaRootNode'),
                 'attributes' => array(
                     'name' => 'Rendicontazione spese'
                 )
             );
-            eZContentFunctions::createAndPublishObject( $params );
+            eZContentFunctions::createAndPublishObject($params);
         }
     }
 
     protected static function rendicontiContainerNodeId()
     {
-        return eZContentObject::fetchByRemoteID( 'openpa_consiglio_rendiconto_spese' )->attribute( 'main_node_id' );
+        return eZContentObject::fetchByRemoteID('openpa_consiglio_rendiconto_spese')->attribute('main_node_id');
     }
 
-    public function setPolitico( Politico $politico )
+    public function setPolitico(Politico $politico)
     {
         $this->politico = $politico;
     }
@@ -52,13 +51,27 @@ class OpenPAConsiglioGettoniHelper
      */
     public function getPolitici()
     {
-        if ( $this->politici === null )
-        {
-            $this->politici = OCEditorialStuffHandler::instance( 'politico' )->fetchItems(
+        if ($this->politici === null) {
+            /** @var Organo[] $organi */
+            $organi = OCEditorialStuffHandler::instance('organo')->fetchItems(array('limit' => 50, 'offset' => 0));
+            $politiciIdList = array();
+            foreach ($organi as $organo) {
+                $politiciIdList = array_merge($politiciIdList, $organo->stringAttribute('membri',function($string){return explode('-', $string);}));
+            }
+            $politiciIdList = array_unique($politiciIdList);
+
+            $politiciFilters = count($politiciIdList) > 1 ? array('or') : array();
+            foreach ($politiciIdList as $id) {
+                $politiciFilters[] = 'meta_id_si:' . $id;
+            }
+            $filters[] = count($politiciFilters) > 1 ? $politiciFilters : $politiciFilters[0];
+
+            $this->politici = OCEditorialStuffHandler::instance('politico')->fetchItems(
                 array(
+                    'filters' => $politiciFilters,
                     'limit' => 100,
                     'offset' => 0,
-                    'sort' => array( 'politico/cognome' => 'asc' )
+                    'sort' => array('attr_cognome_s' => 'asc')
                 )
             );
         }
@@ -71,41 +84,35 @@ class OpenPAConsiglioGettoniHelper
      *
      * @return Seduta[]
      */
-    public function getSedute( OpenPAConsiglioGettoniInterval $interval )
+    public function getSedute(OpenPAConsiglioGettoniInterval $interval)
     {
-        if ( $this->sedute === null )
-        {
+        if ($this->sedute === null) {
             $this->sedute = array();
 
             $filters = $interval->fetchFilter();
 
-            if ( $this->politico instanceof Politico )
-            {
-                $organoNodeIds = array();
-                $currentLocations = $this->politico->attribute( 'is_in' );
-                foreach ( $this->politico->attribute( 'locations' ) as $identifier => $node )
-                {
+            if ($this->politico instanceof Politico) {
+                $organoIds = array();
+                $currentLocations = $this->politico->attribute('is_in');
+                foreach ($this->politico->attribute('organi') as $name => $id) {
                     /** @var eZContentObjectTreeNode $node */
-                    if ( $currentLocations[$identifier] )
-                    {
-                        $organoNodeIds[] = $node->attribute( 'node_id' );
+                    if ($currentLocations[$name]) {
+                        $organoIds[] = $id;
                     }
                 }
-                if ( !empty( $organoNodeIds ) )
-                {
-                    $organoFilters = count( $organoNodeIds ) > 1 ? array( 'or' ) : array();
-                    foreach ( $organoNodeIds as $nodeId )
-                    {
-                        $organoFilters[] = 'submeta_organo___main_node_id_si:' . $nodeId;
+                if (!empty( $organoIds )) {
+                    $organoFilters = count($organoIds) > 1 ? array('or') : array();
+                    foreach ($organoIds as $id) {
+                        $organoFilters[] = 'submeta_organo___id_si:' . $id;
                     }
-                    $filters[] = count( $organoFilters ) > 1 ? $organoFilters : $organoFilters[0];
+                    $filters[] = count($organoFilters) > 1 ? $organoFilters : $organoFilters[0];
                 }
             }
-            $this->sedute = OCEditorialStuffHandler::instance( 'seduta' )->fetchItems(
+            $this->sedute = OCEditorialStuffHandler::instance('seduta')->fetchItems(
                 array(
                     'filters' => $filters,
-                    'state' => array( 'closed' ),
-                    'sort' => array( 'meta_published_dt' => 'asc' ),
+                    'state' => array('closed'),
+                    'sort' => array('meta_published_dt' => 'asc'),
                     'limit' => 1000,
                     'offset' => 0
                 )
@@ -118,58 +125,60 @@ class OpenPAConsiglioGettoniHelper
     public function getGettoni()
     {
         $data = array();
-        if ( $this->politico instanceof Politico )
-        {
-            $gettoni = OpenPAConsiglioGettone::fetchByUserID( $this->politico->id() );
-            foreach ( $gettoni as $gettone )
-            {
-                $data[$gettone->attribute( 'seduta_id' )] = $gettone;
+        if ($this->politico instanceof Politico) {
+            $gettoni = OpenPAConsiglioGettone::fetchByUserID($this->politico->id());
+            foreach ($gettoni as $gettone) {
+                $data[$gettone->attribute('seduta_id')] = $gettone;
             }
         }
 
         return $data;
     }
 
-    public static function isSedutaLiquidata( Seduta $seduta )
+    public static function isSedutaLiquidata(Seduta $seduta)
     {
         return 0;
     }
 
-    public static function executeAction( $actionName, $actionParameter, eZUser $currentSelectedUser, Politico $politico, OpenPAConsiglioGettoniInterval $interval )
-    {
-        switch ( $actionName )
-        {
+    public static function executeAction(
+        $actionName,
+        $actionParameter,
+        eZUser $currentSelectedUser,
+        Politico $politico,
+        OpenPAConsiglioGettoniInterval $interval
+    ) {
+        switch ($actionName) {
             case 'add_km':
-                self::addKm( $currentSelectedUser, $actionParameter );
+                self::addKm($currentSelectedUser, $actionParameter);
                 break;
 
             case 'add_spesa':
-                self::addSpesa( $currentSelectedUser );
+                self::addSpesa($currentSelectedUser);
                 break;
 
             case 'remove_spesa':
-                self::removeSpesa( $currentSelectedUser, $actionParameter );
+                self::removeSpesa($currentSelectedUser, $actionParameter);
                 break;
 
             case 'load_spese':
-                self::loadSpese( $currentSelectedUser, $actionParameter, $politico->id(), $interval );
+                self::loadSpese($currentSelectedUser, $actionParameter, $politico->id(), $interval);
                 break;
 
             case 'export_report':
-                self::exportReport( $currentSelectedUser, $politico->id(), $interval );
+                self::exportReport($currentSelectedUser, $politico->id(), $interval);
                 break;
 
             case 'add_iban':
-                self::addIban( $currentSelectedUser );
+                self::addIban($currentSelectedUser);
                 break;
 
             case 'add_trattenute':
-                self::addTrattenute( $currentSelectedUser );
+                self::addTrattenute($currentSelectedUser);
                 break;
         }
     }
 
-    protected static function addKm( eZUser $currentSelectedUser, $sedutaId )
+    protected static function addKm(eZUser $currentSelectedUser, $sedutaId)
     {
         $http = eZHTTPTool::instance();
         $remoteId = 'rendiconto_km_' . $sedutaId . '_' . $currentSelectedUser->id();
@@ -180,255 +189,249 @@ class OpenPAConsiglioGettoniHelper
             'parent_node_id' => self::rendicontiContainerNodeId(),
             'attributes' => array(
                 'description' => 'Rimborso chilometrico',
-                'amount' => str_replace( ',', '.', $http->postVariable( 'value' ) )
+                'amount' => str_replace(',', '.', $http->postVariable('value'))
             )
         );
-        $object = eZContentObject::fetchByRemoteID( $remoteId );
-        if ( $object instanceof eZContentObject )
-        {
-            eZContentFunctions::updateAndPublishObject( $object, $params );
-        }
-        else
-        {
-            $object = eZContentFunctions::createAndPublishObject( $params );
+        $object = eZContentObject::fetchByRemoteID($remoteId);
+        if ($object instanceof eZContentObject) {
+            eZContentFunctions::updateAndPublishObject($object, $params);
+        } else {
+            $object = eZContentFunctions::createAndPublishObject($params);
         }
         header('Content-Type: application/json');
-        header( 'HTTP/1.1 200 OK' );
-        echo json_encode( array( 'result' => 'success', 'object' => $object->attribute( 'id' ) ));
+        header('HTTP/1.1 200 OK');
+        echo json_encode(array('result' => 'success', 'object' => $object->attribute('id')));
         eZExecution::cleanExit();
 
     }
 
-    protected static function exportReport( eZUser $currentSelectedUser, $politicoId, OpenPAConsiglioGettoniInterval $interval )
-    {
+    protected static function exportReport(
+        eZUser $currentSelectedUser,
+        $politicoId,
+        OpenPAConsiglioGettoniInterval $interval
+    ) {
         /** @var Politico $politico */
-        $politico = OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId( intval( $politicoId ) );
+        $politico = OCEditorialStuffHandler::instance('politico')->fetchByObjectId(intval($politicoId));
 
         $helper = new OpenPAConsiglioGettoniHelper();
-        $helper->setPolitico( $politico );
+        $helper->setPolitico($politico);
 
         $data = array(
-            array( 'Nota spese ' . $interval->intervalName . ' ' . $politico->getObject()->attribute( 'name' ), '', '', '' ),
-            array( 'Convocazione', 'Sede', 'Chilometri', 'Spese' )
+            array(
+                'Nota spese ' . $interval->intervalName . ' ' . $politico->getObject()->attribute('name'),
+                '',
+                '',
+                ''
+            ),
+            array('Convocazione', 'Sede', 'Chilometri', 'Spese')
         );
 
-        $sedute = $helper->getSedute( $interval );
+        $sedute = $helper->getSedute($interval);
         $totaloneKm = array();
         $totaloneSpese = array();
-        foreach( $sedute as $seduta )
-        {
+        foreach ($sedute as $seduta) {
             $km = 0;
             $remoteId = 'rendiconto_km_' . $seduta->id() . '_' . $currentSelectedUser->id();
-            $kmObj = eZContentObject::fetchByRemoteID( $remoteId );
-            if ( $kmObj instanceof eZContentObject )
-            {
+            $kmObj = eZContentObject::fetchByRemoteID($remoteId);
+            if ($kmObj instanceof eZContentObject) {
                 /** @var eZContentObjectAttribute[] $kmDataMap */
-                $kmDataMap = $kmObj->attribute( 'data_map' );
+                $kmDataMap = $kmObj->attribute('data_map');
                 $km = $kmDataMap['amount']->toString();
             }
             $totaloneKm[] = $km;
 
             $totaleSpese = array();
-            $spese = eZFunctionHandler::execute( 'ezfind', 'search', array(
+            $spese = eZFunctionHandler::execute('ezfind', 'search', array(
                 'class_id' => array('rendiconto_spese'),
-                'filter' => array( 'meta_owner_id_si:'.$politico->id(), 'submeta_relations___id_si:'.$seduta->id() )
+                'filter' => array('meta_owner_id_si:' . $politico->id(), 'submeta_relations___id_si:' . $seduta->id())
             ));
-            if ( $spese['SearchCount'] > 0 )
-            {
+            if ($spese['SearchCount'] > 0) {
                 /** @var eZFindResultNode $spesa */
-                foreach( $spese['SearchResult'] as $spesa )
-                {
-                    $spesaDataMap = $spesa->attribute( 'data_map' );
+                foreach ($spese['SearchResult'] as $spesa) {
+                    $spesaDataMap = $spesa->attribute('data_map');
                     /** @var eZContentObjectAttribute[] $spesaDataMap */
-                    $spesaDataMap = $spesa->attribute( 'data_map' );
+                    $spesaDataMap = $spesa->attribute('data_map');
                     $totaleSpese[] = $spesaDataMap['amount']->toString();
                     $totaloneSpese[] = $spesaDataMap['amount']->toString();
                 }
             }
 
             /** @var eZContentObjectAttribute[] $dataMap */
-            $dataMap = $seduta->getObject()->attribute( 'data_map' );
+            $dataMap = $seduta->getObject()->attribute('data_map');
             $row = array(
-                $seduta->getObject()->attribute( 'name' ),
+                $seduta->getObject()->attribute('name'),
                 $dataMap['luogo']->toString(),
                 $km,
-                array_sum( $totaleSpese )
+                array_sum($totaleSpese)
             );
             $data[] = $row;
         }
 
-        $data[] = array( 'Totale', '', array_sum( $totaloneKm ), array_sum( $totaloneSpese ) );
-        $data[] = array( 'IBAN', eZPreferences::value( 'consiglio_gettoni_iban', $currentSelectedUser ) , '', '' );
-        $data[] = array( 'TRATTENUTE', eZPreferences::value( 'consiglio_gettoni_trattenute', $currentSelectedUser ), '', '' );
+        $data[] = array('Totale', '', array_sum($totaloneKm), array_sum($totaloneSpese));
+        $data[] = array('IBAN', eZPreferences::value('consiglio_gettoni_iban', $currentSelectedUser), '', '');
+        $data[] = array(
+            'TRATTENUTE',
+            eZPreferences::value('consiglio_gettoni_trattenute', $currentSelectedUser),
+            '',
+            ''
+        );
 
         $objPHPExcel = new PHPExcel();
         $objPHPExcel->getProperties()->setCreator('cal.tn.it')
                     ->setLastModifiedBy('cal.tn.it')
                     ->setTitle('Nota spese')
                     ->setSubject('Nota spese')
-                    ->setDescription( 'Nota spese' );
+                    ->setDescription('Nota spese');
         $objPHPExcel->getActiveSheet()->fromArray($data);
 
-        $filename = 'Nota spese ' . $interval->intervalName . ' ' . $politico->getObject()->attribute( 'name' ) . '.xls';
+        $filename = 'Nota spese ' . $interval->intervalName . ' ' . $politico->getObject()->attribute('name') . '.xls';
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
         header('Cache-Control: max-age=1');
-        header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
-        header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
-        header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
-        header ('Pragma: public'); // HTTP/1.0
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // always modified
+        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header('Pragma: public'); // HTTP/1.0
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save('php://output');
         eZExecution::cleanExit();
     }
 
-    protected static function loadSpese( eZUser $currentSelectedUser, $sedutaId, $politicoId, $interval )
+    protected static function loadSpese(eZUser $currentSelectedUser, $sedutaId, $politicoId, $interval)
     {
         $tpl = eZTemplate::factory();
-        $tpl->setVariable( 'interval', $interval->intervalString );        
-        $seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( intval( $sedutaId ) );
-        $tpl->setVariable( 'seduta', $seduta );        
-        $politico = OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId( intval( $politicoId ) );
-        $tpl->setVariable( 'politico', $politico );
-        header( 'HTTP/1.1 200 OK' );
-        echo $tpl->fetch( "design:consiglio/gettoni/spese.tpl" );
+        $tpl->setVariable('interval', $interval->intervalString);
+        $seduta = OCEditorialStuffHandler::instance('seduta')->fetchByObjectId(intval($sedutaId));
+        $tpl->setVariable('seduta', $seduta);
+        $politico = OCEditorialStuffHandler::instance('politico')->fetchByObjectId(intval($politicoId));
+        $tpl->setVariable('politico', $politico);
+        header('HTTP/1.1 200 OK');
+        echo $tpl->fetch("design:consiglio/gettoni/spese.tpl");
         eZExecution::cleanExit();
     }
 
-    protected static function removeSpesa( eZUser $currentSelectedUser, $spesaId  )
+    protected static function removeSpesa(eZUser $currentSelectedUser, $spesaId)
     {
-        $object = eZContentObject::fetch( $spesaId );
-        if ( $object instanceof eZContentObject && $object->attribute( 'class_identifier' ) == 'rendiconto_spese' )
-        {
-            eZContentOperationCollection::deleteObject( array( $object->attribute( 'main_node_id' ) ), false );
+        $object = eZContentObject::fetch($spesaId);
+        if ($object instanceof eZContentObject && $object->attribute('class_identifier') == 'rendiconto_spese') {
+            eZContentOperationCollection::deleteObject(array($object->attribute('main_node_id')), false);
             header('Content-Type: application/json');
-            header( 'HTTP/1.1 200 OK' );
-            echo json_encode( array( 'result' => 'success', 'removed' => $spesaId ));
+            header('HTTP/1.1 200 OK');
+            echo json_encode(array('result' => 'success', 'removed' => $spesaId));
             eZExecution::cleanExit();
         }
         header('Content-Type: application/json');
-        header( 'HTTP/1.1 500 OK' );
-        echo json_encode( array( 'result' => 'error', 'not_removed' => $spesaId ));
+        header('HTTP/1.1 500 OK');
+        echo json_encode(array('result' => 'error', 'not_removed' => $spesaId));
         eZExecution::cleanExit();
     }
 
-    protected static function addSpesa( eZUser $currentSelectedUser )
+    protected static function addSpesa(eZUser $currentSelectedUser)
     {
         $http = eZHTTPTool::instance();
 
         $siteaccess = eZSiteAccess::current();
         $options['upload_dir'] = eZSys::cacheDirectory() . '/fileupload/';
-        eZDir::mkdir( $options['upload_dir'], false, true );
+        eZDir::mkdir($options['upload_dir'], false, true);
         $options['download_via_php'] = true;
         $options['param_name'] = "File";
         $options['image_versions'] = array();
-        $options['max_file_size'] = $http->variable( "upload_max_file_size", null );
+        $options['max_file_size'] = $http->variable("upload_max_file_size", null);
         $filePath = null;
         $objectId = 0;
-        if ( $http->hasPostVariable( 'image' ) )
-        {
-            $im = imagecreatefrompng( $_POST['image'] );
-            $tmpFileName = md5( uniqid( 'camupload' ) ) . '.png';
+        if ($http->hasPostVariable('image')) {
+            $im = imagecreatefrompng($_POST['image']);
+            $tmpFileName = md5(uniqid('camupload')) . '.png';
             $filePath = $options['upload_dir'] . $tmpFileName;
-            imagepng( $im, $filePath );
-        }
-        else
-        {
+            imagepng($im, $filePath);
+        } else {
             /** @var UploadHandler $uploadHandler */
-            $uploadHandler = new UploadHandler( $options, false );
-            $data = $uploadHandler->post( false );
-            foreach( $data[$options['param_name']] as $file )
-            {
+            $uploadHandler = new UploadHandler($options, false);
+            $data = $uploadHandler->post(false);
+            foreach ($data[$options['param_name']] as $file) {
                 $filePath = $options['upload_dir'] . $file->name;
                 break;
             }
         }
-        if ( $filePath )
-        {
+        if ($filePath) {
             $params = array(
                 'creator_id' => $currentSelectedUser->id(),
                 'class_identifier' => 'rendiconto_spese',
                 'parent_node_id' => self::rendicontiContainerNodeId(),
                 'attributes' => array(
-                    'description' => $http->postVariable( 'Description' ),
-                    'amount' => str_replace( ',', '.', $http->postVariable( 'Amount' ) ),
+                    'description' => $http->postVariable('Description'),
+                    'amount' => str_replace(',', '.', $http->postVariable('Amount')),
                     'file' => $filePath,
-                    'relations' => $http->postVariable( 'seduta' )
+                    'relations' => $http->postVariable('seduta')
                 )
             );
-            $object = eZContentFunctions::createAndPublishObject( $params );
-            if ( $object instanceof eZContentObject )
-            {
-                $objectId = $object->attribute( 'id' );
+            $object = eZContentFunctions::createAndPublishObject($params);
+            if ($object instanceof eZContentObject) {
+                $objectId = $object->attribute('id');
             }
-            $file = eZClusterFileHandler::instance( $filePath );
-            if ( $file->exists() )
-            {
+            $file = eZClusterFileHandler::instance($filePath);
+            if ($file->exists()) {
                 $file->delete();
             }
         }
-        header( 'Content-Type: application/json' );
-        header( 'HTTP/1.1 200 OK' );
-        echo json_encode( array( 'result' => 'success', 'object' => $objectId ) );
+        header('Content-Type: application/json');
+        header('HTTP/1.1 200 OK');
+        echo json_encode(array('result' => 'success', 'object' => $objectId));
         eZExecution::cleanExit();
     }
 
-    protected static function addTrattenute( eZUser $currentSelectedUser )
+    protected static function addTrattenute(eZUser $currentSelectedUser)
     {
         $http = eZHTTPTool::instance();
-        $name = $http->postVariable( 'name' );
-        $value = $http->postVariable( 'value' );
-        if ( $name == 'trattenute'
-             && intval( $http->postVariable( 'pk', 0 ) ) == $currentSelectedUser->id()
-             && is_numeric( $value ) )
-        {
+        $name = $http->postVariable('name');
+        $value = $http->postVariable('value');
+        if ($name == 'trattenute'
+            && intval($http->postVariable('pk', 0)) == $currentSelectedUser->id()
+            && is_numeric($value)
+        ) {
             eZPreferences::setValue(
                 'consiglio_gettoni_trattenute',
                 $value,
                 $currentSelectedUser->id()
             );
-            header( 'HTTP/1.1 200 OK' );
+            header('HTTP/1.1 200 OK');
             echo 'Valore salvato';
             eZExecution::cleanExit();
-        }
-        else
-        {
-            header( 'HTTP/1.1 500 Internal Server Error' );
+        } else {
+            header('HTTP/1.1 500 Internal Server Error');
             echo 'Valore errato: inserire un numero';
             eZExecution::cleanExit();
         }
     }
 
-    protected static function addIban( eZUser $currentSelectedUser )
+    protected static function addIban(eZUser $currentSelectedUser)
     {
         $http = eZHTTPTool::instance();
-        $name = $http->postVariable( 'name' );
-        $value = $http->postVariable( 'value' );
-        if ( $name == 'iban'
-             && intval( $http->postVariable( 'pk', 0 ) ) == $currentSelectedUser->id()
-             && OpenPAConsiglioGettoniHelper::validateIban( $value ) )
-        {
+        $name = $http->postVariable('name');
+        $value = $http->postVariable('value');
+        if ($name == 'iban'
+            && intval($http->postVariable('pk', 0)) == $currentSelectedUser->id()
+            && OpenPAConsiglioGettoniHelper::validateIban($value)
+        ) {
             eZPreferences::setValue(
                 'consiglio_gettoni_iban',
                 $value,
                 $currentSelectedUser->id()
             );
-            header( 'HTTP/1.1 200 OK' );
+            header('HTTP/1.1 200 OK');
             echo 'Valore salvato';
             eZExecution::cleanExit();
-        }
-        else
-        {
-            header( 'HTTP/1.1 500 Internal Server Error' );
+        } else {
+            header('HTTP/1.1 500 Internal Server Error');
             echo 'Codice IBAN non valido';
             eZExecution::cleanExit();
         }
     }
 
-    protected static function validateIban( $iban )
+    protected static function validateIban($iban)
     {
-        $iban = strtolower( str_replace( ' ', '', $iban ) );
+        $iban = strtolower(str_replace(' ', '', $iban));
         $Countries = array(
             'al' => 28,
             'ad' => 24,
@@ -526,33 +529,25 @@ class OpenPAConsiglioGettoniHelper
             'z' => 35
         );
 
-        if ( strlen( $iban ) == $Countries[substr( $iban, 0, 2 )] )
-        {
+        if (strlen($iban) == $Countries[substr($iban, 0, 2)]) {
 
-            $MovedChar = substr( $iban, 4 ) . substr( $iban, 0, 4 );
-            $MovedCharArray = str_split( $MovedChar );
+            $MovedChar = substr($iban, 4) . substr($iban, 0, 4);
+            $MovedCharArray = str_split($MovedChar);
             $NewString = "";
 
-            foreach ( $MovedCharArray AS $key => $value )
-            {
-                if ( !is_numeric( $MovedCharArray[$key] ) )
-                {
+            foreach ($MovedCharArray AS $key => $value) {
+                if (!is_numeric($MovedCharArray[$key])) {
                     $MovedCharArray[$key] = $Chars[$MovedCharArray[$key]];
                 }
                 $NewString .= $MovedCharArray[$key];
             }
 
-            if ( bcmod( $NewString, '97' ) == 1 )
-            {
+            if (bcmod($NewString, '97') == 1) {
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
-        }
-        else
-        {
+        } else {
             return false;
         }
 

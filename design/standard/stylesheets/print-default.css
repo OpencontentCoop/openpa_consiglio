@@ -1,37 +1,5 @@
-@font-face {
-    font-family : "Arial Narrow";
-    src: url(../fonts/ArialNarrow.ttf);
-    -fs-pdf-font-embed: embed;
-    -fs-pdf-font-encoding: Identity-H;
-}
-
-@font-face {
-    font-family : "Arial Narrow";
-    src: url(../fonts/ArialNarrowBold.ttf);
-    font-weight: bold;
-    -fs-pdf-font-embed: embed;
-    -fs-pdf-font-encoding: Identity-H;
-}
-
-@font-face {
-    font-family : "Arial Narrow";
-    src: url(../fonts/ArialNarrowItalic.ttf);
-    font-style: italic, oblique;
-    -fs-pdf-font-embed: embed;
-    -fs-pdf-font-encoding: Identity-H;
-}
-
-@font-face {
-    font-family : "Arial Narrow";
-    src: url(../fonts/ArialNarrowBoldItalic.ttf);
-    font-weight: bold;
-    font-style: italic, oblique;
-    -fs-pdf-font-embed: embed;
-    -fs-pdf-font-encoding: Identity-H;
-}
-
 body {
-    font-family: "Arial Narrow";
+    font-family:"Arial","Helvetica",sans-serif;
     font-size:12pt;
 }
 
@@ -78,12 +46,12 @@ body {
 
 #pagenumber:before {
     content: counter(page);
-    font-family:"Arial Narrow", "Arial","Helvetica",sans-serif;
+    font-family:"Arial","Helvetica",sans-serif;
 }
 
 #pagecount:before {
     content: counter(pages);
-    font-family:"Arial Narrow", "Arial","Helvetica",sans-serif;
+    font-family:"Arial","Helvetica",sans-serif;
 }
 
 /* Used for generating Table of content */

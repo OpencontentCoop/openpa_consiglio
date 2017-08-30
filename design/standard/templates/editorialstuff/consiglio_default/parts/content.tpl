@@ -55,19 +55,19 @@
         <div class="col-md-3"><strong><em>Gruppi</em></strong></div>
         <div class="col-md-9">
             <ul class="list-inline">
-            {foreach $post.locations as $identifier => $location}
+            {foreach $post.organi as $identifier => $id}
                 <li>
                     {if $post.is_in[$identifier]}
                         <form action="{concat('editorialstuff/action/politico/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post" class="form-horizontal">
-                            <input type="hidden" name="ActionIdentifier" value="RemoveLocation" />
-                            <input type="hidden" name="ActionParameters[location]" value="{$identifier}" />
-                            <button type="submit" name="RemoveLocation" class="btn btn-danger btn-xs">Rimuovi da {$location.name|wash()}</button>
+                            <input type="hidden" name="ActionIdentifier" value="RemoveFromOrgano" />
+                            <input type="hidden" name="ActionParameters[organo]" value="{$id}" />
+                            <button type="submit" name="RemoveFromOrgano" class="btn btn-danger btn-xs">Rimuovi da {$identifier|wash()}</button>
                         </form>
                     {else}
                         <form action="{concat('editorialstuff/action/politico/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post" class="form-horizontal">
-                            <input type="hidden" name="ActionIdentifier" value="AddLocation" />
-                            <input type="hidden" name="ActionParameters[location]" value="{$identifier}" />
-                            <button type="submit" name="AddLocation" class="btn btn-success btn-xs">Aggiungi a {$location.name|wash()}</button>
+                            <input type="hidden" name="ActionIdentifier" value="AddToOrgano" />
+                            <input type="hidden" name="ActionParameters[organo]" value="{$id}" />
+                            <button type="submit" name="AddToOrgano" class="btn btn-success btn-xs">Aggiungi a {$identifier|wash()}</button>
                         </form>
                     {/if}
                 </li>

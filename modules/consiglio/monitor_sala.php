@@ -37,6 +37,7 @@ else
     else
     {
 
+        $tpl->setVariable( 'use_app', OpenPAConsiglioConfiguration::instance()->useApp() );
         $tpl->setVariable( 'errors', $errors );
         $tpl->setVariable( 'seduta', $seduta );
         $tpl->setVariable( 'title', 'Monitor' );

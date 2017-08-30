@@ -72,10 +72,10 @@ class OpenPAConsiglioMailTransport
     */
     static function send( eZMail $mail )
     {
-        if ( OpenPAINI::variable( 'OpenPAConsiglio', 'UseMailDebug', 'true' ) == 'true' )
+        if ( OpenPAConsiglioConfiguration::instance()->isMailDebug() )
         {
             $debugTransport = new self();
-            return $debugTransport->sendMail( $mail,  OpenPAINI::variable( 'OpenPAConsiglio', 'UseMailDebugAddress', 'lr@opencontent.it' ) );
+            return $debugTransport->sendMail( $mail,  OpenPAConsiglioConfiguration::instance()->getMailDebugAdress() );
         }
         else
         {

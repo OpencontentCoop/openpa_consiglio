@@ -1,7 +1,8 @@
 <?php
 
-class Invitato extends OCEditorialStuffPost
+class Invitato extends OCEditorialStuffPost implements OpenPAConsiglioStringAttributeInterface
 {
+    use OpenPAConsiglioStringAttributeTrait;
 
     public function onChangeState(
         eZContentObjectState $beforeState,
@@ -10,77 +11,6 @@ class Invitato extends OCEditorialStuffPost
     {
 
     }
-
-
-    /**
-     * Restituisce il toString dell'attributo $identifier filtrato da $callback (se presente)
-     * @param string $identifier
-     * @param Callable $callback
-     *
-     * @return bool|mixed|string
-     */
-    protected function stringAttribute( $identifier, $callback = null )
-    {
-        $string = '';
-        if ( isset( $this->dataMap[$identifier] ) )
-        {
-            $string = $this->dataMap[$identifier]->toString();
-        }
-        if ( is_callable( $callback ) )
-        {
-            return call_user_func( $callback, $string );
-        }
-
-        return $string;
-    }
-
-    /**
-     * Restituisce l'attributo $attributeIdentifier degli oggetti correlati all'attributo $identifier
-     * Se $attributeIdentifier = null restituisce gli oggetti
-     *
-     * @param string $identifier
-     * @param string $attributeIdentifier
-     *
-     * @return array|null
-     */
-    protected function stringRelatedObjectAttribute( $identifier, $attributeIdentifier = null )
-    {
-        $data = array();
-        $ids = explode( '-', $this->stringAttribute( $identifier ) );
-        foreach ( $ids as $id )
-        {
-            if ( is_numeric( $id ) )
-            {
-                $related = eZContentObject::fetch( $id );
-                if ( $related instanceof eZContentObject )
-                {
-                    if ( $attributeIdentifier )
-                    {
-                        if ( $related->hasAttribute( $attributeIdentifier ) )
-                        {
-                            $data[] = $related->attribute( $attributeIdentifier );
-                        }
-                        else
-                        {
-                            /** @var eZContentObjectAttribute[] $dataMap */
-                            $dataMap = $related->attribute( 'data_map' );
-                            if ( isset( $dataMap[$attributeIdentifier] ) )
-                            {
-                                $data[] = $dataMap[$attributeIdentifier]->toString();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        $data[] = $related;
-                    }
-                }
-            }
-        }
-
-        return empty( $data ) ? null : $data;
-    }
-
 
     /**
      *

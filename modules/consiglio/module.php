@@ -89,6 +89,13 @@ $ViewList['share'] = array(
     'unordered_params' => array()
 );
 
+$ViewList['registro_presenze'] = array(
+    'functions' => array( 'admin' ),
+    'script' => 'registro_presenze.php',
+    'params' => array( 'Action' ),
+    'unordered_params' => array()
+);
+
 
 
 $FunctionList = array();

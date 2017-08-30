@@ -1,0 +1,71 @@
+<?php
+require_once 'autoload.php';
+
+$script = eZScript::instance( array( 'description' => ( "Install OpenPA Consiglio" ),
+    'use-session' => false,
+    'use-modules' => true,
+    'use-extensions' => true ) );
+
+$script->startup();
+
+$options = $script->getOptions( '[parent_node:]',
+    '',
+    array(
+        'parent_node'  => 'Root Parent Node'
+    )
+);
+$script->initialize();
+$script->setUseDebugAccumulators( true );
+
+$cli = eZCLI::instance();
+
+$user = eZUser::fetchByName( 'admin' );
+eZUser::setCurrentlyLoggedInUser( $user , $user->attribute( 'contentobject_id' ) );
+
+
+try {
+    $remoteHost = 'http://www.cal.tn.it';
+    OCClassTools::setRemoteUrl($remoteHost . '/classtools/definition/');
+
+    $configuration = OpenPAConsiglioConfiguration::instance();
+    $dbUser = eZINI::instance()->variable('DatabaseSettings', 'User');
+    $dbName = eZINI::instance()->variable('DatabaseSettings', 'Database');
+    $mysqlCommand = "mysql -u {$dbUser} -p {$dbName} < extension/openpa_consiglio/sql/mysql/schema.sql";
+    $cli->warning('Esegui ' . $mysqlCommand);
+
+    foreach ($configuration->getAvailableClasses() as $identifier) {
+        $cli->warning('Sincronizzo classe ' . $identifier);
+        $tools = new OCClassTools( $identifier, true ); // creo se non esiste
+        $tools->sync( true, true ); // forzo e rimuovo attributi in più
+    }
+
+    $parentNodeId = $options['parent_node'] ? $options['parent_node'] : eZINI::instance('content.ini')->variable('NodeSettings',
+        'RootNode');
+
+
+    foreach ($configuration->getContainerDashboards() as $repositoryIdentifier) {
+        if ($configuration->getRepositoryRootNodeId($repositoryIdentifier) == null) {
+            $cli->warning('Creo root node per ' . $repositoryIdentifier);
+            $remoteId = $configuration->getRepositoryRootRemoteId($repositoryIdentifier);
+
+            $params = array(
+                'parent_node_id' => $parentNodeId,
+                'remote_id' => $remoteId,
+                'class_identifier' => 'folder',
+                'attributes' => array(
+                    'name' => $repositoryIdentifier
+                )
+            );
+            /** @var eZContentObject $rootObject */
+            $rootObject = eZContentFunctions::createAndPublishObject($params);
+            if (!$rootObject instanceof eZContentObject) {
+                throw new Exception('Fallita la creazione del root node di ' . $repositoryIdentifier);
+            }
+        }
+    }
+    $script->shutdown();
+}catch(Exception $e){
+    $script->shutdown($e->getCode(), $e->getMessage());
+}
+
+

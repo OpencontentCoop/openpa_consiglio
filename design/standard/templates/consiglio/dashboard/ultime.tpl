@@ -1,5 +1,5 @@
 
-{def $latest_content = fetch( 'content', 'tree', hash( 'parent_node_id', 1, 'class_filter_type', 'include', 'class_filter_array', array('osservazione'), 'attribute_filter', array( array( 'owner', '=', fetch(user,current_user).contentobject_id ) ), 'limit', 20, 'sort_by', array( 'modified', false() ) ) )}
+{def $latest_content = fetch( 'consiglio', 'latest_osservazioni')}
 
 {if $latest_content|count()}
 

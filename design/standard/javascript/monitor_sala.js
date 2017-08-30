@@ -1,11 +1,23 @@
 $(document).ready(function () {
     $('#page').hide();
+    $('#disconnected').hide();
 });
 
 var socket = io(SocketUrl+':'+SocketPort);
 
 socket.on('connect', function () {
     $('#page').show();
+    $('#disconnected').hide();
+});
+
+socket.on('connect_error', function (error) {
+    $('#page').hide();
+    $('#disconnected').show();
+});
+
+socket.on('disconnect', function () {
+    $('#page').hide();
+    $('#disconnected').show();
 });
 
 socket.on('presenze', function (data) {

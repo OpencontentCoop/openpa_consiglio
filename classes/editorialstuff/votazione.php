@@ -34,9 +34,8 @@ class Votazione extends OCEditorialStuffPost
     public function __construct(
         array $data = array(),
         OCEditorialStuffPostFactoryInterface $factory
-    )
-    {
-        parent::__construct( $data, $factory );
+    ) {
+        parent::__construct($data, $factory);
     }
 
     /**
@@ -45,47 +44,37 @@ class Votazione extends OCEditorialStuffPost
      */
     public function getResultHandler()
     {
-        $currentType = $this->stringAttribute( self::$typeIdentifier );
-        if ( !isset( self::$_resultHandlers[$currentType] ) )
-        {
+        $currentType = $this->stringAttribute(self::$typeIdentifier);
+        if (!isset( self::$_resultHandlers[$currentType] )) {
             $factoryConfiguration = $this->getFactory()->getConfiguration();
             $handlersAlias = $factoryConfiguration['VotazioneResultHandlersAlias'];
-            if ( isset( $handlersAlias[$currentType] ) )
-            {
+            if (isset( $handlersAlias[$currentType] )) {
                 $currentType = $handlersAlias[$currentType];
             }
             $availableHandlers = $factoryConfiguration['VotazioneResultHandlers'];
 
-            if ( $currentType == 'default' )
-            {
+            if ($currentType == 'default') {
                 $handlerClassName = 'OpenPAConsiglioVotazioneResultHandlerDefault';
-            }
-            else
-            {
+            } else {
                 $handlerClassName = isset( $availableHandlers[$currentType] ) ? $availableHandlers[$currentType] : null;
             }
-            if ( $handlerClassName && class_exists( $handlerClassName ) )
-            {
+            if ($handlerClassName && class_exists($handlerClassName)) {
                 $handlerInstance = new $handlerClassName();
-                if ( $handlerInstance instanceof OpenPAConsiglioVotazioneResultHandlerInterface )
-                {
+                if ($handlerInstance instanceof OpenPAConsiglioVotazioneResultHandlerInterface) {
                     self::$_resultHandlers[$currentType] = $handlerInstance;
-                }
-                else
-                {
+                } else {
                     throw new Exception(
                         "$handlerClassName non implementa OpenPAConsiglioVotazioneResultHandlerInterface"
                     );
                 }
-            }
-            else
-            {
+            } else {
                 throw new Exception(
                     "Non è stato trovato un gestore valido per le votazioni di tipo $currentType"
                 );
             }
         }
-        return self::$_resultHandlers[$currentType]->setCurrentVotazione( $this );
+
+        return self::$_resultHandlers[$currentType]->setCurrentVotazione($this);
     }
 
     public function attributes()
@@ -96,56 +85,46 @@ class Votazione extends OCEditorialStuffPost
         $attributes[] = 'result_template';
         $attributes[] = 'type_description';
         $attributes[] = 'is_valid';
+
         return $attributes;
     }
 
-    public function attribute( $property )
+    public function attribute($property)
     {
-        if ( $property == 'seduta_id' )
-        {
+        if ($property == 'seduta_id') {
             return $this->getSeduta()->id();
-        }
-        elseif ( $property == 'is_valid' )
-        {
+        } elseif ($property == 'is_valid') {
             return $this->getResultHandler()->isValid();
-        }
-        elseif ( $property == 'result' )
-        {
+        } elseif ($property == 'result') {
             return $this->getResultHandler();
-        }
-        elseif ( $property == 'result_template' )
-        {
+        } elseif ($property == 'result_template') {
             return $this->getResultHandler()->getTemplateName();
-        }
-        elseif ( $property == 'type_description' )
-        {
+        } elseif ($property == 'type_description') {
             return $this->getResultHandler()->getDescription();
         }
 
-        return parent::attribute( $property );
+        return parent::attribute($property);
     }
 
-    public function onChangeState( eZContentObjectState $beforeState, eZContentObjectState $afterState )
+    public function onChangeState(eZContentObjectState $beforeState, eZContentObjectState $afterState)
     {
         $this->setObjectLastModified();
         //@todo empty cache
     }
 
-    public static function create( Seduta $seduta, Punto $punto = null, $shortText, $text, $type )
+    public static function create(Seduta $seduta, Punto $punto = null, $shortText, $text, $type)
     {
-        if ( !$seduta instanceof Seduta )
-        {
-            throw new ConsiglioApiException( "Seduta non trovata", ConsiglioApiException::NOT_FOUND );
+        if (!$seduta instanceof Seduta) {
+            throw new ConsiglioApiException("Seduta non trovata", ConsiglioApiException::NOT_FOUND);
         }
 
-        if ( trim( $shortText ) == '' || trim( $text ) == '' || trim( $type ) == '' )
-        {
-            throw new ConsiglioApiException( "Dati insufficienti", ConsiglioApiException::NOT_VALID );
+        if (trim($shortText) == '' || trim($text) == '' || trim($type) == '') {
+            throw new ConsiglioApiException("Dati insufficienti", ConsiglioApiException::NOT_VALID);
         }
 
-        $votazione = eZContentFunctions::createAndPublishObject( array(
+        $votazione = eZContentFunctions::createAndPublishObject(array(
             'class_identifier' => self::$classIdentifier,
-            'parent_node_id' => OCEditorialStuffHandler::instance( 'votazione' )->getFactory()->creationRepositoryNode(),
+            'parent_node_id' => OCEditorialStuffHandler::instance('votazione')->getFactory()->creationRepositoryNode(),
             'attributes' => array(
                 self::$sedutaIdentifier => $seduta->id(),
                 self::$puntoIdentifier => $punto instanceof Punto ? $punto->id() : null,
@@ -155,76 +134,69 @@ class Votazione extends OCEditorialStuffPost
             )
         ));
 
-        if ( !$votazione instanceof eZContentObject )
-        {
-            throw new Exception( "Errore creando la votazione" );
+        if (!$votazione instanceof eZContentObject) {
+            throw new Exception("Errore creando la votazione");
         }
     }
 
     public static function sedutaClassAttributeId()
     {
-        $class = eZContentClass::fetchByIdentifier( self::$classIdentifier );
-        if ( $class instanceof eZContentClass )
-        {
-            $attribute = $class->fetchAttributeByIdentifier( self::$sedutaIdentifier );
-            if ( $attribute instanceof eZContentClassAttribute )
-            {
-                return $attribute->attribute( 'id' );
+        $class = eZContentClass::fetchByIdentifier(self::$classIdentifier);
+        if ($class instanceof eZContentClass) {
+            $attribute = $class->fetchAttributeByIdentifier(self::$sedutaIdentifier);
+            if ($attribute instanceof eZContentClassAttribute) {
+                return $attribute->attribute('id');
             }
         }
+
         return null;
     }
 
     public static function puntoClassAttributeId()
     {
-        $class = eZContentClass::fetchByIdentifier( self::$classIdentifier );
-        if ( $class instanceof eZContentClass )
-        {
-            $attribute = $class->fetchAttributeByIdentifier( self::$puntoIdentifier );
-            if ( $attribute instanceof eZContentClassAttribute )
-            {
-                return $attribute->attribute( 'id' );
+        $class = eZContentClass::fetchByIdentifier(self::$classIdentifier);
+        if ($class instanceof eZContentClass) {
+            $attribute = $class->fetchAttributeByIdentifier(self::$puntoIdentifier);
+            if ($attribute instanceof eZContentClassAttribute) {
+                return $attribute->attribute('id');
             }
         }
+
         return null;
     }
 
     public function start()
     {
         $seduta = $this->getSeduta();
-        if ( $seduta instanceof Seduta && $seduta->is( 'in_progress' ) )
-        {
-            if ( !$this->getResultHandler()->isValid() )
-            {
-                throw new ConsiglioApiException( "La votazione non può essere aperta per mancanza del quorum strutturale", ConsiglioApiException::VOTAZIONE_NOT_ALLOWED );
+        if ($seduta instanceof Seduta && $seduta->is('in_progress')) {
+            if (!$this->getResultHandler()->isValid()) {
+                throw new ConsiglioApiException("La votazione non può essere aperta per mancanza del quorum strutturale",
+                    ConsiglioApiException::VOTAZIONE_NOT_ALLOWED);
             }
-            $this->setState( 'stato_votazione.in_progress' );
+            $this->setState('stato_votazione.in_progress');
             OpenPAConsiglioPushNotifier::instance()->emit(
                 'start_votazione',
                 $this->jsonSerialize()
             );
 
             $now = time();
-            $this->dataMap[self::$startDateIdentifier]->fromString( $now );
+            $this->dataMap[self::$startDateIdentifier]->fromString($now);
             $this->dataMap[self::$startDateIdentifier]->store();
 
             $registro = $this->getSeduta()->registroPresenze();
-            $this->dataMap[self::$presentiIdentifier]->fromString( $registro['in'] );
+            $this->dataMap[self::$presentiIdentifier]->fromString($registro['in']);
             $this->dataMap[self::$presentiIdentifier]->store();
-        }
-        else
-        {
-            throw new ConsiglioApiException( "La seduta non è in corso", ConsiglioApiException::SEDUTA_NOT_IN_PROGRESS );
+        } else {
+            throw new ConsiglioApiException("La seduta non è in corso", ConsiglioApiException::SEDUTA_NOT_IN_PROGRESS);
         }
     }
 
     public function stop()
     {
-        if ( $this->currentState()->attribute( 'identifier' ) == 'in_progress' )
-        {
+        if ($this->currentState()->attribute('identifier') == 'in_progress') {
             // registro la data di chiusura votazione
             $now = time();
-            $this->dataMap[self::$endDateIdentifier]->fromString( $now );
+            $this->dataMap[self::$endDateIdentifier]->fromString($now);
             $this->dataMap[self::$endDateIdentifier]->store();
 
             //// notifico tutti che la votazione è chiusa
@@ -241,30 +213,29 @@ class Votazione extends OCEditorialStuffPost
             $this->getResultHandler()->store();
 
             // chiudo la votazione
-            $this->setState( 'stato_votazione.closed' );
+            $this->setState('stato_votazione.closed');
             OpenPAConsiglioPushNotifier::instance()->emit(
-                //'real_stop_votazione',
+            //'real_stop_votazione',
                 'stop_votazione',
                 $this->jsonSerialize()
             );
-        }
-        else
-        {
-            throw new ConsiglioApiException( "La votazione selezionata non è stata ancora aperta", ConsiglioApiException::VOTAZIONE_NOT_OPEN );
+        } else {
+            throw new ConsiglioApiException("La votazione selezionata non è stata ancora aperta",
+                ConsiglioApiException::VOTAZIONE_NOT_OPEN);
         }
     }
 
-    public function stringAttribute( $identifier, $callback = null )
+    public function stringAttribute($identifier, $callback = null)
     {
-        if ( isset( $this->dataMap[$identifier] ) )
-        {
+        if (isset( $this->dataMap[$identifier] )) {
             $string = $this->dataMap[$identifier]->toString();
-            if ( is_callable( $callback ) )
-            {
-                return call_user_func( $callback, $string );
+            if (is_callable($callback)) {
+                return call_user_func($callback, $string);
             }
+
             return $string;
         }
+
         return '';
     }
 
@@ -273,49 +244,49 @@ class Votazione extends OCEditorialStuffPost
         $result = $this->getResultHandler();
         $data = array(
             'id' => $this->id(),
-            'short_text' => $this->stringAttribute( self::$shortTextIdentifier ),
-            'text' => $this->stringAttribute( self::$textIdentifier ),
-            'seduta_id' => $this->stringAttribute( self::$sedutaIdentifier, 'intval' ),
-            'punto_id' => $this->stringAttribute( self::$puntoIdentifier, 'intval' ),
-            'tipo' => $this->stringAttribute( self::$typeIdentifier ),
-            'stato' => $this->currentState()->attribute( 'identifier' ),
-            'presenti' => $this->is( 'closed' ) ? $result->attribute( 'presenti_count' ) : null,
-            'votanti' => $this->is( 'closed' ) ? $result->attribute( 'votanti_count' ) : null,
-            'favorevoli' => $this->is( 'closed' ) ? $result->attribute( 'favorevoli_count' ) : null,
-            'contrari' => $this->is( 'closed' ) ? $result->attribute( 'contrari_count' ) : null,
-            'astenuti' => $this->is( 'closed' ) ?$result->attribute( 'astenuti_count' ) : null,
-            'timestamp' => $this->getObject()->attribute( 'modified' ),
-            '_timestamp_readable' => date( Seduta::DATE_FORMAT, $this->getObject()->attribute( 'modified' ) )
+            'short_text' => $this->stringAttribute(self::$shortTextIdentifier),
+            'text' => $this->stringAttribute(self::$textIdentifier),
+            'seduta_id' => $this->stringAttribute(self::$sedutaIdentifier, 'intval'),
+            'punto_id' => $this->stringAttribute(self::$puntoIdentifier, 'intval'),
+            'tipo' => $this->stringAttribute(self::$typeIdentifier),
+            'stato' => $this->currentState()->attribute('identifier'),
+            'presenti' => $this->is('closed') ? $result->attribute('presenti_count') : null,
+            'votanti' => $this->is('closed') ? $result->attribute('votanti_count') : null,
+            'favorevoli' => $this->is('closed') ? $result->attribute('favorevoli_count') : null,
+            'contrari' => $this->is('closed') ? $result->attribute('contrari_count') : null,
+            'astenuti' => $this->is('closed') ? $result->attribute('astenuti_count') : null,
+            'timestamp' => $this->getObject()->attribute('modified'),
+            '_timestamp_readable' => date(Seduta::DATE_FORMAT, $this->getObject()->attribute('modified'))
         );
-//        $lastChangeHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $this->id(), 'updateobjectstate' );
-//        if ( $lastChangeHistory instanceof OCEditorialStuffHistory )
-//        {
-//            $data['timestamp'] = $lastChangeHistory->attribute( 'created_time' );
-//            $data['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastChangeHistory->attribute( 'created_time' ) );
-//        }
+        //        $lastChangeHistory = OCEditorialStuffHistory::getLastHistoryByObjectIdAndType( $this->id(), 'updateobjectstate' );
+        //        if ( $lastChangeHistory instanceof OCEditorialStuffHistory )
+        //        {
+        //            $data['timestamp'] = $lastChangeHistory->attribute( 'created_time' );
+        //            $data['_timestamp_readable'] = date( Seduta::DATE_FORMAT, $lastChangeHistory->attribute( 'created_time' ) );
+        //        }
         return $data;
     }
 
-    public function addVoto( $value, $userId = null )
+    public function addVoto($value, $userId = null)
     {
-        if ( $userId === null )
-        {
+        if ($userId === null) {
             $userId = eZUser::currentUserID();
         }
         $seduta = $this->getSeduta();
-        $this->checkAccess( $seduta, $userId );        
-        $voto = OpenPAConsiglioVoto::create( $seduta, $this, $value, $userId );
+        $this->checkAccess($seduta, $userId);
+        $voto = OpenPAConsiglioVoto::create($seduta, $this, $value, $userId);
         $voto->store();
         OpenPAConsiglioPushNotifier::instance()->emit(
             'voto',
             $voto->jsonSerialize()
         );
+
         return $voto;
     }
 
-    public function userAlreadyVoted( $userId )
+    public function userAlreadyVoted($userId)
     {
-        return OpenPAConsiglioVoto::userAlreadyVoted( $this, $userId );
+        return OpenPAConsiglioVoto::userAlreadyVoted($this, $userId);
     }
 
     /**
@@ -323,48 +294,42 @@ class Votazione extends OCEditorialStuffPost
      */
     public function getSeduta()
     {
-        if ( $this->seduta == null )
-        {
-            $sedutaId = $this->stringAttribute( self::$sedutaIdentifier, 'intval' );
-            $this->seduta = OCEditorialStuffHandler::instance( 'seduta' )->fetchByObjectId( $sedutaId );
+        if ($this->seduta == null) {
+            $sedutaId = $this->stringAttribute(self::$sedutaIdentifier, 'intval');
+            $this->seduta = OCEditorialStuffHandler::instance('seduta')->fetchByObjectId($sedutaId);
         }
+
         return $this->seduta;
     }
 
-    public function checkAccess( $seduta, $userId )
+    public function checkAccess($seduta, $userId)
     {
-        if ( !$seduta instanceof Seduta )
-        {
-            throw new ConsiglioApiException( 'Seduta non trovata', ConsiglioApiException::NOT_FOUND );
-        }
-        
-        if ( !in_array( $userId, $seduta->partecipanti( false ) ) )
-        {
-            throw new ConsiglioApiException( 'Politico non abilitato a votare in questa seduta', ConsiglioApiException::POLITICO_NOT_ALLOWED );
-        }
-        
-        //check $userId: se non è un politico viene sollevata eccezione
-        try
-        {            
-            OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId( $userId );
-        }
-        catch( Exception $e )
-        {
-            throw new ConsiglioApiException( 'Politico non trovato', ConsiglioApiException::POLITICO_NOT_FOUND );
+        if (!$seduta instanceof Seduta) {
+            throw new ConsiglioApiException('Seduta non trovata', ConsiglioApiException::NOT_FOUND);
         }
 
-        if ( !$this->is( 'in_progress' ) )
-        {
-            $data = array( 'user_voted' => false, 'vote_value' => false );
-            $alreadyExists = OpenPAConsiglioVoto::userAlreadyVoted( $this, $userId, false );
-            if ( $alreadyExists instanceof OpenPAConsiglioVoto )
-            {
+        if (!in_array($userId, $seduta->partecipanti(false))) {
+            throw new ConsiglioApiException('Politico non abilitato a votare in questa seduta',
+                ConsiglioApiException::POLITICO_NOT_ALLOWED);
+        }
+
+        //check $userId: se non è un politico viene sollevata eccezione
+        try {
+            OCEditorialStuffHandler::instance('politico')->fetchByObjectId($userId);
+        } catch (Exception $e) {
+            throw new ConsiglioApiException('Politico non trovato', ConsiglioApiException::POLITICO_NOT_FOUND);
+        }
+
+        if (!$this->is('in_progress')) {
+            $data = array('user_voted' => false, 'vote_value' => false);
+            $alreadyExists = OpenPAConsiglioVoto::userAlreadyVoted($this, $userId, false);
+            if ($alreadyExists instanceof OpenPAConsiglioVoto) {
                 $data = array(
                     'user_voted' => true,
-                    'vote_value' => $alreadyExists->attribute( 'value' )
+                    'vote_value' => $alreadyExists->attribute('value')
                 );
             }
-            $data['stato'] = $this->currentState()->attribute( 'identifier' ) ;
+            $data['stato'] = $this->currentState()->attribute('identifier');
             throw new ConsiglioApiException(
                 "La votazione non e' in corso",
                 ConsiglioApiException::VOTAZIONE_NOT_OPEN,
@@ -374,18 +339,17 @@ class Votazione extends OCEditorialStuffPost
         }
     }
 
-    public static function getByID( $votazioneId )
+    public static function getByID($votazioneId)
     {
-        return OCEditorialStuffHandler::instance( 'votazione' )->fetchByObjectId( $votazioneId );
+        return OCEditorialStuffHandler::instance('votazione')->fetchByObjectId($votazioneId);
     }
 
-    public static function removeByID( $votazioneId )
+    public static function removeByID($votazioneId)
     {
-        $votazione = self::getByID( $votazioneId );
-        if ( $votazione instanceof Votazione && $votazione->isBefore( 'pending', true ) )
-        {
+        $votazione = self::getByID($votazioneId);
+        if ($votazione instanceof Votazione && $votazione->isBefore('pending', true)) {
             $object = $votazione->getObject();
-            eZContentOperationCollection::deleteObject( array( $object->attribute( 'main_node_id' ) ) );
+            eZContentOperationCollection::deleteObject(array($object->attribute('main_node_id')));
         }
     }
 

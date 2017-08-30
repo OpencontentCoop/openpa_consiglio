@@ -1,64 +1,35 @@
-{let class_content=$attribute.class_content
-     class_list=fetch( class, list, hash( class_filter, $class_content.class_constraint_list ) )}
+{if is_set($attribute_base)|not()}
+    {def $attribute_base = 'ContentObjectAttribute'}
+{/if}
 
-{default html_class='full' placeholder=false()}
-{if $placeholder} <label>{$placeholder}</label>{/if}
 
-{default attribute_base=ContentObjectAttribute}
-{let
-    parent_node= cond( and( is_set( $class_content.default_placement.node_id ),
-                       $class_content.default_placement.node_id|eq( 0 )|not ),
-                       $class_content.default_placement.node_id, 1)
-
-    nodesList= cond( and( is_set( $class_content.class_constraint_list ), $class_content.class_constraint_list|count|ne( 0 ) ),
-                    fetch( content, tree, hash( parent_node_id, $parent_node,
-                                                class_filter_type,'include',
-                                                class_filter_array, $class_content.class_constraint_list,
-                                                sort_by, array( 'priority',true() ),main_node_only, true() ) ),
-                    fetch( content, list, hash( parent_node_id, $parent_node,
-                                                sort_by, array( 'priority', true() ) ) ) ) }
-
+{def $class_content = $attribute.class_content
+$nodesList = fetch( editorialstuff, posts, hash( factory_identifier, 'organo'))}
 
 <input type="hidden" name="single_select_{$attribute.id}" value="1" />
-
-{section var=node loop=$nodesList}
-    <div class="radio">
-        <label>
-            <input type="radio" data-value="{$node.name|wash|downcase()}" class="consiglio_select_organo_seduta" name="{$attribute_base}_data_object_relation_list_{$attribute.id}[]" value="{$node.contentobject_id}"
+{if ne( count( $nodesList ), 0)}
+    <select name="{$attribute_base}_data_object_relation_list_{$attribute.id}[]" id="attribute_{$attribute.contentclass_attribute.identifier}" class="form-control" data-placeholder="Seleziona...">
+        {if $attribute.contentclass_attribute.is_required|not}
+            <option value="no_relation" {if eq( $attribute.content.relation_list|count, 0 )} selected="selected"{/if}></option>
+        {/if}
+        {section var=post loop=$nodesList}
+            <option value="{$post.object.id}"
                     {if ne( count( $attribute.content.relation_list ), 0)}
                         {foreach $attribute.content.relation_list as $item}
-                            {if eq( $item.contentobject_id, $node.contentobject_id )}
-                                checked="checked"
+                            {if eq( $item.contentobject_id, $post.object.id )}
+                                selected="selected"
                                 {break}
                             {/if}
                         {/foreach}
                     {/if}
-                    >
-            {$node.name|wash}
-        </label>
-    </div>
-{/section}
+            >
+                {$post.object.name|wash}</option>
+        {/section}
+    </select>
+{/if}
 
-{literal}
-<script>
-    $(document).ready(function(){
-        var setOrario = function( $hour, $minute ){
-            var container = $('.ezcca-edit-orario');
-            container.find("input[name*='_time_hour_']").val( $hour );
-            container.find("input[name*='_time_minute_']").val( $minute );
-        };
 
-        $(document).on( 'change', '.consiglio_select_organo_seduta', function(){
-            var organo = $(this).parents( '.radio').find( 'input:checked').data( 'value' );
-            if ( organo == 'consiglio' ){
-                setOrario( 14, 30 );
-            }else if ( organo == 'giunta' ){
-                setOrario( 15, 00 );
-            }
-        });
-    });
-</script>
-{/literal}
+{if eq( count( $nodesList ), 0 )}
+    <p>{'There are no objects of allowed classes'|i18n( 'design/standard/content/datatype' )}.</p>
+{/if}
 
-{/let}
-{/default}

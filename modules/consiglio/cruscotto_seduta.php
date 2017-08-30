@@ -238,6 +238,8 @@ else
     }
     else
     {
+        $tpl->setVariable( 'enable_votazione', OpenPAConsiglioConfiguration::instance()->enableVotazioniinCruscotto() );
+        $tpl->setVariable( 'use_app', OpenPAConsiglioConfiguration::instance()->useApp() );
         $tpl->setVariable( 'errors', $errors );
         $tpl->setVariable( 'seduta', $seduta );
         $tpl->setVariable( 'title', 'Cruscotto' );

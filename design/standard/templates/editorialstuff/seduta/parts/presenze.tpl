@@ -2,7 +2,7 @@
     {if $post.current_state.identifier|eq( 'closed' )}
         <p class="text-right"><a class="btn btn-info btn-xs" href="{concat('consiglio/gettoni/select-', $post.object_id)|ezurl(no)}">Apri in Gettoni di presenza</a></p>
     {/if}
-    <div id="presenze-seduta" data-url="{concat('openpa/data/timeline_presenze_seduta?seduta=',$post.object.id)|ezurl(no)}">
+    <div id="presenze-seduta" data-url="{concat('consiglio/registro_presenze/timeline_presenze_seduta?seduta=',$post.object.id)|ezurl(no)}">
     {foreach $post.partecipanti as $politico}
         <div class="row" style="margin-top:10px; padding-bottom: 10px; border-bottom: 1px solid #ccc">
             <div class="col-md-3">
@@ -33,8 +33,8 @@
 <script src="{'javascript/socket.io-1.3.5.js'|ezdesign(no)}"></script>
 {ezscript_require( array( 'ezjsc::jquery', 'timeline_presenze.js' ) )}
 <script type="application/javascript">
-    var SocketUrl = "{openpaini('OpenPAConsiglio','SocketUrl','cal')}";
-    var SocketPort = "{openpaini('OpenPAConsiglio','SocketPort','8090')}";
+    var SocketUrl = "{fetch(consiglio, socket_info).url}";
+    var SocketPort = "{fetch(consiglio, socket_info).port}";
     var CurrentSedutaId = {$post.object_id};
     {literal}
     $(document).ready(function(){

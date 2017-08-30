@@ -2,16 +2,15 @@
 
 class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements OCEditorialStuffPostDownloadableFactoryInterface
 {
-    public function instancePost( $data )
+    public function instancePost($data)
     {
-        return new ConvocazioneSeduta( $data, $this );
+        return new ConvocazioneSeduta($data, $this);
     }
 
-    protected function getPdfContentFromVersion( eZContentObjectVersion $objectVersion, $parameters = array() )
+    protected function getPdfContentFromVersion(eZContentObjectVersion $objectVersion, $parameters = array())
     {
-        if ( !$objectVersion instanceof eZContentObjectVersion )
-        {
-            throw new Exception( "ObjectVersion not found" );
+        if (!$objectVersion instanceof eZContentObjectVersion) {
+            throw new Exception("ObjectVersion not found");
         }
 
         /** @var eZContentObjectAttribute[] $dataMap */
@@ -23,23 +22,23 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
         /** @var eZContentObjectAttribute[] $sedutaDataMap */
         $sedutaDataMap = $seduta->dataMap();
 
-        $odg = json_decode( $dataMap['odg']->content(), true );
+        $odg = json_decode($dataMap['odg']->content(), true);
 
         $listOrgano = $sedutaDataMap['organo']->content();
-        $organo =  ( isset( $listOrgano['relation_list'][0]['contentobject_id'] ) ) ?
-            $organo = eZContentObject::fetch( $listOrgano['relation_list'][0]['contentobject_id'] )->attribute( 'name' ) : '';
+        $organo = ( isset( $listOrgano['relation_list'][0]['contentobject_id'] ) ) ?
+            $organo = eZContentObject::fetch($listOrgano['relation_list'][0]['contentobject_id'])->attribute('name') : '';
 
         $luogo = isset( $sedutaDataMap['luogo'] ) ? $sedutaDataMap['luogo']->content() : '';
 
         $dataOra = isset( $dataMap['data_ora'] ) ? $dataMap['data_ora']->toString() : 0;
-        
+
         $oraConclusione = isset( $sedutaDataMap['orario_conclusione'] ) && $sedutaDataMap['orario_conclusione']->hasContent() ? $sedutaDataMap['orario_conclusione']->content() : null;
 
         $protocollo = isset( $dataMap['protocollo'] ) ? $dataMap['protocollo']->toString() : 0;
 
         $variables = array(
             'line_height' => isset( $parameters['line_height'] ) ? $parameters['line_height'] : 1.2,
-            'data' => $objectVersion->attribute( 'created' ),
+            'data' => $objectVersion->attribute('created'),
             'luogo' => $luogo,
             'organo' => $organo,
             'data_seduta' => $dataOra,
@@ -51,28 +50,26 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
             'protocollo' => $protocollo
         );
 
-        if ( $sedutaDataMap['firmatario']->hasContent() )
-        {
+        if ($sedutaDataMap['firmatario']->hasContent()) {
             $listFirmatario = $sedutaDataMap['firmatario']->content();
-            if ( isset( $listFirmatario['relation_list'][0]['contentobject_id'] ) )
-            {
+            if (isset( $listFirmatario['relation_list'][0]['contentobject_id'] )) {
                 $firmatario = eZContentObject::fetch(
                     $listFirmatario['relation_list'][0]['contentobject_id']
                 );
                 /** @var eZContentObjectAttribute[] $firmatarioDataMap */
                 $firmatarioDataMap = $firmatario->dataMap();
 
-                $variables['firmatario'] = str_replace( '(CCT)', '', $firmatario->attribute( 'name' ) );
-                if ( $firmatarioDataMap['firma']->hasContent()
-                     && $firmatarioDataMap['firma']->attribute( 'data_type_string' ) == 'ezimage' )
-                {
-                    $image = $firmatarioDataMap['firma']->content()->attribute( 'original' );
+                $variables['firmatario'] = str_replace('(CCT)', '', $firmatario->attribute('name'));
+                if ($firmatarioDataMap['firma']->hasContent()
+                    && $firmatarioDataMap['firma']->attribute('data_type_string') == 'ezimage'
+                ) {
+                    $image = $firmatarioDataMap['firma']->content()->attribute('original');
                     $url = $image['url'];
-                    eZURI::transformURI( $url, false, 'full' );
+                    eZURI::transformURI($url, false, 'full');
                     $variables['firma'] = $url;
                 }
 
-                if ( isset($firmatarioDataMap['pre_firma']) && $firmatarioDataMap['pre_firma']->hasContent() ){
+                if (isset( $firmatarioDataMap['pre_firma'] ) && $firmatarioDataMap['pre_firma']->hasContent()) {
                     $variables['descrizione_firmatario'] = $firmatarioDataMap['pre_firma']->toString();
                 }
             }
@@ -80,12 +77,12 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
 
         $tpl = eZTemplate::factory();
         $tpl->resetVariables();
-        foreach ( $variables as $name => $value )
-        {
-            $tpl->setVariable( $name, $value );
+        foreach ($variables as $name => $value) {
+            $tpl->setVariable($name, $value);
         }
+
         return array(
-            'content' => $tpl->fetch( 'design:pdf/seduta/seduta.tpl' ),
+            'content' => $tpl->fetch('design:pdf/seduta/seduta.tpl'),
             'attribute' => $sedutaDataMap['convocazione']
         );
 
@@ -96,20 +93,16 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
         OCEditorialStuffHandlerInterface $handler,
         eZModule $module,
         $version = false
-    )
-    {
-        $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
-        if ( !$version )
-        {
+    ) {
+        $currentPost = $this->getModuleCurrentPost($parameters, $handler, $module);
+        if (!$version) {
             $data = $this->getPdfContentFromVersion(
                 $currentPost->getObject()->currentVersion(),
                 $_GET
             );
-        }
-        else
-        {
+        } else {
             $data = $this->getPdfContentFromVersion(
-                $currentPost->getObject()->version( $version ),
+                $currentPost->getObject()->version($version),
                 $_GET
             );
         }
@@ -117,10 +110,10 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
         $content = $data['content'];
 
         /** @var eZContentClass $objectClass */
-        $objectClass = $currentPost->getObject()->attribute( 'content_class' );
+        $objectClass = $currentPost->getObject()->attribute('content_class');
         $languageCode = eZContentObject::defaultLanguage();
-        $fileName = $objectClass->urlAliasName( $currentPost->getObject(), false, $languageCode );
-        $fileName = eZURLAliasML::convertToAlias( $fileName );
+        $fileName = $objectClass->urlAliasName($currentPost->getObject(), false, $languageCode);
+        $fileName = eZURLAliasML::convertToAlias($fileName);
         $fileName .= '.pdf';
 
         $pdfParameters = array(
@@ -133,32 +126,28 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
             )
         );
 
-        if ( eZINI::instance()->variable( 'DebugSettings', 'DebugOutput' ) == 'enabled' )
-        {
-            echo '<pre>' . htmlentities( $content ) . '</pre>';
+        if (eZINI::instance()->variable('DebugSettings', 'DebugOutput') == 'enabled') {
+            echo '<pre>' . htmlentities($content) . '</pre>';
             eZDisplayDebug();
-        }
-        else
-        {
-            $exportData = OpenPAConsiglioPdf::create( $fileName, $content, $pdfParameters, false );            
+        } else {
+            $exportData = OpenPAConsiglioPdf::create($fileName, $content, $pdfParameters, false);
             $fileContent = $exportData['content'];
-          
-            if ( $data['attribute'] instanceof eZContentObjectAttribute )
-            {                
+
+            if ($data['attribute'] instanceof eZContentObjectAttribute) {
                 $cacheDirectory = eZSys::cacheDirectory();
-                $directory =  eZDir::path( array( $cacheDirectory, 'pdf_creator' ) );
-                eZFile::create( $fileName, $directory, $fileContent );
-                $tempFile = $directory . '/' . $fileName;                
-                $data['attribute']->fromString( $tempFile );
+                $directory = eZDir::path(array($cacheDirectory, 'pdf_creator'));
+                eZFile::create($fileName, $directory, $fileContent);
+                $tempFile = $directory . '/' . $fileName;
+                $data['attribute']->fromString($tempFile);
                 $data['attribute']->store();
-                $handler = eZFileHandler::instance( false );
-                $handler->unlink( $tempFile );
+                $handler = eZFileHandler::instance(false);
+                $handler->unlink($tempFile);
             }
-            
+
             /** @var ParadoxPDF $paradoxPdf */
-            $paradoxPdf = $exportData['exporter'];  
-            $size = strlen( $fileContent );
-            $paradoxPdf->flushPDF( $fileContent, $fileName, $size );
+            $paradoxPdf = $exportData['exporter'];
+            $size = strlen($fileContent);
+            $paradoxPdf->flushPDF($fileContent, $fileName, $size, null, null);
 
         }
         eZExecution::cleanExit();

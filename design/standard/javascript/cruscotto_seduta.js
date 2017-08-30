@@ -207,8 +207,21 @@ $(document).ajaxSend(function () {
 var socket = io(SocketUrl + ':' + SocketPort);
 
 socket.on('connect', function () {
+    $('#disconnected').hide();
+    $('#page').show();
     $("#loading").removeClass( 'text-danger' ).hide();
 });
+
+socket.on('connect_error', function (error) {
+    $('#page').hide();
+    $('#disconnected').show();
+});
+
+socket.on('disconnect', function () {
+    $('#page').hide();
+    $('#disconnected').show();
+});
+
 
 socket.on('presenze', function (data) {
     if (data.seduta_id == CurrentSedutaId) {
@@ -225,3 +238,4 @@ socket.on('voto', function (data) {
         Presenze.sortPartecipanti();
     }
 });
+

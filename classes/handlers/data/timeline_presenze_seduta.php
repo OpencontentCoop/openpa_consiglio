@@ -1,6 +1,6 @@
 <?php
 
-class DataHandlerTimeLinePresenzeSeduta implements OpenPADataHandlerInterface
+class DataHandlerTimeLinePresenzeSeduta
 {
 
     /**

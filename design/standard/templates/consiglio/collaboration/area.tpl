@@ -23,7 +23,7 @@
                 </ul>
             </li>
         </ul>
-        {if $area.politici_id_list|contains( fetch( user, current_user ).contentobject_id )}
+        {if or($area.politici_id_list|contains( fetch( user, current_user ).contentobject_id ), fetch( user, current_user ).login|eq('admin'))}
             <form class="navbar-form navbar-left" method="post" action="{concat('consiglio/collaboration/', $area.object.id, '/add_room')|ezurl(no)}">
                 <div class="form-group">
                     <label for="NewRoomName" class="sr-only">Aggiungi nuova tematica</label>

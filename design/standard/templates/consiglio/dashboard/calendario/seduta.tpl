@@ -57,7 +57,7 @@
                                     {/foreach}
                                 {/if}
                                 {if $punto.object|has_attribute('referente_politico')}
-                                <p><small><strong>Referente politico</strong>: {attribute_view_gui attribute=$punto.object.data_map.referente_politico}</small></p>
+                                <p><small><strong>Referente istituzionale</strong>: {attribute_view_gui attribute=$punto.object.data_map.referente_politico}</small></p>
                                 {/if}
                                 {if $punto.object|has_attribute('referente_tecnico')}
                                 <p><small><strong>Referente tecnico</strong>: {attribute_view_gui attribute=$punto.object.data_map.referente_tecnico}</small></p>

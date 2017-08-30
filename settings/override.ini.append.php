@@ -37,6 +37,13 @@ Subdir=templates
 Match[class_identifier]=punto
 Match[attribute_identifier]=referente_tecnico
 
+[edit_invitato_punto]
+Source=content/datatype/edit/ezobjectrelationlist.tpl
+MatchFile=edit/datatype/invitato_punto_ezobjectrelationlist.tpl
+Subdir=templates
+Match[class_identifier]=punto
+Match[attribute_identifier]=invitati
+
 [edit_materia_audizione]
 Source=content/datatype/edit/ezobjectrelationlist.tpl
 MatchFile=edit/datatype/materia_punto_ezobjectrelationlist.tpl

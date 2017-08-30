@@ -2,9 +2,9 @@
 
 class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorialStuffPostDownloadableFactoryInterface
 {
-    public function instancePost( $data )
+    public function instancePost($data)
     {
-        return new Invito( $data, $this );
+        return new Invito($data, $this);
     }
 
     public function downloadModuleResult(
@@ -12,9 +12,8 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
         OCEditorialStuffHandlerInterface $handler,
         eZModule $module,
         $version = false
-    )
-    {
-        $currentPost = $this->getModuleCurrentPost( $parameters, $handler, $module );
+    ) {
+        $currentPost = $this->getModuleCurrentPost($parameters, $handler, $module);
 
         $getParameters = $_GET;
 
@@ -22,67 +21,61 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
 
         /** @var eZContentObjectAttribute[] $dataMap */
         $dataMap = $currentPost->getObject()->dataMap();
-        $puntoFactory = OCEditorialStuffHandler::instance( 'punto' )->getFactory();
+        $puntoFactory = OCEditorialStuffHandler::instance('punto')->getFactory();
 
-        $user = eZContentObject::fetch( $dataMap['user']->content()->ID );
+        $user = eZContentObject::fetch($dataMap['user']->content()->ID);
         $userDataMap = $user->dataMap();
 
         /** @var Punto[] $punti */
         $punti = array();
-        $listPunti = explode( '-', $dataMap['object']->toString() );
+        $listPunti = explode('-', $dataMap['object']->toString());
         $seduta = null;
-        foreach ( $listPunti as $puntoId )
-        {
-            try
-            {
+        foreach ($listPunti as $puntoId) {
+            try {
                 /** @var Punto $punto */
-                $punto = new Punto( array( 'object_id' => $puntoId ), $puntoFactory );
+                $punto = new Punto(array('object_id' => $puntoId), $puntoFactory);
                 /** @var eZContentObjectAttribute[] $puntoDataMap */
                 $puntoDataMap = $punto->getObject()->dataMap();
 
                 $punti [$puntoDataMap['n_punto']->content()] = array(
                     'n_punto' => $puntoDataMap['n_punto']->content(),
-                    'ora' => $locale->formatShortTime($puntoDataMap['orario_trattazione']->content()->attribute( 'timestamp' )),
+                    'ora' => $locale->formatShortTime($puntoDataMap['orario_trattazione']->content()->attribute('timestamp')),
                     'oggetto' => $puntoDataMap['oggetto']->content()
                 );
 
-                if ( !$seduta instanceof Seduta )
-                {
+                if (!$seduta instanceof Seduta) {
                     $seduta = $punto->getSeduta();
                 }
 
-            }
-            catch( Exception $e )
-            {
-                eZDebug::writeError( $e->getMessage() );
+            } catch (Exception $e) {
+                eZDebug::writeError($e->getMessage());
             }
 
         }
-        ksort( $punti );
+        ksort($punti);
         $variables = array();
 
-        if ( !empty( $punti ) && $seduta instanceof Seduta )
-        {
+        if (!empty( $punti ) && $seduta instanceof Seduta) {
 
-            $punti = array_values( $punti );
+            $punti = array_values($punti);
 
-            $oraInvito = isset( $dataMap['ora'] ) && $dataMap['ora']->hasContent() ? $locale->formatShortTime($dataMap['ora']->content()->attribute( 'timestamp' )) : $punti[0]['ora'];
+            $oraInvito = isset( $dataMap['ora'] ) && $dataMap['ora']->hasContent() ? $locale->formatShortTime($dataMap['ora']->content()->attribute('timestamp')) : $punti[0]['ora'];
 
             /** @var eZContentObjectAttribute[] $sedutaDataMap */
             $sedutaDataMap = $seduta->getObject()->dataMap();
 
             $listOrgano = $sedutaDataMap['organo']->content();
-            $organo = eZContentObject::fetch( $listOrgano['relation_list'][0]['contentobject_id'] );
+            $organo = eZContentObject::fetch($listOrgano['relation_list'][0]['contentobject_id']);
 
             $variables = array(
                 'line_height' => isset( $getParameters['line_height'] ) ? $getParameters['line_height'] : 1.2,
-                'data' => $currentPost->getObject()->attribute( 'published' ),
-                'sesso' =>  isset( $userDataMap['sesso'] ) ? $userDataMap['sesso']->toString() : '',
+                'data' => $currentPost->getObject()->attribute('published'),
+                'sesso' => isset( $userDataMap['sesso'] ) ? $userDataMap['sesso']->toString() : '',
                 'invitato' => $userDataMap['titolo']->content() . ' ' . $userDataMap['nome']->content() . ' ' . $userDataMap['cognome']->content(),
                 'ruolo' => nl2br($userDataMap['ruolo']->content()),
                 'indirizzo' => isset( $userDataMap['indirizzo'] ) ? nl2br($userDataMap['indirizzo']->content()) : '',
                 'luogo' => isset( $sedutaDataMap['luogo'] ) ? $sedutaDataMap['luogo']->content() : '',
-                'organo' => $organo instanceof eZContentObject ? $organo->attribute( 'name' ) : '',
+                'organo' => $organo instanceof eZContentObject ? $organo->attribute('name') : '',
                 'data_seduta' => ( $seduta instanceof Seduta ) ? $seduta->dataOra() : null,
                 'ora_invito' => $oraInvito,
                 'punti' => $punti,
@@ -92,8 +85,7 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
                 'protocollo' => isset( $dataMap['protocollo'] ) ? $dataMap['protocollo']->toString() : '',
             );
 
-            if ( $sedutaDataMap['firmatario']->hasContent() )
-            {
+            if ($sedutaDataMap['firmatario']->hasContent()) {
                 $listFirmatario = $sedutaDataMap['firmatario']->content();
                 $firmatario = eZContentObject::fetch(
                     $listFirmatario['relation_list'][0]['contentobject_id']
@@ -101,17 +93,17 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
                 /** @var eZContentObjectAttribute[] $firmatarioDataMap */
                 $firmatarioDataMap = $firmatario->dataMap();
 
-                $variables['firmatario'] = str_replace( '(CCT)', '', $firmatario->attribute( 'name' ) );
-                if ( $firmatarioDataMap['firma']->hasContent()
-                     && $firmatarioDataMap['firma']->attribute( 'data_type_string' ) == 'ezimage' )
-                {
-                    $image = $firmatarioDataMap['firma']->content()->attribute( 'original' );
+                $variables['firmatario'] = str_replace('(CCT)', '', $firmatario->attribute('name'));
+                if ($firmatarioDataMap['firma']->hasContent()
+                    && $firmatarioDataMap['firma']->attribute('data_type_string') == 'ezimage'
+                ) {
+                    $image = $firmatarioDataMap['firma']->content()->attribute('original');
                     $url = $image['url'];
-                    eZURI::transformURI( $url, false, 'full' );
+                    eZURI::transformURI($url, false, 'full');
                     $variables['firma'] = $url;
                 }
 
-                if ( isset($firmatarioDataMap['pre_firma']) && $firmatarioDataMap['pre_firma']->hasContent() ){
+                if (isset( $firmatarioDataMap['pre_firma'] ) && $firmatarioDataMap['pre_firma']->hasContent()) {
                     $variables['descrizione_firmatario'] = $firmatarioDataMap['pre_firma']->toString();
                 }
             }
@@ -119,17 +111,16 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
 
         $tpl = eZTemplate::factory();
         $tpl->resetVariables();
-        foreach ( $variables as $name => $value )
-        {
-            $tpl->setVariable( $name, $value );
+        foreach ($variables as $name => $value) {
+            $tpl->setVariable($name, $value);
         }
-        $content = $tpl->fetch( 'design:pdf/invito/invito.tpl' );
-        
+        $content = $tpl->fetch('design:pdf/invito/invito.tpl');
+
         /** @var eZContentClass $objectClass */
-        $objectClass = $currentPost->getObject()->attribute( 'content_class' );
+        $objectClass = $currentPost->getObject()->attribute('content_class');
         $languageCode = eZContentObject::defaultLanguage();
-        $fileName = $objectClass->urlAliasName( $currentPost->getObject(), false, $languageCode );
-        $fileName = eZURLAliasML::convertToAlias( $fileName );
+        $fileName = $objectClass->urlAliasName($currentPost->getObject(), false, $languageCode);
+        $fileName = eZURLAliasML::convertToAlias($fileName);
         $fileName .= '.pdf';
 
         $pdfParameters = array(
@@ -142,14 +133,11 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
             )
         );
 
-        if ( eZINI::instance()->variable( 'DebugSettings', 'DebugOutput' ) == 'enabled' )
-        {
-            echo '<pre>' . htmlentities( $content ) . '</pre>';
+        if (eZINI::instance()->variable('DebugSettings', 'DebugOutput') == 'enabled') {
+            echo '<pre>' . htmlentities($content) . '</pre>';
             eZDisplayDebug();
-        }
-        else
-        {
-            OpenPAConsiglioPdf::create( $fileName, $content, $pdfParameters );
+        } else {
+            OpenPAConsiglioPdf::create($fileName, $content, $pdfParameters);
         }
         eZExecution::cleanExit();
 

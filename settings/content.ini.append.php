@@ -3,4 +3,7 @@
 [VersionManagement]
 VersionHistoryClass[convocazione_seduta]=50
 
+[ClassAttributeSettings]
+CategoryList[hidden]=Nascosto
+
 */ ?>

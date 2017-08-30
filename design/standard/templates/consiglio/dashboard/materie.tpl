@@ -3,6 +3,7 @@
 
 <form class="form" action="{'consiglio/like'|ezurl(no)}">
 <table class="table table-striped">
+{if count($materie)}
 {foreach $materie as $materia}
     <tr>
         <td>{$materia.object.name|wash()}</td>
@@ -15,6 +16,7 @@
         </td>
     </tr>
 {/foreach}
+{/if}
 </table>
 </form>
 

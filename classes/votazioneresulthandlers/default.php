@@ -1,6 +1,6 @@
 <?php
 
-class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable implements OpenPAConsiglioVotazioneResultHandlerInterface
+class OpenPAConsiglioVotazioneResultHandlerDefault implements OpenPAConsiglioVotazioneResultHandlerInterface
 {
     /**
      * @var Votazione
@@ -18,8 +18,40 @@ class OpenPAConsiglioVotazioneResultHandlerDefault extends OpenPATempletizable i
 
     protected static $userCache = array();
 
+    protected $data = array();
+
+    protected $fnData = array();
+
+    public function attributes()
+    {
+        $keys = array_merge( array_keys( $this->data ), array_keys( $this->fnData ) );
+        return $keys;
+    }
+
+    public function hasAttribute( $key )
+    {
+        return in_array( $key, $this->attributes() );
+    }
+
+    public function attribute( $key )
+    {
+        if ( isset( $this->data[$key] ) )
+        {
+            return $this->data[$key];
+        }
+        elseif ( isset( $this->fnData[$key] ) )
+        {
+            return call_user_func( array( $this, $this->fnData[$key] ) );
+            //return $this->{$this->fnData[$key]}();
+        }
+        eZDebug::writeNotice( "Attribute $key does not exist", get_called_class() );
+        return false;
+    }
+
     public function __construct( $data = null )
     {
+        if ( is_array( $data ) )
+            $this->data = $data;
     }
 
     public function getDescription()
