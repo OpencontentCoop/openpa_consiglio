@@ -1,9 +1,19 @@
 <?php
 
-echo '<pre>';
+$id = $_GET['id'];
+/** @var OpenPAConsiglioNotificationItem $notification */
+$notification = OpenPAConsiglioNotificationItem::fetchObject(
+    OpenPAConsiglioNotificationItem::definition(),
+    null,
+    array('id' => $id)
+);
+$transport = OpenPAConsiglioNotificationTransport::instance($notification->attribute('type'));
+echo $transport->generateContent($notification);
 
-$push = OpenPAConsiglioPushNotifier::instance();
-$push->emit('ping',array('test'=> 'tost'));
+//echo '<pre>';
+//
+//$push = OpenPAConsiglioPushNotifier::instance();
+//$push->emit('ping',array('test'=> 'tost'));
 
 
 //$seduta = OCEditorialStuffHandler::instance( 'seduta' )->getFactory()->instancePost( array( 'object_id' => $_GET['s'] ) );

@@ -22,6 +22,15 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
         return $item;
     }
 
+    public function generateContent( OpenPAConsiglioNotificationItem $item )
+    {
+        $tpl = eZTemplate::factory();
+        $tpl->resetVariables();
+        $tpl->setVariable( 'content', $item->attribute( 'body' ) );
+        $content = $tpl->fetch( 'design:consiglio/notification/mail_pagelayout.tpl' );
+        return $content;
+    }
+
     public function send( OpenPAConsiglioNotificationItem $item, $parameters = array() )
     {
         $user = $item->getUser();
@@ -52,14 +61,7 @@ class OpenPAConsiglioMailNotificationTransport extends OpenPAConsiglioNotificati
 
             $mail->setSubject( $item->attribute( 'subject' ) );
 
-
-            $tpl = eZTemplate::factory();
-            $tpl->resetVariables();
-
-            $tpl->setVariable( 'content', $item->attribute( 'body' ) );
-
-            $content = $tpl->fetch( 'design:consiglio/notification/mail_pagelayout.tpl' );
-            $mail->setBody( $content );
+            $mail->setBody( $this->generateContent($item) );
 
             if ( isset( $parameters['message_id'] ) )
             {

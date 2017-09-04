@@ -13,9 +13,21 @@ Identifiers[]=materia
 Identifiers[]=convocazione_seduta
 Identifiers[]=votazione
 Identifiers[]=osservazioni
+Identifiers[]=designazione
+Identifiers[]=parere
+Identifiers[]=referentelocale
+Identifiers[]=areacollaborativa
 
 [Settings]
 DefaultFactoryClassName=OpenPAConsiglioDefaultFactory
+
+[areacollaborativa]
+ClassName=AreaCollaborativaFactory
+CreationButtonText=Crea nuova area
+ClassIdentifier=openpa_consiglio_collaboration_area
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+Name=Elenco Aree collaborative
 
 [seduta]
 ClassName=SedutaFactory
@@ -78,6 +90,7 @@ RepositoryNodes[]=1213
 StateGroup=visibilita_allegato_seduta
 States[consiglieri]=Consiglieri
 States[referenti]=Referenti all'argomento
+States[pubblico]=Pubblico
 AttributeIdentifiers[]
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
@@ -139,6 +152,10 @@ RepositoryNodes[]=668
 RepositoryNodes[]=1129
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+Name=Politici
+Locations[]
+Locations[consiglio]=1128
+Locations[giunta]=1129
 
 [tecnico]
 ClassIdentifier=tecnico
@@ -148,6 +165,7 @@ CreationRepositoryNode=1168
 RepositoryNodes[]=1168
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+Name=Tecnici
 
 [materia]
 ClassIdentifier=materia
@@ -171,5 +189,42 @@ StateGroup=stato_votazione
 States[pending]=In attesa
 States[in_progress]=In corso
 States[closed]=Conclusa
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+Name=Votazioni
+VotazioneResultHandlers[]
+VotazioneResultHandlers[ordinaria]=OpenPAConsiglioVotazioneResultHandlerOrdinaria
+VotazioneResultHandlers[intesa]=OpenPAConsiglioVotazioneResultHandlerIntesa
+VotazioneResultHandlersAlias[]
+
+[designazione]
+ClassIdentifier=designazione
+CreationButtonText=Crea nuova designazione
+CreationRepositoryNode=1180
+RepositoryNodes[]
+RepositoryNodes[]=1180
+AttributeIdentifiers[]
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+Name=Elenco designazioni
+
+[parere]
+ClassIdentifier=parere
+CreationButtonText=Crea nuovo parere
+CreationRepositoryNode=1199
+RepositoryNodes[]
+RepositoryNodes[]=1199
+AttributeIdentifiers[]
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+Name=Elenco pareri
+
+[referentelocale]
+ClassIdentifier=user
+ClassName=ReferenteLocaleFactory
+CreationButtonText=Crea nuovo referente locale
+CreationRepositoryNode=3044
+RepositoryNodes[]
+RepositoryNodes[]=3044
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl

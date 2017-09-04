@@ -22,7 +22,7 @@
             -ms-text-size-adjust: 100%;
             margin: 0;
             padding: 0;
-            background: #ccc;
+            background: #eee;
         }
 
         .ExternalClass {
@@ -38,7 +38,7 @@
             padding: 0;
             width: 90% !important;
             line-height: 100% !important;
-            background: #ccc;
+            background: #eee;
         }
 
         img {

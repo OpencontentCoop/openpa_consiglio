@@ -77,6 +77,11 @@ class OpenPAConsiglioNotificationTransport
 
     }
 
+    public function generateContent( OpenPAConsiglioNotificationItem $item )
+    {
+        return false;
+    }
+
     /**
      * @param OpenPAConsiglioNotificationItem $item
      *
