@@ -38,17 +38,21 @@ class OpenPAConsiglioFunctionCollection
 
     public static function fetchNextItems()
     {
-        /* @todo
-        {def $materie_like = fetch( editorialstuff, notification_rules_post_ids, hash( type, 'materia/like', user_id, fetch(user,current_user).contentobject_id ) )}
-         * {def $calendarData = fetch( openpa, calendario_eventi, hash(
-         * 'calendar', fetch( content, node, hash( node_id, 1136 ) ),
-         * 'params', hash(
-         * 'interval', 'P4W',
-         * 'view', 'calendar'
-         * )
-         * ))}
-         */
-        return array('result' => array());
+        $dateTime = new DateTime();
+        $dateTime->sub(new DateInterval('P1W'));
+        $from = ezfSolrDocumentFieldBase::preProcessValue($dateTime->getTimestamp(), 'date');
+
+        $dateTime = new DateTime();
+        $dateTime->add(new DateInterval('P1M'));
+        $to = ezfSolrDocumentFieldBase::preProcessValue($dateTime->getTimestamp(), 'date');
+
+        $result = OCEditorialStuffHandler::instance('seduta')->fetchItems(array(
+            'filters' => array('attr_data_dt:[' . $from . ' TO ' . $to . ']'),
+            'limit' => 15,
+            'offset' => 0
+        ));
+
+        return array('result' => $result);
     }
 
     public static function fetchLatestOsservazioni()
@@ -96,14 +100,14 @@ class OpenPAConsiglioFunctionCollection
 
     public function fetchPost($object, $node)
     {
-        if ($object == null && $node){
+        if ($object == null && $node) {
             if (is_numeric($node)) {
                 $object = eZContentObject::fetchByNodeID($node);
-            }elseif($node instanceof eZContentObjectTreeNode){
+            } elseif ($node instanceof eZContentObjectTreeNode) {
                 $object = $node->attribute('object');
             }
         }
-        if (is_numeric($object)){
+        if (is_numeric($object)) {
             $object = eZContentObject::fetch($object);
         }
         if ($object instanceof eZContentObject) {
