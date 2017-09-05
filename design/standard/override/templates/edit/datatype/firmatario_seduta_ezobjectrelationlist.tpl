@@ -10,44 +10,28 @@
 
 
 {default attribute_base=ContentObjectAttribute}
-{let parent_node=cond( and( is_set( $class_content.default_placement.node_id ),
-                       $class_content.default_placement.node_id|eq( 0 )|not ),
-                       $class_content.default_placement.node_id, 1 )
- nodesList=cond( and( is_set( $class_content.class_constraint_list ), $class_content.class_constraint_list|count|ne( 0 ) ),
-                 fetch( content, tree,
-                        hash( parent_node_id, $parent_node,
-                              class_filter_type,'include',
-                              class_filter_array, $class_content.class_constraint_list,
-                              sort_by, array( 'priority',false() ),
-                              main_node_only, true() ) ),
-                 fetch( content, list,
-                        hash( parent_node_id, $parent_node,
-                              sort_by, array( 'priority', false() )
-                             ) )
-                )
-}
+{def $nestedNodesList = fetch( editorialstuff, posts, hash( factory_identifier, 'politico'))}
 
 <input type="hidden" name="single_select_{$attribute.id}" value="1" />
-{if ne( count( $nodesList ), 0)}
+{if ne( count( $nestedNodesList ), 0)}
     <select class="{$html_class}" name="{$attribute_base}_data_object_relation_list_{$attribute.id}[]">
         {if $attribute.contentclass_attribute.is_required|not}
             <option value="no_relation" {if eq( $attribute.content.relation_list|count, 0 )} selected="selected"{/if}> </option>
         {/if}
-        {section var=node loop=$nodesList}
-            <option value="{$node.contentobject_id}"
+        {section var=post loop=$nestedNodesList}
+            <option value="{$post.object.id}"
                     {if ne( count( $attribute.content.relation_list ), 0)}
                         {foreach $attribute.content.relation_list as $item}
-                            {if eq( $item.contentobject_id, $node.contentobject_id )}
+                            {if eq( $item.contentobject_id, $post.object.id )}
                                 selected="selected"
                                 {break}
                             {/if}
                         {/foreach}
                     {/if}
                     >
-                {$node.name|wash}</option>
+                {$post.object.name|wash}</option>
         {/section}
     </select>
 {/if}
 
-{/let}
 {/default}

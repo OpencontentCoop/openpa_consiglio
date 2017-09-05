@@ -35,8 +35,8 @@ try {
 
     foreach ($configuration->getAvailableClasses() as $identifier) {
         $cli->warning('Sincronizzo classe ' . $identifier);
-        $tools = new OCClassTools( $identifier, true ); // creo se non esiste
-        $tools->sync( true, true ); // forzo e rimuovo attributi in più
+        // $tools = new OCClassTools( $identifier, true ); // creo se non esiste
+        // $tools->sync( true, true ); // forzo e rimuovo attributi in più
     }
 
     $parentNodeId = $options['parent_node'] ? $options['parent_node'] : eZINI::instance('content.ini')->variable('NodeSettings',
