@@ -1,0 +1,346 @@
+<?php
+
+
+class OpenPAConsiglioRoles
+{
+    const ANONIMO = 'OpenConsiglio - Anonimo';
+    const AREA_COLLABORATIVA = 'OpenConsiglio - Area Collaborativa';
+    const AREA_COLLABORATIVA_POLITICO = 'OpenConsiglio - Area Collaborativa - Politico';
+    const POLITICO = 'OpenConsiglio - Politico';
+    const SEGRETERIA = 'OpenConsiglio - Segreteria';
+    const TECNICO = 'OpenConsiglio - Tecnico';
+
+    /**
+     * @see AreaCollaborativa::createRoleIfNeeded
+     * @see AreaCollaborativa::createPoliticoRoleIfNeeded
+     *
+     * @return array
+     */
+    public function getRoles()
+    {
+        return array(
+            self::ANONIMO,
+            //self::AREA_COLLABORATIVA,
+            //self::AREA_COLLABORATIVA_POLITICO,
+            self::POLITICO,
+            self::SEGRETERIA,
+            self::TECNICO
+        );
+    }
+
+    public function getPolicies($roleName)
+    {
+        switch ($roleName) {
+            case self::ANONIMO: {
+                return $this->getAnonimoPolicies();
+            }
+                break;
+
+            case self::POLITICO: {
+                return $this->getPoliticoPolicies();
+            }
+                break;
+
+            case self::SEGRETERIA: {
+                return $this->getSegreteriaPolicies();
+            }
+                break;
+
+            default:
+                throw new Exception("Role $roleName not defined");
+        }
+    }
+
+    private function getFactory($identifier)
+    {
+        return OCEditorialStuffHandler::instance($identifier)->getFactory();
+    }
+
+    private function getAnonimoPolicies()
+    {
+        return array(
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('politico')->classIdentifier())
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('punto')->classIdentifier())
+                    ),
+                    'StateGroup_' . $this->getFactory('punto')->stateGroupIdentifier() => array(
+                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.published']->attribute('id'),
+                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.in_progress']->attribute('id'),
+                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.closed']->attribute('id')
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('seduta')->classIdentifier())
+                    ),
+                    'StateGroup_' . $this->getFactory('seduta')->stateGroupIdentifier() => array(
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.in_progress']->attribute('id'),
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.closed']->attribute('id'),
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.sent']->attribute('id')
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('allegati_seduta')->classIdentifier())
+                    ),
+                    'StateGroup_' . $this->getFactory('allegati_seduta')->stateGroupIdentifier() => array(
+                        $this->getFactory('allegati_seduta')->states()[$this->getFactory('allegati_seduta')->stateGroupIdentifier() . '.pubblico']->attribute('id')
+                    )
+                )
+            ),
+        );
+    }
+
+    private function getPoliticoPolicies()
+    {
+        return array(
+            array(
+                'ModuleName' => 'consiglio',
+                'FunctionName' => 'use',
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'create',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier('rendiconto_spese'),
+                    ),
+                    'Subtree' => array(
+                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodeId('rendiconto_spese')
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'create',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('osservazioni')->classIdentifier()),
+                    ),
+                    'Subtree' => array(
+                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodeId('osservazioni')
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'edit',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('politico')->classIdentifier()),
+                    ),
+                    'Owner' => 1
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'edit',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier('rendiconto_spese'),
+                    ),
+                    'Owner' => 1
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('punto')->classIdentifier())
+                    ),
+                    'StateGroup_' . $this->getFactory('punto')->stateGroupIdentifier() => array(
+                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.published']->attribute('id'),
+                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.in_progress']->attribute('id'),
+                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.closed']->attribute('id')
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('osservazioni')->classIdentifier())
+                    ),
+                    'StateGroup_' . $this->getFactory('osservazioni')->stateGroupIdentifier() => array(
+                        $this->getFactory('osservazioni')->states()[$this->getFactory('osservazioni')->stateGroupIdentifier() . '.consiglieri']->attribute('id'),
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('osservazioni')->classIdentifier())
+                    ),
+                    'Owner' => 1
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('allegati_seduta')->classIdentifier())
+                    ),
+                    'StateGroup_' . $this->getFactory('allegati_seduta')->stateGroupIdentifier() => array(
+                        $this->getFactory('allegati_seduta')->states()[$this->getFactory('allegati_seduta')->stateGroupIdentifier() . '.consiglieri']->attribute('id')
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('seduta')->classIdentifier())
+                    ),
+                    'StateGroup_' . $this->getFactory('seduta')->stateGroupIdentifier() => array(
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.pending']->attribute('id'),
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.in_progress']->attribute('id'),
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.closed']->attribute('id'),
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.sent']->attribute('id')
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'editorialstuff',
+                'FunctionName' => 'dashboard',
+            ),
+            array(
+                'ModuleName' => 'editorialstuff',
+                'FunctionName' => 'file',
+            ),
+            array(
+                'ModuleName' => 'editorialstuff',
+                'FunctionName' => 'full_dashboard',
+            ),
+            array(
+                'ModuleName' => 'state',
+                'FunctionName' => 'assign',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('osservazioni')->classIdentifier())
+                    ),
+                    'Owner' => 1,
+                    'StateGroup_' . $this->getFactory('osservazioni')->stateGroupIdentifier() => array(
+                        $this->getFactory('osservazioni')->states()[$this->getFactory('osservazioni')->stateGroupIdentifier() . '.consiglieri']->attribute('id'),
+                        $this->getFactory('osservazioni')->states()[$this->getFactory('osservazioni')->stateGroupIdentifier() . '.referenti']->attribute('id'),
+                    ),
+                    'NewState' => array(
+                        $this->getFactory('osservazioni')->states()[$this->getFactory('osservazioni')->stateGroupIdentifier() . '.consiglieri']->attribute('id'),
+                        $this->getFactory('osservazioni')->states()[$this->getFactory('osservazioni')->stateGroupIdentifier() . '.referenti']->attribute('id'),
+                    )
+                )
+            ),
+
+        );
+    }
+
+    private function getSegreteriaPolicies()
+    {
+        $data =  array(
+            array(
+                'ModuleName' => 'add',
+                'FunctionName' => '*',
+            ),
+            array(
+                'ModuleName' => 'consiglio',
+                'FunctionName' => '*',
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'edit',
+            ),
+            array(
+                'ModuleName' => 'editorialstuff',
+                'FunctionName' => '*',
+            ),
+            array(
+                'ModuleName' => 'ezflow',
+                'FunctionName' => '*',
+            ),
+            array(
+                'ModuleName' => 'ezjscore',
+                'FunctionName' => '*',
+            ),
+            array(
+                'ModuleName' => 'ezoe',
+                'FunctionName' => '*',
+            ),
+            array(
+                'ModuleName' => 'ocbtools',
+                'FunctionName' => 'editor_tools',
+            ),
+            array(
+                'ModuleName' => 'state',
+                'FunctionName' => 'assign', //@todo
+            ),
+            array(
+                'ModuleName' => 'websitetoolbar',
+                'FunctionName' => '*',
+            ),
+        );
+
+        $configuration = OpenPAConsiglioConfiguration::instance();
+
+        $classes = array_fill_keys($configuration->getAvailableClasses(), true);
+
+        foreach ($configuration->getContainerDashboards() as $repositoryIdentifier) {
+            $data[] = array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'create',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory($repositoryIdentifier)->classIdentifier()),
+                    ),
+                    'Subtree' => array(
+                        $configuration->getRepositoryRootNodeId($repositoryIdentifier)
+                    )
+                )
+            );
+            unset($classes[$this->getFactory($repositoryIdentifier)->classIdentifier()]);
+        }
+
+        foreach($classes as $class){
+            $data[] = array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'create',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($class),
+                    ),
+                )
+            );
+        }
+
+        return $data;
+    }
+
+}

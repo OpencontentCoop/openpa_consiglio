@@ -252,13 +252,14 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
                 'template_uri' => "design:{$templatePath}/parts/presenze.tpl"
             );
         }
-
-        $tabs[] = array(
-            'identifier' => 'votazioni',
-            'name' => 'Votazioni e esito',
-            'template_uri' => "design:{$templatePath}/parts/votazioni.tpl",
-            'async_template_uri' => 'parts:votazioni'
-        );
+        if (OpenPAConsiglioConfiguration::instance()->enableVotazioniinCruscotto()) {
+            $tabs[] = array(
+                'identifier' => 'votazioni',
+                'name' => 'Votazioni e esito',
+                'template_uri' => "design:{$templatePath}/parts/votazioni.tpl",
+                'async_template_uri' => 'parts:votazioni'
+            );
+        }
 
         if ($isAdmin) {
             $tabs[] = array(

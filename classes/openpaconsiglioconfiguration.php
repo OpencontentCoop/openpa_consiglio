@@ -75,7 +75,7 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
     public function getBackendEndPoint()
     {
         //OpenPAINI::variable( 'OpenPAConsiglio', 'BackendEndPoint' )
-        return '';
+        return false;
     }
 
     public function isMailDebug()
@@ -106,7 +106,8 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
             'punto',
             'seduta',
             'votazione',
-            'organo_sociale'
+            'organo_sociale',
+            'rendiconto_spese'
         );
     }
 
@@ -127,6 +128,7 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
             'osservazioni',
             'referentelocale',
             'areacollaborativa',
+            'rendiconto_spese' // non è una dashboard
         );
     }
 
