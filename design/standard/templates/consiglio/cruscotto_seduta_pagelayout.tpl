@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{$site.http_equiv.Content-language|wash}">
 <head>
     <title>{$title}</title>
-    {ezcss_load( array( 'app.css','app_2.css','debug.css' ) )}
+    {ezcss_load( array( 'app.css','debug.css' ) )}
     {ezscript_load( array(
         'ezjsc::jquery',
         'ezjsc::jqueryUI',
@@ -19,9 +19,9 @@
         'bootstrap/popover.js',
         'bootstrap/scrollspy.js',
         'bootstrap/transition.js',
-        'waypoints.min.js',
-        'openpa_flat.js'
+        'waypoints.min.js'
     ))}
+    <style type="text/css">#debug{ldelim}position: absolute;z-index: 10;top: 0;overflow: scroll;height: 100%;width: 100%;{rdelim}</style>
     <!--[if lt IE 9]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <script type="text/javascript" src={"javascript/respond.min.js"|ezdesign()}></script>

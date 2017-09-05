@@ -67,7 +67,7 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
         {openpaini('OpenPAConsiglio','SocketPort','8090')}
         */
         return array(
-            'url' => 'ftcoop.local',
+            'url' => 'dev.ftcoop.opencontent.it',
             'port' => '8090',
         );
     }
