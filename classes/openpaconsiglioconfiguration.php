@@ -120,7 +120,7 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
             'invitato',
 //            'invito',
 //            'politico',
-//            'tecnico',
+            'tecnico',
             'materia',
             'organo',
 //            'convocazione_seduta',

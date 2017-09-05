@@ -23,6 +23,20 @@ Subdir=templates
 Match[class_identifier]=punto
 Match[attribute_identifier]=materia
 
+[edit_referente_politico_materia]
+Source=content/datatype/edit/ezobjectrelationlist.tpl
+MatchFile=edit/datatype/referente_politico_punto_ezobjectrelationlist.tpl
+Subdir=templates
+Match[class_identifier]=materia
+Match[attribute_identifier]=referente_politico
+
+[edit_referente_tecnico_materia]
+Source=content/datatype/edit/ezobjectrelationlist.tpl
+MatchFile=edit/datatype/referente_tecnico_punto_ezobjectrelationlist.tpl
+Subdir=templates
+Match[class_identifier]=materia
+Match[attribute_identifier]=referente_tecnico
+
 [edit_referente_politico_punto]
 Source=content/datatype/edit/ezobjectrelationlist.tpl
 MatchFile=edit/datatype/referente_politico_punto_ezobjectrelationlist.tpl

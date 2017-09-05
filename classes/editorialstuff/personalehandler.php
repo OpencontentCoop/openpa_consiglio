@@ -9,7 +9,10 @@ class OpenPAConsiglioEditorialStuffPersonaleHandler extends OCEditorialStuffHand
         $organi = OCEditorialStuffHandler::instance('organo')->fetchItems(array('limit' => 50, 'offset' => 0));
         $politiciIdList = array();
         foreach ($organi as $organo) {
-            $politiciIdList = array_merge($politiciIdList, $organo->stringAttribute('membri',function($string){return explode('-', $string);}));
+            $politiciIdList = array_merge(
+                $politiciIdList, 
+                $organo->stringAttribute('membri',function($string){return explode('-', $string);})
+            );
         }
         $politiciIdList = array_unique($politiciIdList);
 
@@ -17,8 +20,10 @@ class OpenPAConsiglioEditorialStuffPersonaleHandler extends OCEditorialStuffHand
         foreach ($politiciIdList as $id) {
             $politiciFilters[] = 'meta_id_si:' . $id;
         }
-        $this->filters[] = count($politiciFilters) > 1 ? $politiciFilters : $politiciFilters[0];
-
-        parent::fetch($limit, $offset, $limitation);
+        if (empty($this->filters)){
+            $this->filters = count($politiciFilters) > 1 ? $politiciFilters : $politiciFilters[0];
+            $limit = $limit < count($politiciFilters) ? count($politiciFilters) : $limit;
+        }                
+        return parent::fetch($limit, $offset, $limitation);
     }
 }

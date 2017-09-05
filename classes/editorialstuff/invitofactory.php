@@ -85,7 +85,7 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
                 'protocollo' => isset( $dataMap['protocollo'] ) ? $dataMap['protocollo']->toString() : '',
             );
 
-            if ($sedutaDataMap['firmatario']->hasContent()) {
+            if (isset($sedutaDataMap['firmatario']) && $sedutaDataMap['firmatario']->hasContent()) {
                 $listFirmatario = $sedutaDataMap['firmatario']->content();
                 $firmatario = eZContentObject::fetch(
                     $listFirmatario['relation_list'][0]['contentobject_id']
@@ -94,7 +94,7 @@ class InvitoFactory extends OpenPAConsiglioDefaultFactory implements OCEditorial
                 $firmatarioDataMap = $firmatario->dataMap();
 
                 $variables['firmatario'] = str_replace('(CCT)', '', $firmatario->attribute('name'));
-                if ($firmatarioDataMap['firma']->hasContent()
+                if (isset($firmatarioDataMap['firma']) && $firmatarioDataMap['firma']->hasContent()
                     && $firmatarioDataMap['firma']->attribute('data_type_string') == 'ezimage'
                 ) {
                     $image = $firmatarioDataMap['firma']->content()->attribute('original');

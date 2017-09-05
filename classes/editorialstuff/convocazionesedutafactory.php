@@ -60,7 +60,7 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
                 $firmatarioDataMap = $firmatario->dataMap();
 
                 $variables['firmatario'] = str_replace('(CCT)', '', $firmatario->attribute('name'));
-                if ($firmatarioDataMap['firma']->hasContent()
+                if (isset($firmatarioDataMap['firma']) && $firmatarioDataMap['firma']->hasContent()
                     && $firmatarioDataMap['firma']->attribute('data_type_string') == 'ezimage'
                 ) {
                     $image = $firmatarioDataMap['firma']->content()->attribute('original');

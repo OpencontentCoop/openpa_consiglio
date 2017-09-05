@@ -52,23 +52,8 @@ class OpenPAConsiglioGettoniHelper
     public function getPolitici()
     {
         if ($this->politici === null) {
-            /** @var Organo[] $organi */
-            $organi = OCEditorialStuffHandler::instance('organo')->fetchItems(array('limit' => 50, 'offset' => 0));
-            $politiciIdList = array();
-            foreach ($organi as $organo) {
-                $politiciIdList = array_merge($politiciIdList, $organo->stringAttribute('membri',function($string){return explode('-', $string);}));
-            }
-            $politiciIdList = array_unique($politiciIdList);
-
-            $politiciFilters = count($politiciIdList) > 1 ? array('or') : array();
-            foreach ($politiciIdList as $id) {
-                $politiciFilters[] = 'meta_id_si:' . $id;
-            }
-            $filters[] = count($politiciFilters) > 1 ? $politiciFilters : $politiciFilters[0];
-
             $this->politici = OCEditorialStuffHandler::instance('politico')->fetchItems(
-                array(
-                    'filters' => $politiciFilters,
+                array(                    
                     'limit' => 100,
                     'offset' => 0,
                     'sort' => array('attr_cognome_s' => 'asc')

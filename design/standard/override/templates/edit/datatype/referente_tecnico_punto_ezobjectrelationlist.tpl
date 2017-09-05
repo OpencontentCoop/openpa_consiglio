@@ -13,11 +13,7 @@
 
 
 {def $class_content = $attribute.class_content
-     $parent_node=cond( and( is_set( $class_content.default_placement.node_id ),
-                           $class_content.default_placement.node_id|eq( 0 )|not ),
-                           $class_content.default_placement.node_id, 1 )
-
-     $nestedNodesList = fetch( editorialstuff, posts, hash( factory_identifier, 'tecnico'))}
+     $nestedNodesList = fetch( editorialstuff, posts, hash( factory_identifier, 'tecnico', sort, hash('attr_cognome_s', 'asc')))}
 
     <input type="hidden" name="single_select_{$attribute.id}" value="1" />
     {if ne( count( $nestedNodesList ), 0)}

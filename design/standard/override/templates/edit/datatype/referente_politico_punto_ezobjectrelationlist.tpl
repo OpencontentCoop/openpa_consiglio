@@ -13,8 +13,7 @@
 
 
 {def $class_content = $attribute.class_content
-     $seduta = fetch( consiglio, post, hash( node, $attribute.object.current.main_parent_node_id ))
-     $nodesList = $seduta.organo.componenti}
+     $nodesList = fetch( editorialstuff, posts, hash( factory_identifier, 'politico', sort, hash('attr_cognome_s', 'asc')))}     
 
     <input type="hidden" name="single_select_{$attribute.id}" value="1" />
     {if ne( count( $nodesList ), 0)}
