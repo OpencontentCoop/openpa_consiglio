@@ -133,7 +133,7 @@ class OpenPAConsiglioRoles
                         eZContentClass::classIDByIdentifier('rendiconto_spese'),
                     ),
                     'Subtree' => array(
-                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodeId('rendiconto_spese')
+                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodePathString('rendiconto_spese')
                     )
                 )
             ),
@@ -145,7 +145,7 @@ class OpenPAConsiglioRoles
                         eZContentClass::classIDByIdentifier($this->getFactory('osservazioni')->classIdentifier()),
                     ),
                     'Subtree' => array(
-                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodeId('osservazioni')
+                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodePathString('osservazioni')
                     )
                 )
             ),
@@ -329,7 +329,7 @@ class OpenPAConsiglioRoles
                             eZContentClass::classIDByIdentifier($this->getFactory($repositoryIdentifier)->classIdentifier()),
                         ),
                         'Subtree' => array(
-                            $configuration->getRepositoryRootNodeId($repositoryIdentifier)
+                            $configuration->getRepositoryRootNodePathString($repositoryIdentifier)
                         )
                     )
                 );
@@ -347,7 +347,7 @@ class OpenPAConsiglioRoles
                     eZContentClass::classIDByIdentifier('rendiconto_spese'),
                 ),
                 'Subtree' => array(
-                    $configuration->getRepositoryRootNodeId('rendiconto_spese')
+                    $configuration->getRepositoryRootNodePathString('rendiconto_spese')
                 )
             )
         );
