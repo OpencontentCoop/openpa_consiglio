@@ -320,20 +320,37 @@ class OpenPAConsiglioRoles
         $classes = array_fill_keys($configuration->getAvailableClasses(), true);
 
         foreach ($configuration->getContainerDashboards() as $repositoryIdentifier) {
-            $data[] = array(
-                'ModuleName' => 'content',
-                'FunctionName' => 'create',
-                'Limitation' => array(
-                    'Class' => array(
-                        eZContentClass::classIDByIdentifier($this->getFactory($repositoryIdentifier)->classIdentifier()),
-                    ),
-                    'Subtree' => array(
-                        $configuration->getRepositoryRootNodeId($repositoryIdentifier)
+            try {
+                $data[] = array(
+                    'ModuleName' => 'content',
+                    'FunctionName' => 'create',
+                    'Limitation' => array(
+                        'Class' => array(
+                            eZContentClass::classIDByIdentifier($this->getFactory($repositoryIdentifier)->classIdentifier()),
+                        ),
+                        'Subtree' => array(
+                            $configuration->getRepositoryRootNodeId($repositoryIdentifier)
+                        )
                     )
-                )
-            );
-            unset($classes[$this->getFactory($repositoryIdentifier)->classIdentifier()]);
+                );
+                unset($classes[$this->getFactory($repositoryIdentifier)->classIdentifier()]);
+            }catch(Exception $e){
+
+            }
         }
+
+        $data[] = array(
+            'ModuleName' => 'content',
+            'FunctionName' => 'create',
+            'Limitation' => array(
+                'Class' => array(
+                    eZContentClass::classIDByIdentifier('rendiconto_spese'),
+                ),
+                'Subtree' => array(
+                    $configuration->getRepositoryRootNodeId('rendiconto_spese')
+                )
+            )
+        );
 
         foreach($classes as $class){
             $data[] = array(
