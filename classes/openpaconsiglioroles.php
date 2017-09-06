@@ -21,7 +21,7 @@ class OpenPAConsiglioRoles
             self::AREA_COLLABORATIVA_POLITICO,
             self::POLITICO,
             self::SEGRETERIA,
-            self::TECNICO
+            //self::TECNICO
         );
     }
 

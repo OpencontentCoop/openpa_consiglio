@@ -31,11 +31,12 @@ try {
     $dbUser = eZINI::instance()->variable('DatabaseSettings', 'User');
     $dbName = eZINI::instance()->variable('DatabaseSettings', 'Database');
     $mysqlCommand = "mysql -u {$dbUser} -p {$dbName} < extension/openpa_consiglio/sql/mysql/schema.sql";
-    $cli->warning('Esegui (se non l\'hai ancora fatto) ' . $mysqlCommand);
+    $cli->warning('Esegui (se non l\'hai ancora fatto) ', false);
+    $cli->notice($mysqlCommand);
     $cli->warning();
 
     foreach ($configuration->getAvailableClasses() as $identifier) {
-        $cli->warning('Sincronizzo classe ' . $identifier);
+        $cli->warning('Sincronizzo classe ' . $identifier . ' con ' . $configuration->getSyncClassRemoteHost());
         // $tools = new OCClassTools( $identifier, true ); // creo se non esiste
         // $tools->sync( true, true ); // forzo e rimuovo attributi in più
     }

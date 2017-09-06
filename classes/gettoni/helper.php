@@ -23,9 +23,9 @@ class OpenPAConsiglioGettoniHelper
 
     public function __construct()
     {
-        if (!eZContentObject::fetchByRemoteID('openpa_consiglio_rendiconto_spese')) {
+        if (!OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodeId('rendiconto_spese')) {
             $params = array(
-                'remote_id' => 'openpa_consiglio_rendiconto_spese',
+                'remote_id' => OpenPAConsiglioConfiguration::instance()->getRepositoryRootRemoteId('rendiconto_spese'),
                 'class_identifier' => 'folder',
                 'parent_node_id' => eZINI::instance('content.ini')->variable('NodeSettings', 'MediaRootNode'),
                 'attributes' => array(
@@ -38,7 +38,7 @@ class OpenPAConsiglioGettoniHelper
 
     protected static function rendicontiContainerNodeId()
     {
-        return eZContentObject::fetchByRemoteID('openpa_consiglio_rendiconto_spese')->attribute('main_node_id');
+        return OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodeId('rendiconto_spese');
     }
 
     public function setPolitico(Politico $politico)
