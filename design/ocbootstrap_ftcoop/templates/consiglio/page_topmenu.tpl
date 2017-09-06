@@ -35,7 +35,7 @@
                                 <ul class="nav navbar-nav">
                                     {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'use' ))}
                                         <li class="menu-item{if $current_module|eq('consiglio/dashboard/')} current{/if}">
-                                            <a href="{'consiglio/dashboard'|ezurl(no)}"><b>Area riservata</b></a></li>
+                                            <a href="{'consiglio/dashboard'|ezurl(no)}"><b>Bacheca</b></a></li>
                                     {/if}
 
                                     {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'collaboration' ))}
