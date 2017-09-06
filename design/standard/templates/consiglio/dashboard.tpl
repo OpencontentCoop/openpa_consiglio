@@ -10,15 +10,7 @@
 </div>
 {/if}
 
-<div class="row dashboard">
-    <div class="col-sm-12">
-        <div class="panel panel-default">
-            <div class="panel-body">
-                {include uri='design:consiglio/dashboard/calendario.tpl'}
-            </div>
-        </div>
-    </div>
-</div>
+{include uri='design:consiglio/dashboard/calendario.tpl'}
 
 <div class="row dashboard">
     <div class="col-sm-6">

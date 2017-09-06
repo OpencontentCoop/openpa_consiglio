@@ -26,9 +26,21 @@
 {/literal}</style>
 
 {def $next_items = fetch(consiglio, next_items)}
-{foreach $next_items as $post}
-    {include uri=concat( 'design:consiglio/dashboard/calendario/', $post.object.class_identifier, '.tpl' )}
-    {undef $post}
-{/foreach}
+<div class="row dashboard">
+    <div class="col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {if count($next_items)|gt(0)}
+                {foreach $next_items as $post}
+                    {include uri=concat( 'design:consiglio/dashboard/calendario/', $post.object.class_identifier, '.tpl' )}
+                    {undef $post}
+                {/foreach}
+                {else}
+                    <em>Nessuna seduta in programma</em>
+                {/if}
+            </div>
+        </div>
+    </div>
+</div>
 
 
