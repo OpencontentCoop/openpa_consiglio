@@ -39,7 +39,7 @@ class OpenPAConsiglioFunctionCollection
     public static function fetchNextItems()
     {
         $dateTime = new DateTime();
-        $dateTime->sub(new DateInterval('P1W'));
+        $dateTime->sub(new DateInterval('P1D'));
         $from = ezfSolrDocumentFieldBase::preProcessValue($dateTime->getTimestamp(), 'date');
 
         $dateTime = new DateTime();
