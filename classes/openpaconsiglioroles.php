@@ -351,8 +351,9 @@ class OpenPAConsiglioRoles
                 )
             )
         );
+        unset($classes['rendiconto_spese']);
 
-        foreach($classes as $class){
+        foreach(array_keys($classes) as $class){
             $data[] = array(
                 'ModuleName' => 'content',
                 'FunctionName' => 'create',
