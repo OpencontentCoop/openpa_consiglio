@@ -11,17 +11,14 @@ class OpenPAConsiglioRoles
     const TECNICO = 'OpenConsiglio - Tecnico';
 
     /**
-     * @see AreaCollaborativa::createRoleIfNeeded
-     * @see AreaCollaborativa::createPoliticoRoleIfNeeded
-     *
      * @return array
      */
-    public function getRoles()
+    public function getRoleNames()
     {
         return array(
             self::ANONIMO,
-            //self::AREA_COLLABORATIVA,
-            //self::AREA_COLLABORATIVA_POLITICO,
+            self::AREA_COLLABORATIVA,
+            self::AREA_COLLABORATIVA_POLITICO,
             self::POLITICO,
             self::SEGRETERIA,
             self::TECNICO
@@ -43,6 +40,16 @@ class OpenPAConsiglioRoles
 
             case self::SEGRETERIA: {
                 return $this->getSegreteriaPolicies();
+            }
+                break;
+
+            case self::AREA_COLLABORATIVA: {
+                return $this->getAreaCollaborativaPolicies();
+            }
+                break;
+
+            case self::AREA_COLLABORATIVA_POLITICO: {
+                return $this->getAreaCollaborativaPoliticoPolicies();
             }
                 break;
 
@@ -343,4 +350,119 @@ class OpenPAConsiglioRoles
         return $data;
     }
 
+    private function getAreaCollaborativaPolicies()
+    {
+        return array(
+            array(
+                'ModuleName' => 'consiglio',
+                'FunctionName' => 'collaboration',
+                'Limitation' => array()
+            ),
+            array(
+                'ModuleName' => 'editorialstuff',
+                'FunctionName' => 'full_dashboard',
+                'Limitation' => array()
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_area'),
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_comment'),
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_file'),
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_room'),
+                        eZContentClass::classIDByIdentifier('user')
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'create',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_comment'),
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_file')
+                    ),
+                    'ParentClass' => array(
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_room')
+                    )
+                )
+            ),
+        );
+    }
+
+    private function getAreaCollaborativaPoliticoPolicies()
+    {
+        return array(
+            array(
+                'ModuleName' => 'consiglio',
+                'FunctionName' => 'collaboration',
+                'Limitation' => array()
+            ),
+            array(
+                'ModuleName' => 'editorialstuff',
+                'FunctionName' => 'full_dashboard',
+                'Limitation' => array()
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_area'),
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_comment'),
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_room'),
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_file'),
+                        eZContentClass::classIDByIdentifier('user')
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'create',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_comment'),
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_file')
+                    ),
+                    'ParentClass' => array(
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_room')
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'create',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_room')
+                    ),
+                    'ParentClass' => array(
+                        eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_area')
+                    )
+                )
+            )
+        );
+    }
+
+    /**
+     * @param $roleName
+     * @return eZRole
+     * @throws Exception
+     */
+    public function createRoleIfNeeded($roleName)
+    {
+        $role = eZRole::fetchByName($roleName);
+        if (!$role instanceof eZRole) {
+            $role = eZRole::create($roleName);
+            $role->store();
+            $policies = $this->getPolicies($roleName);
+            foreach ($policies as $policy) {
+                $role->appendPolicy($policy['ModuleName'], $policy['FunctionName'], $policy['Limitation']);
+            }
+        }
+
+        return $role;
+    }
 }

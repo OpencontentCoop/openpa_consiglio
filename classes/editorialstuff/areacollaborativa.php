@@ -221,121 +221,15 @@ class AreaCollaborativa extends OCEditorialStuffPost
      */
     protected static function createRoleIfNeeded()
     {
-        $roleName = 'Gestione sedute consiglio - Area Collaborativa';
-        $role = eZRole::fetchByName($roleName);
-        if (!$role instanceof eZRole) {
-            $role = eZRole::create($roleName);
-            $role->store();
+        $roleHelper = new OpenPAConsiglioRoles();
 
-            $policies = array(
-                array(
-                    'ModuleName' => 'consiglio',
-                    'FunctionName' => 'collaboration',
-                    'Limitation' => array()
-                ),
-                array(
-                    'ModuleName' => 'editorialstuff',
-                    'FunctionName' => 'full_dashboard',
-                    'Limitation' => array()
-                ),
-                array(
-                    'ModuleName' => 'content',
-                    'FunctionName' => 'read',
-                    'Limitation' => array(
-                        'Class' => array(
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_area'),
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_comment'),
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_file'),
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_room'),
-                            eZContentClass::classIDByIdentifier('user')
-                        )
-                    )
-                ),
-                array(
-                    'ModuleName' => 'content',
-                    'FunctionName' => 'create',
-                    'Limitation' => array(
-                        'Class' => array(
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_comment'),
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_file')
-                        ),
-                        'ParentClass' => array(
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_room')
-                        )
-                    )
-                ),
-            ); //@todo
-            foreach ($policies as $policy) {
-                $role->appendPolicy($policy['ModuleName'], $policy['FunctionName'], $policy['Limitation']);
-            }
-
-        }
-
-        return $role;
+        return $roleHelper->createRoleIfNeeded(OpenPAConsiglioRoles::AREA_COLLABORATIVA);
     }
 
     protected static function createPoliticoRoleIfNeeded($userId = null, $subTreeLimitationNodeId = null)
     {
-        $roleName = 'Gestione sedute consiglio - Area Collaborativa - Politico';
-        $role = eZRole::fetchByName($roleName);
-        if (!$role instanceof eZRole) {
-            $role = eZRole::create($roleName);
-            $role->store();
-
-            $policies = array(
-                array(
-                    'ModuleName' => 'consiglio',
-                    'FunctionName' => 'collaboration',
-                    'Limitation' => array()
-                ),
-                array(
-                    'ModuleName' => 'editorialstuff',
-                    'FunctionName' => 'full_dashboard',
-                    'Limitation' => array()
-                ),
-                array(
-                    'ModuleName' => 'content',
-                    'FunctionName' => 'read',
-                    'Limitation' => array(
-                        'Class' => array(
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_area'),
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_comment'),
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_room'),
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_file'),
-                            eZContentClass::classIDByIdentifier('user')
-                        )
-                    )
-                ),
-                array(
-                    'ModuleName' => 'content',
-                    'FunctionName' => 'create',
-                    'Limitation' => array(
-                        'Class' => array(
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_comment'),
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_file')
-                        ),
-                        'ParentClass' => array(
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_room')
-                        )
-                    )
-                ),
-                array(
-                    'ModuleName' => 'content',
-                    'FunctionName' => 'create',
-                    'Limitation' => array(
-                        'Class' => array(
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_room')
-                        ),
-                        'ParentClass' => array(
-                            eZContentClass::classIDByIdentifier('openpa_consiglio_collaboration_area')
-                        )
-                    )
-                )
-            ); //@todo
-            foreach ($policies as $policy) {
-                $role->appendPolicy($policy['ModuleName'], $policy['FunctionName'], $policy['Limitation']);
-            }
-        }
+        $roleHelper = new OpenPAConsiglioRoles();
+        $role = $roleHelper->createRoleIfNeeded(OpenPAConsiglioRoles::AREA_COLLABORATIVA_POLITICO);
         if ($userId && $subTreeLimitationNodeId) {
             $role->assignToUser($userId, 'subtree', $subTreeLimitationNodeId);
         }

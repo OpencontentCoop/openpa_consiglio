@@ -15,6 +15,11 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
         return self::$instance;
     }
 
+    public function getSyncClassRemoteHost()
+    {
+        return 'http://dev.ftcoop.opencontent.it';
+    }
+
     public function useApp()
     {
         return false;

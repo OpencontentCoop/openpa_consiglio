@@ -24,25 +24,27 @@ eZUser::setCurrentlyLoggedInUser( $user , $user->attribute( 'contentobject_id' )
 
 
 try {
-    $remoteHost = 'http://www.cal.tn.it';
-    OCClassTools::setRemoteUrl($remoteHost . '/classtools/definition/');
 
     $configuration = OpenPAConsiglioConfiguration::instance();
+    OCClassTools::setRemoteUrl($configuration->getSyncClassRemoteHost() . '/classtools/definition/');
+
     $dbUser = eZINI::instance()->variable('DatabaseSettings', 'User');
     $dbName = eZINI::instance()->variable('DatabaseSettings', 'Database');
     $mysqlCommand = "mysql -u {$dbUser} -p {$dbName} < extension/openpa_consiglio/sql/mysql/schema.sql";
-    $cli->warning('Esegui ' . $mysqlCommand);
+    $cli->warning('Esegui (se non l\'hai ancora fatto) ' . $mysqlCommand);
+    $cli->warning();
 
     foreach ($configuration->getAvailableClasses() as $identifier) {
         $cli->warning('Sincronizzo classe ' . $identifier);
         // $tools = new OCClassTools( $identifier, true ); // creo se non esiste
         // $tools->sync( true, true ); // forzo e rimuovo attributi in più
     }
+    $cli->warning();
 
-    $parentNodeId = $options['parent_node'] ? $options['parent_node'] : eZINI::instance('content.ini')->variable('NodeSettings',
+    $parentNodeId = $options['parent_node'] ?
+        $options['parent_node'] :
+        eZINI::instance('content.ini')->variable('NodeSettings',
         'RootNode');
-
-
     foreach ($configuration->getContainerDashboards() as $repositoryIdentifier) {
         if ($configuration->getRepositoryRootNodeId($repositoryIdentifier) == null) {
             $cli->warning('Creo root node per ' . $repositoryIdentifier);
@@ -62,6 +64,13 @@ try {
                 throw new Exception('Fallita la creazione del root node di ' . $repositoryIdentifier);
             }
         }
+    }
+    $cli->warning();
+
+    $roleHelper = new OpenPAConsiglioRoles();
+    foreach($roleHelper->getRoleNames() as $roleName){
+        $cli->warning('Creo ruolo ' . $roleName);
+        $roleHelper->createRoleIfNeeded($roleName);
     }
     $script->shutdown();
 }catch(Exception $e){
