@@ -19,7 +19,7 @@
     <div id="destinatari">
         <p>
         {if $sesso}
-            {if eq($sesso, 'Maschio')}Egregio Signor{else}Gent.ma Signora{/if}<br />
+            {if eq($sesso, 'Maschio')}Egregio Signor{elseif eq($sesso, 'Femmina')}Gent.ma Signora{else}Spettabile{/if}<br />
         {/if}
         {$invitato}{if $ruolo}<br />{$ruolo}{/if}<br />
         {if $indirizzo}{$indirizzo}{/if}</p>
