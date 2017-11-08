@@ -155,6 +155,7 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
            'referentelocale' => true,
            'areacollaborativa' => true,
            'organo' => true,
+           'tecnico' => true,
        );
     }
 

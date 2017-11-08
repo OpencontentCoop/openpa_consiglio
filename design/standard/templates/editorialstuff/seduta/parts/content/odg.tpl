@@ -60,6 +60,15 @@
                                 {attribute_view_gui attribute=$punto.object.data_map.alert}
                             </div>
                         {/if}
+                        {if and($is_editor, $punto.object.data_map.note.has_content)}
+                        	<div>
+                        		<small>
+                        			<em>
+                        				{attribute_view_gui attribute=$punto.object.data_map.note}
+                    				</em>
+	                        	</small>
+	                        </div>
+                        {/if}
                     </td>
                     <td>{attribute_view_gui attribute=$punto.object.data_map.materia}</td>
                     <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_documenti')|ezurl(no)}">{$punto.count_documenti}</a></td>

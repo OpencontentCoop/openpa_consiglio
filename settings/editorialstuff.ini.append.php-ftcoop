@@ -1,6 +1,54 @@
 <?php /* #?ini charset="utf-8"?
 
 [AvailableFactories]
+Identifiers[]=bozze_verbali_cda
+Identifiers[]=comunicati
+
+[bozze_verbali_cda]
+ClassName=BozzaVerbaleCdaFactory
+ClassIdentifier=bozza_verbale_cda
+CreationRepositoryNode=627290
+CreationButtonText=Crea nuova bozza Verbale
+RepositoryNodes[]
+RepositoryNodes[]=627290
+#AttributeIdentifiers[]
+StateGroup=bozze_verbali_cda
+States[draft]=In Lavorazione
+States[available]=Disponibile
+States[expired]=Scaduta
+Actions[]
+
+#Notifica il CDA (il template è in extension/opencontent/design/standard/templates/editorialstuff/mail/action_notify_group.tpl)
+Actions[draft-available]=NotifyGroup;502752
+
+
+[comunicati]
+ClassIdentifier=comunicato
+CreationRepositoryNode=653306
+CreationButtonText=Crea nuovo Comunicato Stampa
+RepositoryNodes[]
+RepositoryNodes[]=653306
+#AttributeIdentifiers[]
+StateGroup=comunicati
+States[draft]=In lavorazione
+States[pending]=In attesa di pubblicazione
+States[published]=Pubblicato
+Actions[]
+
+#Notifica i redattori capo
+Actions[draft-pending]=NotifyGroup;653308
+
+#Notifica l'autore
+Actions[pending-draft]=NotifyOwner
+
+#Aggiunge Location (id node di test!)
+Actions[pending-published]=AddMainLocation;559269
+
+###########################################
+############ GESTIONE SEDUTE ##############
+###########################################
+
+[AvailableFactories]
 Identifiers[]=seduta
 Identifiers[]=punto
 Identifiers[]=allegati_seduta
@@ -161,10 +209,11 @@ Locations[consiglio]=
 Locations[giunta]=
 
 [tecnico]
-ClassIdentifier=tecnico
+ClassIdentifier=personale
 ClassName=TecnicoFactory
-CreationButtonText=Crea nuovo tecnico
 CreationRepositoryNode=
+BrowseStartNode=16112
+BrowseButtonText=Seleziona tecnico
 RepositoryNodes[]
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl

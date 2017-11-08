@@ -47,6 +47,13 @@
                             </td>
                             <td>
                                 {attribute_view_gui attribute=$punto.object.data_map.oggetto}
+                                {if $punto.count_documenti}
+                                <ul class="list-unstyled">
+                                {foreach $punto.documenti as $allegato}
+                                    <li>{attribute_view_gui attribute=$allegato.object.data_map.file}</li>
+                                {/foreach}
+                                </ul>
+                                {/if}
                             </td>
                             <td>
                                 {if $punto.object.data_map.materia.has_content}

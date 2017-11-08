@@ -16,6 +16,13 @@ Subdir=templates
 Match[class_identifier]=seduta
 Match[attribute_identifier]=firmatario
 
+[edit_segretario_verbalizzante_seduta]
+Source=content/datatype/edit/ezobjectrelationlist.tpl
+MatchFile=edit/datatype/referente_tecnico_punto_ezobjectrelationlist.tpl
+Subdir=templates
+Match[class_identifier]=seduta
+Match[attribute_identifier]=segretario_verbalizzante
+
 [edit_materia_punto]
 Source=content/datatype/edit/ezobjectrelationlist.tpl
 MatchFile=edit/datatype/materia_punto_ezobjectrelationlist.tpl

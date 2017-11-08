@@ -1,3 +1,4 @@
+{def $count_assigned_nodes = $post.object.assigned_nodes}
 <div class="panel-body" style="background: #fff">
 
 
@@ -31,10 +32,9 @@
                     <input type="hidden" name="RedirectURIAfterPublish"
                            value="{concat('editorialstuff/edit/', $factory_identifier, '/',$post.object.id)}"/>
 
-					{if $post.object.can_remove}
+					{if and($post.object.can_remove, $count_assigned_nodes|eq(1))}
                         <button class="btn btn-danger btn-lg" type="submit" name="ActionRemove">Rimuovi</button>
-                        <input type="hidden" name="RedirectURIAfterRemove"
-                            value="{concat('editorialstuff/dashboard/', $factory_identifier)}" />
+                        <input type="hidden" name="RedirectURIAfterRemove" value="{concat('editorialstuff/dashboard/', $factory_identifier)}" />
                     {/if}
                     </div>
                 </form>
@@ -103,6 +103,15 @@
             <ul class="list-unstyled">
                 {foreach $post.object.assigned_nodes as $item}
                     <li>
+                        {if and($count_assigned_nodes|gt(1), $item.can_remove)}
+                        <form method="post" action="{"content/action"|ezurl(no)}" style="display: inline;">
+                            <input type="hidden" name="ContentObjectID" value="{$post.object.id}"/>
+                            <input type="hidden" name="NodeID" value="{$item.node_id}"/>
+                            <input type="hidden" name="ContentNodeID" value="{$item.node_id}"/>
+                            <button class="btn btn-danger btn-xs" type="submit" name="ActionRemove"><i class="fa fa-trash-o"></i></button>
+                            <input type="hidden" name="RedirectURIAfterRemove" value="{concat('editorialstuff/dashboard/', $factory_identifier)}" />
+                        </form>
+                        {/if}
                         <a href={$item.url_alias|ezurl()}>{$item.path_with_names}</a>
                         {if $item.node_id|eq($post.object.main_node_id)}(principale){/if}
                     </li>

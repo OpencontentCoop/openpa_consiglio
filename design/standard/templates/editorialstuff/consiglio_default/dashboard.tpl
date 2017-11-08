@@ -7,6 +7,9 @@
             {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
             {if and($factory_configuration.CreationRepositoryNode, is_set($factory_configuration.CreationButtonText))}
                 <a href="{concat('editorialstuff/add/',$factory_identifier)|ezurl(no)}" class="btn btn-primary">{$factory_configuration.CreationButtonText|wash()}</a>
+            {/if}            
+            {if and($factory_configuration.BrowseStartNode, is_set($factory_configuration.BrowseButtonText))}
+                <a href="{concat('editorialstuff/dashboard/',$factory_identifier,'?embed')|ezurl(no)}" class="btn btn-primary">{$factory_configuration.BrowseButtonText|wash()}</a>
             {/if}
             {/if}
 
