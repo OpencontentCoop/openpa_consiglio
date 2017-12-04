@@ -32,8 +32,7 @@
             <div class="panel-body">
                 {if count($next_items)|gt(0)}
                 {foreach $next_items as $post}
-                    {include uri=concat( 'design:consiglio/dashboard/calendario/', $post.object.class_identifier, '.tpl' )}
-                    {undef $post}
+                    {include uri=concat( 'design:consiglio/dashboard/calendario/', $post.object.class_identifier, '.tpl' )}                    
                 {/foreach}
                 {else}
                     <em>Nessuna seduta in programma</em>

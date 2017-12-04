@@ -9,7 +9,7 @@
 {if $placeholder}<label>{$placeholder}</label>{/if}
 
 {default attribute_base=ContentObjectAttribute}
-{def $nestedNodesList = fetch( editorialstuff, posts, hash( factory_identifier, 'politico', sort, hash('attr_cognome_s', 'asc')))}
+{def $nestedNodesList = fetch( editorialstuff, posts, hash( factory_identifier, 'politico', sort, hash('attr_cognome_s', 'asc'), limit, 200))}
 
 <input type="hidden" name="single_select_{$attribute.id}" value="1" />
 {if ne( count( $nestedNodesList ), 0)}

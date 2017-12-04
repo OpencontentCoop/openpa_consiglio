@@ -13,6 +13,10 @@
             <a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#detail-{$post.object_id}" aria-expanded="false" aria-controls="collapseExample">Ordine del giorno</a>
             <a class="btn btn-primary btn-xs" href="{concat('editorialstuff/edit/seduta/', $post.object_id)|ezurl(no)}">Vai al dettaglio</a>
         </h3>
+        {if array('sent')|contains($post.current_state.identifier)}
+            <strong>Convocazione:</strong>
+            {attribute_view_gui attribute=$post.object.data_map.convocazione}
+        {/if}
     </div>
 </div>
 <div class="row collapse" id="detail-{$post.object_id}">
@@ -59,7 +63,7 @@
                                 {if $punto.object.data_map.materia.has_content}
                                     {foreach $punto.object.data_map.materia.content.relation_list as $item}
                                         {def $materia = fetch(content, object, hash(object_id,$item.contentobject_id))}
-                                        <p class="{if $materie_like|contains($item.contentobject_id)}text-warning{/if}"><small><strong>Materia</strong>: {$materia.name|wash()}</small></p>
+                                        <p class="{*if $materie_like|contains($item.contentobject_id)}text-warning{/if*}"><small><strong>Materia</strong>: {$materia.name|wash()}</small></p>
                                         {undef $materia}
                                     {/foreach}
                                 {/if}

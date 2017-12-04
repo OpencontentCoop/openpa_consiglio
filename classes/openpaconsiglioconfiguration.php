@@ -133,7 +133,7 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
             'allegati_seduta',
             'invitato',
 //            'invito',
-//            'politico',
+            'politico',
             'tecnico',
             'materia',
             'organo',
@@ -156,6 +156,7 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
            'areacollaborativa' => true,
            'organo' => true,
            'tecnico' => true,
+           'politico' => true,
        );
     }
 

@@ -86,4 +86,32 @@ Subdir=templates
 Match[class_identifier]=audizione
 Match[attribute_identifier]=referente_tecnico
 
+[edit_organo_politico]
+Source=content/datatype/edit/ezobjectrelationlist.tpl
+MatchFile=edit/datatype/organo_politico_membri_ezobjectrelationlist.tpl
+Subdir=templates
+Match[class_identifier]=organo_sociale
+Match[attribute_identifier]=membri
+
+[view_organo_politico]
+Source=content/datatype/view/ezobjectrelationlist.tpl
+MatchFile=view/datatype/organo_politico_membri_ezobjectrelationlist.tpl
+Subdir=templates
+Match[class_identifier]=organo_sociale
+Match[attribute_identifier]=membri
+
+[edit_organo_politico]
+Source=content/datatype/edit/ezobjectrelationlist.tpl
+MatchFile=edit/datatype/organo_politico_membri_ezobjectrelationlist.tpl
+Subdir=templates
+Match[class_identifier]=organo_politico
+Match[attribute_identifier]=membri
+
+[view_organo_politico]
+Source=content/datatype/view/ezobjectrelationlist.tpl
+MatchFile=view/datatype/organo_politico_membri_ezobjectrelationlist.tpl
+Subdir=templates
+Match[class_identifier]=organo_politico
+Match[attribute_identifier]=membri
+
  */ ?>

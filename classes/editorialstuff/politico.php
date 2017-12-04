@@ -14,6 +14,7 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
     public function attributes()
     {
         $attributes = parent::attributes();
+        $attributes[] = 'emails';
         $attributes[] = 'organi';
         $attributes[] = 'is_in';
         $attributes[] = 'percentuale_presenza';
@@ -26,6 +27,10 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
 
     public function attribute($property)
     {
+        if ($property == 'emails') {
+            return $this->emails();
+        }
+
         if ($property == 'organi') {
             return $this->availableOrgani();
         }
@@ -51,6 +56,24 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
         }
 
         return parent::attribute($property);
+    }
+
+    protected function emails()
+    {
+        $emails = array();
+        $user = eZUser::fetch($this->object->attribute('id'));
+        if ($user){
+            $emails[] = $user->attribute('email');
+        }        
+        if (isset($this->dataMap['email']) && $this->dataMap['email']->hasContent()) {
+            $emails[] = $this->dataMap['email']->content();
+        }
+
+        if (isset($this->dataMap['altre_email']) && $this->dataMap['altre_email']->hasContent()) {
+            $emails = array_merge($emails, explode('&', $this->dataMap['altre_email']->toString()));
+        }
+
+        return array_unique($emails);
     }
 
     protected function availableOrgani()

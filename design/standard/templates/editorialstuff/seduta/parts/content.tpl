@@ -62,6 +62,11 @@
                 </div>
             </form>
         </div>
+        {elseif array('sent')|contains($post.current_state.identifier)}
+            <div class="well well-sm text-center">
+                <strong>Convocazione:</strong>
+                {attribute_view_gui attribute=$post.object.data_map.convocazione}
+            </div>
 		{/if}
         {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
             <div class="col-xs-12 col-sm-6 col-md-5">

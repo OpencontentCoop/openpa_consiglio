@@ -53,11 +53,31 @@ class Organo extends OpenPAConsiglioDefaultPost implements OpenPAConsiglioString
 
     public function addComponente(Politico $politico)
     {
-
+        $idList = $this->stringAttribute('membri', function($string){
+            return explode('-', $string);
+        });
+        $idList[] = $politico->id();
+        $idList = array_unique($idList);
+        $this->dataMap['membri']->fromString(implode('-', $idList));
+        $this->dataMap['membri']->store();
+        $this->setObjectLastModified();
     }
 
     public function removeComponente(Politico $politico)
     {
+        $idList = $this->stringAttribute('membri', function($string){
+            return explode('-', $string);
+        });
+        $newIdList = array();
+        foreach ($idList as $id) {
+            if ($id != $politico->id()){
+                $newIdList[] = $id;
+            }
+        }
 
+        $newIdList = array_unique($newIdList);
+        $this->dataMap['membri']->fromString(implode('-', $newIdList));
+        $this->dataMap['membri']->store();
+        $this->setObjectLastModified();
     }
 }

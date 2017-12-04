@@ -17,7 +17,7 @@
                            $class_content.default_placement.node_id|eq( 0 )|not ),
                            $class_content.default_placement.node_id, 1 )
 
-     $nestedNodesList = fetch( editorialstuff, posts, hash( factory_identifier, 'invitato'))}
+     $nestedNodesList = fetch( editorialstuff, posts, hash( factory_identifier, 'invitato'), limit, 200)}
 
     <input type="hidden" name="single_select_{$attribute.id}" value="1" />
     {if ne( count( $nestedNodesList ), 0)}

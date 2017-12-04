@@ -195,11 +195,11 @@ PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 
 [politico]
-HandlerClassName=OpenPAConsiglioEditorialStuffPersonaleHandler
 ClassIdentifier=personale
 ClassName=PoliticoFactory
-CreationButtonText=Crea nuovo politico
 CreationRepositoryNode=
+BrowseStartNode=502752
+BrowseButtonText=Seleziona politico
 RepositoryNodes[]
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl

@@ -1,4 +1,4 @@
-{def $count_assigned_nodes = $post.object.assigned_nodes}
+{def $count_assigned_nodes = count($post.object.assigned_nodes)}
 <div class="panel-body" style="background: #fff">
 
 
@@ -54,9 +54,9 @@
     <div class="row edit-row">
         <div class="col-md-3"><strong><em>Gruppi</em></strong></div>
         <div class="col-md-9">
-            <ul class="list-inline">
+            <ul class="list-unstyled">
             {foreach $post.organi as $identifier => $id}
-                <li>
+                <li style="padding: 3px 0">
                     {if $post.is_in[$identifier]}
                         <form action="{concat('editorialstuff/action/politico/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post" class="form-horizontal">
                             <input type="hidden" name="ActionIdentifier" value="RemoveFromOrgano" />
@@ -102,7 +102,7 @@
         <div class="col-md-9">
             <ul class="list-unstyled">
                 {foreach $post.object.assigned_nodes as $item}
-                    <li>
+                    <li style="padding: 3px 0">
                         {if and($count_assigned_nodes|gt(1), $item.can_remove)}
                         <form method="post" action="{"content/action"|ezurl(no)}" style="display: inline;">
                             <input type="hidden" name="ContentObjectID" value="{$post.object.id}"/>

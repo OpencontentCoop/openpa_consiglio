@@ -6,7 +6,7 @@
         {foreach $sedute as $seduta}
             <th style="vertical-align: middle; text-align: center;{if $seduta.competenza|eq('Giunta')}background:#eee;{/if}">
                 <a href="{$seduta.editorial_url|ezurl(no)}">
-                    {$seduta.competenza}<br />{$seduta.data_ora|datetime('custom', '%j %M <small>%H:%i</small>')}
+                    {$seduta.organo.object.name}<br />{$seduta.data_ora|datetime('custom', '%j %M <small>%H:%i</small>')}
                 </a>
             </th>
         {/foreach}

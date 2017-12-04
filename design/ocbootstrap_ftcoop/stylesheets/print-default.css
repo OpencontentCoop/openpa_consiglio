@@ -1,12 +1,12 @@
 body {
     font-family:"Arial","Helvetica",sans-serif;
-    font-size:11pt;
+    font-size:10pt;
 }
 
 /* Control page rendring: please refer to doc/doc.txt */
 @page {
     size: a4 portrait;
-    margin: 1.5in 1.25in 1.15in 1.25in;
+    margin: 1.5in 1in 1in 1in;
     @top-left {
         content: element(header);
     }
@@ -32,12 +32,21 @@ body {
     background-size: 180px 70px;
     background-position: top center;
 }
+
 #footer
 {
     display: block;
     position: running(footer);
     height: 340px;
     text-align:center;
+    color:#0E2F77;
+    font-size: 7pt;
+    line-height: 1.5em;
+}
+
+#footer strong{
+    font-size: 8pt;
+    line-height: 1.5em;
 }
 
 #footer div.nota{
@@ -75,7 +84,8 @@ body {
 #oggetto {
     margin: 50px 0 30px;
     font-weight:bold;
-    text-align: left;
+    text-align: center;
+    font-size:12pt;
 }
 
 #firma {
@@ -93,7 +103,8 @@ p.indent{
 }
 
 #data_luogo{
-    line-height: 1.2em;
+    line-height: 1.5em;
+    font-size:12pt;
 }
 
 #data_luogo strong{
