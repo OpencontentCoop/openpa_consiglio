@@ -12,6 +12,69 @@ class Organo extends OpenPAConsiglioDefaultPost implements OpenPAConsiglioString
 
     }
 
+    public function onCreate(){
+        $this->createSection();
+        $this->assignRoleWithSectionLimitationToMembers();
+    }
+
+    public function onUpdate(){
+        $this->createSection();
+        $this->assignRoleWithSectionLimitationToMembers();
+    }
+
+    public function getSection()
+    {
+        $identifier = 'openpaconsiglio_' . $this->id();
+        return eZSection::fetchByIdentifier($identifier);
+    }
+
+    private function createSection()
+    {
+        $identifier = 'openpaconsiglio_' . $this->id();
+        $section = eZSection::fetchByIdentifier($identifier);
+        if (!$exists instanceof eZSection){
+            $section = new eZSection(array());
+            $section->setAttribute('name', 'OpenConsiglio - ' . $this->getObject()->attribute('name'));
+            $section->setAttribute('identifier', $identifier);
+            $section->setAttribute('navigation_part_identifier', 'ezcontentnavigationpart');
+            $section->store();
+        }
+
+        return $section;
+    }
+
+    private function assignRoleWithSectionLimitationToMembers()
+    {
+        foreach ($this->getComponenti(false) as $componente) {
+            $role->assignRoleWithSectionLimitationToMember($componente, 'section', $section->attribute('id'));
+        }       
+    }
+
+    private function assignRoleWithSectionLimitationToMember($memberId)
+    {
+        $role = eZRole::fetchByName(OpenPAConsiglioRoles::POLITICO_ORGANO); 
+        $section = $this->getSection();
+        if ($role instanceof eZRole && $section instanceof eZSection){
+            $role->assignToUser($memberId, 'section', $section->attribute('id'));  
+            eZRole::expireCache();          
+        }
+    }
+
+    private function removeRoleWithSectionLimitationFromMember($memberId)
+    {
+        $role = eZRole::fetchByName(OpenPAConsiglioRoles::POLITICO_ORGANO); 
+        $section = $this->getSection();
+        if ($role instanceof eZRole && $section instanceof eZSection){
+            $db = eZDB::instance();
+            $userID = (int) $memberId;
+            $roleID = (int) $role->attribute('id');
+            $limitValue = $section->attribute('id');
+            $query = "DELETE FROM ezuser_role WHERE role_id='$roleID' AND contentobject_id='$userID' AND limit_identifier='Section' AND limit_value='$limitValue'";
+            $db->query($query);
+            eZRole::expireCache();
+        }
+    }
+
     public function attributes()
     {
         $attributes = parent::attributes();
@@ -60,6 +123,7 @@ class Organo extends OpenPAConsiglioDefaultPost implements OpenPAConsiglioString
         $idList = array_unique($idList);
         $this->dataMap['membri']->fromString(implode('-', $idList));
         $this->dataMap['membri']->store();
+        $this->assignRoleWithSectionLimitationToMember($politico->id());
         $this->setObjectLastModified();
     }
 
@@ -78,6 +142,7 @@ class Organo extends OpenPAConsiglioDefaultPost implements OpenPAConsiglioString
         $newIdList = array_unique($newIdList);
         $this->dataMap['membri']->fromString(implode('-', $newIdList));
         $this->dataMap['membri']->store();
+        $this->removeRoleWithSectionLimitationFromMember($politico->id());
         $this->setObjectLastModified();
     }
 }

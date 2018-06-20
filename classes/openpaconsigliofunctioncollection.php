@@ -47,7 +47,10 @@ class OpenPAConsiglioFunctionCollection
         $to = ezfSolrDocumentFieldBase::preProcessValue($dateTime->getTimestamp(), 'date');
 
         $result = OCEditorialStuffHandler::instance('seduta')->fetchItems(array(
-            'filters' => array('attr_data_dt:[' . $from . ' TO ' . $to . ']'),
+            'filters' => array(
+                'attr_data_dt:[' . $from . ' TO ' . $to . ']',
+                //'submeta_partecipanti___id_si:' . eZUser::currentUserID()
+            ),
             'limit' => 15,
             'offset' => 0
         ));

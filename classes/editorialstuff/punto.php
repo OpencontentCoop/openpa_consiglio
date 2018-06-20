@@ -413,6 +413,12 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 $ids = array_unique($ids);
                 $this->dataMap[$attributeIdentifier]->fromString(implode('-', $ids));
                 $this->dataMap[$attributeIdentifier]->store();
+                
+                $seduta = $this->getSeduta();
+                if ($seduta instanceof Seduta) {
+                    $seduta->assignSection($object);
+                }                
+
                 eZSearch::addObject($this->getObject());
                 eZContentCacheManager::clearObjectViewCacheIfNeeded($this->id());
 

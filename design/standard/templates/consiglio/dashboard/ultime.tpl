@@ -11,7 +11,7 @@
                 </td>
                 <td>
                     <span class="label label-default">{$latest_node.class_name|wash()}</span>
-                    <a href="{$latest_node.url_alias|ezurl('no')}" title="{$latest_node.name|wash()}">{$latest_node.name|shorten('30')|wash()}</a>
+                    <a href="{concat('editorialstuff/edit/osservazioni/', $latest_node.object.id)|ezurl(no)}" title="{$latest_node.name|wash()}">{$latest_node.name|shorten('30')|wash()}</a>
                     da  {$latest_node.object.current.creator.name|wash()}
                 </td>
             </tr>

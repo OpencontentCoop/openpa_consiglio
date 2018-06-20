@@ -121,7 +121,8 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
             'seduta',
             'votazione',
             'organo_sociale',
-            'rendiconto_spese'
+            'rendiconto_spese',
+            'proposta_punto',
         );
     }
 
@@ -142,7 +143,8 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
             'osservazioni',
             'referentelocale',
             'areacollaborativa',
-            'rendiconto_spese' // non è una dashboard
+            'rendiconto_spese', // non è una dashboard
+            'proposta',
         );
     }
 
@@ -157,6 +159,7 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
            'organo' => true,
            'tecnico' => true,
            'politico' => true,
+           'proposta' => true,
        );
     }
 

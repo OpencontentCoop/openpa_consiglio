@@ -7,6 +7,7 @@ class OpenPAConsiglioRoles
     const AREA_COLLABORATIVA = 'OpenConsiglio - Area Collaborativa';
     const AREA_COLLABORATIVA_POLITICO = 'OpenConsiglio - Area Collaborativa - Politico';
     const POLITICO = 'OpenConsiglio - Politico';
+    const POLITICO_ORGANO = 'OpenConsiglio - Politico (per organo)';
     const SEGRETERIA = 'OpenConsiglio - Segreteria';
     const TECNICO = 'OpenConsiglio - Tecnico';
 
@@ -20,6 +21,7 @@ class OpenPAConsiglioRoles
             self::AREA_COLLABORATIVA,
             self::AREA_COLLABORATIVA_POLITICO,
             self::POLITICO,
+            self::POLITICO_ORGANO,
             self::SEGRETERIA,
             //self::TECNICO
         );
@@ -33,10 +35,15 @@ class OpenPAConsiglioRoles
             }
                 break;
 
+            case self::POLITICO_ORGANO: {
+                return $this->getPoliticoOrganoPolicies();
+            }
+                break;
+
             case self::POLITICO: {
                 return $this->getPoliticoPolicies();
             }
-                break;
+                break;    
 
             case self::SEGRETERIA: {
                 return $this->getSegreteriaPolicies();
@@ -136,7 +143,7 @@ class OpenPAConsiglioRoles
                         OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodePathString('rendiconto_spese')
                     )
                 )
-            ),
+            ),  
             array(
                 'ModuleName' => 'content',
                 'FunctionName' => 'create',
@@ -148,7 +155,7 @@ class OpenPAConsiglioRoles
                         OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodePathString('osservazioni')
                     )
                 )
-            ),
+            ),          
             array(
                 'ModuleName' => 'content',
                 'FunctionName' => 'edit',
@@ -174,13 +181,9 @@ class OpenPAConsiglioRoles
                 'FunctionName' => 'read',
                 'Limitation' => array(
                     'Class' => array(
-                        eZContentClass::classIDByIdentifier($this->getFactory('punto')->classIdentifier())
+                        eZContentClass::classIDByIdentifier($this->getFactory('osservazioni')->classIdentifier())
                     ),
-                    'StateGroup_' . $this->getFactory('punto')->stateGroupIdentifier() => array(
-                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.published']->attribute('id'),
-                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.in_progress']->attribute('id'),
-                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.closed']->attribute('id')
-                    )
+                    'Owner' => 1
                 )
             ),
             array(
@@ -194,44 +197,7 @@ class OpenPAConsiglioRoles
                         $this->getFactory('osservazioni')->states()[$this->getFactory('osservazioni')->stateGroupIdentifier() . '.consiglieri']->attribute('id'),
                     )
                 )
-            ),
-            array(
-                'ModuleName' => 'content',
-                'FunctionName' => 'read',
-                'Limitation' => array(
-                    'Class' => array(
-                        eZContentClass::classIDByIdentifier($this->getFactory('osservazioni')->classIdentifier())
-                    ),
-                    'Owner' => 1
-                )
-            ),
-            array(
-                'ModuleName' => 'content',
-                'FunctionName' => 'read',
-                'Limitation' => array(
-                    'Class' => array(
-                        eZContentClass::classIDByIdentifier($this->getFactory('allegati_seduta')->classIdentifier())
-                    ),
-                    'StateGroup_' . $this->getFactory('allegati_seduta')->stateGroupIdentifier() => array(
-                        $this->getFactory('allegati_seduta')->states()[$this->getFactory('allegati_seduta')->stateGroupIdentifier() . '.consiglieri']->attribute('id')
-                    )
-                )
-            ),
-            array(
-                'ModuleName' => 'content',
-                'FunctionName' => 'read',
-                'Limitation' => array(
-                    'Class' => array(
-                        eZContentClass::classIDByIdentifier($this->getFactory('seduta')->classIdentifier())
-                    ),
-                    'StateGroup_' . $this->getFactory('seduta')->stateGroupIdentifier() => array(
-                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.pending']->attribute('id'),
-                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.in_progress']->attribute('id'),
-                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.closed']->attribute('id'),
-                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.sent']->attribute('id')
-                    )
-                )
-            ),
+            ),                                    
             array(
                 'ModuleName' => 'editorialstuff',
                 'FunctionName' => 'dashboard',
@@ -263,6 +229,54 @@ class OpenPAConsiglioRoles
                 )
             ),
 
+        );
+    }
+
+    private function getPoliticoOrganoPolicies()
+    {
+        return array(
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('punto')->classIdentifier())
+                    ),
+                    'StateGroup_' . $this->getFactory('punto')->stateGroupIdentifier() => array(
+                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.published']->attribute('id'),
+                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.in_progress']->attribute('id'),
+                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.closed']->attribute('id')
+                    )
+                )
+            ),            
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('allegati_seduta')->classIdentifier())
+                    ),
+                    'StateGroup_' . $this->getFactory('allegati_seduta')->stateGroupIdentifier() => array(
+                        $this->getFactory('allegati_seduta')->states()[$this->getFactory('allegati_seduta')->stateGroupIdentifier() . '.consiglieri']->attribute('id')
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('seduta')->classIdentifier())
+                    ),
+                    'StateGroup_' . $this->getFactory('seduta')->stateGroupIdentifier() => array(
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.pending']->attribute('id'),
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.in_progress']->attribute('id'),
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.closed']->attribute('id'),
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.sent']->attribute('id'),
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.published']->attribute('id'),
+                    )
+                )
+            ),
         );
     }
 

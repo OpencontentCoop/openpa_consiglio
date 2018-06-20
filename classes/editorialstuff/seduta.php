@@ -290,6 +290,9 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
                 $ids = array_unique($ids);
                 $this->dataMap[$attributeIdentifier]->fromString(implode('-', $ids));
                 $this->dataMap[$attributeIdentifier]->store();
+
+                $this->assignSection($object);
+
                 eZSearch::addObject($this->getObject());
                 eZContentCacheManager::clearObjectViewCacheIfNeeded($this->id());
 
@@ -964,6 +967,9 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         $object = $this->getObject();
         $object->setAttribute('published', $this->dataOra());
         $object->store();
+
+        $this->assignSection($object);
+
         eZSearch::addObject($object);
     }
 
@@ -974,6 +980,9 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         $object = $this->getObject();
         $object->setAttribute('published', $this->dataOra());
         $object->store();
+
+        $this->assignSection($object);
+
         eZSearch::addObject($object);
 
         $hasValidOdg = false;
@@ -989,6 +998,17 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
             $diff = $this->diff($lastVersion);
             if (isset( $diff['data'] ) || isset( $diff['orario'] )) {
                 $this->createNotificationEvent('update_data_ora');
+            }
+        }
+    }
+
+    public function assignSection($object)
+    {
+        $organo = $this->getOrgano();
+        if ($organo instanceof Organo){
+            $section = $organo->getSection();
+            if($section instanceof eZSection){
+                eZContentOperationCollection::updateSection($object->attribute( "main_node_id" ), $section->attribute('id'));
             }
         }
     }

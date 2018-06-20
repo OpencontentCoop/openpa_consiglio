@@ -17,6 +17,7 @@
         <th>Osservazioni</th>
 	{if $is_editor}
         <th>Stato</th>
+        <th>Autore</th>
         <th></th>
 	{/if}
         {*<th width="1"></th>*}
@@ -76,6 +77,7 @@
                     <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_osservazioni')|ezurl(no)}">{$punto.count_osservazioni}</a></td>
 	                {if $is_editor}
                     <td>{include uri='design:editorialstuff/punto/parts/edit_state.tpl' post=$punto}</td>
+                    <td>{$punto.object.owner.name|wash()}</td>
                     <td>
                         <a href="{concat('consiglio/move/punto/',$punto.object.id)|ezurl(no)}" class="btn btn-warning btn-xs">Sposta</a>
                     </td>
