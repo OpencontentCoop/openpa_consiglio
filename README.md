@@ -23,10 +23,10 @@ http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2.0
 In vigore dal 14 settembre 2016 
 
 1  Le pubbliche amministrazioni acquisiscono programmi informatici o parti di essi nel rispetto dei princìpi di economicità e di efficienza, tutela degli investimenti, riuso e neutralità tecnologica, a seguito di una valutazione comparativa di tipo tecnico ed economico tra le seguenti soluzioni disponibili sul mercato:
-* a)  software sviluppato per conto della pubblica amministrazione; 
+** a)  software sviluppato per conto della pubblica amministrazione; 
 * b)  riutilizzo di software o parti di esso sviluppati per conto della pubblica amministrazione; 
-c)  software libero o a codice sorgente aperto; 
-d)  software fruibile in modalità cloud computing; 
+* c)  software libero o a codice sorgente aperto; 
+* d)  software fruibile in modalità cloud computing; 
 e)  software di tipo proprietario mediante ricorso a licenza d'uso; 
 f)  software combinazione delle precedenti soluzioni.
 
