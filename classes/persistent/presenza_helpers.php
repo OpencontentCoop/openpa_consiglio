@@ -361,7 +361,7 @@ class OpenPAConsiglioPresenzaHelper
                 $pureDetections[] = $detection;
             }
 
-            if ( $detection->attribute( 'created_time' ) > $startInterval )
+            if ( $detection->attribute( 'created_time' ) >= $startInterval )
             {
                 $intervals[] = array(
                     $startInterval,
