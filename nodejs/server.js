@@ -12,8 +12,8 @@ if (currentSA == undefined) {
     process.exit();
 }
 
-http.listen(8090, function () {
-    console.log('listening events ' + currentSA + ' on *:8090');
+http.listen(8091, function () {
+    console.log('listening events ' + currentSA + ' on *:8091');
 });
 
 io.on('connection', function (socket) {

@@ -665,6 +665,22 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             $this->getSeduta()->reorderOdg();
         }
         $this->addUsersToNotifications();
+        $proposte = $this->stringAttribute('proposte', function($string){
+            return explode('-', $string);
+        });
+        if (is_array($proposte)){
+            try{
+                $propostaFactory = OCEditorialStuffHandler::instance('proposta')->getFactory();
+                foreach ($proposte as $propostaId) {
+                    $proposta = $propostaFactory->instancePost(array('object_id' => $propostaId));
+                    if ($proposta instanceof Proposta){
+                        $proposta->setState('proposta.online');
+                    }
+                }
+            }catch(Exception $e){
+                eZDebug::writeError($e->getMessage(), __METHOD__);
+            }
+        }
     }
 
     /**

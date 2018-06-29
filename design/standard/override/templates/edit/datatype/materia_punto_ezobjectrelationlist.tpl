@@ -22,7 +22,10 @@
         jQuery(function($){
             getOptions('#attribute_{/literal}{$attribute.contentclass_attribute.identifier}{literal}', '#attribute_referente_politico', 'referente_politico');
             getOptions('#attribute_{/literal}{$attribute.contentclass_attribute.identifier}{literal}', '#attribute_referente_tecnico', 'referente_tecnico');
-            $('#attribute_{/literal}{$attribute.contentclass_attribute.identifier}{literal}').chosen();
+            $('#attribute_{/literal}{$attribute.contentclass_attribute.identifier}{literal}').chosen();            
+            if ($('#attribute_referente_politico').val() == 'no_relation' && $('#attribute_referente_tecnico').val() == 'no_relation'){
+                $('#attribute_{/literal}{$attribute.contentclass_attribute.identifier}{literal}').trigger('change');
+            }
 
         });
     </script>
