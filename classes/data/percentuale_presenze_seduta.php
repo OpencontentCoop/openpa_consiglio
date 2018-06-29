@@ -2,6 +2,7 @@
 
 class DataHandlerPercentualePresenzeSeduta
 {
+    use SolrFieldsTrait;
 
     /** @var Politico $politico */
     protected $politico;
@@ -41,7 +42,7 @@ class DataHandlerPercentualePresenzeSeduta
                 $organoFilters = count( $organoNodeIds ) > 1 ? array( 'or' ) : array();
                 foreach ( $organoNodeIds as $nodeId )
                 {
-                    $organoFilters[] = 'submeta_organo___main_node_id_si:' . $nodeId;
+                    $organoFilters[] = self::generateSolrSubMetaField('organo','main_node_id') . ':' . $nodeId;
                 }
                 $filters[] = count( $organoFilters ) > 1 ? $organoFilters : $organoFilters[0];
             }
@@ -54,7 +55,7 @@ class DataHandlerPercentualePresenzeSeduta
             );
             $totaleSedutePresenti = OCEditorialStuffHandler::instance( 'seduta' )->fetchItemsCount(
                 array(
-                    'filters' => array_merge( array( 'submeta_presenti___id_si:' . $this->politico->id() ), $filters ),
+                    'filters' => array_merge( array( self::generateSolrSubMetaField('presenti','id') . ':' . $this->politico->id() ), $filters ),
                     'state' => array( 'closed' )
                 )
             );
