@@ -3,6 +3,7 @@
 class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInputActionInterface, OpenPAConsiglioStringAttributeInterface
 {
     use OpenPAConsiglioStringAttributeTrait;
+    use SolrFieldsTrait;
 
     public function onChangeState(
         eZContentObjectState $beforeState,
@@ -222,7 +223,7 @@ class Politico extends OCEditorialStuffPost implements OCEditorialStuffPostInput
         if (!empty( $organoIds )) {
             $organoFilters = count($organoIds) > 1 ? array('or') : array();
             foreach ($organoIds as $nodeId) {
-                $organoFilters[] = 'submeta_organo___id_si:' . $nodeId;
+                $organoFilters[] = self::generateSolrSubMetaField('organo', 'id') . ':' . $nodeId;
             }
 
             $sedute = OCEditorialStuffHandler::instance('seduta')->fetchItems(

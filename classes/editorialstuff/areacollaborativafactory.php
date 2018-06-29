@@ -3,6 +3,8 @@
 
 class AreaCollaborativaFactory extends OpenPAConsiglioDefaultFactory
 {
+    use SolrFieldsTrait;
+
     protected static $container;
 
     public function __construct($configuration)
@@ -42,7 +44,7 @@ class AreaCollaborativaFactory extends OpenPAConsiglioDefaultFactory
         $search = OCEditorialStuffHandler::instance('areacollaborativa')->fetchItems(array(
             'limit' => 100,
             'offset' => 0,
-            'filters' => array('submeta_politici___id_si:' . $politico->id())
+            'filters' => array(self::generateSolrSubMetaField('politici', 'id') . ':' . $politico->id())
         ), array());
 
         return $search;
@@ -56,7 +58,7 @@ class AreaCollaborativaFactory extends OpenPAConsiglioDefaultFactory
     public static function fetchCountByPolitico(eZUser $politico)
     {
         $search = OCEditorialStuffHandler::instance('areacollaborativa')->fetchItemsCount(array(
-            'filters' => array('submeta_politici___id_si:' . $politico->id())
+            'filters' => array(self::generateSolrSubMetaField('politici', 'id') . ':' . $politico->id())
         ), array());
 
         return $search;

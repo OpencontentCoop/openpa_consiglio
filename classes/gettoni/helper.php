@@ -6,6 +6,8 @@ use Fusonic\SpreadsheetExport\Writers\OdsWriter;
 
 class OpenPAConsiglioGettoniHelper
 {
+    use SolrFieldsTrait;
+
     /**
      * @var Politico
      */
@@ -56,7 +58,7 @@ class OpenPAConsiglioGettoniHelper
                 array(                    
                     'limit' => 100,
                     'offset' => 0,
-                    'sort' => array('attr_cognome_s' => 'asc')
+                    'sort' => array(self::generateSolrField("cognome", "string") => 'asc')
                 )
             );
         }
@@ -88,7 +90,7 @@ class OpenPAConsiglioGettoniHelper
                 if (!empty( $organoIds )) {
                     $organoFilters = count($organoIds) > 1 ? array('or') : array();
                     foreach ($organoIds as $id) {
-                        $organoFilters[] = 'submeta_organo___id_si:' . $id;
+                        $organoFilters[] = self::generateSolrSubMetaField('organo','id') . ':' . $id;
                     }
                     $filters[] = count($organoFilters) > 1 ? $organoFilters : $organoFilters[0];
                 }
@@ -228,7 +230,10 @@ class OpenPAConsiglioGettoniHelper
             $totaleSpese = array();
             $spese = eZFunctionHandler::execute('ezfind', 'search', array(
                 'class_id' => array('rendiconto_spese'),
-                'filter' => array('meta_owner_id_si:' . $politico->id(), 'submeta_relations___id_si:' . $seduta->id())
+                'filter' => array(
+                    'meta_owner_id_si:' . $politico->id(),
+                    self::generateSolrSubMetaField('relations', 'id') . ':' . $seduta->id()
+                )
             ));
             if ($spese['SearchCount'] > 0) {
                 /** @var eZFindResultNode $spesa */
