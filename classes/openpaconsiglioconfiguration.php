@@ -81,8 +81,8 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
         {openpaini('OpenPAConsiglio','SocketPort','8090')}
         */
         return array(
-            'url' => 'dev.ftcoop.opencontent.it',
-            'port' => '8090',
+            'url' => 'devnginx2.opencontent.vpn',
+            'port' => '8091',
         );
     }
 
@@ -133,12 +133,12 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
             //'punto',
             'allegati_seduta',
             'invitato',
-//            'invito',
+            //'invito',
             'politico',
             'tecnico',
             'materia',
             'organo',
-//            'convocazione_seduta',
+            //'convocazione_seduta',
             'votazione',
             'osservazioni',
             'referentelocale',
@@ -155,11 +155,11 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
            'materia' => true,
            'invitato' => true,
            'referentelocale' => true,
-           'areacollaborativa' => true,
+           //'areacollaborativa' => true,
            'organo' => true,
            'tecnico' => true,
            'politico' => true,
-           'proposta' => true,
+           //'proposta' => true,
        );
     }
 

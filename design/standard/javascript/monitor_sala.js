@@ -116,3 +116,19 @@ socket.on('show_presenze', function (data) {
         $('#detail').hide();
     }
 });
+
+socket.on('show_verbale', function (data) {    
+    if (data.id == CurrentSedutaId) {
+        $('#presenze').hide();
+        $('#text').hide();
+        var identifier = data.show_verbale_part;
+        $('#detail').load(SedutaDataBaseUrl + ':consiglio:monitor_sala:verbale' + '?time=' + Date.now(), function(){
+            if (identifier == 'all'){
+                $('#detail .verbalePart').show();
+            }else{
+                $('#detail .verbalePart').hide();
+                $('#detail #'+identifier).show();
+            }
+        }).show();
+    }
+});

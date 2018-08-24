@@ -9,19 +9,29 @@
             {/if}
             <table class="table">
                 <tbody>
+                {foreach $post.verbale_fields as $identifier => $params}
                 <tr>
-                    <th>Generale</th>
+                    <th width="1" style="white-space: nowrap;">
+                        {$params.name|wash()}   
+                        {if and($editable, $params.default_value|ne(''))}
+                        <div>
+                            <a href="#" class="btn btn-danger btn-xs resetVerbale" data-identifier="{$identifier}" title="Ricarica valore di default"><i class="fa fa-refresh"></i></a>
+                            <textarea style="display: none;">{$params.default_value}</textarea>
+                        </div>
+                        {/if}                     
+                    </th>
                     <td>
-                        <textarea {if $editable|not()}disabled="disabled"{/if} name="ActionParameters[Verbale][{$post.object.id}]" class="form-control" rows="10">{$post.verbale}</textarea>
+                        {if $editable}
+                            {if $params.type|eq('string')}
+                                <input id="verbaleField-{$identifier}" {if $editable|not()}disabled="disabled"{/if} name="ActionParameters[Verbale][{$identifier}]" class="form-control{if $editable} verbaleField{/if}" value="{$post.verbale[$identifier]}" />
+                            {else}
+                                <textarea id="verbaleField-{$identifier}" {if $editable|not()}disabled="disabled"{/if} name="ActionParameters[Verbale][{$identifier}]" class="form-control{if $editable} verbaleField{/if}" rows="{$params.rows}">{$post.verbale[$identifier]}</textarea>
+                            {/if}
+                        {else}     
+                            {$post.verbale[$identifier]}                   
+                        {/if}
                     </td>
-                </tr>
-                {foreach $post.odg as $punto}
-                    <tr>
-                        <th>{$punto.object.name|wash()}</th>
-                        <td>
-                            <textarea {if $editable|not()}disabled="disabled"{/if} name="ActionParameters[Verbale][{$punto.object.id}]" class="form-control" rows="10">{$punto.verbale}</textarea>
-                        </td>
-                    </tr>
+                </tr>                
                 {/foreach}
                 </tbody>
             </table>

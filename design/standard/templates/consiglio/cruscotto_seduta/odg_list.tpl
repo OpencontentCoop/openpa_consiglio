@@ -1,5 +1,10 @@
 <div class="list-group">
     {foreach $post.odg as $index => $punto}
+        
+        {if array('published', 'in_progress', 'closed')|contains($punto.current_state.identifier)|not()}
+          {skip}
+        {/if}
+        
         <div class="list-group-item{if $punto.current_state.identifier|eq('in_progress')} list-group-item-success{elseif $punto.current_state.identifier|eq('closed')} list-group-item-info{/if}">
 
             <a href="#" data-action_url="{concat('consiglio/cruscotto_seduta/',$post.object_id,'/launchMonitorPunto/',$punto.object_id)|ezurl(no)}" class="btn btn-info btn-xs launch_monitor_punto pull-right"><i class="fa fa-desktop"></i></a>
@@ -40,6 +45,6 @@
                     </p>
                 {/if}
             {/if}
-        </div>
+        </div>        
     {/foreach}
 </div>

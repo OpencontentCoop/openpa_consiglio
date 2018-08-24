@@ -1,6 +1,14 @@
 {set template_directory = $post.template_directory}
 <div class="embed_punto">
-	<h3>{$post.object.name|wash()} della {$post.seduta.object.name|wash()}</h3>	
+	<h3>
+		{if $post.object.can_read}<a href="{$post.editorial_url|ezurl(no)}">{/if}
+		{$post.object.name|wash()} 
+		{if $post.object.can_read}</a>{/if}
+		della 
+		{if $post.seduta.object.can_read}<a href="{$post.seduta.editorial_url|ezurl(no)}">{/if}
+		{$post.seduta.object.name|wash()}	
+		{if $post.seduta.object.can_read}</a>{/if}
+	</h3>	
 
 	<div role="tabpanel">
 

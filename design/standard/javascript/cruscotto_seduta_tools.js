@@ -79,7 +79,7 @@ $(document).on('click', '.modal button.btn-primary', function (e) {
             },
             error: function (response, status, xhr) {
                 currentModal.modal('hide');
-                handelResponseError(response, status, xhr);
+                handleResponseError(response, status, xhr);
                 if (jQuery.isFunction(currentActionSettings.onError))
                     currentActionSettings.onError(currentModal);
             },
@@ -88,7 +88,7 @@ $(document).on('click', '.modal button.btn-primary', function (e) {
     }
 });
 
-var handelResponseError = function (response, status, xhr) {
+var handleResponseError = function (response, status, xhr) {
     if (status == 'error') {
         var $container = $('<div class="alert alert-danger alert-dismissible" style="margin-bottom: 0;" />');
         $container.append('<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
@@ -172,12 +172,12 @@ jQuery.fn.extend({
                 startTimer();
                 Presenze.startVotoPartecipanti();
                 var text = "\n" + self.data('add_to_verbale') + ' ' + currentDate() + "\n";
-                Verbale.showVerbale(self.data('verbale'),text);
+                Verbale.addToVerbale(self.data('verbale'),text);
                 Votazioni.reload();
                 clearErrors();
             },
             error: function (response, status, xhr) {
-                handelResponseError(response, status, xhr);
+                handleResponseError(response, status, xhr);
                 hideTotaleVotanti();
                 self.html(content);
             },
@@ -190,7 +190,7 @@ jQuery.fn.extend({
         self.addClass('btn-danger').html('<i class="fa fa-spinner fa-spin"></i> Attendere');
         stopTimer();
         var text = "\n" + self.data('add_to_verbale') + ' ' + currentDate() + "\n";
-        Verbale.showVerbale(self.data('verbale'),text);
+        Verbale.addToVerbale(self.data('verbale'),text);
         var idVotazione = self.data('votazione');
         $.ajax({
             url: self.data('action_url'),
@@ -207,7 +207,7 @@ jQuery.fn.extend({
             error: function (response, status, xhr) {
                 hideTotaleVotanti();
                 Votazioni.reload();
-                handelResponseError(response, status, xhr);
+                handleResponseError(response, status, xhr);
             },
             dataType: 'json'
         });
@@ -226,7 +226,7 @@ jQuery.fn.extend({
                 },
                 error: function (response, status, xhr) {
                     Votazioni.reload();
-                    handelResponseError(response, status, xhr);
+                    handleResponseError(response, status, xhr);
                 },
                 dataType: 'json'
             });
@@ -289,7 +289,7 @@ jQuery.fn.extend({
             self.startVotoPartecipante();
           },
           error: function (response, status, xhr) {
-              handelResponseError(response, status, xhr);
+              handleResponseError(response, status, xhr);
           }
       });
     },
@@ -334,19 +334,38 @@ jQuery.fn.extend({
         $(this).load($(this).data('load_url'));
     },
 
-    showVerbale: function(id,text){
-        $(this).find('div.textarea-container').hide();
-        var textarea = $(this).find('textarea[name="Verbale[' + id + ']"]');
-        textarea.parent('div').show();
-        textarea.focus();
-        if ( text )
-            textarea.focusEnd().insertAtCursor(text);
+    showVerbale: function(id){        
+        if (id === 'all'){
+            $(this).find('tr.verbaleRow').show();
+        }else{
+            $(this).find('tr.verbaleRow').hide();
+            var current = $(this).find("tr.verbaleRow[data-verbale_id='" + id + "']").show();   
+            // var input = current.find('#verbaleField-'+id);   
+            // if (input.prop("tagName") == 'INPUT'){
+            //     input.focus();
+            // }else{                
+            //     input.summernote('editor.focus');
+            // }      
+        }        
         return $(this);
     },
 
-    saveVerbale: function(textAreaName ){
+    addToVerbale: function(identifier,text){                
+        console.log(identifier, text);        
+        // var input = $(this).find('#verbaleField-'+identifier);
+        // if (!input.is(':disabled')){                
+        //     if (input.prop("tagName") == 'INPUT'){
+        //         input.val(text);
+        //     }else{                
+        //         input.summernote('pasteHTML', text);
+        //     }
+        // }                
+        return $(this);
+    },
+
+    saveVerbale: function(id){
         var values = [];
-        $(this).find('textarea').each(function (i, v) {
+        $(this).find('.verbaleField').each(function (i, v) {
             var that = $(this);
             values.push({name: that.attr('name'), value: that.val()});
         });
@@ -356,21 +375,43 @@ jQuery.fn.extend({
             method: 'POST',
             data: values,
             success: function (data) {
-                self.loadVerbale(textAreaName);
+                self.loadVerbale(id);
                 clearErrors();
             },
             error: function (response, status, xhr) {
-                handelResponseError(response, status, xhr);
+                handleResponseError(response, status, xhr);
             },
             dataType: 'json'
         });
     },
 
-    loadVerbale: function(textAreaName){
+    loadVerbale: function(id){
         var self = $(this);
-        $(this).load($(this).data('load_url'), function () {
-            var textarea = self.find('textarea[name="' + textAreaName + '"]');
-            if (textarea.parent('div').is(':visible')) textarea.focusEnd();
+        $(this).load($(this).data('load_url'), function () {            
+            $('textarea.verbaleField').summernote({
+                "toolbar":[
+                    ['style',  ['bold', 'italic', 'underline']],                
+                    ['para',   ['ul', 'ol']],
+                    ['insert', ['table', 'hr']]
+                ]
+            });
+            $('.resetVerbale').on('click', function(e){                                            
+                var that = $(this);
+                var identifier = that.data('verbale_id');
+                $.get(self.data('load_url'), function (data) {                    
+                    var text = $(data).find('#defaultVerbale-'+identifier).val();
+                    var input = that.parents('tr').find('#verbaleField-'+identifier);
+                    if (!input.is(':disabled')){                
+                        if (input.prop("tagName") == 'INPUT'){
+                            input.val(text);
+                        }else{                
+                            input.summernote('code', text);
+                        }
+                    }
+                });                            
+                e.preventDefault();
+            });
+            if (id){ self.showVerbale(id);}
         });
     },
 

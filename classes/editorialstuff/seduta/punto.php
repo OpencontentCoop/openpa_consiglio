@@ -26,8 +26,12 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     }
 
     protected $canCreateAreaRoom;
+    
     protected $hasAreaRoom;
+    
     protected $areaRoomLink;
+    
+    protected $proposte;
 
     public function __construct(
         array $data = array(),
@@ -59,6 +63,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $attributes[] = 'can_share';
         $attributes[] = 'is_shared';
         $attributes[] = 'shared_url';
+        $attributes[] = 'proposte';
 
         return $attributes;
     }
@@ -149,6 +154,10 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
         if ($property == 'shared_url') {
             return $this->sharedUrl();
+        }
+
+        if ($property == 'proposte') {
+            return $this->getProposte();
         }
 
         return parent::attribute($property);
@@ -681,6 +690,28 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 eZDebug::writeError($e->getMessage(), __METHOD__);
             }
         }
+    }
+
+    public function getProposte()
+    {
+        if ($this->proposte === null){
+            $this->proposte = array();
+            $proposteIdList = $this->stringAttribute('proposte', function($string){
+                return explode('-', $string);
+            });
+            if (is_array($proposteIdList)){
+                try{
+                    $propostaFactory = OCEditorialStuffHandler::instance('proposta')->getFactory();
+                    foreach ($proposteIdList as $propostaId) {
+                        $this->proposte[] = $propostaFactory->instancePost(array('object_id' => $propostaId));                    
+                    }
+                }catch(Exception $e){
+                    eZDebug::writeError($e->getMessage(), __METHOD__);
+                }
+            }
+        }
+
+        return $this->proposte;
     }
 
     /**

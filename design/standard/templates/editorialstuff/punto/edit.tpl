@@ -4,6 +4,9 @@
             {$post.object.name|wash()} <small>della {$post.seduta.object.name|wash()}</small>
         </h1>
         <h2>{$post.object.data_map.oggetto.content|wash()}</h2>
+        {if $post.proposte|count()|gt(0)}
+            <small>Su proposta di: {foreach $post.proposte as $proposta}<a href="{$proposta.editorial_url|ezurl(no)}">{$proposta.object.owner.name|wash()}</a>{/foreach}</small>
+        {/if}
         {include uri=concat('design:', $template_directory, '/parts/workflow.tpl') post=$post}
         {if $post.can_share}
             {if $post.is_shared|not()}

@@ -1,0 +1,1 @@
+VERBALE NR. /{currentdate()|datetime( 'custom', '%Y' )}

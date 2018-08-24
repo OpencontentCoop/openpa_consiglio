@@ -33,15 +33,23 @@
                       data-load_url="{concat('consiglio/data/seduta/',$seduta.object_id, '/::consiglio:cruscotto_seduta:seduta_startstop_button')|ezurl(no)}">
                     {include uri="design:consiglio/cruscotto_seduta/seduta_startstop_button.tpl" post=$seduta}
                 </span>
-                <a class='show-verbale' href="#" data-verbale_id="{$seduta.object.id}">
+                <a class='show-verbale' href="#" data-verbale_id="all">
                     {$seduta.object.name} <small>ore {attribute_view_gui attribute=$seduta.object.data_map.orario}</small>
                 </a>
             </h1>
         </div>
     </div>
-    <div class="row bg-primary hidden-xs hidden-sm">
-        <div class="col-md-{if $enable_votazione}7{else}8{/if}">Ordine del giorno</div>
-        <div class="col-md-2"{if $enable_votazione|not()} style="display: none" {/if}>
+    <div class="row bg-primary">
+        <div class="col-md-3 col-xs-2">
+            <span class="visible-xs visible-sm">ODG</span>
+            <span class="visible-md visible-lg">Ordine del giorno</span>            
+        </div>
+        <div class="col-md-{if $enable_votazione}4{else}5{/if} col-xs-2">
+            Verbale
+            <a class="btn btn-info btn-xs launch_monitor_verbale show-verbale" data-verbale_id="all" data-action_url="{concat('consiglio/cruscotto_seduta/',$seduta.object_id,'/launchMonitorVerbale')|ezurl(no)}" href="#"><i class="fa fa-desktop"></i></a>
+            {*<a class="btn btn-danger btn-xs load-verbale" href="#"><i class="fa fa-refresh"></i></a>*}
+        </div>
+        <div class="col-md-2 col-xs-4"{if $enable_votazione|not()} style="display: none" {/if}>
             Votazioni
             <a class="btn btn-warning btn-xs"
                data-toggle="modal"
@@ -51,7 +59,7 @@
                 <i class="fa fa-plus"></i> Crea
             </a>
         </div>
-        <div class="col-md-{if $enable_votazione}3{else}4{/if} no-padding">
+        <div class="col-md-{if $enable_votazione}3{else}4{/if} col-xs-4 no-padding">
             Presenze
             <span class="label label-default">
                 <span class="totale-presenze">{$registro_presenze.in}</span>/{$count_partecipanti}
@@ -72,9 +80,10 @@
     </div>
     <div id="verbale-col" class="col-md-{if $enable_votazione}4{else}5{/if}">
         <h2 class="visible-xs visible-sm">Verbale</h2>
-        <div id="verbale" data-save_url="{concat('consiglio/cruscotto_seduta/',$seduta.object_id,'/saveVerbale')|ezurl(no)}"
+        <div id="verbale" 
+             data-save_url="{concat('consiglio/cruscotto_seduta/',$seduta.object_id,'/saveVerbale')|ezurl(no)}"
              data-load_url="{concat('consiglio/data/seduta/',$seduta.object_id, '/:consiglio:cruscotto_seduta:verbale')|ezurl(no)}">
-            {include uri="design:consiglio/cruscotto_seduta/verbale.tpl" post=$seduta}
+            {*include uri="design:consiglio/cruscotto_seduta/verbale.tpl" post=$seduta*}
         </div>
     </div>
     <div id="votazioni-col" class="col-md-2"{if $enable_votazione|not()} style="display: none" {/if}>
@@ -107,8 +116,8 @@
 
 {include uri="design:consiglio/cruscotto_seduta/modals.tpl"}
 
-{ezscript_require( array( 'ezjsc::jquery', 'jquery.confirm.min.js' ) )}
+{ezscript_require( array( 'ezjsc::jquery', 'jquery.confirm.min.js', 'summernote/summernote.js' ) )}
 <script src="{'javascript/socket.io-1.3.5.js'|ezdesign(no)}"></script>
 <script src="{'javascript/cruscotto_seduta_tools.js'|ezdesign(no)}?_={currentdate()}"></script>
 <script src="{'javascript/cruscotto_seduta.js'|ezdesign(no)}?_={currentdate()}"></script>
-{ezcss_require( array( 'cruscotto_seduta.css' ) )}
+{ezcss_require( array( 'cruscotto_seduta.css', 'summernote/summernote.css' ) )}

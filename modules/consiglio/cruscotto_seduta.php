@@ -169,10 +169,21 @@ elseif ( $action )
             } break;
 
             case 'launchMonitorPresenze':
-            {
+            {                
                 OpenPAConsiglioPushNotifier::instance()->emit(
                     'show_presenze',
                     $seduta->jsonSerialize()
+                );
+            } break;
+
+            case 'launchMonitorVerbale':
+            {                
+                $identifier = $actionParameters ? $actionParameters : 'all';
+                $payload = $seduta->jsonSerialize();
+                $payload['show_verbale_part'] = $identifier;
+                OpenPAConsiglioPushNotifier::instance()->emit(
+                    'show_verbale',
+                    $payload
                 );
             } break;
 

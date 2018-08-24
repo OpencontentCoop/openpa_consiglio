@@ -31,10 +31,10 @@
 <div id="seduta">
     <div class="row">
 	  <div class="col col-md-3 text-center">
-		<img class="center-block" height="100" src="{'images/monitor_sala/logo.png'|ezdesign(no)}" />
+		<img class="center-block" height="50" src="{'images/monitor_sala/logo.png'|ezdesign(no)}" />
 	  </div>
 	  <div class="col col-md-9 text-center">
-		<h2 class="text-center">
+		<h4 class="text-left">
 		  <strong>{$seduta.object.name|wash()}</strong><br />
             <small>
                 {if $seduta.current_state.identifier|eq('in_progress')}
@@ -43,12 +43,12 @@
                     Seduta non in corso
                 {/if}
             </small>
-		</h2>
+		</h4>
 	  </div>        
     </div>
 </div>
 
-<hr />
+<hr style="margin:0 0 10px" />
 
 {def $registro_presenze = $seduta.registro_presenze}
 <div id="presenze" {if $currentPunto}style="display:none"{/if}>

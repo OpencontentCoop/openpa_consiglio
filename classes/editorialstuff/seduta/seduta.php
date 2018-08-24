@@ -42,6 +42,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         $attributes[] = 'registro_presenze';
         $attributes[] = 'votazioni';
         $attributes[] = 'verbale';
+        $attributes[] = 'verbale_fields';
         $attributes[] = 'protocollo';
         $attributes[] = 'current_punto';
         $attributes[] = 'percentuale_presenza';
@@ -100,6 +101,10 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
 
         if ($property == 'verbale') {
             return $this->verbale();
+        }
+
+        if ($property == 'verbale_fields') {
+            return $this->verbaleFields();
         }
 
         if ($property == 'protocollo') {
@@ -172,20 +177,118 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         return $this->stringAttribute('protocollo', 'intval');
     }
 
-    public function verbale($postId = null)
+    public function verbaleFields()
     {
-        if (isset( $this->dataMap['verbale'] )) {
-            if ($postId == null) {
-                $postId = $this->id();
+        $templatePath = $this->getFactory()->getTemplateDirectory();
+        $tpl = eZTemplate::factory();        
+
+        $listOrgano = $this->dataMap['organo']->content();
+        $organo = ( isset( $listOrgano['relation_list'][0]['contentobject_id'] ) ) ?
+            eZContentObject::fetch($listOrgano['relation_list'][0]['contentobject_id'])->attribute('name') : '';
+
+        $luogo = isset( $this->dataMap['luogo'] ) ? $this->dataMap['luogo']->content() : '';
+        $dataOra = $this->dataOraEffettivaInizio();
+
+        $punti = array();
+        $locale = eZLocale::instance();
+        foreach ($this->odg() as $punto) {
+            $puntoDataMap = $punto->getObject()->dataMap();
+
+            /** @var eZDateTime $orarioTrattazione */
+            $orarioTrattazione = $puntoDataMap['orario_trattazione']->content();
+
+            $punti[$puntoDataMap['n_punto']->content()] = array(
+                'object_id' => $punto->object->ID,
+                'n_punto' => $puntoDataMap['n_punto']->content(),
+                'ora' => $locale->formatShortTime($orarioTrattazione->attribute( 'timestamp' )),
+                'oggetto' => $puntoDataMap['oggetto']->content()
+            );
+        }
+
+        $variables = array(
+            'seduta' => $this,
+            'organo' => $organo,
+            'luogo' => $luogo,
+            'data_seduta' => $dataOra,
+            'punti' => $punti,
+        );
+
+        foreach ($variables as $name => $value) {
+            $tpl->setVariable($name, $value);
+        }
+
+        $fields = array(
+            'numero' => array(
+                'name' => 'Numero',
+                'type' => 'string',
+                'default_value' => $tpl->fetch("design:{$templatePath}/parts/verbale/numero.tpl"),
+            ),
+            'intro' => array(
+                'name' => 'Introduzione',
+                'type' => 'text',
+                'default_value' => $tpl->fetch("design:{$templatePath}/parts/verbale/intro.tpl"),
+                'rows' => 5,
+            ),
+            'odg' => array(
+                'name' => 'Ordine del giorno',
+                'type' => 'text',
+                'default_value' => $tpl->fetch("design:{$templatePath}/parts/verbale/odg.tpl"),
+                'rows' => 5,
+            ),
+            'presenze' => array(
+                'name' => 'Presenze',
+                'type' => 'text',
+                'default_value' => $tpl->fetch("design:{$templatePath}/parts/verbale/presenze.tpl"),
+                'rows' => 5,
+            ),
+            'partecipanti' => array(
+                'name' => 'Partecipanti',
+                'type' => 'text',
+                'default_value' => $tpl->fetch("design:{$templatePath}/parts/verbale/partecipanti.tpl"),
+                'rows' => 5,
+            ),
+            'presidente' => array(
+                'name' => 'Presidente',
+                'type' => 'text',
+                'default_value' => $tpl->fetch("design:{$templatePath}/parts/verbale/presidente.tpl"),
+                'rows' => 5,
+            ),
+        );
+        foreach ($this->odg() as $punto) {
+            $propostaVerbale = '';
+            $dataMapPunto = $punto->getObject()->dataMap();
+            if(isset($dataMapPunto['verbale']) && $dataMapPunto['verbale']->hasContent()){
+                $propostaVerbale = $dataMapPunto['verbale']->content()->attribute('output')->attribute('output_text');
             }
-            $verbali = array();
+            $fields[$punto->id()] = array(
+                'name' => $punto->getObject()->attribute('name'),
+                'type' => 'text',
+                'default_value' => $propostaVerbale,
+                'rows' => 5,
+            );
+        }
+        $fields['conclusione'] = array(
+            'name' => 'Conclusione',
+            'type' => 'text',
+            'default_value' => $tpl->fetch("design:{$templatePath}/parts/verbale/conclusione.tpl"),
+            'rows' => 5,
+        );
+
+        return $fields;
+    }
+
+    public function verbale($identifier = null)
+    {
+        $verbali = array();
+        if (isset( $this->dataMap['verbale'] )) {            
             $data = $this->stringAttribute('verbale');
             if (empty( $data )) {
-                $hash = array($this->id() => '');
-                foreach ($this->odg() as $punto) {
-                    $hash[$punto->id()] = '';
-                }
+                $hash = array();
+                foreach ($this->verbaleFields() as $field) {
+                    $hash[$field['identifier']] = $field['default_value'];
+                }                
                 $this->saveVerbale($hash);
+                $data = $this->stringAttribute('verbale');
             }
             $rows = explode('&', $data);
             foreach ($rows as $row) {
@@ -193,7 +296,10 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
                 $verbali[$columns[0]] = $columns[1];
             }
 
-            return isset( $verbali[$postId] ) ? $verbali[$postId] : null;
+            if ($identifier)
+                return isset( $verbali[$identifier] ) ? $verbali[$identifier] : null;
+
+            return $verbali;
         }
         eZDebug::writeError("Attribute verbale not found", __METHOD__);
 

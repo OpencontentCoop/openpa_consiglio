@@ -33,22 +33,24 @@ body, html {
 }
 
 h1.title {
-    font-size: 1.5em;
+    font-size: 1.3em;
     margin: 0;
     text-align: left;
     text-transform: none;
-    font-weight: bold;
+    font-weight: normal;
     background: #fff;
     padding: 5px;
+    white-space: nowrap;
 }
 
 #top {
     position: fixed;
     width: 100%;
     z-index: 2;
-    height: 30px;
+    height: 100px;
     font-size: 1.2em;
     background: #fff;
+    overflow: hidden;
 }
 
 #top > div {

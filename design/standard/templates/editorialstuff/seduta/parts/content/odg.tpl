@@ -70,6 +70,9 @@
 	                        	</small>
 	                        </div>
                         {/if}
+                        {if $punto.proposte|count()|gt(0)}
+                            <br /><small>Su proposta di: {foreach $punto.proposte as $proposta}<a href="{$proposta.editorial_url|ezurl(no)}">{$proposta.object.owner.name|wash()}</a>{/foreach}</small>
+                        {/if}
                     </td>
                     <td>{attribute_view_gui attribute=$punto.object.data_map.materia}</td>
                     <td><a href="{concat('editorialstuff/edit/punto/',$punto.object.id,'/#tab_documenti')|ezurl(no)}">{$punto.count_documenti}</a></td>

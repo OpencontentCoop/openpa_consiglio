@@ -4,29 +4,22 @@ var Votazioni = $('#votazioni');
 var Presenze = $('#presenze');
 var TotaleVotanti = $('#totale-votanti');
 
-//var timeoutId;
-//$(document).on('input propertychange change insertText', 'textarea', function (e) {
-//    var name = $(e.currentTarget).attr('name');
-//    if (e.type == 'insertText') {
-//        Verbale.saveVerbale(name);
-//    } else {
-//        clearTimeout(timeoutId);
-//        timeoutId = setTimeout(function () {
-//            Verbale.saveVerbale(name);
-//        }, 3000);
-//    }
-//});
-
 $(document).on('click', 'a.save-verbale', function (e) {
-    e.preventDefault();
-    var name = $(e.currentTarget).siblings('textarea').attr('name');
-    Verbale.saveVerbale(name);
+    e.preventDefault();    
+    var verbaleId = $(e.currentTarget).data('verbale_id');
+    Verbale.saveVerbale(verbaleId);
 });
 
 $(document).on('click', 'a.add-timeholder', function (e) {
     e.preventDefault();
     var text = "\n" + currentDate() + "\n";
-    Verbale.showVerbale($(e.currentTarget).data('verbale'),text);
+    var verbaleId = $(e.currentTarget).data('verbale_id');
+    Verbale.addToVerbale(verbaleId,text);
+});
+
+$(document).on('click', 'a.load-verbale', function (e) {    
+    Verbale.loadVerbale();
+    e.preventDefault();
 });
 
 $(document).on('click', 'a.show-verbale', function (e) {
@@ -50,7 +43,7 @@ $(document).on('click', 'a.seduta_start_stop', function (e) {
                 container.load( container.data('load_url'), function () {
                     Odg.reload();
                     var text = "\n" + button.data('add_to_verbale') + ' ' + currentDate() + "\n";
-                    Verbale.showVerbale(CurrentSedutaId,text);
+                    Verbale.addToVerbale(CurrentSedutaId,text).showVerbale(CurrentSedutaId);
                 });
                 clearErrors();
             });
@@ -74,11 +67,11 @@ $(document).on('click', 'a.punto_start_stop', function (e) {
         confirm: function() {
             $.get(button.data('action_url'), function () {
                 var text = "\n" + button.data('add_to_verbale') + ' ' + currentDate() + "\n";
-                Verbale.showVerbale(puntoId,text);
+                Verbale.addToVerbale(puntoId,text).showVerbale(puntoId);                
                 Odg.reload();
                 clearErrors();
             }).fail(function (response, status, xhr) {
-                handelResponseError(response, status, xhr);
+                handleResponseError(response, status, xhr);
             });
         },
         cancel: function() {
@@ -100,7 +93,7 @@ $(document).on('click', '.partecipante .actions a', function (e) {
                 url: current.data('action_url'),
                 method: 'GET',
                 error: function (response, status, xhr) {
-                    handelResponseError(response, status, xhr);
+                    handleResponseError(response, status, xhr);
                 }
             });
         },
@@ -187,6 +180,11 @@ $(document).on('click', '.launch_monitor_presenze', function (e) {
     e.preventDefault();
 });
 
+$(document).on('click', '.launch_monitor_verbale', function (e) {
+    $.ajax({url: $(this).data('action_url'), method: 'GET'});
+    e.preventDefault();
+});
+
 $(document).on('click', '.launch_monitor_punto', function (e) {
     $.ajax({url: $(this).data('action_url'), method: 'GET'});
     e.preventDefault();
@@ -194,7 +192,8 @@ $(document).on('click', '.launch_monitor_punto', function (e) {
 
 $(document).ready(function () {
     $("#loading").addClass( 'text-danger' ).show();
-    Presenze.sortPartecipanti();
+    Presenze.sortPartecipanti();  
+    Verbale.loadVerbale();  
 });
 
 $(document).ajaxSend(function () {

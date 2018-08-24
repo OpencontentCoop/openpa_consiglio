@@ -23,7 +23,7 @@
                 {foreach $post.tabs as $index=> $tab}
                 <div role="tabpanel" class="tab-pane{if $index|eq(0)} active{/if}" id="{$tab.identifier}">
                     {if is_set( $tab.async_template_uri )}
-                        <div class="async-load" data-load_url="{concat('consiglio/data/seduta/',$post.object_id, '/', $tab.async_template_uri)|ezurl(no)}">
+                        <div class="async-load" data-identifier="{$tab.identifier}" data-load_url="{concat('consiglio/data/seduta/',$post.object_id, '/', $tab.async_template_uri)|ezurl(no)}">
                             <p class="text-center"><i class="fa fa-gear fa-spin fa-2x"></i></p>
                         </div>
                     {else}
@@ -54,16 +54,55 @@
     </div>
 </div>
 
-{ezscript_require( array( 'modernizr.min.js', 'ezjsc::jquery', 'bootstrap-tabdrop.js', 'jquery.editorialstuff_default.js', 'ezjsc::jqueryUI', 'bootstrap/tooltip.js', 'bootstrap/popover.js', 'bootstrap-editable.min.js', 'dhtmlxgantt.js' ) )}
-{ezcss_require(array('bootstrap3-editable/css/bootstrap-editable.css', 'dhtmlxgantt.css'))}
+{ezscript_require( array( 
+    'modernizr.min.js', 
+    'ezjsc::jquery', 
+    'bootstrap-tabdrop.js', 
+    'jquery.editorialstuff_default.js', 
+    'ezjsc::jqueryUI', 
+    'bootstrap/tooltip.js', 
+    'bootstrap/popover.js', 
+    'bootstrap-editable.min.js', 
+    'dhtmlxgantt.js',
+    'summernote/summernote.js'
+) )}
+{ezcss_require(array(
+    'bootstrap3-editable/css/bootstrap-editable.css', 
+    'dhtmlxgantt.css',
+    'summernote/summernote.css'
+))}
 
 <script>
     {literal}
+    var loadVerbaleEvents = function(){
+        $('.resetVerbale').on('click', function(e){            
+            var text = $(this).next().val();            
+            var identifier = $(this).data('identifier');
+            var input = $(this).parents('tr').find('#verbaleField-'+identifier);
+            if (!input.is(':disabled')){                
+                if (input.prop("tagName") == 'INPUT'){
+                    input.val(text);
+                }else{                
+                    input.summernote('code', text);
+                }
+            }
+            e.preventDefault();
+        });
+        $('textarea.verbaleField').summernote({
+            "toolbar":[
+                ['style',  ['bold', 'italic', 'underline']],                
+                ['para',   ['ul', 'ol']],
+                ['insert', ['table', 'hr']]
+            ]
+        });
+    };
 
     $(document).ready(function(){
         $('.async-load').each(function(){
             var container = $(this);
-            container.load( container.data('load_url') );
+            container.load( container.data('load_url'), function(){
+                if(container.data('identifier') == 'verbale') loadVerbaleEvents(); 
+            });
         });
     });
     {/literal}
@@ -102,11 +141,13 @@
                 data: values,
                 success: function (data) {
                     var container = self.parents('.async-load');
-                    container.load( container.data('load_url') );
+                    container.load( container.data('load_url'), function(){
+                        if(container.data('identifier') == 'verbale') loadVerbaleEvents(); 
+                    });
                 }
             });
             e.preventDefault();
-        });
+        });        
     });
     {/literal}
     {/if}
