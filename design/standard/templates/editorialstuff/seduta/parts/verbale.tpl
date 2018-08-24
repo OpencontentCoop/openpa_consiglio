@@ -1,4 +1,4 @@
-{def $editable = and( $post.current_state.identifier|eq('closed'), $post.object.can_edit )}
+{def $editable = $post.can_edit_verbale}
 <div class="panel-body" style="background: #fff">
     <div class="row">
         <div class="col-xs-12">

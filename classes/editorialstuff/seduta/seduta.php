@@ -43,6 +43,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         $attributes[] = 'votazioni';
         $attributes[] = 'verbale';
         $attributes[] = 'verbale_fields';
+        $attributes[] = 'can_edit_verbale';
         $attributes[] = 'protocollo';
         $attributes[] = 'current_punto';
         $attributes[] = 'percentuale_presenza';
@@ -105,6 +106,10 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
 
         if ($property == 'verbale_fields') {
             return $this->verbaleFields();
+        }
+
+        if ($property == 'can_edit_verbale') {
+            return $this->canEditVerbale();
         }
 
         if ($property == 'protocollo') {
@@ -275,6 +280,11 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         );
 
         return $fields;
+    }
+
+    public function canEditVerbale()
+    {
+        return $this->getObject()->attribute('can_edit');
     }
 
     public function verbale($identifier = null)

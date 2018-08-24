@@ -42,8 +42,9 @@ $(document).on('click', 'a.seduta_start_stop', function (e) {
             $.get(button.data('action_url'), function () {
                 container.load( container.data('load_url'), function () {
                     Odg.reload();
-                    var text = "\n" + button.data('add_to_verbale') + ' ' + currentDate() + "\n";
-                    Verbale.addToVerbale(CurrentSedutaId,text).showVerbale(CurrentSedutaId);
+                    // var text = "\n" + button.data('add_to_verbale') + ' ' + currentDate() + "\n";
+                    // Verbale.addToVerbale(CurrentSedutaId,text).showVerbale(CurrentSedutaId);
+                    Verbale.showVerbale('all');
                 });
                 clearErrors();
             });
