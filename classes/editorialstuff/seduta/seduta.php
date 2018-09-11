@@ -284,6 +284,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
 
     public function canEditVerbale()
     {
+//@todo esiste già un verbale?
         return $this->getObject()->attribute('can_edit');
     }
 

@@ -81,7 +81,7 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
         {openpaini('OpenPAConsiglio','SocketPort','8090')}
         */
         return array(
-            'url' => 'devnginx2.opencontent.vpn',
+            'url' => 'devnginx2.opencontent.it',
             'port' => '8091',
         );
     }
