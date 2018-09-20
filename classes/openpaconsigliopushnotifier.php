@@ -21,7 +21,7 @@ class OpenPAConsiglioPushNotifier
         $socketInfo = OpenPAConsiglioConfiguration::instance()->getSocketInfo();
         $host = $socketInfo['url'];
         $port = $socketInfo['port'];
-        $this->socketIo = new SocketIO($host, $port );
+        $this->socketIo = new SocketIO($host, $port);
     }
 
     public static function instance()
@@ -58,8 +58,12 @@ class OpenPAConsiglioPushNotifier
             'identifier' => $identifier,
             'data' => $data
         );
+
         try{
-            $this->socketIo->emit('broadcast', $data);
+            $result = $this->socketIo->emit('broadcast', $data);
+            if (!$result){
+                throw new Exception("Error socket emit", 1);
+            }
         }catch (Exception $e){
             eZLog::write( $e->getMessage(), 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log');
         }

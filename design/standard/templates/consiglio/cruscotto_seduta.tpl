@@ -1,8 +1,7 @@
 {def $registro_presenze = $seduta.registro_presenze}
 {def $count_partecipanti = count($seduta.partecipanti)}
 <script>
-    var SocketUrl = "{fetch(consiglio, socket_info).url}";
-    var SocketPort = "{fetch(consiglio, socket_info).port}";
+    var SocketUrl = "{fetch(consiglio, socket_info).js_url}";    
     var CurrentSedutaId = {$seduta.object_id};
     var SedutaDataBaseUrl = "{concat('consiglio/data/seduta/',$seduta.object_id)|ezurl(no)}/";
     var VotazioneDataBaseUrl = "{'consiglio/data/votazione'|ezurl(no)}/";

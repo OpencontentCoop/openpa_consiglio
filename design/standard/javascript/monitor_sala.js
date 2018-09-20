@@ -2,8 +2,7 @@ $(document).ready(function () {
     $('#page').hide();
     $('#disconnected').hide();
 });
-
-var socket = io(SocketUrl+':'+SocketPort);
+var socket = io(SocketUrl);
 
 socket.on('connect', function () {
     $('#page').show();

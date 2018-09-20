@@ -203,8 +203,7 @@ $(document).ajaxSend(function () {
     $("#loading").hide();
 });
 
-
-var socket = io(SocketUrl + ':' + SocketPort);
+var socket = io(SocketUrl);
 
 socket.on('connect', function () {
     $('#disconnected').hide();

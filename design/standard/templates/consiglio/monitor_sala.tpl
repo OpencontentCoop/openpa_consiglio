@@ -1,7 +1,6 @@
 <script src="{'javascript/socket.io-1.3.5.js'|ezdesign(no)}"></script>
 <script>
-    var SocketUrl = "{fetch(consiglio, socket_info).url}";
-    var SocketPort = "{fetch(consiglio, socket_info).port}";
+    var SocketUrl = "{fetch(consiglio, socket_info).js_url}";    
     var CurrentSedutaId = {$seduta.object_id};
     var SedutaDataBaseUrl = "{concat('consiglio/data/seduta/',$seduta.object_id)|ezurl(no)}/";
     var VotazioneDataBaseUrl = "{'consiglio/data/votazione'|ezurl(no)}/";

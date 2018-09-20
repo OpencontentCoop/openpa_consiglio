@@ -66,6 +66,9 @@ class SocketIO
             $errstr,
             self::TIMEOUT_SOCKET
         );
+        if($this->socket === false){
+            eZLog::write( "Fail socket connection: $errstr ($errno)", 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log' );
+        }
 
         return $this->handshake();
     }
@@ -98,6 +101,8 @@ class SocketIO
         {
             $this->close();
             $this->socket = null;
+
+            eZLog::write( 'Fail socket handshake', 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log' );
 
             return false;
         }

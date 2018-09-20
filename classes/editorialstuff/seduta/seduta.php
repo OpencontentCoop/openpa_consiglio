@@ -720,7 +720,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
 
                 $data = array(
                     'id' => $this->id(),
-                    'competenza' => isset( $competenza[0] ) ? $competenza[0] : null,
+                    'competenza' => $competenza,
                     'data_svolgimento' => $this->dataOra(self::DATE_FORMAT),
                     'protocollo' => $this->protocollo(),
                     'stato' => $this->currentState()->attribute('identifier'),
