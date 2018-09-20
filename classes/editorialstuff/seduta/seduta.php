@@ -1239,7 +1239,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
 
                         $tpl->setVariable('segretario', trim($segretario->attribute('name')));
 
-                        if ($segretarioDataMap['firma']->hasContent()
+                        if (isset($segretarioDataMap['firma']) && $segretarioDataMap['firma']->hasContent()
                             && $segretarioDataMap['firma']->attribute('data_type_string') == 'ezimage'
                         ) {
                             $image = $segretarioDataMap['firma']->content()->attribute('original');
