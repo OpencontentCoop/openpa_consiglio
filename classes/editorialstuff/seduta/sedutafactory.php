@@ -1,6 +1,6 @@
 <?php
 
-class SedutaFactory extends OCEditorialStuffPostNotifiableFactory
+class SedutaFactory extends OpenPAConsiglioNotifiableFactory
 {
     use OpenPAConsiglioConfigurableTrait;
     use SolrFieldsTrait;
@@ -79,6 +79,10 @@ class SedutaFactory extends OCEditorialStuffPostNotifiableFactory
             'update_data_ora' => array(
                 'name' => 'Aggiornamento data e ora',
                 'handler_method' => 'handleUpdateNotification',
+            ),
+            'send_convocation' => array(
+                'name' => 'Invio convocazione',
+                'handler_method' => 'handleSendConvocationNotification',
             )
         );
     }

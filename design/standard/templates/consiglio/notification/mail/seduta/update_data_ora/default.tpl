@@ -8,5 +8,5 @@ Si ricorda che per una visione puntale dell'ordine del giorno è necessario acce
 
 <p>
 Per l’accesso rapido all’area riservata è sempre possibile riferirsi al seguente link:
-    <a href="http://{social_pagedata('consiglio').site_url}/{$seduta.editorial_url}">Ordine del giorno della seduta</a>
+    <a href="{social_pagedata('consiglio').site_url}/{$seduta.editorial_url}">Ordine del giorno della seduta</a>
 </p>

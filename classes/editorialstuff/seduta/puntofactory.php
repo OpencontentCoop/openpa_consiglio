@@ -1,6 +1,6 @@
 <?php
 
-class PuntoFactory extends OCEditorialStuffPostNotifiableFactory
+class PuntoFactory extends OpenPAConsiglioNotifiableFactory
 {
 
     /**

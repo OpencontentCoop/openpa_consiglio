@@ -31,3 +31,12 @@
         </div>
     </div>
 </div>
+
+<div class="row dashboard">
+    <div class="col-sm-6">
+        {include uri='design:consiglio/dashboard/eventi.tpl'}        
+    </div>
+    <div class="col-sm-6">
+        {include uri='design:consiglio/dashboard/documenti.tpl'}        
+    </div>
+</div>

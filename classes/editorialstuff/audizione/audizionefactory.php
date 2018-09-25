@@ -1,6 +1,6 @@
 <?php
 
-class AudizioneFactory extends OCEditorialStuffPostNotifiableFactory
+class AudizioneFactory extends OpenPAConsiglioNotifiableFactory
 {
     use SolrFieldsTrait;
 

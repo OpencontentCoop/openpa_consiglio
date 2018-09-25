@@ -174,7 +174,7 @@
                        width='600'>
                     <tr>
                         <td align='center' valign='top'>
-                            <img src="http://{$social_pagedata.asset_url}{$social_pagedata.logo_path|ezroot(no)}"
+                            <img src="{$social_pagedata.asset_url}{$social_pagedata.logo_path|ezroot(no)}"
                                  alt="{$social_pagedata.site_title}" height="90"
                                  style="outline:none; text-decoration:none;border:none,display:block;">
                         </td>

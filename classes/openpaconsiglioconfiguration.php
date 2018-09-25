@@ -210,25 +210,18 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
     }
 
     public function siteUrl()
-    {
-        $siteUrl = eZINI::instance()->variable( 'SiteSettings', 'SiteURL' );
-        $parts = explode( '/', $siteUrl );
-        if ( count( $parts ) >= 2 )
-        {
-            array_pop( $parts );
-            $siteUrl = implode( '/', $parts );
-        }
-        return rtrim( $siteUrl, '/' );
+    {        
+        return "https://www.cooperazionetrentina.it/cda";
     }
 
     public function assetUrl()
     {
-        return $this->siteUrl();
+        return "https://www.cooperazionetrentina.it";
     }
 
     public function logoPath()
     {
-        return 'extension/openpa_consiglio/design/ocbootstrap_ftcoop/images/logo.png';
+        return 'extension/ftcoop-cda/design/cda/images/logo.png';
     }
 
     public function logoTitle()

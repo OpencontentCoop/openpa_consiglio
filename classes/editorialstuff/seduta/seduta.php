@@ -127,7 +127,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         if ($property == 'competenza') {
             $competenza = $this->getOrgano()->getObject()->attribute('name');
 
-            return isset( $competenza[0] ) ? $competenza[0] : null;
+            return $competenza;
         }
 
         if ($property == 'liquidata') {
@@ -467,6 +467,10 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
                 }
             }
         }
+
+        if ($afterState->attribute('identifier') == 'sent'){                        
+            $this->createNotificationEvent('send_convocation');
+        }
     }
 
     /**
@@ -655,9 +659,11 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         $rows = array();
         $items = $this->odg();
         foreach ($items as $v) {
-            /** @var eZContentObjectAttribute[] $tempDataMap */
-            $tempDataMap = $v->getObject()->dataMap();
-            $rows[$tempDataMap['n_punto']->content()] = $v->jsonSerialize();
+            if ($v->is('published')){
+                /** @var eZContentObjectAttribute[] $tempDataMap */
+                $tempDataMap = $v->getObject()->dataMap();
+                $rows[$tempDataMap['n_punto']->content()] = $v->jsonSerialize();
+            }
         }
 
         return $rows;
@@ -1141,6 +1147,17 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         }
     }
 
+    public function handleSendConvocationNotification($event)
+    {
+        foreach ($this->partecipanti(false) as $partecipanteId) {
+            $this->createNotificationItem(
+                $event,
+                $partecipanteId,
+                'default'
+            );
+        }
+    }
+
     /**
      * @param eZNotificationEvent $event
      * @param int $userId
@@ -1179,7 +1196,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         $tpl->resetVariables();
         foreach ($variables as $name => $value) {
             $tpl->setVariable($name, $value);
-        }
+        }                                                   
         $content = $tpl->fetch($templateName);
         $subject = $tpl->variable('subject');
 
