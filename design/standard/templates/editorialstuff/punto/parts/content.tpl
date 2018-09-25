@@ -50,7 +50,10 @@
 
     <hr/>
 
-    {foreach $post.content_attributes as $identifier => $attribute}
+    {foreach $post.content_attributes as $identifier => $attribute}        
+        {if and($identifier|eq('verbale'), or($post.object.can_edit,fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' )))|not() )}            
+            {skip}            
+        {/if}
         <div class="row edit-row">
             <div class="col-md-3"><strong>{$attribute.contentclass_attribute_name}</strong></div>
             <div class="col-md-9">

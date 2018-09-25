@@ -119,9 +119,9 @@
           <td>
               {if $factory_identifier|eq('politico')}
                   {content_view_gui content_object=$post.object view="politico_line"}
-                  <a data-toggle="modal" data-load-remote="{concat( 'layout/set/modal/content/view/full/', $post.object.main_node_id )|ezurl('no')}" data-remote-target="#preview .modal-content" href="#{*$post.url*}" data-target="#preview">(Anteprima)</a>
+                  <a data-toggle="modal" data-load-remote="{concat( 'layout/set/modal/content/view/preview/', $post.object.main_node_id )|ezurl('no')}" data-remote-target="#preview .modal-content" href="#{*$post.url*}" data-target="#preview">(Anteprima)</a>
               {else}              
-                  <a data-toggle="modal" data-load-remote="{concat( 'layout/set/modal/content/view/full/', $post.object.main_node_id )|ezurl('no')}" data-remote-target="#preview .modal-content" href="#{*$post.url*}" data-target="#preview">{$post.object.name}</a>
+                  <a data-toggle="modal" data-load-remote="{concat( 'layout/set/modal/content/view/preview/', $post.object.main_node_id )|ezurl('no')}" data-remote-target="#preview .modal-content" href="#{*$post.url*}" data-target="#preview">{$post.object.name}</a>
                   {if $post.factory_identifier|eq('allegati_seduta')}
                     <small>{attribute_view_gui attribute=$post.object.data_map.tipo}</small>
                   {/if}

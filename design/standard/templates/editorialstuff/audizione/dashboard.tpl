@@ -97,7 +97,7 @@
           </td>
           
           <td>
-            <a data-toggle="modal" data-load-remote="{concat( 'layout/set/modal/content/view/full/', $post.object.main_node_id )|ezurl('no')}" data-remote-target="#preview .modal-content" href="#{*$post.url*}" data-target="#preview">{$post.object.name}</a>
+            <a data-toggle="modal" data-load-remote="{concat( 'layout/set/modal/content/view/preview/', $post.object.main_node_id )|ezurl('no')}" data-remote-target="#preview .modal-content" href="#{*$post.url*}" data-target="#preview">{$post.object.name}</a>
           </td>
       
       </tr>

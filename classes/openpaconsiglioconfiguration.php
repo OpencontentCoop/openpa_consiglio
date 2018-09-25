@@ -151,6 +151,9 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
             'areacollaborativa',
             'rendiconto_spese', // non è una dashboard
             'proposta',
+            'responsabilearea',
+            'cda_evento',
+            'cda_documento',
         );
     }
 
@@ -166,6 +169,9 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
            'tecnico' => true,
            'politico' => true,
            //'proposta' => true,
+           'responsabilearea' => true,
+           'cda_evento' => true,
+           'cda_documento' => true,
        );
     }
 
@@ -173,23 +179,26 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
     {
         $importoMassimo = 120;
         $base = 0;
-        if ( $percentuale >= 75 )
+        if ( $percentuale > 0 )
         {
             $base = 100;
         }
-        elseif ( $percentuale < 75 && $percentuale >= 25 )
-        {
-            $base = 50;
-        }
+                
         return number_format( ( intval( $base ) * $importoMassimo / 100 ), 2 );
     }
 
     public function calcolaLivelloGettone($percentuale)
     {
-        if ($percentuale >= 75) {
-            return 'success';
-        } elseif ($percentuale >= 25) {
-            return 'warning';
+        // if ($percentuale >= 75) {
+        //     return 'success';
+        // } elseif ($percentuale >= 25) {
+        //     return 'warning';
+        // } else {
+        //     return 'danger';
+        // }
+
+        if ($percentuale > 0) {
+            return 'success';        
         } else {
             return 'danger';
         }

@@ -134,3 +134,26 @@ $FunctionList['post'] = array(
         )
     )
 );
+
+$FunctionList['editorial_url'] = array(
+    'name' => 'editorial_url',
+    'operation_types' => array('read'),
+    'call_method' => array(
+        'include_file' => 'extension/openpa_consiglio/classes/openpaconsigliofunctioncollection.php',
+        'class' => 'OpenPAConsiglioFunctionCollection',
+        'method' => 'fetchEditorialUrl'
+    ),
+    'parameter_type' => 'standard',
+    'parameters' => array(
+        array(
+            'name' => 'object',
+            'type' => 'object',
+            'required' => true
+        ),
+        array(
+            'name' => 'do_redirect',
+            'type' => 'boolean',
+            'required' => false
+        ),        
+    )
+);

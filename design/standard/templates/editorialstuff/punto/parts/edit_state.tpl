@@ -5,6 +5,9 @@
     {/if}
 {/foreach}
 {def $hide_states = array('in_progress', 'closed')}
+{if $allowed|count()|eq(1)}
+    {$allowed[0].state.current_translation.name|wash}
+{else}
 <select class="inline_edit_state">
     {if $allowed|count()}
     {foreach $allowed as $state}
@@ -21,4 +24,4 @@
         {/if}
     {/foreach}  
 <select>
-
+{/if}

@@ -1,5 +1,5 @@
 {def $index = 0}
-{if $post.object.can_edit}
+{if $post.object.allowed_assign_state_id_list|count()|gt(0)}
 <div class="row">
 {foreach $post.states as $key => $state}
   <div class="col-xs-12 col-sm-4 col-md-2" style="margin-top: 10px; margin-bottom: 10px;">

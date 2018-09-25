@@ -13,23 +13,10 @@
 {include uri='design:consiglio/dashboard/calendario.tpl'}
 
 <div class="row dashboard">
+
     <div class="col-sm-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Le tue materie preferite</h3>
-            </div>
-            <div class="panel-body">
-                {include uri='design:consiglio/dashboard/materie.tpl'}
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Le tue ultime osservazioni</h3>
-            </div>
-            <div class="panel-body">
-                {include uri='design:consiglio/dashboard/ultime.tpl'}
-            </div>
-        </div>
+        {include uri='design:consiglio/dashboard/materie.tpl'}
+        {include uri='design:consiglio/dashboard/ultime.tpl'}        
     </div>
     <div class="col-sm-6">
         <div class="panel panel-default">

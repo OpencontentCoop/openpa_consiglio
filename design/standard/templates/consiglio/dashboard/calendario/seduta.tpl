@@ -25,7 +25,7 @@
         <div class="table-responsive">
             <table class="table table-striped">
                 {foreach $post.odg as $punto}
-                    {if $punto.object.can_read}
+                    {if and($punto.object.can_read, array('published','in_progress','closed')|contains($punto.current_state.identifier))}
                         <tr>
                             <td>
                                 {attribute_view_gui attribute=$punto.object.data_map.n_punto}

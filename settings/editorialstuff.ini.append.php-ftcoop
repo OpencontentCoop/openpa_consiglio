@@ -5,6 +5,7 @@ Identifiers[]=bozze_verbali_cda
 Identifiers[]=comunicati
 
 [bozze_verbali_cda]
+Name=Bozze verbali cda
 ClassName=BozzaVerbaleCdaFactory
 ClassIdentifier=bozza_verbale_cda
 CreationRepositoryNode=627290
@@ -17,10 +18,8 @@ States[draft]=In Lavorazione
 States[available]=Disponibile
 States[expired]=Scaduta
 Actions[]
-
 #Notifica il CDA (il template è in extension/opencontent/design/standard/templates/editorialstuff/mail/action_notify_group.tpl)
 Actions[draft-available]=NotifyGroup;502752
-
 
 [comunicati]
 ClassIdentifier=comunicato
@@ -34,13 +33,10 @@ States[draft]=In lavorazione
 States[pending]=In attesa di pubblicazione
 States[published]=Pubblicato
 Actions[]
-
 #Notifica i redattori capo
 Actions[draft-pending]=NotifyGroup;653308
-
 #Notifica l'autore
 Actions[pending-draft]=NotifyOwner
-
 #Aggiunge Location (id node di test!)
 Actions[pending-published]=AddMainLocation;559269
 
@@ -56,19 +52,66 @@ Identifiers[]=invitato
 Identifiers[]=invito
 Identifiers[]=politico
 Identifiers[]=tecnico
-Identifiers[]=audizione
 Identifiers[]=materia
 Identifiers[]=convocazione_seduta
 Identifiers[]=votazione
 Identifiers[]=osservazioni
-Identifiers[]=designazione
-Identifiers[]=parere
 Identifiers[]=referentelocale
 Identifiers[]=areacollaborativa
 Identifiers[]=organo
+Identifiers[]=proposta
+#Identifiers[]=audizione
+#Identifiers[]=designazione
+#Identifiers[]=parere
+Identifiers[]=responsabilearea
+Identifiers[]=cda_evento
+Identifiers[]=cda_documento
 
 [Settings]
 DefaultFactoryClassName=OpenPAConsiglioDefaultFactory
+
+[cda_evento]
+ClassName=CdaEventoFactory
+CreationButtonText=Crea nuovo evento
+ClassIdentifier=event
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+Name=Eventi CDA
+
+[cda_documento]
+ClassName=CdaDocumentoFactory
+CreationButtonText=Crea nuovo documento
+ClassIdentifier=file_pdf
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+Name=Documenti CDA
+
+[responsabilearea]
+ClassIdentifier=personale
+CreationRepositoryNode=
+BrowseStartNode=16112
+BrowseButtonText=Seleziona responsabile
+RepositoryNodes[]
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
+Name=Responsabili d'area
+
+[proposta]
+ClassName=PropostaFactory
+ClassIdentifier=proposta_punto
+CreationRepositoryNode=
+CreationButtonText=Crea nuova proposta
+RepositoryNodes[]
+AttributeIdentifiers[]
+StateGroup=proposta
+States[draft]=In lavorazione
+States[pending]=In attesa di approvazione
+States[approved]=Approvata
+States[rejected]=Rifiutata
+States[online]=Inserita in odg
+Name=Elenco proposte ordine del giorno
+PersistentVariable[top_menu]=true
+PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 
 [organo]
 ClassName=OrganoFactory
@@ -77,7 +120,6 @@ ClassIdentifier=organo_sociale
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 Name=Elenco Organi sociali
-
 
 [areacollaborativa]
 ClassName=AreaCollaborativaFactory
@@ -108,9 +150,11 @@ PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 [punto]
 ClassName=PuntoFactory
 ClassIdentifier=punto
-CreationButtonText=Crea nuovo punto
+#CreationButtonText=Crea nuovo punto
 AttributeIdentifiers[]
 StateGroup=punto
+States[proposal]=Proposta
+States[pending]=In attesa di approvazione
 States[draft]=Bozza
 States[published]=Pubblicato
 States[in_progress]=In corso
@@ -133,7 +177,6 @@ StateGroup=audizione
 States[draft]=Non visibile
 States[pending]=Non confermata
 States[published]=Confermata
-
 
 [allegati_seduta]
 Name=Allegati alle sedute
@@ -164,7 +207,6 @@ AttributeIdentifiers[]
 PersistentVariable[top_menu]=true
 PersistentVariable[topmenu_template_uri]=design:consiglio/page_topmenu.tpl
 
-
 [convocazione_seduta]
 Name=Convocazioni seduta
 ClassName=ConvocazioneSedutaFactory
@@ -172,7 +214,6 @@ ClassIdentifier=convocazione_seduta
 RepositoryNodes[]1
 AttributeIdentifiers[]
 PersistentVariable[top_menu]=false
-
 
 [invitato]
 ClassIdentifier=invitato

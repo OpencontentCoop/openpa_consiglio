@@ -112,8 +112,7 @@
                             <input type="hidden" name="RedirectURIAfterRemove" value="{concat('editorialstuff/dashboard/', $factory_identifier)}" />
                         </form>
                         {/if}
-                        <a href={$item.url_alias|ezurl()}>{$item.path_with_names}</a>
-                        {if $item.node_id|eq($post.object.main_node_id)}(principale){/if}
+                        {$item.path_with_names} {if $item.node_id|eq($post.object.main_node_id)}(principale){/if}
                     </li>
                 {/foreach}
             </ul>

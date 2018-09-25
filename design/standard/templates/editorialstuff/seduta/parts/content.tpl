@@ -100,7 +100,7 @@
     <hr />
     <h2>
         Ordine del giorno
-	{if $post.object.can_edit}
+	{if $post.object..main_node.can_create}
         <a href="{concat('editorialstuff/add/punto?parent=',$post.object.main_node_id)|ezurl(no)}" class="btn btn-info btn-md">Aggiungi punto</a>{/if}
     </h2>
     <div class="row">
@@ -110,41 +110,3 @@
     </div>
 
 </div>
-
-{*
-    <style>.ui-sortable tr .handle{cursor:pointer;}.ui-sortable tr.ui-sortable-helper {background:rgba(244,251,17,0.45);}.ui-sortable tr.ui-state-highlight {background:rgba(244,251,17,0.1);</style>
-//            var fixHelperModified = function(e, tr) {
-//                var $originals = tr.children();
-//                var $helper = tr.clone();
-//                $helper.children().each(function(index){
-//                    $(this).width($originals.eq(index).width())
-//                });
-//                return $helper;
-//            };
-//            $("#odg tbody").sortable({
-//                items: "tr:not(.ui-state-disabled)",
-//                placeholder: "ui-state-highlight",
-//                handle: ".handle",
-//                helper: fixHelperModified,
-//                stop: function(event,ui) {
-//                    renumber_table('#odg')
-//                }
-//            }).disableSelection();
-
-//            function renumber_table(tableID) {
-//                $(tableID + " tr:not(.ui-state-disabled)").each(function() {
-//                    var value = $(this).parent().children().index($(this)) + 1;
-//                    var self = $(this).find('.priority');
-//                    var id = self.data( 'id' );
-//                    var name = self.data( 'name' );
-//                    var url = self.data( 'url' );
-//                    var pk = self.data( 'pk' );
-//                    if (url != null) {
-//                        self.html('<i class="fa fa-cog fa-spin fa-fw"></i>');
-//                        $.post(url, {name: name, pk: pk, value: value}, function (data) {
-//                            self.html(value);
-//                        });
-//                    }
-//                });
-//            }
-*}

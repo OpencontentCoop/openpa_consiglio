@@ -96,7 +96,12 @@ $ViewList['registro_presenze'] = array(
     'unordered_params' => array()
 );
 
-
+$ViewList['redirect'] = array(
+    'functions' => array( 'use' ),
+    'script' => 'redirect.php',
+    'params' => array( 'ObjectID' ),
+    'unordered_params' => array()
+);
 
 $FunctionList = array();
 $FunctionList['use'] = array();

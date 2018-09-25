@@ -130,4 +130,31 @@ class OpenPAConsiglioFunctionCollection
 
         return array('error' => "Post not found");
     }
+
+
+    public static function fetchEditorialUrl($object, $do_redirect)
+    {
+        $factories = eZINI::instance('editorialstuff.ini')->variable('AvailableFactories', 'Identifiers');
+        foreach ($factories as $factory) {
+            $classIdentifier = eZINI::instance('editorialstuff.ini')->variable($factory, 'ClassIdentifier');
+            if ($object->attribute('class_identifier') == $classIdentifier){
+                try{
+                    $post = OCEditorialStuffHandler::instance( $factory, array() )->fetchByObjectId( $object->attribute('id') );
+                    if ($post instanceof OCEditorialStuffPostInterface){
+                        $editorialUrl = $post->attribute('editorial_url');
+                        if ($do_redirect){
+                            eZURI::transformURI($editorialUrl);
+                            eZHTTPTool::redirect($editorialUrl);
+                            return;
+                        }
+                        return array(
+                            'result' => $editorialUrl
+                        );
+                    }
+                }catch(Exception $e){}
+            }
+        }
+
+        return array('error' => "Editorial url not found");
+    }
 }

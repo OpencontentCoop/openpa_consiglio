@@ -34,11 +34,12 @@ class PoliticoFactory extends OpenPAConsiglioDefaultFactory
             foreach ($selectedArray as $nodeId) {
             	$node = eZContentObjectTreeNode::fetch((int)$nodeId);
             	if ($node instanceof eZContentObjectTreeNode){
-            		eZContentOperationCollection::addAssignment( $node->attribute('node_id'), $node->attribute('contentobject_id'), array($this->creationRepositoryNode()) );
+            		eZContentOperationCollection::addAssignment( $node->attribute('node_id'), $node->attribute('contentobject_id'), array($this->creationRepositoryNode()) );                    
             	}
-            }
+            }            
         }
 
+        $parameters['sort'] = array('name' => 'asc');
         $tpl = $this->dashboardModuleResultTemplate( $parameters, $handler, $module );
         $Result = array();
         $Result['content'] = $tpl->fetch( "design:{$this->getTemplateDirectory()}/dashboard.tpl" );

@@ -46,7 +46,9 @@ class Organo extends OpenPAConsiglioDefaultPost implements OpenPAConsiglioString
     private function assignRoleWithSectionLimitationToMembers()
     {
         foreach ($this->getComponenti(false) as $componente) {
-            $role->assignRoleWithSectionLimitationToMember($componente, 'section', $section->attribute('id'));
+            if ($componente){
+                $role->assignRoleWithSectionLimitationToMember($componente, 'section', $section->attribute('id'));
+            }
         }       
     }
 
