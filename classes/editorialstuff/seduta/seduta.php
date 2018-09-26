@@ -1307,6 +1307,9 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
 
         } elseif ($actionIdentifier == 'SaveVerbale') {
             $this->saveVerbale($actionParameters['Verbale']);
+        
+        } elseif ($actionIdentifier == 'DownloadVerbale') {
+            //@todo
         }
     }
 

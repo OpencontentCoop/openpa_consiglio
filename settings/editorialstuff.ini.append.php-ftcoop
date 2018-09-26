@@ -263,6 +263,7 @@ Name=Tecnici
 [materia]
 ClassIdentifier=materia
 CreationButtonText=Crea nuova materia
+ClassName=MateriaFactory
 CreationRepositoryNode=
 RepositoryNodes[]
 AttributeIdentifiers[]

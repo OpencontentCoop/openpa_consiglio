@@ -125,9 +125,9 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             return $this->verbale();
         }
 
-        if ($property == 'materia') {
-            /** @return string[] */
-            return $this->getMateria('name');
+        if ($property == 'materia') {            
+            $materia = $this->getMateria();
+            return $materia instanceof Materia ? $materia->getObject()->attribute('name') : false;            
         }
 
         if ($property == 'data_doc') {
@@ -426,8 +426,14 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 $seduta = $this->getSeduta();
                 if ($seduta instanceof Seduta) {
                     $seduta->assignSection($object);
-                }                
+                }
 
+                $materia = $this->getMateria();
+                if ($materia instanceof Materia){
+                    $materia->assignState($object);
+                }
+
+                eZSearch::addObject($object);
                 eZSearch::addObject($this->getObject());
                 eZContentCacheManager::clearObjectViewCacheIfNeeded($this->id());
 
@@ -462,6 +468,13 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 $ids = array_unique($ids);
                 $this->dataMap[$attributeIdentifier]->fromString(implode('-', $ids));
                 $this->dataMap[$attributeIdentifier]->store();
+                
+                $materia = $this->getMateria();
+                if ($materia instanceof Materia){
+                    $materia->assignState($object);
+                }
+                
+                eZSearch::addObject($object);
                 eZSearch::addObject($this->getObject());
                 eZContentCacheManager::clearObjectViewCacheIfNeeded($this->id());
 
@@ -1244,18 +1257,17 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     {
         // Prepara notifica per gli interessati alla materia
         /** @var OCEditorialStuffNotificationRule[] $utentiAppassionati */
-        $utentiAppassionati = array();
-        foreach ($this->getMateria() as $materia) {
-            if ($materia instanceof eZContentObject) {
-                $utentiAppassionati = array_merge(
-                    $utentiAppassionati,
-                    OCEditorialStuffNotificationRule::fetchList(
-                        'materia/like',
-                        null,
-                        $materia->attribute('id')
-                    )
-                );
-            }
+        $utentiAppassionati = array();        
+        $materia = $this->getMateria();
+        if ($materia instanceof Materia) {
+            $utentiAppassionati = array_merge(
+                $utentiAppassionati,
+                OCEditorialStuffNotificationRule::fetchList(
+                    'materia/like',
+                    null,
+                    $materia->id()
+                )
+            );
         }
         $data = array();
         foreach ($utentiAppassionati as $utentiAppassionato) {
@@ -1404,11 +1416,16 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
      *
      * @param null $attributeIdentifier
      *
-     * @return eZContentObject[]|string[]
+     * @return Materia|null
      */
-    protected function getMateria($attributeIdentifier = null)
-    {
-        return $this->stringRelatedObjectAttribute('materia', $attributeIdentifier);
+    protected function getMateria()
+    {        
+        $materiaIdList = $this->stringRelatedObjectAttribute('materia', 'id');
+        if (isset($materiaIdList[0])){
+            return OCEditorialStuffHandler::instance('materia')->fetchByObjectId($materiaIdList[0]);
+        }
+
+        return null;
     }
 
     /**
@@ -1449,7 +1466,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $locale = eZLocale::instance();
         /** @var eZDateTime $orarioTrattazione */
         $orarioTrattazione = $this->dataMap['orario_trattazione']->content();
-
+        $materia = $this->getMateria();
         $data = array(
             'id' => $this->id(),
             'stato' => $this->currentState()->attribute('identifier'),
@@ -1460,7 +1477,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
             'orario' => $locale->formatShortTime(
                 $orarioTrattazione->attribute('timestamp')
             ),
-            'materia' => $this->getMateria('name'),
+            'materia' => $materia instanceof Materia ? $materia->getObject()->attribute('name') : false,
             'referente_politico' => $this->stringRelatedObjectAttribute('referente_politico', 'name'),
             'referente_tecnico' => $this->stringRelatedObjectAttribute('referente_tecnico', 'name'),
             'documenti' => $this->attribute('count_documenti'),

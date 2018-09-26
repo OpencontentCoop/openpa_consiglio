@@ -1,1 +1,1 @@
-La informo che nell'area riservata a Lei dedicata, in corrispondenza della <strong>{$punto.seduta.object.name|wash()}</strong>, è pubblicato il seguente punto in materia di <em>{$punto.materia|implode( ', ' )}</em>: <strong>{attribute_view_gui attribute=$punto.object.data_map.oggetto}</strong>
+La informo che nell'area riservata a Lei dedicata, in corrispondenza della <strong>{$punto.seduta.object.name|wash()}</strong>, è pubblicato il seguente punto in materia di <em>{$punto.materia}</em>: <strong>{attribute_view_gui attribute=$punto.object.data_map.oggetto}</strong>
