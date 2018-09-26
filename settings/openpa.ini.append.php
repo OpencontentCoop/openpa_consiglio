@@ -1,5 +1,8 @@
 <?php /* #?ini charset="utf-8"?
 
+[OpenPAConsiglio]
+ConfigurationClass=
+
 [ObjectHandlerServices]
 Services[gestione_sedute_consiglio]=ObjectHandlerServiceGestioneSeduteConsiglio
 

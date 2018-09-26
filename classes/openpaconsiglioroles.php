@@ -333,7 +333,7 @@ class OpenPAConsiglioRoles
 
         $classes = array_fill_keys($configuration->getAvailableClasses(), true);
 
-        foreach ($configuration->getContainerDashboards() as $repositoryIdentifier) {
+        foreach (array_keys($configuration->getContainerDashboards()) as $repositoryIdentifier) {
             try {
                 $data[] = array(
                     'ModuleName' => 'content',

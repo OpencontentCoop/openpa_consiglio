@@ -7,107 +7,93 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
      */
     private static $instance;
 
-    public static function instance()
+    private function __construct()
     {
-        if (self::$instance === null)
-            self::$instance = new OpenPAConsiglioConfiguration(); //@todo
+    }
+
+    final public static function instance()
+    {
+        if (self::$instance === null) {
+            $configurationClassName = eZINI::instance('openpa.ini')->variable(
+                'OpenPAConsiglio',
+                'ConfigurationClass'
+            );
+            if (!class_exists($configurationClassName)) {
+                throw new Exception("OpenPAConsiglio ConfigurationClass $configurationClassName not found");
+            }
+            self::$instance = new $configurationClassName();
+        }
 
         return self::$instance;
     }
 
     public function getSyncClassRemoteHost()
     {
-        return 'http://dev.ftcoop.opencontent.it';
+        return null;
     }
 
     public function useApp()
     {
-        return false;
+        return null;
     }
 
     public function enableVotazioniinCruscotto()
     {
-        return false;
+        return null;
     }
 
     public function getCurrentSiteaccessIdentifier()
     {
-        return 'ftcoop';
+        return null;
     }
 
     public function getRepositoryRootRemoteId($repositoryIdentifier)
     {
-        return 'openpa_consiglio_' . $repositoryIdentifier;
+        return null;
     }
 
     public function getRepositoryRootNodeId($repositoryIdentifier)
     {
-        $remote = $this->getRepositoryRootRemoteId($repositoryIdentifier);
-        if ($object = eZContentObject::fetchByRemoteID($remote)){
-            return $object->attribute('main_node_id');
-        }
         return null;
     }
 
     public function getRepositoryRootNodePathString($repositoryIdentifier)
     {
-        $remote = $this->getRepositoryRootRemoteId($repositoryIdentifier);
-        if ($object = eZContentObject::fetchByRemoteID($remote)){
-            return $object->attribute('main_node')->attribute('path_string');
-        }
         return null;
     }
 
     public function getRepositoryPersistentVariable($repositoryIdentifier)
     {
-        return array(
-            'top_menu' => true,
-            'topmenu_template_uri' => 'design:consiglio/page_topmenu.tpl'
-        );
+        return null;
     }
 
     public function getAlertsContainerNodeId()
     {
-        /*
-        {def $alerts_container = openpaini( 'OpenPAConsiglio', 'DashboardAlertsContainerNode', false() )} //@todo
-         */
-        return 0;
+        return null;
     }
 
     public function getSocketInfo()
     {
-        /*
-        {openpaini('OpenPAConsiglio','SocketUrl','cal')}
-        {openpaini('OpenPAConsiglio','SocketPort','8090')}
-        */
-        // return array(
-        //     'url' => 'devnginx2.opencontent.it',
-        //     'port' => 8091,
-        //     'js_url' => 'devnginx2.opencontent.it:8091',
-        // );
         return array(
-            'url' => 'ftcoop-cda.opencontent.it',
-            'port' => 8091,
-            'js_url' => 'ftcoop-cda.opencontent.it',
+            'url' => null,
+            'port' => null,
+            'js_url' => null,
         );
     }
 
     public function getBackendEndPoint()
     {
-        //OpenPAINI::variable( 'OpenPAConsiglio', 'BackendEndPoint' )
-        return false;
+        return null;
     }
 
     public function isMailDebug()
     {
-        //OpenPAINI::variable( 'OpenPAConsiglio', 'UseMailDebug', 'true' )
         return true;
     }
 
     public function getMailDebugAdress()
     {
-        //OpenPAINI::variable( 'OpenPAConsiglio', 'UseMailDebugAddress', 'lr@opencontent.it' )
-        return 'lr@opencontent.it';
+        return null;
     }
 
     public function getAvailableClasses()
@@ -135,25 +121,25 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
     public function getContainerDashboards()
     {
         return array(
-            'seduta',
-            //'punto',
-            'allegati_seduta',
-            'invitato',
-            //'invito',
-            'politico',
-            'tecnico',
-            'materia',
-            'organo',
-            //'convocazione_seduta',
-            'votazione',
-            'osservazioni',
-            'referentelocale',
-            'areacollaborativa',
-            'rendiconto_spese', // non è una dashboard
-            'proposta',
-            'responsabilearea',
-            'cda_evento',
-            'cda_documento',
+            'seduta' => 'folder',
+            'punto' => 'folder',
+            'allegati_seduta' => 'folder',
+            'invitato' => 'user_group',
+            'invito' => 'folder',
+            'politico' => 'user_group',
+            'tecnico' => 'user_group',
+            'materia' => 'folder',
+            'organo' => 'folder',
+            'convocazione_seduta' => 'folder',
+            'votazione' => 'folder',
+            'osservazioni' => 'folder',
+            'referentelocale' => 'user_group',
+            'areacollaborativa' => 'folder',
+            'rendiconto_spese' => 'folder', // non è una dashboard
+            'proposta' => 'folder',
+            'responsabilearea' => 'user_group',
+            'cda_evento' => 'folder',
+            'cda_documento' => 'folder',
         );
     }
 
@@ -164,11 +150,11 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
            'materia' => true,
            'invitato' => true,
            'referentelocale' => true,
-           //'areacollaborativa' => true,
+           'areacollaborativa' => true,
            'organo' => true,
            'tecnico' => true,
            'politico' => true,
-           //'proposta' => true,
+           'proposta' => true,
            'responsabilearea' => true,
            'cda_evento' => true,
            'cda_documento' => true,
@@ -189,14 +175,6 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
 
     public function calcolaLivelloGettone($percentuale)
     {
-        // if ($percentuale >= 75) {
-        //     return 'success';
-        // } elseif ($percentuale >= 25) {
-        //     return 'warning';
-        // } else {
-        //     return 'danger';
-        // }
-
         if ($percentuale > 0) {
             return 'success';        
         } else {
@@ -206,32 +184,32 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
 
     public function siteTitle()
     {
-        return eZINI::instance()->variable( 'SiteSettings', 'SiteName' );
+        return null;
     }
 
     public function siteUrl()
-    {        
-        return "https://www.cooperazionetrentina.it/cda";
+    {
+        return null;
     }
 
     public function assetUrl()
     {
-        return "https://www.cooperazionetrentina.it";
+        return null;
     }
 
     public function logoPath()
     {
-        return 'extension/ftcoop-cda/design/cda/images/logo.png';
+        return null;
     }
 
     public function logoTitle()
     {
-        return $this->siteTitle();
+        return null;
     }
 
     public function logoSubtitle()
     {
-        return '';
+        return null;
     }
 
     public function headImages()
@@ -241,32 +219,32 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
 
     public function needLogin()
     {
-        return false;
+        return null;
     }
 
     public function attributeContacts()
     {
-        return false;
+        return null;
     }
 
     public function attributeFooter()
     {
-        return false;
+        return null;
     }
 
     public function textCredits()
     {
-        return false;
+        return null;
     }
 
     public function googleAnalyticsId()
     {
-        return false;
+        return null;
     }
 
     public function cookieLawUrl()
     {
-        return false;
+        return null;
     }
 
     public function menu()
@@ -281,16 +259,16 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
 
     public function bannerPath()
     {
-        return false;
+        return null;
     }
 
     public function bannerTitle()
     {
-        return false;
+        return null;
     }
 
     public function bannerSubtitle()
     {
-        return false;
+        return null;
     }
 }

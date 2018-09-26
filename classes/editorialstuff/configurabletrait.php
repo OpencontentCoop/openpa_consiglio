@@ -40,7 +40,7 @@ trait OpenPAConsiglioConfigurableTrait
 
     public function overrideConfiguration(&$configuration)
     {
-        $needRootFactories = $this->getConfigurationProvider()->getContainerDashboards();
+        $needRootFactories = array_keys($this->getConfigurationProvider()->getContainerDashboards());
         $factoryIdentifier = $configuration['identifier'];
         if(empty($configuration['CreationRepositoryNode']) && in_array($factoryIdentifier, $needRootFactories)) {
             $configuration['CreationRepositoryNode'] = $this->getConfigurationProvider()->getRepositoryRootNodeId($factoryIdentifier);

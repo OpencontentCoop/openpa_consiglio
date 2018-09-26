@@ -1,31 +1,31 @@
 <?php
 require_once 'autoload.php';
 
-$script = eZScript::instance( array( 'description' => ( "Install OpenPA Consiglio" ),
+$script = eZScript::instance(array('description' => ("Install OpenPA Consiglio"),
     'use-session' => false,
     'use-modules' => true,
-    'use-extensions' => true ) );
+    'use-extensions' => true));
 
 $script->startup();
 
-$options = $script->getOptions( '[parent_node:][only_roles]',
+$options = $script->getOptions('[parent_node:][only_roles]',
     '',
     array(
-        'parent_node'  => 'Root Parent Node'
+        'parent_node' => 'Root Parent Node'
     )
 );
 $script->initialize();
-$script->setUseDebugAccumulators( true );
+$script->setUseDebugAccumulators(true);
 
 $cli = eZCLI::instance();
 
-$user = eZUser::fetchByName( 'admin' );
-eZUser::setCurrentlyLoggedInUser( $user , $user->attribute( 'contentobject_id' ) );
+$user = eZUser::fetchByName('admin');
+eZUser::setCurrentlyLoggedInUser($user, $user->attribute('contentobject_id'));
 
 $onlyRoles = $options['only_roles'];
 try {
 
-    if (!$onlyRoles){
+    if (!$onlyRoles) {
         $configuration = OpenPAConsiglioConfiguration::instance();
         OCClassTools::setRemoteUrl($configuration->getSyncClassRemoteHost() . '/classtools/definition/');
 
@@ -38,13 +38,13 @@ try {
 
         foreach ($configuration->getAvailableClasses() as $identifier) {
             $cli->warning('Sincronizzo classe ' . $identifier . ' con ' . $configuration->getSyncClassRemoteHost());
-            // $tools = new OCClassTools( $identifier, true ); // creo se non esiste
-            // $tools->sync( true, true ); // forzo e rimuovo attributi in più
+            $tools = new OCClassTools($identifier, true); // creo se non esiste
+            $tools->sync(true, true); // forzo e rimuovo attributi in più
         }
         $cli->warning();
 
-        $parentNodeId = $options['parent_node'] ? $options['parent_node'] : eZINI::instance('content.ini')->variable('NodeSettings','RootNode');
-        foreach ($configuration->getContainerDashboards() as $repositoryIdentifier) {
+        $parentNodeId = $options['parent_node'] ? $options['parent_node'] : eZINI::instance('content.ini')->variable('NodeSettings', 'RootNode');
+        foreach ($configuration->getContainerDashboards() as $repositoryIdentifier => $containerClassIdentifier) {
             if ($configuration->getRepositoryRootNodeId($repositoryIdentifier) == null) {
                 $cli->warning('Creo root node per ' . $repositoryIdentifier);
                 $remoteId = $configuration->getRepositoryRootRemoteId($repositoryIdentifier);
@@ -52,7 +52,7 @@ try {
                 $params = array(
                     'parent_node_id' => $parentNodeId,
                     'remote_id' => $remoteId,
-                    'class_identifier' => 'folder',
+                    'class_identifier' => $containerClassIdentifier,
                     'attributes' => array(
                         'name' => $repositoryIdentifier
                     )
@@ -68,12 +68,12 @@ try {
     }
 
     $roleHelper = new OpenPAConsiglioRoles();
-    foreach($roleHelper->getRoleNames() as $roleName){
+    foreach ($roleHelper->getRoleNames() as $roleName) {
         $cli->warning('Creo ruolo ' . $roleName);
         $roleHelper->createRoleIfNeeded($roleName);
     }
     $script->shutdown();
-}catch(Exception $e){
+} catch (Exception $e) {
     $script->shutdown($e->getCode(), $e->getMessage());
 }
 
