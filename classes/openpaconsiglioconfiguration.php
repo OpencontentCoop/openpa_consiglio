@@ -116,6 +116,8 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
             'rendiconto_spese',
             'proposta_punto',
             'verbale',
+            'event',
+            'file',
         );
     }
 
