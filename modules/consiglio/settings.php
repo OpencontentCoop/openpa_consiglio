@@ -6,7 +6,7 @@ $tpl = eZTemplate::factory();
 
 $settingsProvider = OpenPAConsiglioSettings::instance();
 $settings = $settingsProvider->availableGlobalSettings();
-//echo '<pre>';print_r($_POST);die();
+
 if ($http->hasPostVariable('StoreGlobalSettings')) {
     foreach ($settings as $identifier => $setting) {
         if ($http->hasPostVariable('GlobalSettings_' . $identifier)) {
@@ -19,6 +19,7 @@ if ($http->hasPostVariable('StoreGlobalSettings')) {
             $settingsProvider->storeGlobalSetting($identifier, 0);
         }
     }
+    $settingsProvider->loadValues();
     eZCache::clearByTag('template');
     $module->redirectTo('consiglio/settings');
 }

@@ -14,8 +14,9 @@ class OpenPAConsiglioSettings
         $this->loadValues();
     }
 
-    private function loadValues()
+    public function loadValues()
     {
+        $this->values = array();
         $availableSettings = $this->availableGlobalSettings();
         $filterCond = array();
         foreach ($availableSettings as $identifier => $availableSetting) {
@@ -37,7 +38,6 @@ class OpenPAConsiglioSettings
                 $this->values[$identifier] = new eZSiteData(array('name' => $availableSetting['stored_name']));
             }
         }
-//var_dump($this->isMailDebug());die();
     }
 
     public function availableGlobalSettings()
@@ -110,13 +110,13 @@ class OpenPAConsiglioSettings
                 'type' => 'text'
             ),
             'socket_port' => array(
-                'stored_name' => 'OpenPAConsiglio.SocketUrl',
+                'stored_name' => 'OpenPAConsiglio.SocketPort',
                 'name' => "Socket Port",
                 'help_text' => "(esempio: '8091')",
                 'type' => 'text'
             ),
             'socket_js_url' => array(
-                'stored_name' => 'OpenPAConsiglio.SocketUrl',
+                'stored_name' => 'OpenPAConsiglio.SocketJsUrl',
                 'name' => "Socket Js Url",
                 'help_text' => "(esempio: 'devnginx2.opencontent.it:8091')",
                 'type' => 'text'
@@ -152,13 +152,13 @@ class OpenPAConsiglioSettings
     {
         $availableSettings = $this->availableGlobalSettings();
         if (isset($availableSettings[$identifier])) {
-            $siteData = $this->getGlobalSetting($identifier);
+            $siteData = $this->getGlobalSetting($identifier);            
             if ($availableSettings[$identifier]['type'] == 'checkbox-list') {
                 $value = implode('-', (array)$value);
             }
             $siteData->setAttribute('value', $value);
             $siteData->store();
-            $this->loadValues();
+            eZDebug::writeDebug($siteData, __METHOD__);
         }
     }
 
