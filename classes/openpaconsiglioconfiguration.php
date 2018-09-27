@@ -7,10 +7,6 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
      */
     private static $instance;
 
-    private function __construct()
-    {
-    }
-
     final public static function instance()
     {
         if (self::$instance === null) {

@@ -607,8 +607,9 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     ) {
         $this->setObjectLastModified();
 
-        if ($afterState->attribute('identifier') == 'published') {
-            $this->getSeduta()->createUpdateConvocazione();
+        $this->getSeduta()->reorderOdg();
+
+        if ($afterState->attribute('identifier') == 'published') {            
             $this->createNotificationEvent('publish');
         }
     }
