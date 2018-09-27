@@ -82,15 +82,12 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
     {
         return array(
             'seduta' => 'folder',
-            'punto' => 'folder',
             'allegati_seduta' => 'folder',
             'invitato' => 'user_group',
-            'invito' => 'folder',
             'politico' => 'user_group',
             'tecnico' => 'user_group',
             'materia' => 'folder',
             'organo' => 'folder',
-            'convocazione_seduta' => 'folder',
             'votazione' => 'folder',
             'osservazioni' => 'folder',
             'referentelocale' => 'user_group',
