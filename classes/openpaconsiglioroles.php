@@ -95,8 +95,14 @@ class OpenPAConsiglioRoles
                     'Class' => array(
                         eZContentClass::classIDByIdentifier($this->getFactory('politico')->classIdentifier()),
                         eZContentClass::classIDByIdentifier($this->getFactory('materia')->classIdentifier()),
+                        eZContentClass::classIDByIdentifier($this->getFactory('cda_evento')->classIdentifier()),
+                        eZContentClass::classIDByIdentifier($this->getFactory('cda_documento')->classIdentifier()),
                     )
                 )
+            ),
+            array(
+                'ModuleName' => 'opendata',
+                'FunctionName' => 'api'
             ),
             array(
                 'ModuleName' => 'content',
