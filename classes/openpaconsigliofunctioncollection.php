@@ -78,14 +78,16 @@ class OpenPAConsiglioFunctionCollection
     public static function fetchAlerts()
     {
         $result = array();
-        try {
-            $result = eZContentObjectTreeNode::subTreeByNodeID(array(
-                'Limit' => 20,
-                'Depth' => 1,
-                'DepthOperator' => 'eq',
-                'SortBy' => array('modified', false)
-            ), OpenPAConsiglioConfiguration::instance()->getAlertsContainerNodeId());
-        } catch (Exception $e) {
+        if (OpenPAConsiglioConfiguration::instance()->getAlertsContainerNodeId() > 0) {
+            try {
+                $result = eZContentObjectTreeNode::subTreeByNodeID(array(
+                    'Limit' => 20,
+                    'Depth' => 1,
+                    'DepthOperator' => 'eq',
+                    'SortBy' => array('modified', false)
+                ), OpenPAConsiglioConfiguration::instance()->getAlertsContainerNodeId());
+            } catch (Exception $e) {
+            }
         }
 
         return array('result' => (array)$result);
@@ -93,12 +95,13 @@ class OpenPAConsiglioFunctionCollection
 
     public static function fetchActiveDashboards()
     {
-        return array('result' => OpenPAConsiglioConfiguration::instance()->getActiveDashboards());
+        $activeDashboards = OpenPAConsiglioSettings::instance()->getActiveDashboards();
+        return array('result' => array_fill_keys($activeDashboards, true));
     }
 
     public static function fetchSocketInfo()
     {
-        return array('result' => OpenPAConsiglioConfiguration::instance()->getSocketInfo());
+        return array('result' => OpenPAConsiglioSettings::instance()->getSocketInfo());
     }
 
     public function fetchPost($object, $node)
@@ -137,12 +140,12 @@ class OpenPAConsiglioFunctionCollection
         $factories = eZINI::instance('editorialstuff.ini')->variable('AvailableFactories', 'Identifiers');
         foreach ($factories as $factory) {
             $classIdentifier = eZINI::instance('editorialstuff.ini')->variable($factory, 'ClassIdentifier');
-            if ($object->attribute('class_identifier') == $classIdentifier){
-                try{
-                    $post = OCEditorialStuffHandler::instance( $factory, array() )->fetchByObjectId( $object->attribute('id') );
-                    if ($post instanceof OCEditorialStuffPostInterface){
+            if ($object->attribute('class_identifier') == $classIdentifier) {
+                try {
+                    $post = OCEditorialStuffHandler::instance($factory, array())->fetchByObjectId($object->attribute('id'));
+                    if ($post instanceof OCEditorialStuffPostInterface) {
                         $editorialUrl = $post->attribute('editorial_url');
-                        if ($do_redirect){
+                        if ($do_redirect) {
                             eZURI::transformURI($editorialUrl);
                             eZHTTPTool::redirect($editorialUrl);
                             return;
@@ -151,7 +154,8 @@ class OpenPAConsiglioFunctionCollection
                             'result' => $editorialUrl
                         );
                     }
-                }catch(Exception $e){}
+                } catch (Exception $e) {
+                }
             }
         }
 

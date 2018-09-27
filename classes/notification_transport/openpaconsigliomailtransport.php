@@ -72,10 +72,10 @@ class OpenPAConsiglioMailTransport
     */
     static function send( eZMail $mail )
     {
-        if ( OpenPAConsiglioConfiguration::instance()->isMailDebug() )
+        if ( OpenPAConsiglioSettings::instance()->isMailDebug() )
         {
             $debugTransport = new self();
-            return $debugTransport->sendMail( $mail,  OpenPAConsiglioConfiguration::instance()->getMailDebugAdress() );
+            return $debugTransport->sendMail( $mail,  OpenPAConsiglioSettings::instance()->getMailDebugAddress() );
         }
         else
         {

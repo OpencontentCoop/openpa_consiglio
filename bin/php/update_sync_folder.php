@@ -22,7 +22,7 @@ eZUser::setCurrentlyLoggedInUser( $user , $user->attribute( 'contentobject_id' )
 
 try
 {
-    $identifier = OpenPAConsiglioConfiguration::instance()->getCurrentSiteaccessIdentifier();
+    $identifier = OpenPAConsiglioSettings::instance()->getIdentifier();
     $dirPath = "../{$identifier}_da_sincronizzare";
 
     if ( !empty( $options['dir'] ) )

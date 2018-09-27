@@ -16,9 +16,9 @@ class OpenPAConsiglioPushNotifier
         $filename = $cacheDirectory . '/' . 'push_notifications.json';
         $this->file = eZClusterFileHandler::instance( $filename );
 
-        $this->backendEndPoint = OpenPAConsiglioConfiguration::instance()->getBackendEndPoint();
+        $this->backendEndPoint = OpenPAConsiglioSettings::instance()->getBackendEndPoint();
 
-        $socketInfo = OpenPAConsiglioConfiguration::instance()->getSocketInfo();
+        $socketInfo = OpenPAConsiglioSettings::instance()->getSocketInfo();
         $host = $socketInfo['url'];
         $port = $socketInfo['port'];
         $this->socketIo = new SocketIO($host, $port);
@@ -54,7 +54,7 @@ class OpenPAConsiglioPushNotifier
     protected function sendToSocket( $identifier, $data )
     {
         $data = array(
-            'sa' => OpenPAConsiglioConfiguration::instance()->getCurrentSiteaccessIdentifier(),
+            'sa' => OpenPAConsiglioSettings::instance()->getIdentifier(),
             'identifier' => $identifier,
             'data' => $data
         );

@@ -378,7 +378,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
                 'template_uri' => "design:{$templatePath}/parts/presenze.tpl"
             );
         }
-        if (OpenPAConsiglioConfiguration::instance()->enableVotazioniinCruscotto()) {
+        if (OpenPAConsiglioSettings::instance()->enableVotazioniInCruscotto()) {
             $tabs[] = array(
                 'identifier' => 'votazioni',
                 'name' => 'Votazioni e esito',
@@ -1020,7 +1020,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
     public function stop()
     {
         foreach ($this->partecipanti(false) as $userId) {
-            if(OpenPAConsiglioConfiguration::instance()->useApp()) {
+            if(OpenPAConsiglioSettings::instance()->useApp()) {
                 OpenPAConsiglioPresenza::create($this, 0, 'checkin', $userId)->store();
                 OpenPAConsiglioPresenza::create($this, 0, 'beacons', $userId)->store();
             }

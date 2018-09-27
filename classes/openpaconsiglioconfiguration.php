@@ -10,86 +10,47 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
     final public static function instance()
     {
         if (self::$instance === null) {
-            $configurationClassName = eZINI::instance('openpa.ini')->variable(
-                'OpenPAConsiglio',
-                'ConfigurationClass'
-            );
-            if (!class_exists($configurationClassName)) {
-                throw new Exception("OpenPAConsiglio ConfigurationClass $configurationClassName not found");
-            }
-            self::$instance = new $configurationClassName();
+            self::$instance = new OpenPAConsiglioConfiguration();
         }
 
         return self::$instance;
     }
 
-    public function getSyncClassRemoteHost()
-    {
-        return null;
-    }
-
-    public function useApp()
-    {
-        return null;
-    }
-
-    public function enableVotazioniinCruscotto()
-    {
-        return null;
-    }
-
-    public function getCurrentSiteaccessIdentifier()
-    {
-        return null;
-    }
 
     public function getRepositoryRootRemoteId($repositoryIdentifier)
     {
-        return null;
+        return 'openpa_consiglio_' . $repositoryIdentifier;
     }
 
     public function getRepositoryRootNodeId($repositoryIdentifier)
     {
+        $remote = $this->getRepositoryRootRemoteId($repositoryIdentifier);
+        if ($object = eZContentObject::fetchByRemoteID($remote)){
+            return $object->attribute('main_node_id');
+        }
         return null;
     }
 
     public function getRepositoryRootNodePathString($repositoryIdentifier)
     {
+        $remote = $this->getRepositoryRootRemoteId($repositoryIdentifier);
+        if ($object = eZContentObject::fetchByRemoteID($remote)){
+            return $object->attribute('main_node')->attribute('path_string');
+        }
         return null;
     }
 
     public function getRepositoryPersistentVariable($repositoryIdentifier)
     {
-        return null;
+        return array(
+            'top_menu' => true,
+            'topmenu_template_uri' => 'design:consiglio/page_topmenu.tpl'
+        );
     }
 
     public function getAlertsContainerNodeId()
     {
-        return null;
-    }
-
-    public function getSocketInfo()
-    {
-        return array(
-            'url' => null,
-            'port' => null,
-            'js_url' => null,
-        );
-    }
-
-    public function getBackendEndPoint()
-    {
-        return null;
-    }
-
-    public function isMailDebug()
-    {
-        return true;
-    }
-
-    public function getMailDebugAdress()
-    {
-        return null;
+        return 0;
     }
 
     public function getAvailableClasses()
@@ -142,23 +103,23 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
         );
     }
 
-    public function getActiveDashboards()
+    public function getDashboards()
     {
-       return array(
-           'seduta' => true,
-           'materia' => true,
-           'invitato' => true,
-           'referentelocale' => true,
-           'areacollaborativa' => true,
-           'organo' => true,
-           'tecnico' => true,
-           'politico' => true,
-           'proposta' => true,
-           'responsabilearea' => true,
-           'cda_evento' => true,
-           'cda_documento' => true,
-           'verbale' => true,
-       );
+        return array(
+            'seduta',
+            'materia',
+            'invitato',
+            'referentelocale',
+            'areacollaborativa',
+            'organo',
+            'tecnico',
+            'politico',
+            'proposta',
+            'responsabilearea',
+            'cda_evento',
+            'cda_documento',
+            'verbale',
+        );
     }
 
     public function calcolaImportGettone($percentuale)
@@ -184,27 +145,27 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
 
     public function siteTitle()
     {
-        return null;
+        return OpenPAConsiglioSettings::instance()->getGlobalSetting('site_title')->attribute('value');
     }
 
     public function siteUrl()
     {
-        return null;
+        return OpenPAConsiglioSettings::instance()->getGlobalSetting('site_url')->attribute('value');
     }
 
     public function assetUrl()
     {
-        return null;
+        return OpenPAConsiglioSettings::instance()->getGlobalSetting('asset_url')->attribute('value');
     }
 
     public function logoPath()
     {
-        return null;
+        return OpenPAConsiglioSettings::instance()->getGlobalSetting('logo_path')->attribute('value');
     }
 
     public function logoTitle()
     {
-        return null;
+        return OpenPAConsiglioSettings::instance()->getGlobalSetting('site_title')->attribute('value');
     }
 
     public function logoSubtitle()

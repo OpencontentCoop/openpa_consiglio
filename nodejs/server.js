@@ -5,27 +5,18 @@ var http = require('http').createServer(),
     fs = require('fs'),
     arguments = process.argv.slice(2);
 
-var currentSA = arguments[0];
-
-if (currentSA == undefined) {
-    console.log("Specifica un site identifier");
-    process.exit();
-}
-
 http.listen(8091, function () {
-    console.log('listening events ' + currentSA + ' on *:8091');
+    console.log('listening events on *:8091');
 });
 
 io.on('connection', function (socket) {
     console.log('-> connected');
     socket.on('broadcast', function (data) {
         console.log(data);
-        if(data.sa == currentSA) {
-            io.emit(data.identifier, data.data);
-            console.log(new Date());
-            console.log('emit ' + data.identifier + ': ');
-            console.log(data.data);
-        }
+        io.emit(data.identifier, data.data);
+        console.log(new Date());
+        console.log('emit ' + data.identifier + ': ');
+        console.log(data.data);
     });
     socket.on('disconnect', function () {
         console.log('<- disconnected');

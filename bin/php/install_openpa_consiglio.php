@@ -27,7 +27,6 @@ try {
 
     if (!$onlyRoles) {
         $configuration = OpenPAConsiglioConfiguration::instance();
-        OCClassTools::setRemoteUrl($configuration->getSyncClassRemoteHost() . '/classtools/definition/');
 
         $dbUser = eZINI::instance()->variable('DatabaseSettings', 'User');
         $dbName = eZINI::instance()->variable('DatabaseSettings', 'Database');
