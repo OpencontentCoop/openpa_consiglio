@@ -24,7 +24,8 @@ class OpenPAConsiglioPdf
         } else {
             return array(
                 'content' => $paradoxPdf->generatePDF($content),
-                'exporter' => $paradoxPdf
+                'exporter' => $paradoxPdf,
+                'raw_content' => $content
             );
         }
     }

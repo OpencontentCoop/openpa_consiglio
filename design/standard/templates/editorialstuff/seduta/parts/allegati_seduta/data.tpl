@@ -11,6 +11,23 @@
             </tr>
             </thead>
             <tbody>
+
+            {def $verbale_object = $post.verbale_object}
+            {if and($verbale_object, $verbale_object.current_state.identifier|ne('draft'))}
+                <tr class="warning">
+                    <td class="text-center">
+                        <a href="{$verbale_object.editorial_url|ezurl('no')}" title="Dettaglio" class="btn btn-info btn-xs">Dettaglio</a>
+                    </td>
+                    <td>{$verbale_object.object.name|wash()}</td>
+                    <td>Verbale</td>
+                    <td style="white-space: nowrap">{$verbale_object.current_state.current_translation.name|wash()}</td>
+                    <td>
+                        {if $verbale_object.current_state.identifier|eq('approved')}
+                        {attribute_view_gui attribute=$verbale_object.object.data_map.file}
+                        {/if}
+                    </td>
+                </tr>
+            {/if}
             {foreach $post.documenti as $allegato}
                 <tr>
                     <td class="text-center">

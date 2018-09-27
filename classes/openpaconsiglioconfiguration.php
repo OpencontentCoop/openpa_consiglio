@@ -115,6 +115,7 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
             'organo_sociale',
             'rendiconto_spese',
             'proposta_punto',
+            'verbale',
         );
     }
 
@@ -158,6 +159,7 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
            'responsabilearea' => true,
            'cda_evento' => true,
            'cda_documento' => true,
+           'verbale' => true,
        );
     }
 

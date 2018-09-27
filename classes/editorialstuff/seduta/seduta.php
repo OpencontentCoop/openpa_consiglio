@@ -41,6 +41,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         $attributes[] = 'consiglieri';
         $attributes[] = 'registro_presenze';
         $attributes[] = 'votazioni';
+        $attributes[] = 'verbale_object';
         $attributes[] = 'verbale';
         $attributes[] = 'verbale_fields';
         $attributes[] = 'can_edit_verbale';
@@ -98,6 +99,10 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
 
         if ($property == 'votazioni') {
             return $this->votazioni();
+        }
+
+        if ($property == 'verbale_object') {
+            return $this->getVerbaleObject();
         }
 
         if ($property == 'verbale') {
@@ -240,12 +245,6 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
                 'default_value' => $tpl->fetch("design:{$templatePath}/parts/verbale/odg.tpl"),
                 'rows' => 5,
             ),
-            'presenze' => array(
-                'name' => 'Presenze',
-                'type' => 'text',
-                'default_value' => $tpl->fetch("design:{$templatePath}/parts/verbale/presenze.tpl"),
-                'rows' => 5,
-            ),
             'partecipanti' => array(
                 'name' => 'Partecipanti',
                 'type' => 'text',
@@ -282,10 +281,20 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         return $fields;
     }
 
+    public function createVerbaleObject()
+    {
+        Verbale::create($this->getObject());
+        return Verbale::get($this->getObject());
+    }
+
+    public function getVerbaleObject()
+    {
+        return Verbale::get($this->getObject());
+    }
+
     public function canEditVerbale()
     {
-//@todo esiste già un verbale?
-        return $this->getObject()->attribute('can_edit');
+        return $this->getObject()->attribute('can_edit') && !$this->getVerbaleObject() instanceof Verbale;
     }
 
     public function verbale($identifier = null)
@@ -1308,8 +1317,11 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         } elseif ($actionIdentifier == 'SaveVerbale') {
             $this->saveVerbale($actionParameters['Verbale']);
         
-        } elseif ($actionIdentifier == 'DownloadVerbale') {
-            //@todo
+        } elseif ($actionIdentifier == 'CreateVerbaleObject') {
+            $verbale = $this->createVerbaleObject();
+            if ($verbale instanceof Verbale){
+                $module->redirectTo($verbale->attribute('editorial_url'));
+            }
         }
     }
 

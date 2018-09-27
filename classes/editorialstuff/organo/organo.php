@@ -32,7 +32,7 @@ class Organo extends OpenPAConsiglioDefaultPost implements OpenPAConsiglioString
     {
         $identifier = 'openpaconsiglio_' . $this->id();
         $section = eZSection::fetchByIdentifier($identifier);
-        if (!$exists instanceof eZSection){
+        if (!$section instanceof eZSection){
             $section = new eZSection(array());
             $section->setAttribute('name', 'OpenConsiglio - ' . $this->getObject()->attribute('name'));
             $section->setAttribute('identifier', $identifier);
@@ -47,7 +47,7 @@ class Organo extends OpenPAConsiglioDefaultPost implements OpenPAConsiglioString
     {
         foreach ($this->getComponenti(false) as $componente) {
             if ($componente){
-                $role->assignRoleWithSectionLimitationToMember($componente, 'section', $section->attribute('id'));
+                $this->assignRoleWithSectionLimitationToMember($componente);
             }
         }       
     }

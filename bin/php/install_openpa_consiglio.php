@@ -37,8 +37,9 @@ try {
         $cli->warning();
 
         foreach ($configuration->getAvailableClasses() as $identifier) {
-            $cli->warning('Sincronizzo classe ' . $identifier . ' con ' . $configuration->getSyncClassRemoteHost());
-            $tools = new OCClassTools($identifier, true); // creo se non esiste
+            $remoteUrl = eZSys::rootDir() . '/extension/openpa_consiglio/packages/classes/' . $identifier;
+            $cli->warning('Sincronizzo classe ' . $identifier . ' con ' . $remoteUrl);
+            $tools = new OCClassTools($identifier, true, array(), $remoteUrl); // creo se non esiste
             $tools->sync(true, true); // forzo e rimuovo attributi in più
         }
         $cli->warning();
@@ -62,6 +63,8 @@ try {
                 if (!$rootObject instanceof eZContentObject) {
                     throw new Exception('Fallita la creazione del root node di ' . $repositoryIdentifier);
                 }
+            }else{
+                $cli->output('Trovata root node per ' . $repositoryIdentifier);
             }
         }
         $cli->warning();

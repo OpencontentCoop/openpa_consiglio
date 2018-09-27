@@ -10,6 +10,8 @@ class OpenPAConsiglioRoles
     const POLITICO_ORGANO = 'OpenConsiglio - Politico (per organo)';
     const SEGRETERIA = 'OpenConsiglio - Segreteria';
     const TECNICO = 'OpenConsiglio - Tecnico';
+    const RESPONSABILE = 'OpenConsiglio - Responsabile d\'area';
+    const RESPONSABILE_MATERIA_PREFIX = "OpenConsiglio - Responsabile d'area accesso a materia #";
 
     /**
      * @return array
@@ -23,41 +25,54 @@ class OpenPAConsiglioRoles
             self::POLITICO,
             self::POLITICO_ORGANO,
             self::SEGRETERIA,
-            //self::TECNICO
+            //self::TECNICO,
+            self::RESPONSABILE,
         );
     }
 
     public function getPolicies($roleName)
     {
         switch ($roleName) {
-            case self::ANONIMO: {
-                return $this->getAnonimoPolicies();
-            }
+            case self::ANONIMO:
+                {
+                    return $this->getAnonimoPolicies();
+                }
                 break;
 
-            case self::POLITICO_ORGANO: {
-                return $this->getPoliticoOrganoPolicies();
-            }
+            case self::POLITICO_ORGANO:
+                {
+                    return $this->getPoliticoOrganoPolicies();
+                }
                 break;
 
-            case self::POLITICO: {
-                return $this->getPoliticoPolicies();
-            }
-                break;    
-
-            case self::SEGRETERIA: {
-                return $this->getSegreteriaPolicies();
-            }
+            case self::POLITICO:
+                {
+                    return $this->getPoliticoPolicies();
+                }
                 break;
 
-            case self::AREA_COLLABORATIVA: {
-                return $this->getAreaCollaborativaPolicies();
-            }
+            case self::SEGRETERIA:
+                {
+                    return $this->getSegreteriaPolicies();
+                }
                 break;
 
-            case self::AREA_COLLABORATIVA_POLITICO: {
-                return $this->getAreaCollaborativaPoliticoPolicies();
-            }
+            case self::AREA_COLLABORATIVA:
+                {
+                    return $this->getAreaCollaborativaPolicies();
+                }
+                break;
+
+            case self::AREA_COLLABORATIVA_POLITICO:
+                {
+                    return $this->getAreaCollaborativaPoliticoPolicies();
+                }
+                break;
+
+            case self::RESPONSABILE:
+                {
+                    return $this->getResponsabilePolicies();
+                }
                 break;
 
             default:
@@ -78,7 +93,8 @@ class OpenPAConsiglioRoles
                 'FunctionName' => 'read',
                 'Limitation' => array(
                     'Class' => array(
-                        eZContentClass::classIDByIdentifier($this->getFactory('politico')->classIdentifier())
+                        eZContentClass::classIDByIdentifier($this->getFactory('politico')->classIdentifier()),
+                        eZContentClass::classIDByIdentifier($this->getFactory('materia')->classIdentifier()),
                     )
                 )
             ),
@@ -143,7 +159,7 @@ class OpenPAConsiglioRoles
                         OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodePathString('rendiconto_spese')
                     )
                 )
-            ),  
+            ),
             array(
                 'ModuleName' => 'content',
                 'FunctionName' => 'create',
@@ -155,7 +171,7 @@ class OpenPAConsiglioRoles
                         OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodePathString('osservazioni')
                     )
                 )
-            ),          
+            ),
             array(
                 'ModuleName' => 'content',
                 'FunctionName' => 'edit',
@@ -197,7 +213,7 @@ class OpenPAConsiglioRoles
                         $this->getFactory('osservazioni')->states()[$this->getFactory('osservazioni')->stateGroupIdentifier() . '.consiglieri']->attribute('id'),
                     )
                 )
-            ),                                    
+            ),
             array(
                 'ModuleName' => 'editorialstuff',
                 'FunctionName' => 'dashboard',
@@ -248,7 +264,7 @@ class OpenPAConsiglioRoles
                         $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.closed']->attribute('id')
                     )
                 )
-            ),            
+            ),
             array(
                 'ModuleName' => 'content',
                 'FunctionName' => 'read',
@@ -277,12 +293,25 @@ class OpenPAConsiglioRoles
                     )
                 )
             ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('verbale')->classIdentifier())
+                    ),
+                    'StateGroup_' . $this->getFactory('verbale')->stateGroupIdentifier() => array(
+                        $this->getFactory('verbale')->states()[$this->getFactory('verbale')->stateGroupIdentifier() . '.wip']->attribute('id'),
+                        $this->getFactory('verbale')->states()[$this->getFactory('verbale')->stateGroupIdentifier() . '.approved']->attribute('id')
+                    )
+                )
+            ),
         );
     }
 
     private function getSegreteriaPolicies()
     {
-        $data =  array(
+        $data = array(
             array(
                 'ModuleName' => 'add',
                 'FunctionName' => '*',
@@ -348,7 +377,7 @@ class OpenPAConsiglioRoles
                     )
                 );
                 unset($classes[$this->getFactory($repositoryIdentifier)->classIdentifier()]);
-            }catch(Exception $e){
+            } catch (Exception $e) {
 
             }
         }
@@ -367,7 +396,7 @@ class OpenPAConsiglioRoles
         );
         unset($classes['rendiconto_spese']);
 
-        foreach(array_keys($classes) as $class){
+        foreach (array_keys($classes) as $class) {
             $data[] = array(
                 'ModuleName' => 'content',
                 'FunctionName' => 'create',
@@ -475,6 +504,132 @@ class OpenPAConsiglioRoles
                     )
                 )
             )
+        );
+    }
+
+    private function getResponsabilePolicies()
+    {
+        return array(
+            array(
+                'ModuleName' => 'consiglio',
+                'FunctionName' => 'use',
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'create',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('punto')->classIdentifier())
+                    ),
+                    'ParentClass' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('seduta')->classIdentifier())
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'edit',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('politico')->classIdentifier())
+                    ),
+                    'Owner' => 1
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'edit',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('punto')->classIdentifier()),
+                    ),
+                    'Owner' => 1
+                ),
+                'StateGroup_' . $this->getFactory('punto')->stateGroupIdentifier() => array(
+                    $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.proposal']->attribute('id'),
+                ),
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('seduta')->classIdentifier())
+                    ),
+                    'StateGroup_' . $this->getFactory('seduta')->stateGroupIdentifier() => array(
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.pending']->attribute('id'),
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.in_progress']->attribute('id'),
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.closed']->attribute('id'),
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.sent']->attribute('id'),
+                        $this->getFactory('seduta')->states()[$this->getFactory('seduta')->stateGroupIdentifier() . '.published']->attribute('id'),
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('politico')->classIdentifier())
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('punto')->classIdentifier()),
+                    ),
+                    'Owner' => 1
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('osservazioni')->classIdentifier())
+                    ),
+                    'StateGroup_' . $this->getFactory('osservazioni')->stateGroupIdentifier() => array(
+                        $this->getFactory('osservazioni')->states()[$this->getFactory('osservazioni')->stateGroupIdentifier() . '.referenti']->attribute('id'),
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'editorialstuff',
+                'FunctionName' => 'dashboard',
+            ),
+            array(
+                'ModuleName' => 'editorialstuff',
+                'FunctionName' => 'file',
+            ),
+            array(
+                'ModuleName' => 'editorialstuff',
+                'FunctionName' => 'full_dashboard',
+            ),
+            array(
+                'ModuleName' => 'ezoe',
+                'FunctionName' => 'editor',
+            ),
+
+            array(
+                'ModuleName' => 'state',
+                'FunctionName' => 'assign',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('punto')->classIdentifier())
+                    ),
+                    'Owner' => 1,
+                    'StateGroup_' . $this->getFactory('punto')->stateGroupIdentifier() => array(
+                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.proposal']->attribute('id'),
+                    ),
+                    'NewState' => array(
+                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.pending']->attribute('id'),
+                    )
+                )
+            ),
+
         );
     }
 
