@@ -65,7 +65,7 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
                 ) {
                     $image = $firmatarioDataMap['firma']->content()->attribute('original');
                     $url = $image['url'];
-                    eZURI::transformURI($url, false, 'full');
+                    eZURI::transformURI($url, true);
                     $variables['firma'] = $url;
                 }
 
