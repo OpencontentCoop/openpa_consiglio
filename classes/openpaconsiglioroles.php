@@ -362,6 +362,10 @@ class OpenPAConsiglioRoles
                 'ModuleName' => 'websitetoolbar',
                 'FunctionName' => '*',
             ),
+            array(
+                'ModuleName' => 'edit',
+                'FunctionName' => '*',
+            ),
         );
 
         $configuration = OpenPAConsiglioConfiguration::instance();
