@@ -81,40 +81,33 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
             $tpl->setVariable($name, $value);
         }
 
-        return array(
-            'content' => $tpl->fetch('design:pdf/seduta/seduta.tpl'),
-            'attribute' => $sedutaDataMap['convocazione']
-        );
+        return $tpl->fetch('design:pdf/seduta/seduta.tpl');
 
     }
 
-    public function downloadModuleResult(
-        $parameters,
-        OCEditorialStuffHandlerInterface $handler,
-        eZModule $module,
-        $version = false
-    ) {
-        $currentPost = $this->getModuleCurrentPost($parameters, $handler, $module);
+    public function generatePdf(ConvocazioneSeduta $currentPost, $version = false)
+    {
+        $currentPost->flushObject();
         if (!$version) {
-            $data = $this->getPdfContentFromVersion(
+            $content = $this->getPdfContentFromVersion(
                 $currentPost->getObject()->currentVersion(),
                 $_GET
             );
+            $revision = $currentPost->getObject()->attribute('current_version');
         } else {
-            $data = $this->getPdfContentFromVersion(
+            $content = $this->getPdfContentFromVersion(
                 $currentPost->getObject()->version($version),
                 $_GET
             );
+            $revision = $version;
         }
-
-        $content = $data['content'];
 
         /** @var eZContentClass $objectClass */
         $objectClass = $currentPost->getObject()->attribute('content_class');
         $languageCode = eZContentObject::defaultLanguage();
         $fileName = $objectClass->urlAliasName($currentPost->getObject(), false, $languageCode);
         $fileName = eZURLAliasML::convertToAlias($fileName);
-        $fileName .= '.pdf';
+        $fileName .= '-rev' . $revision . '.pdf';
 
         $pdfParameters = array(
             'exporter' => 'paradox',
@@ -126,32 +119,54 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
             )
         );
 
+        $exportData = OpenPAConsiglioPdf::create($fileName, $content, $pdfParameters, false);
+        $exportData['filename'] = $fileName;
+        $fileContent = $exportData['content'];
+
+        if (!$version) {
+            $dataMap = $currentPost->getObject()->dataMap();
+            /** @var eZContentObject $seduta */
+            $seduta = $dataMap['seduta']->content();
+            $sedutaDataMap = $seduta->dataMap();
+
+            $cacheDirectory = eZSys::cacheDirectory();
+            $directory = eZDir::path(array($cacheDirectory, 'pdf_creator'));
+            eZFile::create($fileName, $directory, $fileContent);
+            $tempFile = $directory . '/' . $fileName;
+            
+            $sedutaDataMap['convocazione']->fromString($tempFile);
+            $sedutaDataMap['convocazione']->store();
+            
+            $handler = eZFileHandler::instance(false);
+            $handler->unlink($tempFile);
+        }
+
+        return $exportData;
+    }
+
+    public function downloadModuleResult(
+        $parameters,
+        OCEditorialStuffHandlerInterface $handler,
+        eZModule $module,
+        $version = false
+    ) {
+        $currentPost = $this->getModuleCurrentPost($parameters, $handler, $module);
+        $exportData = $this->generatePdf($currentPost, $version);
+
         if (eZINI::instance()->variable('DebugSettings', 'DebugOutput') == 'enabled') {
-            echo '<pre>' . htmlentities($content) . '</pre>';
+            echo '<pre>' . htmlentities($exportData['raw_content']) . '</pre>';
             eZDisplayDebug();
         } else {
-            $exportData = OpenPAConsiglioPdf::create($fileName, $content, $pdfParameters, false);
-            $fileContent = $exportData['content'];
-
-            if ($data['attribute'] instanceof eZContentObjectAttribute) {
-                $cacheDirectory = eZSys::cacheDirectory();
-                $directory = eZDir::path(array($cacheDirectory, 'pdf_creator'));
-                eZFile::create($fileName, $directory, $fileContent);
-                $tempFile = $directory . '/' . $fileName;
-                $data['attribute']->fromString($tempFile);
-                $data['attribute']->store();
-                $handler = eZFileHandler::instance(false);
-                $handler->unlink($tempFile);
-            }
-
             /** @var ParadoxPDF $paradoxPdf */
             $paradoxPdf = $exportData['exporter'];
+            $fileContent = $exportData['content'];
             $size = strlen($fileContent);
-            $paradoxPdf->flushPDF($fileContent, $fileName, $size, null, null);
+            $paradoxPdf->flushPDF($fileContent, $exportData['filename'], $size, null, null);
 
         }
         eZExecution::cleanExit();
 
         return true;
     }
+
 }

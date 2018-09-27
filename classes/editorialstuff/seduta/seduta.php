@@ -177,7 +177,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         return ezfSolrDocumentFieldBase::preProcessValue($this->dataOra(), 'date');
     }
 
-    protected function createUpdateConvocazione()
+    public function createUpdateConvocazione()
     {
         return ConvocazioneSeduta::create($this->getObject());
     }

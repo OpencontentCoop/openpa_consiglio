@@ -8,6 +8,16 @@ class ConvocazioneSeduta extends OCEditorialStuffPost
     protected static $odgIdentifier = 'odg';
     protected static $dataOraIdentifier = 'data_ora';
 
+    public function onCreate()
+    {
+        $this->getFactory()->generatePdf($this);
+    }
+
+    public function onUpdate()
+    {
+        $this->getFactory()->generatePdf($this);
+    }
+
     public function onChangeState(
         eZContentObjectState $beforeState,
         eZContentObjectState $afterState
