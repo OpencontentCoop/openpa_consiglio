@@ -25,8 +25,18 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
         $odg = json_decode($dataMap['odg']->content(), true);
 
         $listOrgano = $sedutaDataMap['organo']->content();
-        $organo = ( isset( $listOrgano['relation_list'][0]['contentobject_id'] ) ) ?
-            $organo = eZContentObject::fetch($listOrgano['relation_list'][0]['contentobject_id'])->attribute('name') : '';
+        $organo = '';
+        $destinatariOrgano = false;
+        if (isset( $listOrgano['relation_list'][0]['contentobject_id'] )){
+            $organoObject = eZContentObject::fetch($listOrgano['relation_list'][0]['contentobject_id']);
+            if($organoObject instanceof eZContentObject){
+                $organo = $organoObject->attribute('name');
+                $organoObjectDataMap = $organoObject->dataMap();
+                if(isset($organoObjectDataMap['stringa_destinatari']) && $organoObjectDataMap['stringa_destinatari']->hasContent()){
+                    $destinatariOrgano = $organoObjectDataMap['stringa_destinatari']->toString();
+                }
+            }
+        }        
 
         $luogo = isset( $sedutaDataMap['luogo'] ) ? $sedutaDataMap['luogo']->content() : '';
 
@@ -41,6 +51,7 @@ class ConvocazioneSedutaFactory extends OpenPAConsiglioDefaultFactory implements
             'data' => $objectVersion->attribute('created'),
             'luogo' => $luogo,
             'organo' => $organo,
+            'destinatari_organo' => $destinatariOrgano,
             'data_seduta' => $dataOra,
             'ora_conclusione' => $oraConclusione,
             'odg' => $odg,
