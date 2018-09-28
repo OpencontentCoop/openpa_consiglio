@@ -6,8 +6,6 @@
 
 <p>{$verbale.partecipanti}</p>
 
-<p>{$verbale.presenze}</p>
-
 <p>{$verbale.presidente}</p>
 
 <ol>
