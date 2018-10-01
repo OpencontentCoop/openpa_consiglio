@@ -563,15 +563,11 @@ class ConsiglioApiController extends ezpRestMvcController
             if ( $object instanceof eZContentObject )
             {
 
-                $instances = OCEditorialStuffHandler::instances();
-                if (array_key_exists($object->attribute( 'class_identifier' ), $instances))
+                $user = OCEditorialStuffHandler::instance( 'politico' )->fetchByObjectId( $this->Id );
+                if ( $user instanceof Politico )
                 {
-                    $user = OCEditorialStuffHandler::instance( $object->attribute( 'class_identifier' ) )->fetchByObjectId( $this->Id );
-                    if ( $user instanceof Politico )
-                    {
-                        $result->variables = $user->lastData();
-                        return $result;
-                    }
+                    $result->variables = $user->lastData();
+                    return $result;
                 }
             }
             throw new ConsiglioApiException( "Politico {$this->Id} non trovato", ConsiglioApiException::NOT_FOUND );
