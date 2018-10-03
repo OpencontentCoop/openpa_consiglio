@@ -45,12 +45,13 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $attributes = parent::attributes();
         $attributes[] = 'seduta_id';
         $attributes[] = 'seduta';
-        $attributes[] = 'osservazioni';
+        $attributes[] = 'osservazioni';        
         $attributes[] = 'count_osservazioni';
         $attributes[] = 'documenti';
         $attributes[] = 'count_documenti';
         $attributes[] = 'invitati';
         $attributes[] = 'count_invitati';
+        $attributes[] = 'can_add_documenti';
         $attributes[] = 'can_add_osservazioni';
         $attributes[] = 'notification_subscribers';
         $attributes[] = 'votazioni';
@@ -103,6 +104,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         if ($property == 'count_documenti') {
             /** @return int */
             return $this->getCount('documenti');
+        }
+
+        if ($property == 'can_add_documenti') {
+            /** @return bool */
+            return $this->canAddDocumenti();
         }
 
         if ($property == 'can_add_osservazioni') {
@@ -415,6 +421,10 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     public function addFile(eZContentObject $object, $attributeIdentifier)
     {
         $result = false;
+        if (!$this->getObject()->canRead()){
+            return $result;
+        }
+        
         if ($attributeIdentifier == 'documenti') {
             if (isset( $this->dataMap[$attributeIdentifier] )) {
                 $ids = explode('-', $this->dataMap[$attributeIdentifier]->toString());
@@ -705,6 +715,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                 eZDebug::writeError($e->getMessage(), __METHOD__);
             }
         }
+
+        $materia = $this->getMateria();
+        if ($materia instanceof Materia){
+            $materia->assignState($this->getObject());
+        }
     }
 
     public function getProposte()
@@ -750,6 +765,11 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
                     $this->createNotificationEvent('update_termini');
                 }
             }
+        }
+
+        $materia = $this->getMateria();
+        if ($materia instanceof Materia){
+            $materia->assignState($this->getObject());
         }
     }
 
@@ -1300,6 +1320,20 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     }
 
     /**
+     * @return bool
+     */
+    protected function canAddDocumenti()
+    {
+        $factory = OCEditorialStuffHandler::instance('allegati_seduta')->getFactory();
+        $node = eZContentObjectTreeNode::fetch($factory->creationRepositoryNode());
+        $canCreate = false;
+        if ($node instanceof eZContentObjectTreeNode){
+            $canCreate = $node->canCreate();
+        }
+        return $this->getObject()->canRead() && $canCreate;
+    }
+
+    /**
      * @param $identifier
      *
      * @return Allegato[]
@@ -1424,7 +1458,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
     {        
         $materiaIdList = $this->stringRelatedObjectAttribute('materia', 'id');
         if (isset($materiaIdList[0])){
-            return OCEditorialStuffHandler::instance('materia')->fetchByObjectId($materiaIdList[0]);
+            return OCEditorialStuffHandler::instance('materia')->getFactory()->instancePost(array('object_id' => $materiaIdList[0]));
         }
 
         return null;

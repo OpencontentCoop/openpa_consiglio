@@ -4,7 +4,7 @@
             {include uri=concat('design:', $template_directory, '/parts/allegati_seduta/data.tpl') post=$post}
         </div>
     </div>
-{if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
+{if or( fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' )), $post.can_add_documenti )}
     {def $class = fetch( content, class, hash( class_id, 'allegato_seduta' ) )
          $tipo_attribute = false()}
     {foreach $class.data_map as $identifier => $class_attribute}

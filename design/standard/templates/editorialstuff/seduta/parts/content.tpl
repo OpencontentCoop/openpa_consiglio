@@ -4,13 +4,11 @@
     <div class="row">
 
         {if $post.object.can_edit}
-            <div class="col-xs-12 col-sm-12 col-md-3">
+            <div class="col-xs-12 col-sm-12 col-md-3" style="margin-bottom: 10px">
                 <form method="post" action="{"content/action"|ezurl(no)}" style="display: inline;">
                     <input type="hidden" name="ContentObjectLanguageCode"
-                           value="{ezini( 'RegionalSettings', 'ContentObjectLocale', 'site.ini')}"/>
-					<div class="row">
-                    <button class="btn btn-info btn-lg" type="submit" name="EditButton">Modifica
-                    </button>
+                           value="{ezini( 'RegionalSettings', 'ContentObjectLocale', 'site.ini')}"/>					
+                    <button class="btn btn-info btn-lg" type="submit" name="EditButton">Modifica</button>
                     <input type="hidden" name="HasMainAssignment" value="1"/>
                     <input type="hidden" name="ContentObjectID" value="{$post.object.id}"/>
                     <input type="hidden" name="NodeID" value="{$post.node.node_id}"/>
@@ -34,13 +32,12 @@
                         <button class="btn btn-danger btn-lg" type="submit" name="ActionRemove">Rimuovi</button>
                         <input type="hidden" name="RedirectURIAfterRemove"
                             value="{concat('editorialstuff/', 'dashboard/seduta')}" />
-                    {/if}
-                    </div>
+                    {/if}                    
                 </form>
             </div>
         {/if}
 		{if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
-        <div class="col-xs-12 col-sm-6 col-md-3">
+        <div class="col-xs-12 col-sm-6 col-md-5" style="margin-bottom: 10px">
             {*<a class="btn btn-info btn-lg" data-toggle="modal"
                data-load-remote="{concat( 'layout/set/modal/content/view/full/', $post.object.main_node_id )|ezurl('no')}"
                data-remote-target="#preview .modal-content" href="#"
@@ -69,9 +66,9 @@
             </div>
 		{/if}
         {if fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' ))}
-            <div class="col-xs-12 col-sm-6 col-md-5">
-                <a target="_blank" class="btn btn-lg btn-warning pull-right" href="{concat('consiglio/cruscotto_seduta/', $post.object_id)|ezurl(no)}"><i class="fa fa-dashboard"></i> Apri cruscotto</a>
-                <a target="_blank" class="btn btn-lg btn-warning pull-right" href="{concat('consiglio/monitor_sala/', $post.object_id)|ezurl(no)}"><i class="fa fa-desktop"></i> Apri monitor</a>
+            <div class="col-xs-12 col-sm-6 col-md-4" style="margin-bottom: 10px">
+                <a target="_blank" class="btn btn-lg btn-warning" href="{concat('consiglio/cruscotto_seduta/', $post.object_id)|ezurl(no)}"><i class="fa fa-dashboard"></i> Apri cruscotto</a>
+                <a target="_blank" class="btn btn-lg btn-warning" href="{concat('consiglio/monitor_sala/', $post.object_id)|ezurl(no)}"><i class="fa fa-desktop"></i> Apri monitor</a>
             </div>
         {/if}
     </div>
@@ -100,7 +97,7 @@
     <hr />
     <h2>
         Ordine del giorno
-	{if $post.object..main_node.can_create}
+	{if $post.can_modify_odg}
         <a href="{concat('editorialstuff/add/punto?parent=',$post.object.main_node_id)|ezurl(no)}" class="btn btn-info btn-md">Aggiungi punto</a>{/if}
     </h2>
     <div class="row">

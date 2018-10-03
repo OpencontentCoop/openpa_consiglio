@@ -80,6 +80,70 @@ class OpenPAConsiglioRoles
         }
     }
 
+    public function getAssignGroups($roleName)
+    {
+        switch ($roleName) {
+            case self::ANONIMO:
+                {
+                    return array(
+                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootObjectId('invitato'),
+                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootObjectId('politico'),
+                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootObjectId('tecnico'),
+                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootObjectId('responsabilearea'),
+                    );
+                }
+                break;
+
+            case self::POLITICO_ORGANO:
+                {
+                    return array(
+                    );
+                }
+                break;
+
+            case self::POLITICO:
+                {
+                    return array(
+                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootObjectId('politico'),
+                    );
+                }
+                break;
+
+            case self::SEGRETERIA:
+                {
+                    return array(
+                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootObjectId('tecnico'),
+                    );
+                }
+                break;
+
+            case self::AREA_COLLABORATIVA:
+                {
+                    return array(
+                    );
+                }
+                break;
+
+            case self::AREA_COLLABORATIVA_POLITICO:
+                {
+                    return array(
+                    );
+                }
+                break;
+
+            case self::RESPONSABILE:
+                {
+                    return array(
+                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootObjectId('responsabilearea'),
+                    );
+                }
+                break;
+
+            default:
+                throw new Exception("Role $roleName not defined");
+        }
+    }
+
     private function getFactory($identifier)
     {
         return OCEditorialStuffHandler::instance($identifier)->getFactory();
@@ -104,20 +168,20 @@ class OpenPAConsiglioRoles
                 'ModuleName' => 'opendata',
                 'FunctionName' => 'api'
             ),
-            array(
-                'ModuleName' => 'content',
-                'FunctionName' => 'read',
-                'Limitation' => array(
-                    'Class' => array(
-                        eZContentClass::classIDByIdentifier($this->getFactory('punto')->classIdentifier())
-                    ),
-                    'StateGroup_' . $this->getFactory('punto')->stateGroupIdentifier() => array(
-                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.published']->attribute('id'),
-                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.in_progress']->attribute('id'),
-                        $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.closed']->attribute('id')
-                    )
-                )
-            ),
+            // array(
+            //     'ModuleName' => 'content',
+            //     'FunctionName' => 'read',
+            //     'Limitation' => array(
+            //         'Class' => array(
+            //             eZContentClass::classIDByIdentifier($this->getFactory('punto')->classIdentifier())
+            //         ),
+            //         'StateGroup_' . $this->getFactory('punto')->stateGroupIdentifier() => array(
+            //             $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.published']->attribute('id'),
+            //             $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.in_progress']->attribute('id'),
+            //             $this->getFactory('punto')->states()[$this->getFactory('punto')->stateGroupIdentifier() . '.closed']->attribute('id')
+            //         )
+            //     )
+            // ),
             array(
                 'ModuleName' => 'content',
                 'FunctionName' => 'read',
@@ -206,6 +270,16 @@ class OpenPAConsiglioRoles
                         eZContentClass::classIDByIdentifier($this->getFactory('osservazioni')->classIdentifier())
                     ),
                     'Owner' => 1
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('cda_evento')->classIdentifier()),
+                        eZContentClass::classIDByIdentifier($this->getFactory('cda_documento')->classIdentifier())
+                    )
                 )
             ),
             array(
@@ -333,6 +407,10 @@ class OpenPAConsiglioRoles
             array(
                 'ModuleName' => 'content',
                 'FunctionName' => 'edit',
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'remove',
             ),
             array(
                 'ModuleName' => 'editorialstuff',
@@ -640,6 +718,52 @@ class OpenPAConsiglioRoles
                 )
             ),
 
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'create',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('osservazioni')->classIdentifier()),
+                    ),
+                    'Subtree' => array(
+                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodePathString('osservazioni')
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('osservazioni')->classIdentifier())
+                    ),
+                    'Owner' => 1
+                )
+            ),
+
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'create',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('allegati_seduta')->classIdentifier()),
+                    ),
+                    'Subtree' => array(
+                        OpenPAConsiglioConfiguration::instance()->getRepositoryRootNodePathString('allegati_seduta')
+                    )
+                )
+            ),
+            array(
+                'ModuleName' => 'content',
+                'FunctionName' => 'read',
+                'Limitation' => array(
+                    'Class' => array(
+                        eZContentClass::classIDByIdentifier($this->getFactory('allegati_seduta')->classIdentifier())
+                    ),
+                    'Owner' => 1
+                )
+            ),
+
         );
     }
 
@@ -657,6 +781,11 @@ class OpenPAConsiglioRoles
             $policies = $this->getPolicies($roleName);
             foreach ($policies as $policy) {
                 $role->appendPolicy($policy['ModuleName'], $policy['FunctionName'], $policy['Limitation']);
+            }
+
+            $groups = $this->getAssignGroups($roleName);
+            foreach ($groups as $group) {
+                $role->assignToUser($group);
             }
         }
 

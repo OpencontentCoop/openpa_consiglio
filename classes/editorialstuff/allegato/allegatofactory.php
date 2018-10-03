@@ -88,7 +88,7 @@ class AllegatoFactory extends OpenPAConsiglioDefaultFactory implements OCEditori
         }
         $contentObject = eZContentFunctions::createAndPublishObject($params);
         if ($contentObject instanceof eZContentObject) {
-            $allegato = OCEditorialStuffHandler::instanceFromFactory($this)->fetchByObjectId($contentObject->attribute('id'));
+            $allegato = $this->instancePost(array('object_id' => $contentObject->attribute('id')));
             if (isset( $properties['state_identifier'] )) {
                 $allegato->setState($properties['state_identifier']);
             }

@@ -22,6 +22,15 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
         return 'openpa_consiglio_' . $repositoryIdentifier;
     }
 
+    public function getRepositoryRootObjectId($repositoryIdentifier)
+    {
+        $remote = $this->getRepositoryRootRemoteId($repositoryIdentifier);
+        if ($object = eZContentObject::fetchByRemoteID($remote)){
+            return $object->attribute('id');
+        }
+        return null;
+    }
+
     public function getRepositoryRootNodeId($repositoryIdentifier)
     {
         $remote = $this->getRepositoryRootRemoteId($repositoryIdentifier);

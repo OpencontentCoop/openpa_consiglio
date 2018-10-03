@@ -51,6 +51,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         $attributes[] = 'competenza';
         $attributes[] = 'liquidata';
         $attributes[] = 'organo';
+        $attributes[] = 'can_modify_odg';
 
         return $attributes;
     }
@@ -143,7 +144,16 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
             return $this->getOrgano();
         }
 
+        if ($property == 'can_modify_odg') {
+            return $this->canModifyOdg();
+        }        
+
         return parent::attribute($property);
+    }
+
+    protected function canModifyOdg()
+    {
+        return $this->getObject()->attribute('main_node')->canCreate() && $this->isAfter('sent');
     }
 
     /**
@@ -153,7 +163,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
     {
         $organoIdList = $this->stringRelatedObjectAttribute('organo', 'id');
         if (isset($organoIdList[0]))
-            return OCEditorialStuffHandler::instance('organo')->fetchByObjectId($organoIdList[0]);
+            return OCEditorialStuffHandler::instance('organo')->getFactory()->instancePost(array('object_id' => $organoIdList[0]));
 
         return false;
     }
@@ -1183,16 +1193,19 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
 
         $notifiedVersion = $event->attribute(OCEditorialStuffEventType::FIELD_VERSION) - 1;
         $diff = $this->diff($notifiedVersion);
-
+        $oldDate = false;
+        
         /** @var eZContentObjectVersion $oldVersion */
         $oldVersion = $this->getObject()->version($notifiedVersion);
-        /** @var eZContentObjectAttribute[] $oldVersionDataMap */
-        $oldVersionDataMap = $oldVersion->dataMap();
-        /** @var eZDate $data */
-        $data = $oldVersionDataMap['data']->content();
-        /** @var eZTime $ora */
-        $ora = $oldVersionDataMap['orario']->content();
-        $oldDate = $this->getDateTimeFromEzContents($data, $ora)->format('U');
+        if ($oldVersion instanceof eZContentObjectVersion){
+            /** @var eZContentObjectAttribute[] $oldVersionDataMap */
+            $oldVersionDataMap = $oldVersion->dataMap();
+            /** @var eZDate $data */
+            $data = $oldVersionDataMap['data']->content();
+            /** @var eZTime $ora */
+            $ora = $oldVersionDataMap['orario']->content();
+            $oldDate = $this->getDateTimeFromEzContents($data, $ora)->format('U');
+        }
 
         $variables = array(
             'user' => eZUser::fetch($userId),

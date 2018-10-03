@@ -1,5 +1,6 @@
-{def $odg = $post.odg $is_editor=0}
-{if $post.object.can_edit}
+{def $odg = $post.odg 
+     $is_editor=0}
+{if and($post.object.can_edit, $post.can_modify_odg)}
 	{set $is_editor=1}
 {/if}
 
