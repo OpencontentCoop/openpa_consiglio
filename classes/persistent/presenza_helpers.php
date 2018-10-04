@@ -363,6 +363,11 @@ class OpenPAConsiglioPresenzaHelper
 
             if ( $detection->attribute( 'created_time' ) >= $startInterval )
             {
+                if ( $detection->attribute( 'created_time' ) == $timeStampInizioSeduta )
+                {
+                    $detection->setAttribute( 'created_time', $detection->attribute( 'created_time' ) + 1 );
+                }
+
                 $intervals[] = array(
                     $startInterval,
                     $detection->attribute( 'created_time' ),
@@ -577,6 +582,11 @@ class OpenPAConsiglioPresenzaCached extends OpenPATempletizable
     {
         $data['created_time'] = $data['timestamp'];
         parent::__construct( $data );
+    }
+
+    public function setAttribute( $key, $value )
+    {
+        $this->data[$key] = $value;
     }
 }
 
