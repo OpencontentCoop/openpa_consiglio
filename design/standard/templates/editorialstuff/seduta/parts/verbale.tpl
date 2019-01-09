@@ -25,7 +25,9 @@
                         {$params.name|wash()}   
                         {if and($editable, $params.default_value|ne(''))}
                         <div>
-                            <a href="#" class="btn btn-danger btn-xs resetVerbale" data-identifier="{$identifier}" title="Ricarica valore di default"><i class="fa fa-refresh"></i></a>
+                            <a href="#" class="btn btn-danger btn-xs resetVerbale" data-identifier="{$identifier}" title="Ricarica valore di default">
+                                {if $identifier|eq('partecipanti')}RICALCOLA{else}REIMPOSTA DEFAULT{/if}
+                            </a>
                             <textarea style="display: none;">{$params.default_value}</textarea>
                         </div>
                         {/if}                     

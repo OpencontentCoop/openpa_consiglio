@@ -12,7 +12,9 @@
                     <div style="white-space: nowrap;" class="pull-right">
                         {if $params.default_value|ne('')}
                         <a class="btn btn-info btn-xs launch_monitor_verbale" data-action_url="{concat('consiglio/cruscotto_seduta/',$seduta.object_id,'/launchMonitorVerbale/', $identifier)|ezurl(no)}" href="#"><i class="fa fa-desktop"></i></a>
-                        <a href="#" class="btn btn-danger btn-xs resetVerbale" data-verbale_id="{$identifier}" title="Ricarica valore di default">RICALCOLA</a>
+                        <a href="#" class="btn btn-danger btn-xs resetVerbale" data-verbale_id="{$identifier}" title="Ricarica valore di default">
+                            {if $identifier|eq('partecipanti')}RICALCOLA{else}REIMPOSTA DEFAULT{/if}
+                        </a>
                         <textarea id="defaultVerbale-{$identifier}" style="display: none;">{$params.default_value}</textarea>
                         {/if}                     
                         {*<a href="#" data-verbale_id="{$identifier}" class="add-timeholder btn btn-danger btn-xs"><i class="fa fa-clock-o"></i></a>*}

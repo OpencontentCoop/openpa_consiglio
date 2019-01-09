@@ -35,6 +35,7 @@
                 <a class='show-verbale' href="#" data-verbale_id="all">
                     {$seduta.object.name} <small>ore {attribute_view_gui attribute=$seduta.object.data_map.orario}</small>
                 </a>
+                <a class="pull-right btn btn-xs btn-default" href="{concat('editorialstuff/edit/seduta/', $seduta.object_id)|ezurl(no)}">Torna alla dashbaord</a>
             </h1>
         </div>
     </div>

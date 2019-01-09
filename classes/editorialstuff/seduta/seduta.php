@@ -213,17 +213,19 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         $punti = array();
         $locale = eZLocale::instance();
         foreach ($this->odg() as $punto) {
-            $puntoDataMap = $punto->getObject()->dataMap();
+            if ($punto->is('published') || $punto->is('in_progress') || $punto->is('in_progress')){
+                $puntoDataMap = $punto->getObject()->dataMap();
 
-            /** @var eZDateTime $orarioTrattazione */
-            $orarioTrattazione = $puntoDataMap['orario_trattazione']->content();
+                /** @var eZDateTime $orarioTrattazione */
+                $orarioTrattazione = $puntoDataMap['orario_trattazione']->content();
 
-            $punti[$puntoDataMap['n_punto']->content()] = array(
-                'object_id' => $punto->object->ID,
-                'n_punto' => $puntoDataMap['n_punto']->content(),
-                'ora' => $locale->formatShortTime($orarioTrattazione->attribute( 'timestamp' )),
-                'oggetto' => $puntoDataMap['oggetto']->content()
-            );
+                $punti[$puntoDataMap['n_punto']->content()] = array(
+                    'object_id' => $punto->object->ID,
+                    'n_punto' => $puntoDataMap['n_punto']->content(),
+                    'ora' => $locale->formatShortTime($orarioTrattazione->attribute( 'timestamp' )),
+                    'oggetto' => $puntoDataMap['oggetto']->content()
+                );
+            }
         }
 
         $variables = array(
@@ -270,17 +272,19 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
             ),
         );
         foreach ($this->odg() as $punto) {
-            $propostaVerbale = '';
-            $dataMapPunto = $punto->getObject()->dataMap();
-            if(isset($dataMapPunto['verbale']) && $dataMapPunto['verbale']->hasContent()){
-                $propostaVerbale = $dataMapPunto['verbale']->content()->attribute('output')->attribute('output_text');
+            if ($punto->is('published') || $punto->is('in_progress') || $punto->is('in_progress')){
+                $propostaVerbale = '';
+                $dataMapPunto = $punto->getObject()->dataMap();
+                if(isset($dataMapPunto['verbale']) && $dataMapPunto['verbale']->hasContent()){
+                    $propostaVerbale = $dataMapPunto['verbale']->content()->attribute('output')->attribute('output_text');
+                }
+                $fields[$punto->id()] = array(
+                    'name' => $punto->getObject()->attribute('name'),
+                    'type' => 'text',
+                    'default_value' => $propostaVerbale,
+                    'rows' => 5,
+                );
             }
-            $fields[$punto->id()] = array(
-                'name' => $punto->getObject()->attribute('name'),
-                'type' => 'text',
-                'default_value' => $propostaVerbale,
-                'rows' => 5,
-            );
         }
         $fields['conclusione'] = array(
             'name' => 'Conclusione',
