@@ -213,7 +213,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         $punti = array();
         $locale = eZLocale::instance();
         foreach ($this->odg() as $punto) {
-            if ($punto->is('published') || $punto->is('in_progress') || $punto->is('in_progress')){
+            if ($punto->is('published') || $punto->is('in_progress') || $punto->is('closed')){
                 $puntoDataMap = $punto->getObject()->dataMap();
 
                 /** @var eZDateTime $orarioTrattazione */
@@ -272,7 +272,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
             ),
         );
         foreach ($this->odg() as $punto) {
-            if ($punto->is('published') || $punto->is('in_progress') || $punto->is('in_progress')){
+            if ($punto->is('published') || $punto->is('in_progress') || $punto->is('closed')){
                 $propostaVerbale = '';
                 $dataMapPunto = $punto->getObject()->dataMap();
                 if(isset($dataMapPunto['verbale']) && $dataMapPunto['verbale']->hasContent()){
