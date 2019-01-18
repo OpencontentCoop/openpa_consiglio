@@ -81,6 +81,7 @@ class Organo extends OpenPAConsiglioDefaultPost implements OpenPAConsiglioString
     {
         $attributes = parent::attributes();
         $attributes[] = 'componenti';
+        $attributes[] = 'componenti_non_consiglieri_id_list';
 
         return $attributes;
     }
@@ -91,7 +92,20 @@ class Organo extends OpenPAConsiglioDefaultPost implements OpenPAConsiglioString
             return $this->getComponenti();
         }
 
+        if ($property == 'componenti_non_consiglieri_id_list') {
+            return $this->getIdListComponentiNonConsiglieri();
+        }
+
         return parent::attribute($property);
+    }
+
+    public function getIdListComponentiNonConsiglieri()
+    {
+        $idList = $this->stringAttribute('membri_non_consiglieri', function($string){
+            return explode('-', $string);
+        });
+        
+        return $idList;        
     }
 
     public function getComponenti($asObject = true)

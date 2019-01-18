@@ -11,7 +11,12 @@
             {if $editable}
             <form action="{concat('editorialstuff/action/seduta/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post" class="form-horizontal" id="download-verbale">
                 <input type="hidden" name="ActionIdentifier" value="CreateVerbaleObject" />
-                <button type="submit" name="CreateVerbaleObject" class="btn btn-success pull-left">Genera Verbale</button>
+                {if $post.current_state.identifier|ne('closed')}
+                <button id="CreateVerbale" type="submit" name="CreateVerbaleObject" class="btn btn-success pull-left hide">Genera Verbale</button>
+                <button id="ConfirmCreateVerbale" class="btn btn-warning pull-left">Genera Verbale</button>
+                {else}
+                <button id="CreateVerbale" type="submit" name="CreateVerbaleObject" class="btn btn-success pull-left">Genera Verbale</button>
+                {/if}
             </form>
             <form action="{concat('editorialstuff/action/seduta/', $post.object_id)|ezurl(no)}" enctype="multipart/form-data" method="post" class="form-horizontal" id="edit-verbale">
             <input type="hidden" name="ActionIdentifier" value="SaveVerbale" />

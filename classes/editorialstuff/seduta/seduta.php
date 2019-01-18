@@ -1068,6 +1068,20 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         $this->storePresenti();
     }
 
+    public function intraOmnes()
+    {
+        foreach ($this->partecipanti(false) as $userId) {
+           $this->addPresenza( 1, 'manual', $userId );
+        }
+    }
+
+    public function extraOmnes()
+    {
+        foreach ($this->partecipanti(false) as $userId) {
+           $this->addPresenza( 0, 'manual', $userId );
+        }
+    }
+
     public function storePresenti()
     {
         $presenti = array();

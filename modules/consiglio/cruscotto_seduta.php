@@ -62,6 +62,16 @@ elseif ( $action )
                 $userId = $http->getVariable( 'uid' );
                 $seduta->addPresenza( 0, 'manual', $userId );
             } break;
+
+            case 'markAllIn':
+            {
+                $seduta->intraOmnes();
+            } break;
+
+            case 'markAllOut':
+            {                
+                $seduta->extraOmnes();
+            } break;
             
             case 'startSeduta':
             {

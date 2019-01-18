@@ -67,7 +67,7 @@ class SocketIO
             self::TIMEOUT_SOCKET
         );
         if($this->socket === false){
-            eZLog::write( "Fail socket connection: $errstr ($errno)", 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log' );
+            eZLog::write( "Fail socket connection to {$this->host}:{$this->port}: $errstr ($errno)", 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log' );
         }
 
         return $this->handshake();
@@ -102,7 +102,7 @@ class SocketIO
             $this->close();
             $this->socket = null;
 
-            eZLog::write( 'Fail socket handshake', 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log' );
+            eZLog::write( "Fail socket handshake with {$this->host}:{$this->port}", 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log' );
 
             return false;
         }
@@ -145,7 +145,7 @@ class SocketIO
             // wait 100ms before closing connexion
             usleep( 100 * 1000 );
 
-            eZLog::write( 'Sent ' . $raw_message, 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log' );
+            eZLog::write( "Sent to {$this->host}:{$this->port} " . $raw_message, 'openpa_consiglio_push_emit.log', eZSys::varDirectory() . '/log' );
 
             //            fwrite($this->socket, $this->hybi10Encode('42["' . $action . '", "' . addslashes($data) . '"]'));
             //            fread($this->socket, 10);

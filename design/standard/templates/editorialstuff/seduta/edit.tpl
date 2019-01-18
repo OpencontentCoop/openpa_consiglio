@@ -64,7 +64,8 @@
     'bootstrap/popover.js', 
     'bootstrap-editable.min.js', 
     'dhtmlxgantt.js',
-    'summernote/summernote.js'
+    'summernote/summernote.js',
+    'jquery.confirm.min.js'
 ) )}
 {ezcss_require(array(
     'bootstrap3-editable/css/bootstrap-editable.css', 
@@ -75,6 +76,20 @@
 <script>
     {literal}
     var loadVerbaleEvents = function(){
+        $('#ConfirmCreateVerbale').on('click', function(e){
+            e.preventDefault();
+            $.confirm({
+                text: 'Confermi la generazione del verbale?',
+                confirmButton: "Confermo",
+                cancelButton: "Annulla",
+                confirm: function() {
+                    $('#CreateVerbale').trigger('click');
+                },
+                cancel: function() {                    
+                    return false;
+                }
+            });
+        });
         $('.resetVerbale').on('click', function(e){            
             var text = $(this).next().val();            
             var identifier = $(this).data('identifier');

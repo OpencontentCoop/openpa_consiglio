@@ -53,6 +53,7 @@ class OpenPAConsiglioPushNotifier
 
     protected function sendToSocket( $identifier, $data )
     {
+        eZDB::setErrorHandling(eZDB::ERROR_HANDLING_EXCEPTIONS);
         $data = array(
             'sa' => OpenPAConsiglioSettings::instance()->getIdentifier(),
             'identifier' => $identifier,

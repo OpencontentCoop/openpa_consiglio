@@ -104,6 +104,29 @@ $(document).on('click', '.partecipante .actions a', function (e) {
     });
 });
 
+$(document).on('click', 'a.mark_all_in, a.mark_all_out', function (e) {
+    e.preventDefault();
+    var current = $(e.currentTarget);
+    var actionName = current.attr('title');
+    $.confirm({
+        text: 'Confermi l\'azione "' + actionName + '"?',
+        confirmButton: "Confermo",
+        cancelButton: "Annulla",
+        confirm: function() {
+            $.ajax({
+                url: current.data('action_url'),
+                method: 'GET',
+                error: function (response, status, xhr) {
+                    handleResponseError(response, status, xhr);
+                }
+            });
+        },
+        cancel: function() {
+            // nothing to do
+        }
+    });
+});
+
 $(document).on('click', '.partecipante .stato-votazione a.mark_invalid', function (e) {
     e.preventDefault();
     var current = $(e.currentTarget);

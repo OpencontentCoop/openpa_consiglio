@@ -65,6 +65,18 @@
                 <span class="totale-presenze">{$registro_presenze.in}</span>/{$count_partecipanti}
             </span>
             <a class="btn btn-info btn-xs launch_monitor_presenze" data-action_url="{concat('consiglio/cruscotto_seduta/',$seduta.object_id,'/launchMonitorPresenze')|ezurl(no)}" href="#"><i class="fa fa-desktop"></i></a>
+            <a class="btn btn-success btn-xs mark_all_in" 
+               href="#"
+               data-action_url="{concat('consiglio/cruscotto_seduta/',$seduta.object_id,'/markAllIn')|ezurl(no)}"
+               title="Segna tutti i partecipanti presenti">
+               <i class="fa fa-thumbs-up"></i>
+           </a>
+            <a class="btn btn-danger btn-xs mark_all_out" 
+               href="#"
+               data-action_url="{concat('consiglio/cruscotto_seduta/',$seduta.object_id,'/markAllOut')|ezurl(no)}"
+               title="Segna tutti i partecipanti assenti">
+               <i class="fa fa-close fa-times"></i>
+            </a>
             <span id="totale-votanti" class="label label-warning" style="display: none">0</span>
         </div>
     </div>
