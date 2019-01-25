@@ -65,6 +65,7 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
         $attributes[] = 'is_shared';
         $attributes[] = 'shared_url';
         $attributes[] = 'proposte';
+        $attributes[] = 'current_user_is_referente';
 
         return $attributes;
     }
@@ -164,6 +165,10 @@ class Punto extends OCEditorialStuffPostNotifiable implements OCEditorialStuffPo
 
         if ($property == 'proposte') {
             return $this->getProposte();
+        }
+
+        if ($property == 'current_user_is_referente') {            
+            return in_array(eZUser::currentUserID(), $this->getIdsReferenti());
         }
 
         return parent::attribute($property);

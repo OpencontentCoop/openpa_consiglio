@@ -25,6 +25,12 @@ $cli = eZCLI::instance();
 $db = eZDB::instance();
 $user = eZUser::fetchByName( 'admin' );
 eZUser::setCurrentlyLoggedInUser( $user, $user->attribute( 'contentobject_id' ) );
+
+$do = false;
+if(!$do){
+    $cli->warning("Attivata modalità dry-run");
+}
+
 try
 {
     
@@ -64,17 +70,20 @@ try
 
         $id = (int)$user['contentobject_id'];
         
-        // $login = $user['login'];
-        // $login = trim($login);
-        // $email = $user['email'];
-        // $email = trim($email);
-        // if ($user['login'] !== $login || $user['email'] !== $email){            
-        //     $cli->warning("UPDATE ezuser SET login = '$login', email = '$email' WHERE contentobject_id = $id");            
-        // }
+        $login = $user['login'];
+        $login = trim($login);
+        $email = $user['email'];
+        $email = trim($email);
+        if ($user['login'] !== $login || $user['email'] !== $email){            
+            $cli->warning("UPDATE ezuser SET login = '$login', email = '$email' WHERE contentobject_id = $id");            
+            if ($do){
+                $db->query("UPDATE ezuser SET login = '$login', email = '$email' WHERE contentobject_id = $id");
+            }
+        }
 
         $object = eZContentObject::fetch((int)$user['contentobject_id']);
         if (!$object){
-            $cli->error($user);
+            $cli->error("User " . $user['contentobject_id'] . " not found " . implode('|', $user));
         }else{
             $cli->output($object->attribute('name'));
             $dataMap = $object->dataMap();
@@ -85,8 +94,10 @@ try
                         $value = $attribute->toString();
                         if (trim($value) != $value){
                             $cli->warning("  - Fix $identifier");
-                            $attribute->fromString(trim($value));
-                            $attribute->store();
+                            if ($do){
+                                $attribute->fromString(trim($value));
+                                $attribute->store();
+                            }
                         }
                         break;
                     case 'user_account':                        
@@ -101,8 +112,10 @@ try
                         }
                         if ($isModified){
                             $cli->warning("  - Fix $identifier");                            
-                            $attribute->setAttribute('data_text', json_encode($fixedDataText));                        
-                            $attribute->store();                            
+                            if ($do){
+                                $attribute->setAttribute('data_text', json_encode($fixedDataText));                        
+                                $attribute->store();                            
+                            }
                         }                        
                         break;
 
@@ -112,11 +125,13 @@ try
                 }                
             }
 
-            $class = $object->contentClass();
-            $object->setName($class->contentObjectName($object));
+            if ($do){
+                $class = $object->contentClass();
+                $object->setName($class->contentObjectName($object));
 
-            eZSearch::addObject($object, 1);
-            eZContentCacheManager::clearObjectViewCacheIfNeeded($object->attribute( 'id' ));
+                eZSearch::addObject($object, 1);
+                eZContentCacheManager::clearObjectViewCacheIfNeeded($object->attribute( 'id' ));
+            }
         }
     }
 }

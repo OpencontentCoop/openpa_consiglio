@@ -51,7 +51,7 @@
     <hr/>
 
     {foreach $post.content_attributes as $identifier => $attribute}        
-        {if and($identifier|eq('verbale'), or($post.object.can_edit,fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' )))|not() )}            
+        {if and($identifier|eq('verbale'), or($post.current_user_is_referente,$post.object.can_edit,fetch( 'user', 'has_access_to', hash( module, 'consiglio', function, 'admin' )))|not() )}            
             {skip}            
         {/if}
         <div class="row edit-row">
