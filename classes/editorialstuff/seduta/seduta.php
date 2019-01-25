@@ -328,7 +328,7 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
             $rows = explode('&', $data);
             foreach ($rows as $row) {
                 $columns = explode('|', $row);
-                $verbali[$columns[0]] = $columns[1];
+                $verbali[$columns[0]] = $this->cleanOutputVerbaleValue($columns[0], $columns[1]);
             }
 
             if ($identifier)
@@ -341,11 +341,24 @@ class Seduta extends OCEditorialStuffPostNotifiable implements OCEditorialStuffP
         return null;
     }
 
+    private function cleanInputVerbaleValue($id, $text)
+    {
+        $text = html_entity_decode($text);
+        $text = str_replace('&', '$$',$text);
+        return $text;
+    }
+
+    private function cleanOutputVerbaleValue($id, $text)
+    {        
+        $text = str_replace('$$', '&',$text);
+        return $text;
+    }
+
     public function saveVerbale($hash)
     {
         $data = array();
         foreach ($hash as $id => $text) {
-            $data[] = $id . '|' . $text;
+            $data[] = $id . '|' . $this->cleanInputVerbaleValue($id, $text);
         }
         $string = implode('&', $data);
         if (isset( $this->dataMap['verbale'] )) {
