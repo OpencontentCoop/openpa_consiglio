@@ -37,7 +37,7 @@ class DataHandlerPercentualePresenzeSeduta implements OpenPADataHandlerInterface
             $request = $parser->createRequest();
             $currentEnvironment->__set('request', $request);
 
-            $allQuery = 'facets [raw[subattr_data___year____dt]|alpha|50] limit 1';
+            $allQuery = 'raw[meta_object_states_si] = 18 facets [raw[subattr_data___year____dt]|alpha|50] limit 1';
             $allData = (array)$contentSearch->search($allQuery);
             foreach ($allData['facets'][0]['data'] as $date => $count) {
                 $dateParts = explode('-', $date);
@@ -45,7 +45,7 @@ class DataHandlerPercentualePresenzeSeduta implements OpenPADataHandlerInterface
                 $data['totale_sedute'][$year] = $count;                
             }            
 
-            $currentUserQuery = 'presenti.id = ' . $this->politico->id() . ' facets [raw[subattr_data___year____dt]|alpha|50]  limit 1';
+            $currentUserQuery = 'presenti.id = ' . $this->politico->id() . ' and raw[meta_object_states_si] = 18 facets [raw[subattr_data___year____dt]|alpha|50]  limit 1';
             $currentUserData = (array)$contentSearch->search($currentUserQuery);
             foreach ($currentUserData['facets'][0]['data'] as $date => $count) {
                 $dateParts = explode('-', $date);
