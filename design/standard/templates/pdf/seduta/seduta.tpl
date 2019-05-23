@@ -35,10 +35,10 @@
             </p>
         {/if}
 
-        <p class="cc">e p.c. Egregio Signor<br />dott. Ugo Rossi<br />Presidente<br />della Provincia
+        <p class="cc">e p.c. Egregio Signor<br />dott. Maurizio Fugatti<br />Presidente<br />della Provincia
             Autonoma di Trento<br />Piazza Dante, 15<br />38122 TRENTO</p>
 
-        <p>Egregio Signor<br />dott. Bruno Dorigatti<br />Presidente<br />del Consiglio Provinciale<br />Via
+        <p>Egregio Signor<br />Walter Kaswalder<br />Presidente<br />del Consiglio Provinciale<br />Via
             Manci, 27<br />38122 TRENTO</p>
 
         <p>A tutti i Comuni *</p>

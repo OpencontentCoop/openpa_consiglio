@@ -1,5 +1,8 @@
 <?php
 
+use Opencontent\Opendata\Api\EnvironmentLoader;
+use Opencontent\Opendata\Api\ContentSearch;
+
 class DataHandlerPercentualePresenzeSeduta implements OpenPADataHandlerInterface
 {
 
@@ -15,10 +18,51 @@ class DataHandlerPercentualePresenzeSeduta implements OpenPADataHandlerInterface
         );
     }
 
+    public function getData()
+    {
+        $data = array(
+            'totale_sedute' => array(),
+            'presenze' => array(),
+            'assenze' => array(),
+            'anni' => array(),
+        );
+
+        if ( $this->politico instanceof Politico )
+        {
+            
+            $contentSearch = new ContentSearch();
+            $currentEnvironment = EnvironmentLoader::loadPreset('content');                    
+            $contentSearch->setEnvironment($currentEnvironment);
+            $parser = new ezpRestHttpRequestParser();
+            $request = $parser->createRequest();
+            $currentEnvironment->__set('request', $request);
+
+            $allQuery = 'facets [raw[subattr_data___year____dt]|alpha|50] limit 1';
+            $allData = (array)$contentSearch->search($allQuery);
+            foreach ($allData['facets'][0]['data'] as $date => $count) {
+                $dateParts = explode('-', $date);
+                $year = array_shift($dateParts);
+                $data['totale_sedute'][$year] = $count;                
+            }            
+
+            $currentUserQuery = 'presenti.id = ' . $this->politico->id() . ' facets [raw[subattr_data___year____dt]|alpha|50]  limit 1';
+            $currentUserData = (array)$contentSearch->search($currentUserQuery);
+            foreach ($currentUserData['facets'][0]['data'] as $date => $count) {
+                $dateParts = explode('-', $date);
+                $year = array_shift($dateParts);
+                $data['anni'][] = $year;
+                $data['presenze'][] = $count;
+                $data['assenze'][] = $data['totale_sedute'][$year] - $count;
+            }
+        }
+
+        return $data;
+    }
+
     /**
      * @return string|array|object
      */
-    public function getData()
+    public function _old_getData()
     {
         $presente = 0;
         $assente = 0;

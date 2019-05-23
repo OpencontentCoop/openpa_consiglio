@@ -17,7 +17,7 @@
                         <div class="col-sm-10">
                             <select class="form-control" name="ActionParameters[invitato]" id="invitato">
                                 <option></option>
-                                {foreach fetch( 'editorialstuff', 'posts', hash( 'factory_identifier', 'invitato', 'limit', 100, sort_by, hash( 'name', asc ) ) ) as $invitato}
+                                {foreach fetch( 'editorialstuff', 'posts', hash( 'factory_identifier', 'invitato', 'limit', 200, sort, hash( 'invitato/cognome', 'asc' ) ) ) as $invitato}
                                     <option value="{$invitato.object_id}">{$invitato.object.data_map.cognome.content|wash} {$invitato.object.data_map.nome.content|wash}</option>
                                 {/foreach}
                             </select>
