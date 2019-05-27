@@ -8,6 +8,8 @@ class Verbale extends OCEditorialStuffPost
 
     public static $textIdentifier = 'testo';
 
+    public static $titleIdentifier = 'titolo';
+
     /**
      * @var Seduta
      */
@@ -140,7 +142,8 @@ class Verbale extends OCEditorialStuffPost
                     'remote_id' => $remoteId,
                     'attributes' => array(
                         self::$sedutaIdentifier => $object->attribute('id'),
-                        self::$textIdentifier => SQLIContentUtils::getRichContent($text)
+                        self::$textIdentifier => SQLIContentUtils::getRichContent($text),
+                        self::$titleIdentifier => "Verbale della " . $object->attribute('name')
                     )
                 )
             );
@@ -150,7 +153,8 @@ class Verbale extends OCEditorialStuffPost
                 array(
                     'attributes' => array(
                         self::$sedutaIdentifier => $object->attribute('id'),
-                        self::$textIdentifier => SQLIContentUtils::getRichContent($text)
+                        self::$textIdentifier => SQLIContentUtils::getRichContent($text),
+                        self::$titleIdentifier => "Verbale della " . $object->attribute('name')
                     )
                 )
             );

@@ -2,6 +2,14 @@
 
 class VerbaleFactory extends OpenPAConsiglioDefaultFactory implements OCEditorialStuffPostDownloadableFactoryInterface
 {
+    use OpenPAConsiglioConfigurableTrait;
+
+    public function __construct($configuration)
+    {
+        parent::__construct($configuration);
+        $this->overrideConfiguration($this->configuration);
+    }
+
     public function instancePost($data)
     {
         return new Verbale($data, $this);
@@ -110,9 +118,17 @@ class VerbaleFactory extends OpenPAConsiglioDefaultFactory implements OCEditoria
 
     public function overrideConfiguration(&$configuration)
     {
+        $needRootFactories = array_keys($this->getConfigurationProvider()->getContainerDashboards());
         $factoryIdentifier = $configuration['identifier'];
+        if(empty($configuration['CreationRepositoryNode']) && in_array($factoryIdentifier, $needRootFactories)) {
+            $configuration['CreationRepositoryNode'] = $this->getConfigurationProvider()->getRepositoryRootNodeId($factoryIdentifier);
+        }
         if(empty($configuration['RepositoryNodes'])) {
-            $configuration['RepositoryNodes'] = array(1);
+            if (in_array($factoryIdentifier, $needRootFactories)){
+                $configuration['RepositoryNodes'] = array(1, $configuration['CreationRepositoryNode']);
+            }else{
+                $configuration['RepositoryNodes'] = array(1);
+            }
         }
         $configuration['PersistentVariable'] = $this->getConfigurationProvider()->getRepositoryPersistentVariable($factoryIdentifier);
     }

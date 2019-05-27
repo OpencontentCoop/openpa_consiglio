@@ -106,6 +106,7 @@ class OpenPAConsiglioConfiguration implements OCPageDataHandlerInterface
             'responsabilearea' => 'user_group',
             'cda_evento' => 'folder',
             'cda_documento' => 'folder',
+            'verbale' => 'folder',
         );
     }
 
