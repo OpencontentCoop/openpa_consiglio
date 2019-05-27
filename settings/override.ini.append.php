@@ -114,4 +114,17 @@ Subdir=templates
 Match[class_identifier]=organo_politico
 Match[attribute_identifier]=membri
 
+
+[embed_image]
+Source=content/view/embed.tpl
+MatchFile=embed/image.tpl
+Subdir=templates
+Match[class_identifier]=image
+
+[embed-inline_image]
+Source=content/view/embed-inline.tpl
+MatchFile=embed-inline/image.tpl
+Subdir=templates
+Match[class_identifier]=image
+
  */ ?>

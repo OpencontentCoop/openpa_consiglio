@@ -2,11 +2,11 @@
 <p>{$verbale.intro}</p>
 
 <h3 class="text-center" align="center">ORDINE DEL GIORNO</h3>
-<p>{$verbale.odg}</p>
+<div>{$verbale.odg}</div>
 
-<p>{$verbale.partecipanti}</p>
+<div>{$verbale.partecipanti}</div>
 
-<p>{$verbale.presidente}</p>
+<div>{$verbale.presidente}</div>
 
 <ol>
     {foreach $verbale_fields as $identifier => $field}
@@ -16,4 +16,4 @@
     {/foreach}
 </ol>
 
-<p>{$verbale.conclusione}</p>
+<div>{$verbale.conclusione}</div>

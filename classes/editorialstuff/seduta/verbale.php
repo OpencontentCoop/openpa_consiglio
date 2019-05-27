@@ -134,6 +134,28 @@ class Verbale extends OCEditorialStuffPost
         $text = $tpl->fetch("design:{$templatePath}/parts/verbale/_full_text.tpl");
         $text = preg_replace( "/\r|\n/", "", $text );
 
+        $doc = new DOMDocument('1.0', 'utf-8');        
+        $success = $doc->loadHTML('<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head><body>' . $text . '</body></html>');
+        if ($success){
+            $xpath = new DOMXPath($doc);
+            foreach( $xpath->query( '//img' ) as $image ){
+                if ($image->hasAttribute('id')){
+                    $imageId = str_replace('eZObject_', '', $image->getAttribute('id'));
+                    if (!empty($imageId)){
+                        $newImage = $doc->createElement('embed');
+                        $newImage->setAttribute('view', 'embed');
+                        $newImage->setAttribute('size', 'medium');                    
+                        $newImage->setAttribute('object_id', $imageId);
+                        $newImage->setAttribute('align', 'center');
+                        $image->parentNode->replaceChild($newImage, $image);                    
+                    }
+                }
+            }       
+            $doc->preserveWhiteSpace = false;
+            $doc->encoding = 'UTF-8';     
+            $text = $doc->saveHTML($doc->getElementsByTagName('body')->item(0));
+        }
+
         if (!$verbale instanceof eZContentObject) {
             $verbale = eZContentFunctions::createAndPublishObject(
                 array(
