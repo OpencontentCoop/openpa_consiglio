@@ -143,7 +143,7 @@ class VerbaleFactory extends OpenPAConsiglioDefaultFactory implements OCEditoria
         $currentPost = $this->getModuleCurrentPost($parameters, $handler, $module);
         if ($currentPost instanceof Punto) {
             $seduta = $currentPost->attribute('seduta');
-            if (( $seduta instanceof Seduta && !$seduta->getObject()->attribute('can_read') ) || !$seduta instanceof Seduta) {
+            if (( $seduta instanceof Seduta && !$seduta->getObject()->attribute('can_read') )) {
                 return $module->handleError(eZError::KERNEL_ACCESS_DENIED, 'kernel');
             }
         }
@@ -168,7 +168,7 @@ class VerbaleFactory extends OpenPAConsiglioDefaultFactory implements OCEditoria
         $Result['path'] = array();
         if ($currentPost instanceof Verbale) {
             $seduta = $currentPost->attribute('seduta');
-            if (( $seduta instanceof Seduta && !$seduta->getObject()->attribute('can_read') ) || !$seduta instanceof Seduta) {
+            if (( $seduta instanceof Seduta && !$seduta->getObject()->attribute('can_read') )) {
                 return $module->handleError(eZError::KERNEL_ACCESS_DENIED, 'kernel');
             }
             $sedutaFactoryConfiguration = OCEditorialStuffHandler::instance('seduta')->getFactory()->getConfiguration();
